@@ -21,10 +21,10 @@ let state = {
     items:[], //ids
     aliases:{},
     pages:0,
-    per_page:15,
+    pageSize:15,
     _notForRouter:['aliases'],
     _notForStore:['items', 'pages'],
-    _forCompare:['page', 'sorters', 'filters', 'per_page'],
+    _forCompare:['page', 'sorters', 'filters', 'pageSize'],
   },
   initialSorter:{order:null, value:null},
   initialTable: {
@@ -53,7 +53,7 @@ let state = {
     },
   },
   shells: {
-    products: {
+    Product: {
       //assembled:timestamp
       //version
       //updated:timestamp
@@ -92,9 +92,10 @@ let state = {
               ? ""
               : `<img src="/image/small/${item.picture}" class="rounded-circle">`},
       },
-      menu: '<span><i class="fas fa-barcode"></i></span> Продукты'
+      menu: '<span><i class="fas fa-barcode"></i></span> Продукты',
+      model: 'Product'
     },
-    producers: {
+    Producer: {
       initial: {
         id:{show:false, hidden: true, sortable: false},
         name:{editor:'string' ,show: true, order:1, sortable: true, label: 'Название',
@@ -119,9 +120,10 @@ let state = {
               ? ""
               : `<img src="/image/small/${pic}" class="rounded-circle">`},
       },
-      menu: '<span><i class="fas fa-hammer"></i></span> Продюсеры'
+      menu: '<span><i class="fas fa-hammer"></i></span> Продюсеры',
+      model: 'Producer'
     },
-    orders:{
+    Order:{
       directives:{
         original: 'documents',
         where: [['document_type_id', '=', 'order']],
@@ -164,9 +166,10 @@ let state = {
             {type: 'search', _placeholder:'поиск 1'},
           ]},
       },
-      menu: '<span><i class="fab fa-codepen"></i></span> Заказы'
+      menu: '<span><i class="fab fa-codepen"></i></span> Заказы',
+      model: 'Order'
     },
-    invoices:{
+    Invoice:{
       directives:{
         original: 'documents',
         where: [['document_type_id', '=', 'order']],
@@ -209,7 +212,8 @@ let state = {
             {type: 'search', _placeholder:'поиск 1'},
           ]},
       },
-      menu: '<span><i class="fas fa-file-invoice-dollar"></i></span> Счета'
+      menu: '<span><i class="fas fa-file-invoice-dollar"></i></span> Счета',
+      model: 'Invoice'
     },
     document_lines:{
 
@@ -275,12 +279,13 @@ let mutations = {
 };
 
 let actions = {
-  LOAD_PAGE({state, commit, getters}, table){
+  LOAD_PAGE({state, commit, getters, rootGetters}, table){
     commit('REMOVE_OLD_CACHED');
     let item = getters.GET_CACHE_ITEM(table);
     if(item) {
       commit('UPTOTOP_CACHE', item);
     } else {
+      const user = rootGetters['AUTH/GET_USER'];
       const optics = actualOptics(table.shell.optics);
       const name = table.name;
       const page = optics.page;
@@ -289,9 +294,9 @@ let actions = {
       item.optics = _.cloneDeep(optics);
       item.name = name;
 
-      axios.post(
-          `/api/table4-get?page=${page}`,
-          {table: name,optics: JSON.stringify(optics),columns:JSON.stringify(table.shell.initial)}
+      axios.put(
+          `/api/model-get/${name}/${user.id}/${page}`,
+          {optics: JSON.stringify(optics),columns:JSON.stringify(table.shell.initial)}
       )
           .then((response)=>{
             item.response = _.cloneDeep(response.data);
@@ -305,7 +310,7 @@ let actions = {
   },
   // eslint-disable-next-line no-unused-vars
   SET_SHELL({state, commit, getters, dispatch, rootGetters}, table){
-    let user = {id: 1} //rootGetters.USER;
+    const user = rootGetters['AUTH/GET_USER'];
     if(!getters.GET_SHELL(table.name).assembled) commit('INITIAL_SHELL', table.name);
     let shell = getters.GET_SHELL(table.name);
     const checked = JSON.stringify(shell) + JSON.stringify(state.initialOptics) + JSON.stringify(state.initialSorter);
@@ -317,7 +322,7 @@ let actions = {
     if(!shell.assembled){
       // ещё не собран
       // 1) из базы
-      axios.get(`/api/shell/${table.name}`, {params:{user_id: user.id}})
+      axios.get(`/api/shell/${table.name}/${user.id}`)
           .then(r=>{
             if (r.data.length===1 && r.data[0].version===currentVersion){
               shell.basket = _.cloneDeep(r.data[0].basket);
@@ -385,10 +390,10 @@ let actions = {
   // eslint-disable-next-line no-unused-vars
   UPDATE_SHELL({commit, rootGetters}, shell){
     // update
-    let uid = 1;//rootGetters.USER.id;
+    const user = rootGetters['AUTH/GET_USER'];
     if (shell.id!==0) commit('SET_SHELL', shell);
     commit('ADD_EVENT', `_SHELL ${shell.table} ${shell.id===0?'CREATED':'UPDATED'}: ${shell.id}`);
-    return axios.put(`/api/shell/${uid}`, {shell: JSON.stringify(shell)} )
+    return axios.put(`/api/shell/${shell.table}/${user.id}`, {shell: shell} )
   },
   // eslint-disable-next-line no-unused-vars
   UPDATE_VALUE({rootGetters}, packet){

@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "start NODEMON": "nodemon ./bin/www"
   },
   "dependencies": {
     "acorn": "^7.1.0",
@@ -19,5 +20,12 @@
   },
   "devDependencies": {
     "eslint": "^6.5.1"
+  },
+  "nodemon": {
+    "name": "nodemon",
+    "nodemonConfig": {
+      "ignore": ["test/*"],
+      "delay": "1000"
+    }
   }
 }

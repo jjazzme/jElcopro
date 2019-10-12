@@ -316,7 +316,7 @@
                     console.log(val)
                 }
             },
-            userID(){return this.$store.getters['USER']?.id;},
+            userID(){return this.$store.getters['AUTH/GET_USER']?.id;},
 
             // for template
             dataChanged(){
@@ -858,8 +858,8 @@
                     Vue.set(this.table, 'permissions', n.response.permissions);
                     Vue.set(this.table, 'iData', _.cloneDeep(n.response.data));
                     Vue.set(this.table.shell.optics, 'pages', n.response.last_page);
-                    const per_page = n.response.per_page;
-                    if (this.table.shell.optics.per_page !== per_page) Vue.set(this.table.shell.optics, 'per_page', per_page);
+                    const pageSize = n.response.pageSize;
+                    if (this.table.shell.optics.pageSize !== pageSize) Vue.set(this.table.shell.optics, 'pageSize', pageSize);
 
                     Vue.set(this, 'loadingStatus', this.enumLoadingStatus.TableLoaded);
                 }
