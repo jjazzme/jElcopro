@@ -5,8 +5,8 @@
     <h3> Это заголовок 3</h3>
     <h4> Это заголовок 4</h4>
     <h5> Это заголовок 5</h5>
-    <h6> Это заголовок 6</h6>
-    <div>
+    <h6 @click="clickh"> RKBR </h6>
+    <div id="test">
       Стандартный текст
       <p>dfgdgdf gdfgdgdgdf gdfgdfgdfgd gdfgdfdf dfgdfg dfgdfgdf gdfgdfgdfg dfgdfgdf bdfg dfdfbdfg dfdfgdfgdf
         gdfbdfb dfdfdfbdfdgd bd bdfb df bdf bdf bdf bdbdbdbdb sdfsfsd sdfsdfsdfsd fsdfsdfsdfsdfsfsdfsfd
@@ -19,3 +19,14 @@
     </div>
   </article>
 </template>
+<script>
+  //import $ from 'cash-dom';
+  export default {
+    methods:{
+      clickh(e){
+        var t = $('#test');
+        console.log(t);
+      },
+    }
+  }
+</script>

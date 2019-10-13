@@ -1,93 +1,91 @@
 <template>
     <!-- eslint-disable vue/no-use-v-if-with-v-for,vue/no-confusing-v-for-v-if -->
-    <div class="row">
-        <div class="col">
-            <div class="card shadow">
-                <div v-if="loadingStatus<=enumLoadingStatus.TableLoading" class="v-t-loader">
-                    <!--СПИННЕР-->
-                    <b-spinner class="v-t-l-spinner" variant="warning" label="Загрузка..." />
-                </div>
+    <article>
+        <div v-if="loadingStatus<=enumLoadingStatus.TableLoading" class="v-t-loader">
+            <!--СПИННЕР-->
+            <b-spinner class="v-t-l-spinner" variant="warning" label="Загрузка..." />
+        </div>
+        <div
+                class="v-table"
+                ref="tab"
+        >
+            <!-- ВСЯ ТАБЛИЦА -->
+            <paginator
+                    :class="`${loadingStatus<enumLoadingStatus.TableLoaded?'transp':''} text-center`"
+                    v-model="table.shell.optics"
+            ></paginator>
+
+            <div
+                    :class="`${loadingStatus===enumLoadingStatus.TableLoading?'tran05':''} v-t-header`"
+                    :style="headerRowStyle"
+                    v-if="loadingStatus>=enumLoadingStatus.TableLoading"
+            >
+                <!--ЗАГОЛОВОК ТАБЛИЦЫ-->
                 <div
-                        class="v-table"
-                        ref="tab"
+                        class="v-t-col text-center p-0 m-0"
+                        style="min-width: 70px; max-width: 70px; order:-1000000"
                 >
-                    <!-- ВСЯ ТАБЛИЦА -->
-                    <paginator
-                            :class="`${loadingStatus<enumLoadingStatus.TableLoaded?'transp':''} text-center`"
-                            v-model="table.shell.optics"
-                    ></paginator>
-
-                    <div
-                            :class="`${loadingStatus===enumLoadingStatus.TableLoading?'tran05':''} v-t-header`"
-                            :style="headerRowStyle"
-                            v-if="loadingStatus>=enumLoadingStatus.TableLoading"
+                    <!--ПЕРВАЯ ЯЧЕЙКА ЗАГОЛОВКА-->
+                    <b-form-checkbox
+                            v-model="showBasket"
+                            :disabled="table.shell.basket.length===0"
+                            name="check-button"
+                            button
+                            size="sm"
+                            :button-variant="table.shell.basket.length===0?'outline-primary':'outline-danger'"
+                    >{{table.shell.basket.length}}</b-form-checkbox>
+                    <b-dropdown
+                            text=""
+                            :variant="tableOptionsIsInitial?'outline-primary':'outline-danger'"
+                            size="sm"
+                            title="Опции таблицы"
+                            class=""
                     >
-                        <!--ЗАГОЛОВОК ТАБЛИЦЫ-->
-                        <div
-                                class="v-t-col text-center p-0 m-0"
-                                style="min-width: 70px; max-width: 70px; order:-1000000"
-                        >
-                            <!--ПЕРВАЯ ЯЧЕЙКА ЗАГОЛОВКА-->
-                            <b-form-checkbox
-                                    v-model="showBasket"
-                                    :disabled="table.shell.basket.length===0"
-                                    name="check-button"
-                                    button
-                                    size="sm"
-                                    :button-variant="table.shell.basket.length===0?'outline-primary':'outline-danger'"
-                            >{{table.shell.basket.length}}</b-form-checkbox>
-                            <b-dropdown
-                                    text=""
-                                    :variant="tableOptionsIsInitial?'outline-primary':'outline-danger'"
-                                    size="sm"
-                                    title="Опции таблицы"
-                                    class=""
-                            >
-                                <b-form-checkbox
-                                        v-if="i.hidden!==true"
-                                        v-for="(i,k) in table.shell.columns"
-                                        :key="k"
-                                        v-model="i.show"
-                                >{{i.label}}</b-form-checkbox>
-                                <b-button
-                                        @click="optiTab"
-                                        variant="link"
-                                >Оптимизировать вид</b-button>
-                                <b-button
-                                        @click="reset"
-                                        variant="link"
-                                >Сбросить фильтры</b-button>
-                            </b-dropdown>
-                        </div>
+                        <b-form-checkbox
+                                v-if="i.hidden!==true"
+                                v-for="(i,k) in table.shell.columns"
+                                :key="k"
+                                v-model="i.show"
+                        >{{i.label}}</b-form-checkbox>
+                        <b-button
+                                @click="optiTab"
+                                variant="link"
+                        >Оптимизировать вид</b-button>
+                        <b-button
+                                @click="reset"
+                                variant="link"
+                        >Сбросить фильтры</b-button>
+                    </b-dropdown>
+                </div>
 
-                        <div
-                                v-for="(v, k, i) in table.shell.columns"
-                                v-show="table.shell.columns[k].show"
-                                class="v-t-col"
-                                :key="i"
-                                :style="style[k]"
-                                :data-header="k"
-                                :data-index="table.shell.columns[k].order"
-                                :data-index-main="table.shell.columns[k].order"
-                                @dragover="dragover"
-                                @dragleave="dragleave"
+                <div
+                        v-for="(v, k, i) in table.shell.columns"
+                        v-show="table.shell.columns[k].show"
+                        class="v-t-col"
+                        :key="i"
+                        :style="style[k]"
+                        :data-header="k"
+                        :data-index="table.shell.columns[k].order"
+                        :data-index-main="table.shell.columns[k].order"
+                        @dragover="dragover"
+                        @dragleave="dragleave"
 
-                        >
-                            <div
-                                    v-if="table.shell.columns[k].hidden !== true"
-                                    class="v-t-row"
-                                    :data-index="table.shell.columns[k].order"
-                            >
+                >
+                    <div
+                            v-if="table.shell.columns[k].hidden !== true"
+                            class="v-t-row"
+                            :data-index="table.shell.columns[k].order"
+                    >
                                 <span
                                         class="h-c-text"
                                         :data-index="table.shell.columns[k].order"
                                 >
                                     {{v.label}}
                                 </span>
-                                <span
-                                        class="h-c-tools"
-                                        :data-index="table.shell.columns[k].order"
-                                >
+                        <span
+                                class="h-c-tools"
+                                :data-index="table.shell.columns[k].order"
+                        >
                                     <b-dropdown
                                             :variant="columnsOptionsVariant[k] ? 'outline-primary' : 'outline-warning'"
                                             size="sm"
@@ -144,7 +142,7 @@
                                                 variant="danger"
                                         >Скрыть</b-dropdown-item>
                                     </b-dropdown>
-                                    <!--i class="h-c-drag fas fa-grip-vertical"></i-->
+                            <!--i class="h-c-drag fas fa-grip-vertical"></i-->
                                     <span
                                             :data-index="table.shell.columns[k].order"
                                             class="fa fa-ellipsis-v h-c-sizing"
@@ -153,64 +151,64 @@
                                             draggable="true"
                                     ></span>
                                 </span>
-                            </div>
-                        </div>
+                    </div>
+                </div>
+            </div>
+            <div
+                    :class="shading?'tran05':''"
+            >
+                <!--БОДИ ТАБЛИЦЫ-->
+                <div
+                        :style="rowStyle"
+                        v-for="(row, i1) in tableData"
+                        class="v-t-data-row"
+                        :key="i1"
+                        :data-id="row.id"
+                >
+                    <div
+                            class="v-t-col text-center"
+                            style="min-width: 70px; max-width: 70px; order:-1000000"
+                            :data-id="`t_ch_${row.id}`"
+                    >
+                        <!--ПЕРВАЯ ЯЧЕЙКА СТРОКИ-->
+                        <b-form-checkbox
+                                size="sm"
+                                class="d-inline-block pl-4 pr-0"
+                                :key="`t_ch_${row.id}`"
+                                @change="basketChange(row.id)"
+                                :checked="table.shell.basket.filter(i=>{return i.id===row.id}).length>0"
+                        ></b-form-checkbox>
+                        <b-dropdown
+                                text=""
+                                :variant="`${dataChanged[row.id]?'outline-warning':'outline-dark'}`"
+                                size="sm"
+                        >
+                            <b-dropdown-item
+                                    v-if="dataChanged[row.id]"
+                                    variant="varning"
+                                    @click="rowReturn(row.id)"
+                            >До редактирования</b-dropdown-item>
+                            <b-dropdown-item
+                                    v-if="getPermission(enumPermission.Update, row.id)"
+                            >
+                                <router-link
+                                        :to="{name:'tabledit', params: {table: table.name, id:row.id}}"
+                                        class="fa fa-pencil-square"
+                                > редактировать</router-link>
+                            </b-dropdown-item>
+
+                        </b-dropdown>
                     </div>
                     <div
-                            :class="shading?'tran05':''"
+                            @contextmenu="editClick"
+                            v-for="(v2, k2) in row"
+                            :key="k2"
+                            class="v-t-col my-auto"
+                            :style="style[k2]"
+                            :data-column="k2"
+                            v-show="table.shell.columns[k2].show"
+                            v-if="table.shell.columns[k2].hidden !== true"
                     >
-                        <!--БОДИ ТАБЛИЦЫ-->
-                        <div
-                                :style="rowStyle"
-                                v-for="(row, i1) in tableData"
-                                class="v-t-data-row"
-                                :key="i1"
-                                :data-id="row.id"
-                        >
-                            <div
-                                    class="v-t-col text-center"
-                                    style="min-width: 70px; max-width: 70px; order:-1000000"
-                                    :data-id="`t_ch_${row.id}`"
-                            >
-                                <!--ПЕРВАЯ ЯЧЕЙКА СТРОКИ-->
-                                <b-form-checkbox
-                                        size="sm"
-                                        class="d-inline-block pl-4 pr-0"
-                                        :key="`t_ch_${row.id}`"
-                                        @change="basketChange(row.id)"
-                                        :checked="table.shell.basket.filter(i=>{return i.id===row.id}).length>0"
-                                ></b-form-checkbox>
-                                <b-dropdown
-                                        text=""
-                                        :variant="`${dataChanged[row.id]?'outline-warning':'outline-dark'}`"
-                                        size="sm"
-                                >
-                                    <b-dropdown-item
-                                            v-if="dataChanged[row.id]"
-                                            variant="varning"
-                                            @click="rowReturn(row.id)"
-                                    >До редактирования</b-dropdown-item>
-                                    <b-dropdown-item
-                                            v-if="getPermission(enumPermission.Update, row.id)"
-                                    >
-                                        <router-link
-                                                :to="{name:'tabledit', params: {table: table.name, id:row.id}}"
-                                                class="fa fa-pencil-square"
-                                        > редактировать</router-link>
-                                    </b-dropdown-item>
-
-                                </b-dropdown>
-                            </div>
-                            <div
-                                    @contextmenu="editClick"
-                                    v-for="(v2, k2) in row"
-                                    :key="k2"
-                                    class="v-t-col my-auto"
-                                    :style="style[k2]"
-                                    :data-column="k2"
-                                    v-show="table.shell.columns[k2].show"
-                                    v-if="table.shell.columns[k2].hidden !== true"
-                            >
                                 <span
                                         @focusout="focusOutCell"
                                         @input="inputCell"
@@ -221,16 +219,14 @@
                                         :class="`${table.shell.columns[k2].parentClass?table.shell.columns[k2].parentClass:''} ${table.shell.columns[k2].to?'link':''}`"
                                         v-html="v2"
                                 />
-                            </div>
-                        </div>
                     </div>
-
-                    <paginator
-                            :class="`${loadingStatus<enumLoadingStatus.TableLoaded?'transp':''} text-center`"
-                            v-model="table.shell.optics"
-                    ></paginator>
                 </div>
             </div>
+
+            <paginator
+                    :class="`${loadingStatus<enumLoadingStatus.TableLoaded?'transp':''} text-center`"
+                    v-model="table.shell.optics"
+            ></paginator>
         </div>
         <div style="display: none" id="warehouse">
             <b-form-select
@@ -240,7 +236,7 @@
                     v-on:change="inputSelectChange"
             ></b-form-select>
         </div>
-    </div>
+    </article>
 </template>
 
 <script>
@@ -791,13 +787,13 @@
                             this.$store.getters['TABLES/GET_CACHE_ITEM'](this.table) &&
                             !_.isEqual(_.last(this.queueSave).optics, n))
                         {
-                            this.queueSave.push(this.table.shell);
+                            this.queueSave.push(_.cloneDeep(this.table.shell));
                             this.setOptics(n);
                         } else if (this.loadingStatus>this.enumLoadingStatus.ShellLoaded &&
                             !_.isEqual(_.last(this.queueSave).optics, n))
                         {
                             this.shading = true;
-                            this.queueSave.push(this.table.shell);
+                            this.queueSave.push(_.cloneDeep(this.table.shell));
                             this.delayedSetOptics(n);
                         } else if (this.loadingStatus===this.enumLoadingStatus.ShellLoaded &&
                             _.isEqual(_.last(this.queueSave).optics, n))
@@ -854,10 +850,10 @@
             },
             cacheFromOptics(n){
                 if(n){
-                    Vue.set(this.table, 'data', n.response.data);
+                    Vue.set(this.table, 'data', n.response.rows);
                     Vue.set(this.table, 'permissions', n.response.permissions);
-                    Vue.set(this.table, 'iData', _.cloneDeep(n.response.data));
-                    Vue.set(this.table.shell.optics, 'pages', n.response.last_page);
+                    Vue.set(this.table, 'iData', _.cloneDeep(n.response.rows));
+                    Vue.set(this.table.shell.optics, 'pages', n.response.pages);
                     const pageSize = n.response.pageSize;
                     if (this.table.shell.optics.pageSize !== pageSize) Vue.set(this.table.shell.optics, 'pageSize', pageSize);
 

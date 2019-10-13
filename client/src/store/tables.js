@@ -1,4 +1,3 @@
-import _ from 'lodash'
 import axios from 'axios'
 
 
@@ -295,7 +294,7 @@ let actions = {
       item.name = name;
 
       axios.put(
-          `/api/model-get/${name}/${user.id}/${page}`,
+          `/api/model/get/${name}/${user.id}/${page}`,
           {optics: JSON.stringify(optics),columns:JSON.stringify(table.shell.initial)}
       )
           .then((response)=>{
@@ -324,18 +323,17 @@ let actions = {
       // 1) из базы
       axios.get(`/api/shell/${table.name}/${user.id}`)
           .then(r=>{
-            if (r.data.length===1 && r.data[0].version===currentVersion){
-              shell.basket = _.cloneDeep(r.data[0].basket);
-              shell.columns = _.cloneDeep(r.data[0].columns);
-              shell.optics = _.cloneDeep(r.data[0].optics);
-              shell.id = r.data[0].id;
-            } else if(r.data.length>1) {
-              throw "data.length>1";
+            const data = r.data;
+            if (data && data.version===currentVersion){
+              shell.basket = _.cloneDeep(data.basket);
+              shell.columns = _.cloneDeep(data.columns);
+              shell.optics = _.cloneDeep(data.optics);
+              shell.id = data.id;
             } else {
               shell.basket = [];
               shell.columns = _.cloneDeep(shell.initial);
               shell.optics = _.cloneDeep(state.initialOptics);
-              shell.id = r.data.length===1 ? r.data[0].id : 0;
+              shell.id = data ? data.id : 0;
 
               // собираем сортеры и фильтры в оптике
               _.forEach(shell.columns, (v1, k1) => { //<-------
@@ -362,12 +360,12 @@ let actions = {
             shell.optics = _.merge(shell.optics, queryOptics);
             shell.assembled = Date.now();
 
-            if(r.data.length===0 || !_.isEqual(shelOpticsBeforeMerge, shell.optics) || (r.data.length===1 && r.data[0].version !== currentVersion)) {
+            if(data || !_.isEqual(shelOpticsBeforeMerge, shell.optics) || (data && data.version !== currentVersion)) {
               // update
               dispatch('UPDATE_SHELL', shell)
-                  .then(r=>{
+                  .then(()=>{
                     if(shell.id===0) {
-                      shell.id = r.data.id;
+                      shell.id = data.id;
                       commit('SET_SHELL', shell);
                       commit('ADD_EVENT', `SHELL ${table.name} UPDATED: ${shell.id}`);
                     }
@@ -378,7 +376,7 @@ let actions = {
                   })
             } else {
               commit('SET_SHELL', shell);
-              commit('ADD_EVENT', `SHELL ${table.name} UPDATED: ${r.data[0].id}`);
+              commit('ADD_EVENT', `SHELL ${table.name} UPDATED: ${data.id}`);
             }
           })
           .catch(e=>{

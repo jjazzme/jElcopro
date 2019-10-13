@@ -8,8 +8,13 @@ import store from './store/_default';
 Vue.config.productionTip = false;
 Vue.use(BootstrapVue);
 
-import '@fortawesome/fontawesome-free/css/all.css'
-import '@fortawesome/fontawesome-free/js/all.js'
+import '@fortawesome/fontawesome-free/css/all.css';
+import '@fortawesome/fontawesome-free/js/all.js';
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
+
+window.$  = require('cash-dom');
+window._ = require('lodash')
 
 //import _ from 'lodash';
 //Object.defineProperty(Vue.prototype, '$_', { value: _ });
@@ -19,4 +24,4 @@ new Vue({
   router,
   store,
   render: h => h(App),
-}).$mount('#app')
+}).$mount('#app');

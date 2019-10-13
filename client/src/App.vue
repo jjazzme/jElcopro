@@ -18,7 +18,7 @@
 
 import navComponent from './components/body/v1/nav';
 import headerComponent from './components/body/v1/header';
-import footerComponent from './components/body/v1/footer'
+import footerComponent from './components/body/v1/footer';
 export default {
   name: 'app',
   components: {
