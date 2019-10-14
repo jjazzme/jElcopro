@@ -209,16 +209,16 @@
                             v-show="table.shell.columns[k2].show"
                             v-if="table.shell.columns[k2].hidden !== true"
                     >
-                                <span
-                                        @focusout="focusOutCell"
-                                        @input="inputCell"
-                                        @click="clickCell"
-                                        :data-value="table.data.filter(i=>i.id===row.id)[0][k2]"
-                                        :data-column="k2"
-                                        :data-key="row.id"
-                                        :class="`${table.shell.columns[k2].parentClass?table.shell.columns[k2].parentClass:''} ${table.shell.columns[k2].to?'link':''}`"
-                                        v-html="v2"
-                                />
+                            <span
+                                    @focusout="focusOutCell"
+                                    @input="inputCell"
+                                    @click="clickCell"
+                                    :data-value="table.data.filter(i=>i.id===row.id)[0][k2]"
+                                    :data-column="k2"
+                                    :data-key="row.id"
+                                    :class="`${table.shell.columns[k2].parentClass?table.shell.columns[k2].parentClass:''} ${table.shell.columns[k2].to?'link':''}`"
+                                    v-html="v2"
+                            />
                     </div>
                 </div>
             </div>
@@ -276,44 +276,83 @@
             cacheFromOptics(){return this.loadingStatus === this.enumLoadingStatus.TableLoading ? this.$store.getters['TABLES/GET_CACHE_ITEM'](this.table) : null;},
             lastEvent(){return this.$store.getters['TABLES/GET_LAST_EVENT']},
             SHELL(){return this.$store.getters['TABLES/GET_SHELL'](this.table?.name)},
-            tableData() {
-                let ret = [];
-                let sou = [];
-                if (this.showBasket){
-                    sou = this.table.shell.basket;
-                } else if (this.loadingStatus >= this.enumLoadingStatus.TableLoaded) {
-                    sou = this.table.data
-                } else if (this.table.iData.length>0) {
-                    sou = this.table.iData
-                }
+            tableData: {
+                get(){
+                    let sou = [];
+                    if (this.showBasket){
+                        sou = this.table.shell.basket;
+                    } else if (this.loadingStatus >= this.enumLoadingStatus.TableLoaded) {
+                        sou = this.table.data
+                    } else if (this.table.iData.length>0) {
+                        sou = this.table.iData
+                    } else {return []}
 
-                ret = sou.map(function(item){
-                    let rem = {};
-                    rem.test = this.table.name;
-                    return rem;
-                });
+                    let ret = [];
 
-                _.forEach(sou, function(souRow){
-                    let targetRow = {};
-                    let t = this.table;
-                    _.forEach(souRow, function(souVal, souKey){
-                        let val;
-                        if(this.table.shell.initial[souKey].html){
-                            try{
-                                val = this.table.shell.initial[souKey].html(souVal);
-                            } catch (e) {
-                                // eslint-disable-next-line no-console
-                                console.log(e);
+                    _.forEach(sou, (souRow)=>{
+                        let targetRow = {};
+                        _.forEach(souRow, (souVal, souKey)=>{
+                            //let val;
+                            const column = this.table.shell.initial[souKey];
+                            if (column){
+                                const html = column.html;
+                                targetRow[souKey] = html ? html(souRow) : souVal;
                             }
-                        } else {
-                            val = souVal;
-                        }
-                        targetRow[souKey] = val;
+                        });
+                        ret.push(targetRow);
                     });
-                    ret.push(targetRow);
-                });
 
-                return ret;
+                    return ret;
+/*
+                    ret = sou.map((item) => {
+                        let rem = {};
+                        Object.keys(this.table.shell.columns).map((k,i) => {
+                            const cName = this.table.shell.columns[k].from ? this.table.shell.columns[k].from : k;
+                            let v = this.getObjectValue(item, cName);
+
+                            if(this.table.shell.initial[k].processor){
+                                try{
+                                    v = this.table.shell.initial[k].processor(v);
+                                } catch (e) {
+                                    console.log(e);
+                                }
+                            }
+                            rem[k] = v;
+                        });
+                        return rem;
+                    });
+                    return ret;
+                    */
+
+                    /*
+
+
+                    _.forEach(sou, (souRow)=>{
+                        let targetRow = {};
+                        let t = this.table;
+                        _.forEach(souRow, (souVal, souKey)=>{
+                            let val;
+                            if(this.table.shell.initial[souKey].html){
+                                try{
+                                    val = this.table.shell.initial[souKey].html(souVal);
+                                } catch (e) {
+                                    // eslint-disable-next-line no-console
+                                    console.log(e);
+                                }
+                            } else {
+                                val = souVal;
+                            }
+                            targetRow[souKey] = val;
+                        });
+                        ret.push(targetRow);
+                    });
+
+                    return ret;
+
+                     */
+                },
+                set(val){}
+
             },
             userID(){return this.$store.getters['AUTH/GET_USER']?.id;},
 

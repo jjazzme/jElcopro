@@ -17,7 +17,7 @@ window.$  = require('cash-dom');
 window._ = require('lodash')
 
 //import _ from 'lodash';
-//Object.defineProperty(Vue.prototype, '$_', { value: _ });
+//Object.defineProperty(Vue.protoЉtype, '$_', { value: _ });
 
 
 new Vue({

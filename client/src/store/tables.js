@@ -1,4 +1,5 @@
-import axios from 'axios'
+import axios from 'axios';
+//import _ from 'lodash';
 
 
 let state = {
@@ -70,8 +71,8 @@ let state = {
         },
         vat:{editor:'selector', source:'vat' ,show: true, order:2, sortable: true, label: 'НДС %',
           text: item => parseFloat(item.vat)===0?'Без НДС':`${parseFloat(item.vat)}%`},
-        category_id:{editor:'selector', show: true, order:3, html: item=>item.category.name, sortable: true, label: 'Категория'},
-        producer_id:{show: true, order:4, html: item=>item.producer.name, sortable: true, label: 'Производитель',
+        category_id:{editor:'selector', show: true, order:3, html: item=>item.category ? item.category.name : '-//-', sortable: true, label: 'Категория'},
+        producer_id:{show: true, order:4, html: item=>item.producer ? item.producer.name : '-//-', sortable: true, label: 'Производитель',
           filters:[
             {type: 'search', _placeholder:'поиск 1'},
             {type: 'search', _placeholder:'поиск 2'},
