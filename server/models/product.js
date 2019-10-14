@@ -32,7 +32,14 @@ module.exports = (sequelize, DataTypes) => {
     },
   }, {});
   Product.associate = function(models) {
-
+    Product.belongsTo(models.Category, {
+      foreignKey: 'category_id',
+      as: 'category'
+    });
+    Product.belongsTo(models.Producer, {
+      foreignKey: 'producer_id',
+      as: 'producer'
+    });
   };
   return Product;
 };

@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
     picture: DataTypes.STRING
   }, {});
   Producer.associate = function(models) {
-    Producer.belongsTo(models.Product);
+
   };
   return Producer;
 };

@@ -244,7 +244,7 @@
     import paginator from '../components/tables/v1/paginator';
     import filters from "../components/tables/v1/filters";
     import Swal from 'sweetalert2';
-
+    //import _  from 'lodash';
     export default {
         name: "vTable",
         components: {
@@ -276,44 +276,48 @@
             cacheFromOptics(){return this.loadingStatus === this.enumLoadingStatus.TableLoading ? this.$store.getters['TABLES/GET_CACHE_ITEM'](this.table) : null;},
             lastEvent(){return this.$store.getters['TABLES/GET_LAST_EVENT']},
             SHELL(){return this.$store.getters['TABLES/GET_SHELL'](this.table?.name)},
-            tableData: {
-                get(){
-                    let ret = null;
-                    let sou = [];
-                    if (this.showBasket){
-                        sou = this.table.shell.basket;
-                    } else if (this.loadingStatus >= this.enumLoadingStatus.TableLoaded) {
-                        sou = this.table.data
-                    } else if (this.table.iData.length>0) {
-                        sou = this.table.iData
-                    }
-                    ret = sou.map((item) => {
-                        let rem = {};
-                        Object.keys(this.table.shell.columns).map((k) => {
-                            const cName = this.table.shell.columns[k].from ? this.table.shell.columns[k].from : k;
-                            let v = this.getObjectValue(item, cName);
-
-                            if(this.table.shell.initial[k].processor){
-                                try{
-                                    v = this.table.shell.initial[k].processor(v);
-                                } catch (e) {
-                                    // eslint-disable-next-line no-console
-                                    console.log(e);
-                                }
-                            }
-                            rem[k] = v;
-                        });
-                        return rem;
-                    });
-                    return ret;
-                },
-                set(val){
-                    // eslint-disable-next-line no-console
-                    console.log(val)
+            tableData() {
+                let ret = [];
+                let sou = [];
+                if (this.showBasket){
+                    sou = this.table.shell.basket;
+                } else if (this.loadingStatus >= this.enumLoadingStatus.TableLoaded) {
+                    sou = this.table.data
+                } else if (this.table.iData.length>0) {
+                    sou = this.table.iData
                 }
+
+                ret = sou.map(function(item){
+                    let rem = {};
+                    rem.test = this.table.name;
+                    return rem;
+                });
+
+                _.forEach(sou, function(souRow){
+                    let targetRow = {};
+                    let t = this.table;
+                    _.forEach(souRow, function(souVal, souKey){
+                        let val;
+                        if(this.table.shell.initial[souKey].html){
+                            try{
+                                val = this.table.shell.initial[souKey].html(souVal);
+                            } catch (e) {
+                                // eslint-disable-next-line no-console
+                                console.log(e);
+                            }
+                        } else {
+                            val = souVal;
+                        }
+                        targetRow[souKey] = val;
+                    });
+                    ret.push(targetRow);
+                });
+
+                return ret;
             },
             userID(){return this.$store.getters['AUTH/GET_USER']?.id;},
 
+            
             // for template
             dataChanged(){
                 //let ret = this.table.shell.columns[k2].parentClass;
@@ -539,16 +543,16 @@
                     return acc;
                 }, {})
             }, //<---------------------
-            getObjectValue(o, p){
+            getObjectValue(obj, name){
                 let ret = null;
-                const aP = p.split('.')
-                if (aP.length===1) {
-                    ret = o[p];
+                const splitedName = name.split('.')
+                if (splitedName.length===1) {
+                    ret = obj[name];
                 } else {
-                    const oChild = o[aP[0]];
+                    const oChild = obj[splitedName[0]];
                     if (oChild) {
-                        aP.shift();
-                        ret = this.getObjectValue(oChild, aP.join('.'));
+                        splitedName.shift();
+                        ret = this.getObjectValue(oChild, splitedName.join('.'));
                     } else {
                         ret = null
                     }

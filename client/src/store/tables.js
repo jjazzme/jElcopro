@@ -70,18 +70,8 @@ let state = {
         },
         vat:{editor:'selector', source:'vat' ,show: true, order:2, sortable: true, label: 'НДС %',
           text: item => parseFloat(item.vat)===0?'Без НДС':`${parseFloat(item.vat)}%`},
-
-        category_id:{editor:'selector', show: true, order:3, html: item=>item.category.name, sortable: true, label: 'Категория',
-          controller:{
-            join: ['categories as category', 'category.id', '=', 'category_id'], //<--- умолчание
-            orderby: 'category.name', //<--- умолчание
-          }
-        },
+        category_id:{editor:'selector', show: true, order:3, html: item=>item.category.name, sortable: true, label: 'Категория'},
         producer_id:{show: true, order:4, html: item=>item.producer.name, sortable: true, label: 'Производитель',
-          controller:{
-            join: ['producers as producer', 'producer.id', '=', 'producer_id'], //<--- умолчание
-            orderby: 'producer.name', //<--- умолчание
-          },
           filters:[
             {type: 'search', _placeholder:'поиск 1'},
             {type: 'search', _placeholder:'поиск 2'},
@@ -90,6 +80,11 @@ let state = {
           html:item => item.picture===null
               ? ""
               : `<img src="/image/small/${item.picture}" class="rounded-circle">`},
+      },
+      controller:{
+        _include: ['category', 'producer'],
+        category_id: {orderby: 'category.name'},
+        producer_id: {orderby: 'producer.name'}
       },
       menu: '<span><i class="fas fa-barcode"></i></span> Продукты',
       model: 'Product'
@@ -295,7 +290,7 @@ let actions = {
 
       axios.put(
           `/api/model/get/${name}/${user.id}/${page}`,
-          {optics: JSON.stringify(optics),columns:JSON.stringify(table.shell.initial)}
+          {optics: optics, params:getters.GET_SHELL(name).controller}
       )
           .then((response)=>{
             item.response = _.cloneDeep(response.data);

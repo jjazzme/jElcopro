@@ -21,16 +21,18 @@ router.put('/get/:model/:userID/:page', (req, res) => {
     }
 
     const optics = req.body.optics;
-    const columns = req.body.columns;
+    const params = req.body.params;
 
     const page = req.params.page;
     const pageSize = optics.pageSize ? optics.pageSize : 15;
     const offset = (page-1) * pageSize;
     const limit = offset + pageSize;
+    let include = params._include ? params._include : [];
 
     models[model].findAndCountAll({
         limit: pageSize,
         offset: offset,
+        include: include,
     })
         .then(resp=>{
             const pages = Math.ceil(parseFloat(resp.count) / pageSize);
