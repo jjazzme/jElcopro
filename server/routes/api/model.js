@@ -28,11 +28,17 @@ router.put('/get/:model/:userID/:page', (req, res) => {
     const offset = (page-1) * pageSize;
     const limit = offset + pageSize;
     let include = params._include ? params._include : [];
+    let order = [];
+    let sorters = _.
+    _.forEach(optics.sorters, item=>{
+
+    });
 
     models[model].findAndCountAll({
         limit: pageSize,
         offset: offset,
         include: include,
+        order: order,
     })
         .then(resp=>{
             const pages = Math.ceil(parseFloat(resp.count) / pageSize);

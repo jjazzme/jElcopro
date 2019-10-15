@@ -114,13 +114,13 @@
                                                     @click="tableSort(k, 'asc')"
                                                     :disabled="table.shell.optics.sorters[k].value ==='asc'"
                                             >
-                                                Сортировать А...Я <i class="fa fa-sort-amount-asc"></i>
+                                                Сортировать А...Я <i class="fas fa-sort-alpha-down"></i>
                                             </b-dropdown-item>
                                             <b-dropdown-item
                                                     @click="tableSort(k, 'desc')"
                                                     :disabled="table.shell.optics.sorters[k].value ==='desc'"
                                             >
-                                                Сортировать Я...А <i class="fa fa-sort-amount-desc"></i>
+                                                Сортировать Я...А <i class="fas fa-sort-alpha-up-alt"></i>
                                             </b-dropdown-item>
                                             <b-dropdown-item
                                                     @click="tableSort(k, null)"
