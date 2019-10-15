@@ -84,8 +84,8 @@ let state = {
       },
       controller:{
         _include: ['category', 'producer'],
-        category_id: {orderby: 'category.name'},
-        producer_id: {orderby: 'producer.name'}
+        category_id: {object: ['category'], column: 'name'},
+        producer_id: {object: ['producer'], column: 'name'}
       },
       menu: '<span><i class="fas fa-barcode"></i></span> Продукты',
       model: 'Product'

@@ -32,11 +32,11 @@
                             name="check-button"
                             button
                             size="sm"
-                            :button-variant="table.shell.basket.length===0?'outline-primary':'outline-danger'"
+                            :button-variant="table.shell.basket.length===0?'outline-light':'outline-warning'"
                     >{{table.shell.basket.length}}</b-form-checkbox>
                     <b-dropdown
                             text=""
-                            :variant="tableOptionsIsInitial?'outline-primary':'outline-danger'"
+                            :variant="tableOptionsIsInitial?'outline-light':'outline-warning'"
                             size="sm"
                             title="Опции таблицы"
                             class=""
@@ -87,15 +87,15 @@
                                 :data-index="table.shell.columns[k].order"
                         >
                                     <b-dropdown
-                                            :variant="columnsOptionsVariant[k] ? 'outline-primary' : 'outline-warning'"
+                                            :variant="columnsOptionsVariant[k] ? 'outline-light' : 'outline-warning'"
                                             size="sm"
                                             no-caret
                                             class="h-c-options"
                                     >
                                         <template slot="button-content">
                                             <span
-                                                    class="fa h-c-drag sm position-relative"
-                                                    :class="`${table.shell.optics.sorters[k].value === '' ? 'fa-bars' : table.shell.optics.sorters[k].value === 'asc' ? 'fa-sort-amount-asc' : 'fa-sort-amount-desc'}`"
+                                                    class="h-c-drag sm position-relative"
+                                                    :class="`${!table.shell.optics.sorters[k].value ? 'fas fa-bars' : table.shell.optics.sorters[k].value === 'asc' ? 'fas fa-sort-alpha-down' : 'fas fa-sort-alpha-up-alt'}`"
                                                     @dragstart="dragChangeStart"
                                                     @dragend="dragChangeEnd"
                                                     draggable="true"
@@ -114,13 +114,13 @@
                                                     @click="tableSort(k, 'asc')"
                                                     :disabled="table.shell.optics.sorters[k].value ==='asc'"
                                             >
-                                                Сортировать А...Я <i class="fa fa-sort-amount-asc"></i>
+                                                Сортировать А...Я <i class="fas fa-sort-alpha-down"></i>
                                             </b-dropdown-item>
                                             <b-dropdown-item
                                                     @click="tableSort(k, 'desc')"
                                                     :disabled="table.shell.optics.sorters[k].value ==='desc'"
                                             >
-                                                Сортировать Я...А <i class="fa fa-sort-amount-desc"></i>
+                                                Сортировать Я...А <i class="fas fa-sort-alpha-up-alt"></i>
                                             </b-dropdown-item>
                                             <b-dropdown-item
                                                     @click="tableSort(k, null)"

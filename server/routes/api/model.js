@@ -1,8 +1,13 @@
 var models = require('../../models');
 const Auth = require('../../services/Auth');
 const enums = require('../../modules/enums');
+const _ = require('lodash');
 var express = require('express');
 var router = express.Router();
+
+var babel = require("@babel/core").transform("code", {
+    plugins: ["@babel/plugin-proposal-optional-chaining"]
+});
 
 // get model by optics
 router.put('/get/:model/:userID/:page', (req, res) => {
@@ -28,11 +33,52 @@ router.put('/get/:model/:userID/:page', (req, res) => {
     const offset = (page-1) * pageSize;
     const limit = offset + pageSize;
     let include = params._include ? params._include : [];
+    let order = [];
+    let sorters = _.pickBy(optics.sorters, function(item){return item.order!==null});
+    sorters = _.map(sorters, function(item,key){return {order: item.order, column: key, value: item.value}})
+        //_.filter(optics.sorters, function(item){return item.order!==null});
+    sorters = _.orderBy(sorters, 'order', 'asc');
+
+    //TODO - разобраться с ?.
+    /*
+на сервер установил
+npm i --save-dev @babel/core
+npm i --save-dev @babel/plugin-proposal-optional-chaining
+в .babelrc
+{
+  "plugins": ["@babel/plugin-proposal-optional-chaining"]
+}
+в явасккрипт
+var babel = require("@babel/core").transform("code", {
+    plugins: ["@babel/plugin-proposal-optional-chaining"]
+});
+( https://babeljs.io/docs/en/babel-plugin-proposal-optional-chaining )
+и всё равно при компиляции
+    let t = params[key]?.obt;
+     */
+    //
+    //let t = params?.test;
+    //
+
+    _.forEach(sorters, item=>{
+        let orderItem = [];
+        let column = item.column;
+        if (params[item.column]) {
+            column = params[item.column].column;
+            _.forEach(params[item.column].object, associated=>{
+                orderItem.push(associated)
+            });
+        }
+        orderItem.push(column, item.value);
+        if (orderItem.length!==0) order.push(orderItem);
+    });
+
 
     models[model].findAndCountAll({
+        include: include,
+        order: order,
         limit: pageSize,
         offset: offset,
-        include: include,
     })
         .then(resp=>{
             const pages = Math.ceil(parseFloat(resp.count) / pageSize);
