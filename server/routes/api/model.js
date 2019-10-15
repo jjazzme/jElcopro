@@ -1,8 +1,13 @@
 var models = require('../../models');
 const Auth = require('../../services/Auth');
 const enums = require('../../modules/enums');
+const _ = require('lodash');
 var express = require('express');
 var router = express.Router();
+
+var babel = require("@babel/core").transform("code", {
+    plugins: ["@babel/plugin-proposal-optional-chaining"]
+});
 
 // get model by optics
 router.put('/get/:model/:userID/:page', (req, res) => {
@@ -29,10 +34,37 @@ router.put('/get/:model/:userID/:page', (req, res) => {
     const limit = offset + pageSize;
     let include = params._include ? params._include : [];
     let order = [];
-    let sorters = _.
-    _.forEach(optics.sorters, item=>{
+    let sorters = _.filter(optics.sorters, item=>{item.order!==null});
+    sorters = _.orderBy(sorters, 'order', 'asc');
+    let orderItem = [];
+    //TODO - разобраться с ?.
+    /*
+на сервер установил
+npm i --save-dev @babel/core
+npm i --save-dev @babel/plugin-proposal-optional-chaining
+в .babelrc
+{
+  "plugins": ["@babel/plugin-proposal-optional-chaining"]
+}
+в явасккрипт
+var babel = require("@babel/core").transform("code", {
+    plugins: ["@babel/plugin-proposal-optional-chaining"]
+});
+( https://babeljs.io/docs/en/babel-plugin-proposal-optional-chaining )
+и всё равно при компиляции
+    let t = params[key]?.obt;
+     */
+    //
+    //let t = params?.test;
+    //
 
+    _.forEach(optics.sorters, (item, key)=>{
+        if (params[key]) _.forEach(params[key].object, associated=>{
+            orderItem.push(associated)
+        });
+        orderItem.push(key, item.value);
     });
+    if (orderItem.length!==0) order.push(orderItem);
 
     models[model].findAndCountAll({
         limit: pageSize,
