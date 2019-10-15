@@ -8,11 +8,14 @@ var app = require('../app');
 var debug = require('debug')('server:server');
 var http = require('http');
 
+// config variables
+require('../config/config.js');
+
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+var port = normalizePort(global.gConfig.node_port || '3000');
 app.set('port', port);
 
 /**
