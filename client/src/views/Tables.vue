@@ -289,6 +289,7 @@
 
                     let ret = [];
 
+                    // todo тут реализовано this через переменную. В будущем проверить, что исправили хрень с this в отладчике браузера.
                     _.forEach(sou, (souRow)=>{
                         let targetRow = {};
                         _.forEach(souRow, (souVal, souKey)=>{

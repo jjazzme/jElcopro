@@ -304,6 +304,16 @@ let actions = {
     }
   },
   // eslint-disable-next-line no-unused-vars
+  /**
+   *
+   * @param state
+   * @param commit
+   * @param getters
+   * @param dispatch
+   * @param rootGetters
+   * @param table
+   * @constructor
+   */
   SET_SHELL({state, commit, getters, dispatch, rootGetters}, table){
     const user = rootGetters['AUTH/GET_USER'];
     if(!getters.GET_SHELL(table.name).assembled) commit('INITIAL_SHELL', table.name);
