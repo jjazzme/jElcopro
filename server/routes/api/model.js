@@ -34,9 +34,11 @@ router.put('/get/:model/:userID/:page', (req, res) => {
     const limit = offset + pageSize;
     let include = params._include ? params._include : [];
     let order = [];
-    let sorters = _.filter(optics.sorters, item=>{item.order!==null});
+    let sorters = _.pickBy(optics.sorters, function(item){return item.order!==null});
+    sorters = _.map(sorters, function(item,key){return {order: item.order, column: key, value: item.value}})
+        //_.filter(optics.sorters, function(item){return item.order!==null});
     sorters = _.orderBy(sorters, 'order', 'asc');
-    let orderItem = [];
+
     //TODO - разобраться с ?.
     /*
 на сервер установил
@@ -58,19 +60,25 @@ var babel = require("@babel/core").transform("code", {
     //let t = params?.test;
     //
 
-    _.forEach(optics.sorters, (item, key)=>{
-        if (params[key]) _.forEach(params[key].object, associated=>{
-            orderItem.push(associated)
-        });
-        orderItem.push(key, item.value);
+    _.forEach(sorters, item=>{
+        let orderItem = [];
+        let column = item.column;
+        if (params[item.column]) {
+            column = params[item.column].column;
+            _.forEach(params[item.column].object, associated=>{
+                orderItem.push(associated)
+            });
+        }
+        orderItem.push(column, item.value);
+        if (orderItem.length!==0) order.push(orderItem);
     });
-    if (orderItem.length!==0) order.push(orderItem);
+
 
     models[model].findAndCountAll({
-        limit: pageSize,
-        offset: offset,
         include: include,
         order: order,
+        limit: pageSize,
+        offset: offset,
     })
         .then(resp=>{
             const pages = Math.ceil(parseFloat(resp.count) / pageSize);
