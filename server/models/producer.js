@@ -1,6 +1,6 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
-  const Producer = sequelize.define('Producer', {
+  var Producer = sequelize.define('Producer', {
     name: DataTypes.STRING,
     site: DataTypes.STRING,
     right_producer_id: {

@@ -83,9 +83,11 @@ let state = {
               : `<img src="/image/small/${item.picture}" class="rounded-circle">`},
       },
       controller:{
-        _include: ['category', 'producer'],
-        category_id: {object: ['category'], column: 'name'},
-        producer_id: {object: ['producer'], column: 'name'}
+
+        _include: [{model: 'Producer', as: 'producer'}, {model: 'Category', as: 'category'}],
+        category_id: {as: ['category'], column: 'name'},
+        producer_id: {as: ['producer'], column: 'name'}
+
       },
       menu: '<span><i class="fas fa-barcode"></i></span> Продукты',
       model: 'Product'
