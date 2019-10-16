@@ -1,5 +1,7 @@
 'use strict';
 
+const Producer = require('../models').Producer;
+
 const models = require('../models');
 const Auth = require('../services/Auth');
 const enums = require('../modules/enums');
@@ -33,21 +35,40 @@ module.exports = {
         const pageSize = optics.pageSize ? optics.pageSize : 15;
         const offset = (page-1) * pageSize;
         const limit = offset + pageSize;
-        let include = params._include ? params._include : [];
-        let order = [];
 
-        let sorters = _.pickBy(optics.sorters, function(item){return item.order!==null});
-        sorters = _.map(sorters, function(item,key){return {order: item.order, column: key, value: item.value}})
-        //_.filter(optics.sorters, function(item){return item.order!==null});
-        sorters = _.orderBy(sorters, 'order', 'asc');
-
-        let where = [];
         let filters = []
         _.forEach(optics.filters, (row, name)=>{
             _.forEach(row, item=>{
-                if (!!item.value) filters.push([name, item.type, item.value])
+                if (!!item.value) filters.push({name: name, type: item.type, value: item.value})
             });
         });
+
+        let include = [];
+        _.forEach(params._include, inc=>{
+            include.push({model: models[inc.model], as: inc.as})
+        });
+
+        let rootWhere = {};
+        let wheres = {_root:[]};
+        _.forEach(filters, filter=>{
+            if (params[filter.name] && !wheres[filter.name]) wheres[filter.name] = [];
+
+            let item = {};
+            if (filter.type==='search') {
+                item[params[filter.name] ? params[filter.name].column : filter.name] = {[Op.like]: `%${filter.value}%`}
+            }
+
+            wheres[params[filter.name] ? filter.name : '_root'].push(item)
+        });
+        _.forEach(wheres, (where, name)=>{
+            if (name==='_root') {
+                rootWhere = {[Op.and]: where}
+            } else {
+                const inc = _.filter(include, function(item){return item.as===_.last(params[name].as)});
+                inc[0].where = {[Op.and]: where};
+            }
+        });
+
 
         //TODO - разобраться с ?.
         /*
@@ -70,12 +91,16 @@ module.exports = {
         //let t = params?.test;
         //
 
+        let order = [];
+        let sorters = _.pickBy(optics.sorters, function(item){return item.order!==null});
+        sorters = _.map(sorters, function(item,key){return {order: item.order, column: key, value: item.value}});
+        sorters = _.orderBy(sorters, 'order', 'asc');
         _.forEach(sorters, item=>{
             let orderItem = [];
             let column = item.column;
             if (params[item.column]) {
                 column = params[item.column].column;
-                _.forEach(params[item.column].object, associated=>{
+                _.forEach(params[item.column].as, associated=>{
                     orderItem.push(associated)
                 });
             }
@@ -83,17 +108,14 @@ module.exports = {
             if (orderItem.length!==0) order.push(orderItem);
         });
 
-
         models[model].findAndCountAll({
-            include: ['category', 'producer'],
+            include: include,
             order: order,
             limit: pageSize,
             offset: offset,
-            where: {
-                [Op.and]:[
-                    {name: {[Op.like]: '%антен%'}},
-                ]
-            }
+            where: rootWhere,
+            //where: [{[Op.and]:[{name: {[Op.like]: '%антен%'}}]}]
+            //where:{name:{[Op.like]: '%кита%'}}
         })
             .then(resp=>{
                 const pages = Math.ceil(parseFloat(resp.count) / pageSize);

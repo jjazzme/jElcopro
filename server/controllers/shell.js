@@ -1,3 +1,5 @@
+'use strict'
+
 const models = require('../models');
 const Auth = require('../services/Auth');
 const enums = require('../modules/enums');
