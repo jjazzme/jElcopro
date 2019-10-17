@@ -13,7 +13,15 @@ const additionalConfig = {
     dadata : {
         token: process.env.DADATA_TOKEN,
         url: 'https://dadata.ru/api/v2/suggest/'
-    }
+    },
+    development : _.merge(config.development, {
+        dialect: process.env.MYSQL_DIALECT,
+        dialectOptions: {
+            useUTC: false,
+            timezone: 'Etc/GMT+0'
+        },
+        timezone: 'Etc/GMT+0'
+    })
 };
 const finalConfig = _.merge(defaultConfig, environmentConfig, additionalConfig);
 
@@ -24,3 +32,5 @@ global.gConfig = finalConfig;
 
 // log global.gConfig
 //console.log(`global.gConfig: ${JSON.stringify(global.gConfig, undefined, global.gConfig.json_indentation)}`);
+
+module.exports = finalConfig;
