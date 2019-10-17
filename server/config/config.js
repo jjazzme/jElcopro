@@ -19,12 +19,7 @@ const additionalConfig = {
         username: process.env.DB_USERNAME,
         password: process.env.DB_PASSWORD,
         host: process.env.DB_HOST,
-        database: process.env.DB_DATABASE,
-        dialectOptions: {
-            useUTC: false,
-            timezone: 'Etc/GMT+0'
-        },
-        timezone: 'Etc/GMT+0'
+        database: process.env.DB_DATABASE
     })
 };
 const finalConfig = _.merge(defaultConfig, environmentConfig, additionalConfig);

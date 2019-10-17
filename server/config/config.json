@@ -1,11 +1,7 @@
 {
   "development": {
-    "node_port": 3000,
-    "username": "root",
-    "password": "78011178",
-    "database": "elcopro",
-    "host": "127.0.0.1",
-    "dialect": "mysql"
+    "node_port": 3000
+
   },
   "test": {
     "username": "root",
