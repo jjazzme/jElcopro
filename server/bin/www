@@ -3,8 +3,8 @@
 /**
  * BABEL
  */
-//require("@babel/core");
-//require("@babel/polyfill");
+require("@babel/core");
+require("@babel/polyfill");
 
 /**
  * Module dependencies.
