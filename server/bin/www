@@ -1,6 +1,12 @@
 #!/usr/bin/env node
 
 /**
+ * BABEL
+ */
+//require("@babel/core");
+//require("@babel/polyfill");
+
+/**
  * Module dependencies.
  */
 

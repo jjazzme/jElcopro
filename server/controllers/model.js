@@ -44,8 +44,8 @@ module.exports = {
         });
 
         let include = [];
-        _.forEach(params._include, inc=>{
-            include.push({model: models[inc.model], as: inc.as})
+        _.forEach(params?._include, inc=>{
+            include.push({model: models[inc.model], as: inc.as});
         });
 
         let rootWhere = {};
