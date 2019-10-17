@@ -15,7 +15,11 @@ const additionalConfig = {
         url: 'https://dadata.ru/api/v2/suggest/'
     },
     development : _.merge(config.development, {
-        dialect: process.env.MYSQL_DIALECT,
+        dialect: process.env.DB_CONNECTION,
+        username: process.env.DB_USERNAME,
+        password: process.env.DB_PASSWORD,
+        host: process.env.DB_HOST,
+        database: process.env.DB_DATABASE,
         dialectOptions: {
             useUTC: false,
             timezone: 'Etc/GMT+0'
