@@ -1,0 +1,22 @@
+#!/usr/bin/env node
+
+require("@babel/register");
+
+const minimist = require('minimist')
+const args = minimist(process.argv.slice(2))
+
+// config variables
+require('../config/config.js');
+
+//every command must have run method
+args._.forEach(command => {
+    try {
+        require('../commands/' + command).run(args)
+    } catch (e) {
+       if (e.code === 'MODULE_NOT_FOUND') {
+            console.log(`I don't see ${command} command!`)
+        } else {
+            throw e
+        }
+    }
+})

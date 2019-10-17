@@ -2,6 +2,9 @@
   "name": "server",
   "version": "0.0.0",
   "private": true,
+  "bin": {
+    "console": "bin/console"
+  },
   "scripts": {
     "start": "babel-node ./bin/www",
     "start_NODEMON": "nodemon --exec babel-node ./bin/www",
@@ -13,21 +16,24 @@
   },
   "dependencies": {
     "@babel/polyfill": "^7.6.0",
+    "@babel/runtime": "^7.6.3",
     "acorn": "^7.1.0",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
     "lodash": "^4.17.15",
+    "minimist": "^1.2.0",
     "morgan": "~1.9.1",
     "mysql2": "^1.7.0",
     "pug": "^2.0.4",
-    "sequelize": "^5.19.4"
+    "sequelize": "^5.19.6"
   },
   "devDependencies": {
     "@babel/core": "^7.6.4",
     "@babel/node": "^7.6.3",
     "@babel/plugin-proposal-optional-chaining": "^7.6.0",
+    "@babel/plugin-transform-runtime": "^7.6.2",
     "@babel/preset-env": "^7.6.3",
     "dotenv": "^8.1.0",
     "eslint": "^6.5.1"

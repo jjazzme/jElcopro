@@ -23,4 +23,4 @@ const finalConfig = _.merge(defaultConfig, environmentConfig, additionalConfig);
 global.gConfig = finalConfig;
 
 // log global.gConfig
-console.log(`global.gConfig: ${JSON.stringify(global.gConfig, undefined, global.gConfig.json_indentation)}`);
+//console.log(`global.gConfig: ${JSON.stringify(global.gConfig, undefined, global.gConfig.json_indentation)}`);
