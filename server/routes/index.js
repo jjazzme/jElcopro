@@ -9,7 +9,7 @@ const middlewareController = require('../controllers/middle/main');
 router.use(middlewareController.routeLog);
 
 /* GET home page. */
-router.get('/', function(req, res, next) {res.send('elcopro backend')});
+router.get('/api/', function(req, res, next) {res.send('elcopro backend')});
 
 /* Shell router */
 router.get('/api/shell/:model/:userID', shellController.getByModel);

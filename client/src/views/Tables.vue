@@ -352,8 +352,6 @@
 
                      */
                 },
-                set(val){}
-
             },
             userID(){return this.$store.getters['AUTH/GET_USER']?.id;},
 

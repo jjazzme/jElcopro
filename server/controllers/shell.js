@@ -47,7 +47,8 @@ module.exports = {
         ) {
             res.status(401).send('Authentication error');
             return;
-        }
+        };
+
 
         if(id===0) {
             models.tableShells.create(
@@ -60,22 +61,22 @@ module.exports = {
                     optics: shell.optics
                 })
                 .then(shell=>{
-                    res.send(shell);
+                    res.send(shell.id);
                 })
                 .catch(err=>res.status(500).send(err))
         } else {
-            models.tableShells.upsert(
-                {
-                    id: id,
-                    user_id: userID,
-                    table: model,
-                    version: shell.version,
-                    basket: shell.basket,
-                    columns: shell.columns,
-                    optics: shell.optics
-                })
-                .then(ok=>{
-                    res.send(ok);
+            models.tableShells.update({
+                user_id: userID,
+                table: model,
+                version: shell.version,
+                basket: shell.basket,
+                columns: shell.columns,
+                optics: shell.optics
+                },
+                {where: {id: id}}
+                )
+                .then(shell=>{
+                    res.send(shell.id);
                 })
                 .catch(err=>res.status(500).send(err))
         }
