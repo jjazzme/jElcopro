@@ -374,23 +374,18 @@ let actions = {
             shell.optics = _.merge(shell.optics, queryOptics);
             shell.assembled = Date.now();
 
-            if(data || !_.isEqual(shelOpticsBeforeMerge, shell.optics) || (data && data.version !== currentVersion)) {
-              // update
+            if(
+                !data
+                || !_.isEqual(shelOpticsBeforeMerge, shell.optics)
+                || (data && data.version !== currentVersion)
+                || shell.id === 0
+            ) {
+              // update | create
               dispatch('UPDATE_SHELL', shell)
-                  .then(()=>{
-                    if(shell.id===0) {
-                      shell.id = data.id;
-                      commit('SET_SHELL', shell);
-                      commit('ADD_EVENT', `SHELL ${table.name} UPDATED: ${shell.id}`);
-                    }
-                  })
-                  .catch(e=>{
-                    // eslint-disable-next-line no-console
-                    console.log(e)
-                  })
             } else {
+              // cached
               commit('SET_SHELL', shell);
-              commit('ADD_EVENT', `SHELL ${table.name} UPDATED: ${data.id}`);
+              commit('ADD_EVENT', `SHELL ${table.name} FROM DB: ${data.id}`);
             }
           })
           .catch(e=>{
@@ -403,9 +398,19 @@ let actions = {
   UPDATE_SHELL({commit, rootGetters}, shell){
     // update
     const user = rootGetters['AUTH/GET_USER'];
-    if (shell.id!==0) commit('SET_SHELL', shell);
-    commit('ADD_EVENT', `_SHELL ${shell.table} ${shell.id===0?'CREATED':'UPDATED'}: ${shell.id}`);
-    return axios.put(`/api/shell/${shell.table}/${user.id}`, {shell: shell} )
+    const created = shell.id===0;
+    const ret = axios.put(`/api/shell/${shell.table}/${user.id}`, {shell: shell} );
+    ret.then( resp=>{
+      if (created) shell.id = resp.data.id;
+      commit('SET_SHELL', shell);
+      commit('ADD_EVENT', `SHELL ${shell.table} ${created ? 'CREATED' : 'UPDATED'}: ${shell.id}`);
+    }).catch(e=>{
+      commit('SET_SHELL', shell);
+      commit('ADD_EVENT', `SHELL ${shell.table} DB ERROR: SHELL.ID = 0`);
+      // eslint-disable-next-line no-console
+      console.log(e)
+    });
+    return ret;
   },
   // eslint-disable-next-line no-unused-vars
   UPDATE_VALUE({rootGetters}, packet){

@@ -69,28 +69,6 @@ module.exports = {
             }
         });
 
-
-        //TODO - разобраться с ?.
-        /*
-    на сервер установил
-    npm i --save-dev @babel/core
-    npm i --save-dev @babel/plugin-proposal-optional-chaining
-    в .babelrc
-    {
-      "plugins": ["@babel/plugin-proposal-optional-chaining"]
-    }
-    в явасккрипт
-    var babel = require("@babel/core").transform("code", {
-        plugins: ["@babel/plugin-proposal-optional-chaining"]
-    });
-    ( https://babeljs.io/docs/en/babel-plugin-proposal-optional-chaining )
-    и всё равно при компиляции
-        let t = params[key]?.obt;
-         */
-        //
-        //let t = params?.test;
-        //
-
         let order = [];
         let sorters = _.pickBy(optics.sorters, function(item){return item.order!==null});
         sorters = _.map(sorters, function(item,key){return {order: item.order, column: key, value: item.value}});
@@ -109,11 +87,14 @@ module.exports = {
         });
 
         models[model].findAndCountAll({
-            include: include,
-            order: order,
+            include: [{model: models['Producer'], as: 'producer'}, {model: models['Category'], as: 'category'},],
+            //
+            //include: include,
+            //order: order,
             limit: pageSize,
             offset: offset,
-            where: rootWhere,
+            //where: rootWhere,
+
             //where: [{[Op.and]:[{name: {[Op.like]: '%антен%'}}]}]
             //where:{name:{[Op.like]: '%кита%'}}
         })
