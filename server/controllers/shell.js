@@ -61,9 +61,11 @@ module.exports = {
                     optics: shell.optics
                 })
                 .then(shell=>{
-                    res.send(shell.id);
+                    res.send({id: shell.id});
                 })
-                .catch(err=>res.status(500).send(err))
+                .catch(err=>{
+                    return res.status(500).send(err)
+                })
         } else {
             models.tableShells.update({
                 user_id: userID,
@@ -75,8 +77,8 @@ module.exports = {
                 },
                 {where: {id: id}}
                 )
-                .then(shell=>{
-                    res.send(shell.id);
+                .then(()=>{
+                    res.send({id: id});
                 })
                 .catch(err=>res.status(500).send(err))
         }

@@ -6,7 +6,11 @@ module.exports = (sequelize, DataTypes) => {
     model_type: DataTypes.STRING
   }, {});
   Picture.associate = function(models) {
-    // associations can be defined here
+    Picture.belongsTo(models.Product, {
+      foreignKey: 'model_id',
+      constraints: false,
+      as: 'picture'
+    });
   };
   return Picture;
 };

@@ -398,10 +398,10 @@ let actions = {
   UPDATE_SHELL({commit, rootGetters}, shell){
     // update
     const user = rootGetters['AUTH/GET_USER'];
-    const ret = axios.put(`/api/shell/${shell.table}/${user.id}`, {shell: shell} );
     const created = shell.id===0;
+    const ret = axios.put(`/api/shell/${shell.table}/${user.id}`, {shell: shell} );
     ret.then( resp=>{
-      if (created) shell.id = parseInt(resp.data);
+      if (created) shell.id = resp.data.id;
       commit('SET_SHELL', shell);
       commit('ADD_EVENT', `SHELL ${shell.table} ${created ? 'CREATED' : 'UPDATED'}: ${shell.id}`);
     }).catch(e=>{

@@ -87,6 +87,8 @@ module.exports = {
         });
 
         models[model].findAndCountAll({
+            include: [{model: models['Producer'], as: 'producer'}, {model: models['Category'], as: 'category'},],
+            //
             //include: include,
             //order: order,
             limit: pageSize,

@@ -1,26 +1,15 @@
 {
   "development": {
     "node_port": 3000,
+    "dialect": "mysql",
     "username": "root",
     "password": "78011178",
     "database": "elcopro",
-    "host": "127.0.0.1",
-    "dialect": "mysql"
+    "host": "127.0.0.1"
   },
   "test": {
-    "username": "root",
-    "password": null,
-    "database": "database_test",
-    "host": "127.0.0.1",
-    "dialect": "mysql",
-    "operatorsAliases": false
   },
   "production": {
-    "username": "root",
-    "password": null,
-    "database": "database_production",
-    "host": "127.0.0.1",
-    "dialect": "mysql",
-    "operatorsAliases": false
+
   }
 }
