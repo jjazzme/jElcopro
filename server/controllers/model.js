@@ -9,9 +9,9 @@ const _ = require('lodash');
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 
-var babel = require("@babel/core").transform("code", {
-    plugins: ["@babel/plugin-proposal-optional-chaining"]
-});
+//var babel = require("@babel/core").transform("code", {
+//    plugins: ["@babel/plugin-proposal-optional-chaining"]
+//});
 
 module.exports = {
     // get model by optics

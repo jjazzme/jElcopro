@@ -5,16 +5,22 @@ module.exports = (sequelize, DataTypes) => {
     site: DataTypes.STRING,
     right_producer_id: {
       type:DataTypes.INTEGER,
+      /*
       references: {
         model: 'Producer',
         key: 'id',
         allowNull: true,
       }
+
+       */
     },
     picture: DataTypes.STRING
   }, {});
   Producer.associate = function(models) {
-
+    Producer.hasOne(models.Producer, {
+      foreignKey: 'right_producer',
+      as: 'rightproducer'
+    });
   };
   return Producer;
 };
