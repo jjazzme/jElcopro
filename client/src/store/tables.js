@@ -107,16 +107,22 @@ let state = {
             {type: 'search', _placeholder:'поиск 2'},
           ]
         },
-        pName:{show: true, order:4, from:'right_producer.name', tables:'producers', sortable: true, label: 'Правильный производитель',
+        right_producer:{show: true, order:4, html: item => item.producer ? item.producer.name : '-//-', sortable: true, label: 'Правильный производитель',
           filters:[
             {type: 'search', _placeholder:'поиск 1'},
             {type: 'search', _placeholder:'поиск 2'},
           ]},
         picture:{show: true, order: 5, parentClass:"avatar avatar-sm", sortable: true, label: 'Фото',
-          processor:pic => pic===null
+          html:pic => pic===null
               ? ""
               : `<img src="/image/small/${pic}" class="rounded-circle">`},
       },
+      //controller:{
+
+        //_include: [{model: 'Producer', as: 'producer'}],
+        //right_producer: {as: ['producer'], column: 'name'}
+
+      //},
       menu: '<span><i class="fas fa-hammer"></i></span> Продюсеры',
       model: 'Producer'
     },
