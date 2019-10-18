@@ -43,10 +43,24 @@ module.exports = {
             });
         });
 
-        let include = [];
-        _.forEach(params?._include, inc=>{
-            include.push({model: models[inc.model], as: inc.as});
-        });
+        let includeGen = function(obj){
+            let ret = []
+            _.forEach(obj, row=>{
+                let top = {};
+                let current = top;
+                _.forEach(row, item=>{
+                    current.model = models[item];
+                    if (!_.isEqual(item, _.last(row))){
+                        current.include = [{}];
+                        current = current.include[0];
+                    }
+                });
+                ret.push(top)
+            })
+            return ret;
+        };
+
+        let include = includeGen(params?._include);
 
         let rootWhere = {};
         let wheres = {_root:[]};
@@ -87,9 +101,7 @@ module.exports = {
         });
 
         models[model].findAndCountAll({
-            include: [{model: models['Producer'], as: 'producer'}, {model: models['Category'], as: 'category'},],
-            //
-            //include: include,
+            include: include,
             //order: order,
             limit: pageSize,
             offset: offset,
@@ -112,7 +124,8 @@ module.exports = {
                 });
             })
             .catch(err=>{
-                err=>res.status(500).send(err);
+            res.status(500);
+            res.send({error: err});
             });
 
 

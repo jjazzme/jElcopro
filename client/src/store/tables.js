@@ -1,4 +1,5 @@
 import axios from 'axios';
+const models = {}
 //import _ from 'lodash';
 
 
@@ -71,8 +72,8 @@ let state = {
         },
         vat:{editor:'selector', source:'vat' ,show: true, order:2, sortable: true, label: 'НДС %',
           text: item => parseFloat(item.vat)===0?'Без НДС':`${parseFloat(item.vat)}%`},
-        category_id:{editor:'selector', show: true, order:3, html: item=>item.category ? item.category.name : '-//-', sortable: true, label: 'Категория'},
-        producer_id:{show: true, order:4, html: item=>item.producer ? item.producer.name : '-//-', sortable: true, label: 'Производитель',
+        category_id:{editor:'selector', show: true, order:3, html: item=>item.Category ? item.Category.name : '-//-', sortable: true, label: 'Категория'},
+        producer_id:{show: true, order:4, html: item=>item.Producer ? item.Producer.name : '-//-', sortable: true, label: 'Производитель',
           filters:[
             {type: 'search', _placeholder:'поиск 1'},
             {type: 'search', _placeholder:'поиск 2'},
@@ -84,9 +85,9 @@ let state = {
       },
       controller:{
 
-        _include: [{model: 'Producer', as: 'producer'}, {model: 'Category', as: 'category'}],
-        category_id: {as: ['category'], column: 'name'},
-        producer_id: {as: ['producer'], column: 'name'}
+        _include: [['Producer'],['Category']],
+        category_id: {from: ['Category'], column: 'name'},
+        producer_id: {as: ['Producer'], column: 'name'}
 
       },
       menu: '<span><i class="fas fa-barcode"></i></span> Продукты',
@@ -301,13 +302,16 @@ let actions = {
           `/api/model/get/${name}/${user.id}/${page}`,
           {optics: optics, params:getters.GET_SHELL(name).controller}
       )
-          .then((response)=>{
-            item.response = _.cloneDeep(response.data);
-            item.timestamp = Date.now();
-            commit('ADD_CACHED_ITEM', item);
-          })
+          .then(
+            response=>{
+              item.response = _.cloneDeep(response.data);
+              item.timestamp = Date.now();
+              commit('ADD_CACHED_ITEM', item);
+            },
+            error=>console.log(error)
+          )
           // eslint-disable-next-line no-console
-          .catch((error)=>{console.log(error)})
+          .catch(error=>console.log(error))
 
     }
   },
