@@ -2,18 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="09e94829-b941-41e8-95cd-f4a06a6a7730" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/server/.sequelizerc" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/config/companies.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/config/database.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/migrations/20191018062009-create-store.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/models/store.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/services/AddressService.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/services/CompanyService.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/commands/test.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/commands/test.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/config/config.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/config/config.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/models/company.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/models/company.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/models/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/models/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/services/PartyService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/PartyService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/services/CompanyService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/CompanyService.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -52,20 +41,6 @@
         <item name="elcopro@127.0.0.1" type="feb32156:DbDataSourceImpl" />
         <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
         <item name="elcopro: schema" type="ebfa3cd1:MariaImplModel$Schema" />
-      </path>
-      <path>
-        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="elcopro@127.0.0.1" type="feb32156:DbDataSourceImpl" />
-        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
-        <item name="elcopro: schema" type="ebfa3cd1:MariaImplModel$Schema" />
-        <item name="Parties: table" type="dbc44a63:MariaImplModel$Table" />
-      </path>
-      <path>
-        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="elcopro@127.0.0.1" type="feb32156:DbDataSourceImpl" />
-        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
-        <item name="elcopro: schema" type="ebfa3cd1:MariaImplModel$Schema" />
-        <item name="Stores: table" type="dbc44a63:MariaImplModel$Table" />
       </path>
     </expand>
     <select />
@@ -233,7 +208,14 @@
       <option name="project" value="LOCAL" />
       <updated>1571314049123</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Comapny Make">
+      <created>1571390124403</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1571390124403</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -257,6 +239,7 @@
     <MESSAGE value="Datata" />
     <MESSAGE value="Config V2" />
     <MESSAGE value="Config V2.1" />
-    <option name="LAST_COMMIT_MESSAGE" value="Config V2.1" />
+    <MESSAGE value="Comapny Make" />
+    <option name="LAST_COMMIT_MESSAGE" value="Comapny Make" />
   </component>
 </project>

@@ -51,6 +51,8 @@ export default {
                 model: Party,
                 required: true,
                 where: { inn: inn, ogrn: ogrn }
+            },{
+                model: Store,
             }]
         })
         if (!company) {
