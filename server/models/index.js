@@ -33,7 +33,7 @@ Object.keys(db).forEach(modelName => {
 });
 
 Object.keys(db).forEach(modelName => {
-  console.log(modelName)
+  //console.log(modelName)
   db[modelName].updateIfNotExists = function(values, options) {
     //console.log(values);
     //console.log(options)

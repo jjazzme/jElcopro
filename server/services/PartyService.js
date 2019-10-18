@@ -2,6 +2,7 @@
 
 const Party = require('../models').Party;
 const dadata = require('./dadata').default;
+const _ = require('lodash')
 
 export default {
 
@@ -17,7 +18,7 @@ export default {
         let item = await Party.findOne({ where: { inn: inn, ogrn: ogrn }});
         if (!item) {
             item = await Party.create({ inn: inn, ogrn: ogrn, name: name, json: json })
-        } else {
+        } else if (item.name != name || !_.isEqual(item.json, json)) {
             await item.update({name: name, json: json});
         }
         return item
