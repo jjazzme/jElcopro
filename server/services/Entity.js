@@ -2,7 +2,7 @@ import db from '../models/index';
 
 export default class Entity {
     /**
-     *
+     * Constructor
      * @param Entity
      */
     constructor(Entity) {
@@ -10,7 +10,7 @@ export default class Entity {
     }
 
     /**
-     *
+     * Find by id or attributes in newItem
      * @param newItem
      * @returns {Promise<*>}
      */
@@ -25,12 +25,11 @@ export default class Entity {
     }
 
     /**
-     *
+     * Update or Create with triggers before & after
      * @param newItem
-     * @param triggers
      * @returns {Promise<*>}
      */
-    async updateOrCreate(newItem, triggers) {
+    async updateOrCreate(newItem) {
         let item = undefined;
         const t = await db.sequelize.transaction();
         try {
@@ -40,12 +39,12 @@ export default class Entity {
             } else {
                 item.set(newItem);
             }
-            if (triggers && triggers.before) {
-                await triggers.before(item, t);
+            if (this.before) {
+                await this.before(item, t);
             }
             await item.save({ transaction: t });
-            if (triggers && triggers.after) {
-                await triggers.after(item, t);
+            if (this.after) {
+                await this.after(item, t);
             }
             await t.commit();
         } catch (e) {

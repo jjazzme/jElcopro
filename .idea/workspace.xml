@@ -2,11 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="09e94829-b941-41e8-95cd-f4a06a6a7730" name="Default Changelist" comment="Add Entity class&#10;&#10;Product &amp; Producer service use this class">
-      <change afterPath="$PROJECT_DIR$/server/services/Entity.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/services/ProductService.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/commands/test.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/commands/test.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/services/Entity.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/Entity.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/services/ProducerService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/ProducerService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/services/ProductService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/ProductService.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -166,11 +166,6 @@
             <path>
               <item name="services root" type="e789fda9:ObjectUtils$Sentinel" />
               <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@56cd7a8b" type="7427dc5b:ServiceModel$ServiceGroupNode" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceNode@6111e8c" type="9fbbdea:ServiceModel$ServiceNode" />
-            </path>
-            <path>
-              <item name="services root" type="e789fda9:ObjectUtils$Sentinel" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@56cd7a8b" type="7427dc5b:ServiceModel$ServiceGroupNode" />
               <item name="com.intellij.execution.services.ServiceModel$ServiceNode@1ed40eba" type="9fbbdea:ServiceModel$ServiceNode" />
             </path>
           </expand>
@@ -214,7 +209,14 @@
       <option name="project" value="LOCAL" />
       <updated>1571485444300</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Add Entity class&#10;&#10;Product &amp; Producer service use this class">
+      <created>1571494369347</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1571494369347</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

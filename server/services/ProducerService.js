@@ -8,24 +8,19 @@ import Entity from './Entity';
 const Producer = require('../models').Producer;
 const Product = require('../models').Product;
 
-export default {
-    /**
-     *
-     * @param newProducer
-     * @returns {Promise<Object>}
-     */
-    async updateOrCreate(newProducer) {
-        const entity = new Entity(Producer);
-        return (await entity.updateOrCreate(newProducer, { before: this.changeRightProducerId }));
-    },
+export default class ProducerService extends Entity {
+
+    constructor() {
+        super(Producer);
+    }
 
     /**
-     *
+     * Before Update or Create
      * @param producer
      * @param t
      * @returns {Promise<void>}
      */
-    async changeRightProducerId(producer, t) {
+    async before(producer, t) {
         const changes = producer.changed();
         if (changes && changes.includes('right_producer_id')) {
             if (producer.previous('right_producer_id')) {

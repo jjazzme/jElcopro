@@ -4,18 +4,14 @@ import Entity from './Entity';
 
 const Product = require('../models').Product;
 
-export default {
+export default class ProductService extends Entity {
+
+    constructor() {
+        super(Product);
+    }
+
     /**
-     *
-     * @param newProduct
-     * @returns {Promise<Object>}
-     */
-    async updateOrCreate(newProduct) {
-        const entity = new Entity(Product);
-        return (await entity.updateOrCreate(newProduct, { before: this.before }));
-    },
-    /**
-     *
+     * Before Update or Create
      * @param product
      * @returns {Promise<void>}
      */
