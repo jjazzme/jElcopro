@@ -1,6 +1,7 @@
-const CompanyService = require('../services/CompanyService').default;
-const ProducerService = require('../services/ProducerService').default;
-module.exports.run = async (args) => {
-    const producer = await ProducerService.updateOrCreate({name: 'TI', right_producer_id: null })
-    console.dir(producer.changed());
+const Service = require('../services/ProductService').default;
+module.exports.run = async () => {
+    const item = await Service.updateOrCreate({
+        name: 'MAX232CPE+ Очень rhenfz', vat: 20, producer_id:3, right_product_id:1
+    });
+    console.dir(item.dataValues);
 };
