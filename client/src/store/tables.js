@@ -1,5 +1,4 @@
 import axios from 'axios';
-const models = {}
 //import _ from 'lodash';
 
 
@@ -84,11 +83,10 @@ let state = {
               : `<img src="/image/small/${item.picture}" class="rounded-circle">`},
       },
       controller:{
-
-        _include: [['Producer'],['Category']],
-        category_id: {from: ['Category'], column: 'name'},
-        producer_id: {as: ['Producer'], column: 'name'}
-
+        aliases: {
+          category_id: {path: 'Category', column: 'name'},
+          producer_id: {path: 'Producer', column: 'name'}
+        }
       },
       menu: '<span><i class="fas fa-barcode"></i></span> Продукты',
       model: 'Product'
@@ -108,7 +106,7 @@ let state = {
             {type: 'search', _placeholder:'поиск 2'},
           ]
         },
-        right_producer:{show: true, order:4, html: item => item.producer ? item.producer.name : '-//-', sortable: true, label: 'Правильный производитель',
+        right_producer_id:{show: true, order:4, html: item => item.rightProducer ? item.rightProducer.name : '-//-', sortable: true, label: 'Правильный производитель',
           filters:[
             {type: 'search', _placeholder:'поиск 1'},
             {type: 'search', _placeholder:'поиск 2'},
@@ -118,12 +116,11 @@ let state = {
               ? ""
               : `<img src="/image/small/${pic}" class="rounded-circle">`},
       },
-      //controller:{
-
-        //_include: [{model: 'Producer', as: 'producer'}],
-        //right_producer: {as: ['producer'], column: 'name'}
-
-      //},
+      controller:{
+        aliases: {
+          right_producer: {path: 'Producer', column: 'name', as: 'rightProducer'}
+        }
+      },
       menu: '<span><i class="fas fa-hammer"></i></span> Продюсеры',
       model: 'Producer'
     },

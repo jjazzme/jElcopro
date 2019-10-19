@@ -17,13 +17,12 @@ module.exports = (sequelize, DataTypes) => {
     picture: DataTypes.STRING
   }, {});
   Producer.associate = function(models) {
-    /*
-    Producer.hasOne(models.Producer, {
-      foreignKey: 'right_producer',
-      as: 'rightproducer'
+    Producer.belongsTo(models.Producer, {
+      foreignKey: 'right_producer_id',
+      sourceKey: 'id',
+      constraints: false,
+      as: 'rightProducer'
     });
-
-     */
   };
   return Producer;
 };

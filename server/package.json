@@ -30,7 +30,8 @@
     "morgan": "~1.9.1",
     "mysql2": "^1.7.0",
     "pug": "^2.0.4",
-    "sequelize": "^5.19.6"
+    "sequelize": "^5.19.6",
+    "unzipper": "^0.10.5"
   },
   "devDependencies": {
     "@babel/core": "^7.6.4",
