@@ -36,38 +36,64 @@ module.exports = {
         const offset = (page-1) * pageSize;
         const limit = offset + pageSize;
 
-        let filters = []
+
+        let actualFilters = {};
         _.forEach(optics.filters, (row, name)=>{
             _.forEach(row, item=>{
-                if (!!item.value) filters.push({name: name, type: item.type, value: item.value})
+                if (!!item.value) {
+                    if (!actualFilters[name]) actualFilters[name] = []
+                    actualFilters[name].push({type: item.type, value: item.value})
+                }
             });
         });
 
-        let include = [];
-        _.forEach(params?._include, inc=>{
-            include.push({model: models[inc.model], as: inc.as});
+        let includeGen = function(obj){
+            let ret = []
+            _.forEach(obj, (val,name)=>{
+                let top = {};
+                let current = top;
+                _.forEach(val.path.split('.'), (item, ind)=>{
+                    current.model = models[item];
+                    if (ind!==val.path.split('.').length-1){
+                        current.include = [{}];
+                        current = current.include[0];
+                    } else {
+                        if(val.as) current.as = val.as;
+                        let actual = _.cloneDeep(actualFilters[name]);
+                        if (actual){
+                            if (actual.length>0) {
+                                let arrWhere = [];
+                                _.forEach(actual, filter=>{
+                                    if (filter.type === 'search') {
+                                        let whereItem = {};
+                                        whereItem[val.column] = {[Op.like]: `%${filter.value}%`};
+                                        arrWhere.push(whereItem)
+                                    }
+                                });
+                                current.where = arrWhere.length > 1 ? [{[Op.and]: arrWhere}] : arrWhere[0] ;
+                            }
+                            delete actualFilters[name];
+                        }
+                    }
+                });
+                ret.push(top)
+            });
+            return ret;
+        };
+        let include = includeGen(params?.aliases);
+
+        let arrWhereRoot = [];
+        _.forEach(actualFilters, (actual, name)=>{
+            _.forEach(actual, filter=>{
+                if (filter.type === 'search') {
+                    let whereItem = {};
+                    whereItem[name] = {[Op.like]: `%${filter.value}%`};
+                    arrWhereRoot.push(whereItem)
+                }
+            });
         });
 
-        let rootWhere = {};
-        let wheres = {_root:[]};
-        _.forEach(filters, filter=>{
-            if (params[filter.name] && !wheres[filter.name]) wheres[filter.name] = [];
-
-            let item = {};
-            if (filter.type==='search') {
-                item[params[filter.name] ? params[filter.name].column : filter.name] = {[Op.like]: `%${filter.value}%`}
-            }
-
-            wheres[params[filter.name] ? filter.name : '_root'].push(item)
-        });
-        _.forEach(wheres, (where, name)=>{
-            if (name==='_root') {
-                rootWhere = {[Op.and]: where}
-            } else {
-                const inc = _.filter(include, function(item){return item.as===_.last(params[name].as)});
-                inc[0].where = {[Op.and]: where};
-            }
-        });
+        let where = arrWhereRoot.length===0 ? null : arrWhereRoot.length > 1 ? [{[Op.and]: arrWhereRoot}] : arrWhereRoot[0] ;
 
         let order = [];
         let sorters = _.pickBy(optics.sorters, function(item){return item.order!==null});
@@ -76,9 +102,10 @@ module.exports = {
         _.forEach(sorters, item=>{
             let orderItem = [];
             let column = item.column;
-            if (params[item.column]) {
-                column = params[item.column].column;
-                _.forEach(params[item.column].as, associated=>{
+            const aliasesCol = params.aliases[item.column];
+            if (aliasesCol) {
+                column = aliasesCol.column;
+                _.forEach(aliasesCol.path.split('.'), associated=>{
                     orderItem.push(associated)
                 });
             }
@@ -87,13 +114,11 @@ module.exports = {
         });
 
         models[model].findAndCountAll({
-            include: [{model: models['Producer'], as: 'producer'}, {model: models['Category'], as: 'category'},],
-            //
-            //include: include,
-            //order: order,
+            include: include,
+            order: order,
             limit: pageSize,
             offset: offset,
-            //where: rootWhere,
+            where: where,
 
             //where: [{[Op.and]:[{name: {[Op.like]: '%антен%'}}]}]
             //where:{name:{[Op.like]: '%кита%'}}
@@ -112,7 +137,8 @@ module.exports = {
                 });
             })
             .catch(err=>{
-                err=>res.status(500).send(err);
+                res.status(500);
+                res.json({error: err});
             });
 
 

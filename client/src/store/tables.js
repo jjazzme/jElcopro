@@ -71,8 +71,8 @@ let state = {
         },
         vat:{editor:'selector', source:'vat' ,show: true, order:2, sortable: true, label: 'НДС %',
           text: item => parseFloat(item.vat)===0?'Без НДС':`${parseFloat(item.vat)}%`},
-        category_id:{editor:'selector', show: true, order:3, html: item=>item.category ? item.category.name : '-//-', sortable: true, label: 'Категория'},
-        producer_id:{show: true, order:4, html: item=>item.producer ? item.producer.name : '-//-', sortable: true, label: 'Производитель',
+        category_id:{editor:'selector', show: true, order:3, html: item=>item.Category ? item.Category.name : '-//-', sortable: true, label: 'Категория'},
+        producer_id:{show: true, order:4, html: item=>item.Producer ? item.Producer.name : '-//-', sortable: true, label: 'Производитель',
           filters:[
             {type: 'search', _placeholder:'поиск 1'},
             {type: 'search', _placeholder:'поиск 2'},
@@ -83,11 +83,10 @@ let state = {
               : `<img src="/image/small/${item.picture}" class="rounded-circle">`},
       },
       controller:{
-
-        _include: [{model: 'Producer', as: 'producer'}, {model: 'Category', as: 'category'}],
-        category_id: {as: ['category'], column: 'name'},
-        producer_id: {as: ['producer'], column: 'name'}
-
+        aliases: {
+          category_id: {path: 'Category', column: 'name'},
+          producer_id: {path: 'Producer', column: 'name'}
+        }
       },
       menu: '<span><i class="fas fa-barcode"></i></span> Продукты',
       model: 'Product'
@@ -107,7 +106,7 @@ let state = {
             {type: 'search', _placeholder:'поиск 2'},
           ]
         },
-        right_producer:{show: true, order:4, html: item => item.producer ? item.producer.name : '-//-', sortable: true, label: 'Правильный производитель',
+        right_producer_id:{show: true, order:4, html: item => item.rightProducer ? item.rightProducer.name : '-//-', sortable: true, label: 'Правильный производитель',
           filters:[
             {type: 'search', _placeholder:'поиск 1'},
             {type: 'search', _placeholder:'поиск 2'},
@@ -117,12 +116,11 @@ let state = {
               ? ""
               : `<img src="/image/small/${pic}" class="rounded-circle">`},
       },
-      //controller:{
-
-        //_include: [{model: 'Producer', as: 'producer'}],
-        //right_producer: {as: ['producer'], column: 'name'}
-
-      //},
+      controller:{
+        aliases: {
+          right_producer: {path: 'Producer', column: 'name', as: 'rightProducer'}
+        }
+      },
       menu: '<span><i class="fas fa-hammer"></i></span> Продюсеры',
       model: 'Producer'
     },
@@ -301,13 +299,16 @@ let actions = {
           `/api/model/get/${name}/${user.id}/${page}`,
           {optics: optics, params:getters.GET_SHELL(name).controller}
       )
-          .then((response)=>{
-            item.response = _.cloneDeep(response.data);
-            item.timestamp = Date.now();
-            commit('ADD_CACHED_ITEM', item);
-          })
+          .then(
+            response=>{
+              item.response = _.cloneDeep(response.data);
+              item.timestamp = Date.now();
+              commit('ADD_CACHED_ITEM', item);
+            },
+            error=>console.log(error)
+          )
           // eslint-disable-next-line no-console
-          .catch((error)=>{console.log(error)})
+          .catch(error=>console.log(error))
 
     }
   },
