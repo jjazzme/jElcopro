@@ -82,6 +82,11 @@ export default {
         return company
     },
 
+    /**
+     *
+     * @param alias
+     * @returns {Promise<Object|undefined>}
+     */
     async getByAlias(alias) {
         let company = require('../config/companies').default[alias];
         console.dir(alias, company);

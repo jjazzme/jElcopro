@@ -24,7 +24,7 @@ const additionalConfig = {
         timezone: 'Etc/GMT+0'
     },
     timezone: 'Etc/GMT+0',
-    companies: require('./companies')
+    companies: require('./companies').default
 };
 const finalConfig = _.merge(defaultConfig, environmentConfig, additionalConfig);
 
