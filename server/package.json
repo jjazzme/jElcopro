@@ -15,6 +15,7 @@
     "lint__": "eslint"
   },
   "dependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
     "@babel/polyfill": "^7.6.0",
     "@babel/runtime": "^7.6.3",
     "acorn": "^7.1.0",

@@ -15,7 +15,7 @@ export default class ProductService extends Entity {
      * @param product
      * @returns {Promise<void>}
      */
-    async before(product){
+    async beforeUpdateOrCreate(product){
         const changes = product.changed();
         if (product.right_product_id && changes && changes.includes('right_product_id')) {
             const right_product = await Product.findOne({ where: { id: product.right_product_id }});

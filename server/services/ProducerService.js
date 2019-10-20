@@ -20,7 +20,7 @@ export default class ProducerService extends Entity {
      * @param t
      * @returns {Promise<void>}
      */
-    async before(producer, t) {
+    async beforeUpdateOrCreate(producer, t) {
         const changes = producer.changed();
         if (changes && changes.includes('right_producer_id')) {
             if (producer.previous('right_producer_id')) {

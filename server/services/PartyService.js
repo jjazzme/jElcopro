@@ -2,30 +2,16 @@
 
 const Party = require('../models').Party;
 const dadata = require('./dadata').default;
-const _ = require('lodash')
+import Entity from "./Entity";
 
-export default {
+export default class PartyService extends Entity {
 
-    /**
-     *
-     * @param inn
-     * @param ogrn
-     * @param name
-     * @param json
-     * @returns {Promise<Object>}
-     */
-    async updateOrCreate(inn, ogrn, name, json) {
-        let item = await Party.findOne({ where: { inn: inn, ogrn: ogrn }});
-        if (!item) {
-            item = await Party.create({ inn: inn, ogrn: ogrn, name: name, json: json })
-        } else if (item.name != name || !_.isEqual(item.json, json)) {
-            await item.update({name: name, json: json});
-        }
-        return item
-    },
+    constructor() {
+        super(Party)
+    }
 
     /**
-     *
+     * Update Or Create from Dadata service by INN
      * @param inn
      * @returns {Promise<Object>}
      */
@@ -33,9 +19,18 @@ export default {
         const res = await dadata.query('party', inn);
 
         if (res.suggestions.length > 0) {
-            const ret =
-                await this.updateOrCreate(inn, res.suggestions[0].data.ogrn, res.suggestions[0].value, res.suggestions[0]);
-            return (ret);
+            return (
+                await this.updateOrCreate(
+                    {
+                        inn: inn,
+                        ogrn: res.suggestions[0].data.ogrn
+                    },
+                    {
+                        name: res.suggestions[0].value,
+                        json: res.suggestions[0]
+                    }
+                )
+            );
         }
     }
 }

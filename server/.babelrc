@@ -1,4 +1,8 @@
 {
   "presets": ["@babel/preset-env"],
-  "plugins": ["@babel/plugin-proposal-optional-chaining", "@babel/transform-runtime"]
+  "plugins": [
+    "@babel/plugin-proposal-optional-chaining",
+    "@babel/transform-runtime",
+    "@babel/plugin-proposal-class-properties"
+  ]
 }

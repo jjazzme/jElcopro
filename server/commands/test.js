@@ -1,9 +1,7 @@
+
 import Service from "../services/ProductService";
 module.exports.run = async () => {
-    const service = new Service();
-    const item = await service.updateOrCreate({
-        name: 'MAX3232CPE+', vat: 20, producer_id: 3, remark: 'Мелкосхема'
-    });
-
-    console.dir(item.dataValues);
+    const service = await new Service();
+    const s = await service.updateOrCreate({ name: 'КР122ЕН5'}, { vat: 20 });
+    console.log(s.dataValues);
 };
