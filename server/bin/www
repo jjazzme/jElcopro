@@ -10,16 +10,29 @@ require("@babel/polyfill");
  * Module dependencies.
  */
 
+// config variables
+//require('../config/config.js');
+var config = require('../config/config.js');
+var models = require("../models");
+var sequelize = models.sequelize;
+sequelize.sync({alter:true}).then(function() {
+  console.log('Nice! Database looks fine')
+}).catch(function(err) {
+  console.log(err, "Something went wrong with the Database Update!")
+});
+
 var app = require('../app');
 var debug = require('debug')('server:server');
 var http = require('http');
 
-// config variables
-require('../config/config.js');
 
 /**
  * Get port from environment and store in Express.
  */
+
+
+//Sync Database
+
 
 var port = normalizePort(global.gConfig.node_port || '3000');
 app.set('port', port);

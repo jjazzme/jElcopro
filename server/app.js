@@ -13,10 +13,6 @@ var bodyParser = require('body-parser');
 var env = require('dotenv').config();
 // -----
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-
-
 var app = express();
 
 // view engine setup
@@ -40,8 +36,6 @@ app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 //-------
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -61,14 +55,11 @@ app.use(function(err, req, res, next) {
 
 // test models
 
-//Models
-var models = require("/models");
-//Sync Database
-models.sequelize.sync().then(function() {
-  console.log('Nice! Database looks fine')
-}).catch(function(err) {
-  console.log(err, "Something went wrong with the Database Update!")
-});
+var indexRouter = require('./routes/index');
+//var usersRouter = require('./routes/users');
+
+app.use('/', indexRouter);
+//app.use('/users', usersRouter);
 
 console.log('APP.JS <---------------------------');
 module.exports = app;

@@ -46,7 +46,10 @@ module.exports = function(sequelize, Sequelize) {
         },
         options: {
             type: Sequelize.JSON
-        }
+        },
+        avatar:{
+            type: Sequelize.INTEGER
+        },
 
 
     });
