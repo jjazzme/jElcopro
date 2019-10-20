@@ -13,8 +13,11 @@ module.exports = (sequelize, DataTypes) => {
     Company.belongsTo(models.Party, {
       foreignKey: 'party_id'
     });
+    Company.belongsTo(models.Address, {
+      foreignKey: 'fact_address_id'
+    });
     Company.hasMany(models.Store, {
-      foreignKey: 'company_id',
+      foreignKey: 'company_id'
     })
   };
   return Company;

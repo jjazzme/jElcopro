@@ -4,6 +4,7 @@ export default class Entity {
 
     _Entity = undefined;
     _transaction = undefined;
+    _includes = [];
 
     constructor(Entity) {
         this._Entity = Entity;
@@ -21,32 +22,16 @@ export default class Entity {
     }
 
     /**
-     * Find by id or attributes in newItem
+     * Find by id or attributes in searchItem
      * @param searchItem
      * @returns {Promise<*>}
      */
     async find(searchItem) {
         let item = undefined;
         if (searchItem.id) {
-            item = await this._Entity.findOne({ where : { id: searchItem.id } });
+            item = await this._Entity.findOne({ where : { id: searchItem.id }, include: this._includes });
         } else {
-            item = await this._Entity.findOne({ where : searchItem });
-        }
-        return item;
-    }
-
-    /**
-     * Check that Item instance of Entity and if not try to find It by Id
-     * @param item
-     * @returns {Promise<*>}
-     */
-    async checkItem(item) {
-        if (item instanceof this._Entity) {
-            return item
-        }
-        item = await this._Entity().findOne({ where : { id: item.id } });
-        if (!item) {
-            throw new Error('Кривые данные для ' + this._Entity.toString());
+            item = await this._Entity.findOne({ where : searchItem, include: this._includes });
         }
         return item;
     }
@@ -54,7 +39,7 @@ export default class Entity {
     /**
      * Save new instance in DB with triggers
      * @param item
-     * @returns {Promise<void>}
+     * @returns {Promise<Object>}
      */
     async create(item) {
         const t = await this.transaction();
@@ -77,19 +62,23 @@ export default class Entity {
             }
             await t.commit();
         } catch (e) {
-            await this.t.rollback();
+            await t.rollback();
             throw e
         }
+        return (await this.find({ id: item.id }));
     }
 
     /**
      * Replace instance in DB with triggers
      * @param item
-     * @returns {Promise<void>}
+     * @returns {Promise<Object>}
      */
     async update(item) {
         const t = await this.transaction();
-        await this.checkItem(item);
+        if (!(item instanceof this._Entity)) {
+            const item_by_id = await this._Entity.findOne({ where : { id: item.id } });
+            item = item_by_id.set(item);
+        }
         try {
             if (this.beforeUpdate) {
                 await this.beforeUpdate(item, t);
@@ -109,6 +98,7 @@ export default class Entity {
             await t.rollback();
             throw e
         }
+        return (await this.find({ id: item.id }));
     }
 
     /**
@@ -118,7 +108,9 @@ export default class Entity {
      */
     async destroy(item) {
         const t = await this.transaction();
-        await this.checkItem(item);
+        if (!(item instanceof this._Entity)) {
+            item = await this._Entity.findOne({ where : { id: item.id } });
+        }
         try {
             if (this.beforeDestroy) {
                 await this.beforeDestroy(item, t);
@@ -138,17 +130,17 @@ export default class Entity {
      * Update or Create with find
      * @param searchItem
      * @param newItem
-     * @returns {Promise<*>}
+     * @returns {Promise<Object>}
      */
     async updateOrCreate(searchItem, newItem) {
         let item = await this.find(searchItem);
         Object.assign(searchItem, newItem);
         if (!item) {
-            item = this._Entity.build(searchItem);
-            await this.create(item)
+            item = this._Entity.build(searchItem, { include: this._includes });
+            item = await this.create(item)
         } else {
-            item.set(searchItem);
-            await this.update(item);
+            item.set(searchItem, { include: this._includes });
+            item = await this.update(item);
         }
         return item;
     }

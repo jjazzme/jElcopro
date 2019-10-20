@@ -1,7 +1,10 @@
-
-import Service from "../services/ProductService";
+import CompanyService from "../services/CompanyService";
+import ProductService from "../services/ProductService";
+import { Company } from '../models'
 module.exports.run = async () => {
-    const service = await new Service();
-    const s = await service.updateOrCreate({ name: 'КР122ЕН5'}, { vat: 20 });
-    console.log(s.dataValues);
+    const service = await new CompanyService();
+    const s = await service.updateOrCreateOnInnOgrn('5256051148', '1045207058687');
+    //const s = await service.update({ id:7, name: 'TEST3' , producer_id: undefined })
+    console.log(s);
+
 };

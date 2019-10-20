@@ -1,10 +1,12 @@
 'use strict';
 
+import Entity from "./Entity";
+import { Address } from "../models";
+
 const Company = require('../models').Company;
 const Party = require('../models').Party;
 const Store = require('../models').Store;
 
-const _ = require('lodash');
 const dadata = require('./dadata').default;
 const Cache = require('./Cache').default;
 
@@ -12,30 +14,18 @@ const PartyService = require('../services/PartyService').default;
 const AddressService = require('../services/AddressService').default;
 const StoreService = require('../services/StoreService').default;
 
-export default {
+export default class CompanyService extends Entity {
 
-    /**
-     *
-     * @param party_id
-     * @param fact_address_id
-     * @param own
-     * @returns {Promise<Object>}
-     */
-    async updateOrCreate(party_id, fact_address_id, own = false) {
-        let company = await Company.findOne({
-            include: [{
-                model: Store
-            }],
-            where: { party_id: party_id }
-        });
-        if (!company) {
-            company = await Company.create({ party_id: party_id, fact_address_id: fact_address_id, own: own });
-            company.Stores = [];
-        } else if (!_.isEqual(item.fact_address_id, fact_address_id) || item.own !== own) {
-            await company.update({fact_address_id: fact_address_id, own: own});
-        }
-        return company;
-    },
+    _PartyService = new PartyService();
+
+    constructor(){
+        super(Company);
+        this._includes = [
+            { model: Address, required: true },
+            { model: Party, required: true },
+            { model: Store }
+        ];
+    }
 
     /**
      *
@@ -46,22 +36,22 @@ export default {
      */
     async updateOrCreateOnInnOgrn(inn, ogrn, own = false) {
         let company = await Company.findOne({
-            include: [{
-                model: Party,
-                required: true,
-                where: { inn: inn, ogrn: ogrn }
-            },{
-                model: Store,
-            }]
+            include: [
+                { model: Party, required: true,  where: { inn: inn, ogrn: ogrn } },
+                { model: Address, required: true },
+                { model: Store }
+             ]
         });
         if (!company) {
             let newParty = (await dadata.query('party', inn)).suggestions[0];
-            const party = await PartyService.updateOrCreate(inn, ogrn, newParty.value, newParty);
+            const party = await this._PartyService.updateOrCreate(
+                { inn: inn }, { ogrn: ogrn, name: newParty.value, json: newParty }
+            );
             const address = await AddressService.updateOrCreate(newParty.data.address.value, newParty.data.address);
-            company = await this.updateOrCreate(party.id, address.id, own);
+            company = await this.create({ party_id: party.id, fact_address_id: address.id, own: own });
         }
         return company;
-    },
+    }
 
     /**
      *
@@ -80,7 +70,7 @@ export default {
             company.Stores.push(store)
         }
         return company
-    },
+    }
 
     /**
      *

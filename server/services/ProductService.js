@@ -1,13 +1,14 @@
 'use strict';
 
 import Entity from './Entity';
-
+import { Producer } from '../models';
 const Product = require('../models').Product;
 
 export default class ProductService extends Entity {
 
     constructor() {
         super(Product);
+        this._includes = [{ model: Producer }]
     }
 
     /**

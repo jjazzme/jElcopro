@@ -3,13 +3,10 @@
   <component name="ChangeListManager">
     <list default="true" id="09e94829-b941-41e8-95cd-f4a06a6a7730" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/.babelrc" beforeDir="false" afterPath="$PROJECT_DIR$/server/.babelrc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/commands/test.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/commands/test.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/models/company.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/models/company.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/services/CompanyService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/CompanyService.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/services/Entity.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/Entity.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/services/PartyService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/PartyService.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/services/ProducerService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/ProducerService.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/services/ProductService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/ProductService.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -173,22 +170,7 @@
     <option name="allServicesViewState">
       <serviceView>
         <treeState>
-          <expand>
-            <path>
-              <item name="services root" type="e789fda9:ObjectUtils$Sentinel" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@44494fcb" type="7427dc5b:ServiceModel$ServiceGroupNode" />
-            </path>
-            <path>
-              <item name="services root" type="e789fda9:ObjectUtils$Sentinel" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@44494fcb" type="7427dc5b:ServiceModel$ServiceGroupNode" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceNode@1e240970" type="9fbbdea:ServiceModel$ServiceNode" />
-            </path>
-            <path>
-              <item name="services root" type="e789fda9:ObjectUtils$Sentinel" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@44494fcb" type="7427dc5b:ServiceModel$ServiceGroupNode" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceNode@4ba367fe" type="9fbbdea:ServiceModel$ServiceNode" />
-            </path>
-          </expand>
+          <expand />
           <select />
         </treeState>
       </serviceView>
@@ -210,7 +192,7 @@
       <workItem from="1571548679284" duration="1571000" />
       <workItem from="1571550312021" duration="5904000" />
       <workItem from="1571569310501" duration="209000" />
-      <workItem from="1571569684060" duration="4360000" />
+      <workItem from="1571569684060" duration="13398000" />
     </task>
     <task id="LOCAL-00001" summary="Datata">
       <created>1571292450729</created>
@@ -247,7 +229,14 @@
       <option name="project" value="LOCAL" />
       <updated>1571496114649</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Transfer Entity to class">
+      <created>1571587647190</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1571587647190</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -273,6 +262,7 @@
     <MESSAGE value="ProducerService V1" />
     <MESSAGE value="Add Entity class&#10;&#10;Product &amp; Producer service use this class" />
     <MESSAGE value="Product &amp; Producer service extends Entity class" />
-    <option name="LAST_COMMIT_MESSAGE" value="Product &amp; Producer service extends Entity class" />
+    <MESSAGE value="Transfer Entity to class" />
+    <option name="LAST_COMMIT_MESSAGE" value="Transfer Entity to class" />
   </component>
 </project>
