@@ -14,7 +14,8 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'party_id'
     });
     Company.belongsTo(models.Address, {
-      foreignKey: 'fact_address_id'
+      foreignKey: 'fact_address_id',
+      as: 'fact_address'
     });
     Company.hasMany(models.Store, {
       foreignKey: 'company_id'

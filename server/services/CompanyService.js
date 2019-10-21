@@ -1,44 +1,40 @@
 'use strict';
 
 import Entity from "./Entity";
-import { Address } from "../models";
-
-const Company = require('../models').Company;
-const Party = require('../models').Party;
-const Store = require('../models').Store;
-
-const dadata = require('./dadata').default;
-const Cache = require('./Cache').default;
-
-const PartyService = require('../services/PartyService').default;
-const AddressService = require('../services/AddressService').default;
-const StoreService = require('../services/StoreService').default;
+import { Address, Company, Party, Store } from "../models";
+import dadata from './dadata';
+import Cache from './Cache'
+import PartyService from "./PartyService";
+import AddressService from './AddressService';
+import StoreService from "./StoreService";
 
 export default class CompanyService extends Entity {
 
     _PartyService = new PartyService();
+    _AddressService = new AddressService();
+    _StoreService = new StoreService();
 
     constructor(){
         super(Company);
         this._includes = [
-            { model: Address, required: true },
+            { model: Address, required: true, as: 'fact_address' },
             { model: Party, required: true },
             { model: Store }
         ];
     }
 
     /**
-     *
+     * Update Or Create By INN & OGRN
      * @param inn
      * @param ogrn
      * @param own
      * @returns {Promise<Object>}
      */
-    async updateOrCreateOnInnOgrn(inn, ogrn, own = false) {
+    async updateOrCreateByInnOgrn(inn, ogrn, own = false) {
         let company = await Company.findOne({
             include: [
                 { model: Party, required: true,  where: { inn: inn, ogrn: ogrn } },
-                { model: Address, required: true },
+                { model: Address, required: true, as: 'fact_address' },
                 { model: Store }
              ]
         });
@@ -47,14 +43,16 @@ export default class CompanyService extends Entity {
             const party = await this._PartyService.updateOrCreate(
                 { inn: inn }, { ogrn: ogrn, name: newParty.value, json: newParty }
             );
-            const address = await AddressService.updateOrCreate(newParty.data.address.value, newParty.data.address);
+            const address = await this._AddressService.updateOrCreate(
+                { address: newParty.data.address.value}, { json: newParty.data.address }
+            );
             company = await this.create({ party_id: party.id, fact_address_id: address.id, own: own });
         }
         return company;
     }
 
     /**
-     *
+     * Update Or Create with Main(Default) Store
      * @param inn
      * @param ogrn
      * @param storeName
@@ -64,27 +62,29 @@ export default class CompanyService extends Entity {
      * @returns {Promise<Object>}
      */
     async updateOrCreateWithStore(inn, ogrn, storeName, own = false, online = false, is_main = true) {
-        const company = await this.updateOrCreateOnInnOgrn(inn, ogrn, own);
-        if (!company.Stores || company.Stores.length === 0) {
-            const store = await StoreService.updateOrCreate(company.id, company.address_id, storeName, online, is_main);
+        const company = await this.updateOrCreateByInnOgrn(inn, ogrn, own);
+        if (company.Stores.length === 0) {
+            const store = await this._StoreService.updateOrCreate(
+                { company_id: company.id, address_id: company.fact_address_id },
+                { name: storeName, online: online, is_main: is_main }
+            );
             company.Stores.push(store)
         }
         return company
     }
 
     /**
-     *
+     * Search by Alias from config
      * @param alias
      * @returns {Promise<Object|undefined>}
      */
     async getByAlias(alias) {
         let company = require('../config/companies').default[alias];
-        console.dir(alias, company);
         if (!company) {
             return undefined;
         }
-        return Cache.remember('company_' + alias, this.updateOrCreateWithStore(
+        return (await Cache.remember('company_' + alias, this.updateOrCreateWithStore(
             company.inn, company.ogrn, company.stores.main.name, company.own, company.stores.main.online
-        ));
+        )));
     }
 }
