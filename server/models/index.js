@@ -11,9 +11,10 @@ const db = {};
 
 let sequelize;
 if (config.use_env_variable) {
-  sequelize = new Sequelize(process.env[config.use_env_variable], config);
+  sequelize = new Sequelize(process.env[config.use_env_variable], config.sequelize);
 } else {
-  sequelize = new Sequelize(config.database, config.username, config.password, config);
+  sequelize = new Sequelize(config.sequelize);
+  //config.database, config.username, config.password, config
 }
 
 fs
@@ -29,33 +30,35 @@ fs
 Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {
     db[modelName].associate(db);
+
+    //?????????????? можно убрать, так как SET
+      db[modelName].updateIfNotExists = function(values, options) {
+          //console.log(values);
+          //console.log(options)
+          return new Promise((resolve,reject)=>{
+              db[modelName].count({where: [{[Op.and]:[options.where, values]}] })
+                  .then(cou=>{
+                      if (!cou){
+                          db[modelName].update(
+                              values,
+                              options
+                          )
+                              .then(ret=>{
+                                  resolve(ret);
+                              })
+                              .catch(e=>reject(e));
+                      } else {
+                          resolve(false);
+                      }
+                  })
+                  .catch(e=>reject(e));
+          });
+      };
   }
 });
 
 Object.keys(db).forEach(modelName => {
   //console.log(modelName)
-  db[modelName].updateIfNotExists = function(values, options) {
-    //console.log(values);
-    //console.log(options)
-    return new Promise((resolve,reject)=>{
-      db[modelName].count({where: [{[Op.and]:[options.where, values]}] })
-          .then(cou=>{
-            if (!cou){
-              db[modelName].update(
-                  values,
-                  options
-              )
-                  .then(ret=>{
-                    resolve(ret);
-                  })
-                  .catch(e=>reject(e));
-            } else {
-              resolve(false);
-            }
-          })
-          .catch(e=>reject(e));
-    });
-  };
 });
 
 db.sequelize = sequelize;

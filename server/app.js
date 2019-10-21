@@ -1,13 +1,25 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+'use strict';
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+const createError = require('http-errors');
+const express = require('express');
+const app = express();
 
-var app = express();
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+
+//For Passport
+const passport   = require('passport');
+const session    = require('express-session');
+const bodyParser = require('body-parser');
+const cookieSession = require('cookie-session');
+
+// getting the local authentication type
+const LocalStrategy = require('passport-local').Strategy
+
+const env = require('dotenv').config();
+// -----
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -19,8 +31,18 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+//For BodyParser
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+//-------
+
+// For Passport
+//app.use(session({ secret: 'keyboard cat',resave: true, saveUninitialized:true})); // session secret
+app.use(cookieSession({name: 'mysession', keys: ['vueauthrandomkey'], maxAge: 24 * 60 * 60 * 1000 })); // 24 hours
+app.use(passport.initialize());
+app.use(passport.session()); // persistent login sessions
+//-------
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -38,6 +60,13 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-console.log('APP.JS <---------------------------');
+// test models
 
+const indexRouter = require('./routes/index');
+//const usersRouter = require('./routes/users');
+
+app.use('/', indexRouter);
+//app.use('/users', usersRouter);
+
+console.log('APP.JS <---------------------------');
 module.exports = app;
