@@ -4,6 +4,7 @@ var router = express.Router();
 const modelController = require('../controllers/model');
 const shellController = require('../controllers/shell');
 const middlewareController = require('../controllers/middle/main');
+const authController = require('../controllers/auth');
 
 /* Router middleware */
 router.use(middlewareController.routeLog);
@@ -17,6 +18,23 @@ router.put('/api/shell/:model/:userID', shellController.setShell);
 
 /* Model router */
 router.put('/api/model/get/:model/:userID/:page', modelController.getModelByOptics);
+
+/* Auth router */
+router.post('/api/login', authController.login);
+router.get('/api/logout', authController.logout);
+router.get('/api/user', middlewareController.auth, (req, res) => {
+    /*
+    https://blog.jscrambler.com/vue-js-authentication-system-with-node-js-backend/
+
+    let user = users.find(user => {
+        return user.id === req.session.passport.user
+    })
+
+    console.log([user, req.session])
+
+    res.send({ user: user })
+     */
+});
 
 module.exports = router;
 

@@ -1,19 +1,25 @@
-var createError = require('http-errors');
-var express = require('express');
+'use strict';
 
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const createError = require('http-errors');
+const express = require('express');
+const app = express();
+
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
 
 //For Passport
-var passport   = require('passport');
-var session    = require('express-session');
-var bodyParser = require('body-parser');
+const passport   = require('passport');
+const session    = require('express-session');
+const bodyParser = require('body-parser');
+const cookieSession = require('cookie-session');
 
-var env = require('dotenv').config();
+// getting the local authentication type
+const LocalStrategy = require('passport-local').Strategy
+
+const env = require('dotenv').config();
 // -----
 
-var app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -31,7 +37,8 @@ app.use(bodyParser.json());
 //-------
 
 // For Passport
-app.use(session({ secret: 'keyboard cat',resave: true, saveUninitialized:true})); // session secret
+//app.use(session({ secret: 'keyboard cat',resave: true, saveUninitialized:true})); // session secret
+app.use(cookieSession({name: 'mysession', keys: ['vueauthrandomkey'], maxAge: 24 * 60 * 60 * 1000 })); // 24 hours
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 //-------
@@ -55,8 +62,8 @@ app.use(function(err, req, res, next) {
 
 // test models
 
-var indexRouter = require('./routes/index');
-//var usersRouter = require('./routes/users');
+const indexRouter = require('./routes/index');
+//const usersRouter = require('./routes/users');
 
 app.use('/', indexRouter);
 //app.use('/users', usersRouter);
