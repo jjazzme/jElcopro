@@ -2,19 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="09e94829-b941-41e8-95cd-f4a06a6a7730" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/server/commands/SeedCurrencies.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/models/good.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/models/price.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/services/GoodService.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/commands/importDan.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/commands/importDan.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/commands/test.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/commands/test.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/models/product.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/models/product.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/services/CompanyService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/CompanyService.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/services/Entity.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/Entity.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/services/StoreService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/StoreService.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/models/unit.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -187,17 +175,7 @@
     <option name="allServicesViewState">
       <serviceView>
         <treeState>
-          <expand>
-            <path>
-              <item name="services root" type="e789fda9:ObjectUtils$Sentinel" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@41cd138d" type="7427dc5b:ServiceModel$ServiceGroupNode" />
-            </path>
-            <path>
-              <item name="services root" type="e789fda9:ObjectUtils$Sentinel" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@41cd138d" type="7427dc5b:ServiceModel$ServiceGroupNode" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceNode@3920b601" type="9fbbdea:ServiceModel$ServiceNode" />
-            </path>
-          </expand>
+          <expand />
           <select />
         </treeState>
       </serviceView>
@@ -220,7 +198,7 @@
       <workItem from="1571550312021" duration="5904000" />
       <workItem from="1571569310501" duration="209000" />
       <workItem from="1571569684060" duration="19651000" />
-      <workItem from="1571648294733" duration="14066000" />
+      <workItem from="1571648294733" duration="16478000" />
     </task>
     <task id="LOCAL-00001" summary="Datata">
       <created>1571292450729</created>
@@ -278,7 +256,14 @@
       <option name="project" value="LOCAL" />
       <updated>1571645522894</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Import Dan 2">
+      <created>1571719547930</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1571719547930</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -307,6 +292,7 @@
     <MESSAGE value="Transfer Entity to class" />
     <MESSAGE value="In process CompanyService" />
     <MESSAGE value="First part of Services" />
-    <option name="LAST_COMMIT_MESSAGE" value="First part of Services" />
+    <MESSAGE value="Import Dan 2" />
+    <option name="LAST_COMMIT_MESSAGE" value="Import Dan 2" />
   </component>
 </project>
