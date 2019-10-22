@@ -1,6 +1,6 @@
 <template>
   <article>
-    <h1> Это заголовок 1+</h1>
+    <h1>{{enums.loadingStatus.ShellLoaded}}</h1>
     <h2> Это заголовок 2</h2>
     <h3> Это заголовок 3</h3>
     <h4> Это заголовок 4</h4>
@@ -20,11 +20,18 @@
   </article>
 </template>
 <script>
-  //import $ from 'cash-dom';
+  import Enums from '../../modules/enums'
   export default {
+    data() {return{
+        enums: new Enums(),
+      }},
+    components:{
+
+    },
     methods:{
-      clickh(e){
+      clickh(){
         var t = $('#test');
+        // eslint-disable-next-line no-console
         console.log(t);
       },
     }

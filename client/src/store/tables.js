@@ -126,13 +126,6 @@ let state = {
       model: 'Producer'
     },
     Order:{
-      directives:{
-        original: 'documents',
-        where: [['document_type_id', '=', 'order']],
-        with: ['sellerable', 'buyerable', 'store', 'currency', 'user'],
-        terms:{sellerable:'companies',buyerable:'companies'},
-        self:['document_lines']
-      },
       initial:{
         id:{show:false, hidden: true, sortable: false},
         date:{editor: 'calendar', show: true, order:1, sortable: true, label: 'Дата',
@@ -162,7 +155,7 @@ let state = {
             {type: 'search', _placeholder:'поиск 1'},
           ]},
         //sum:{show: true, order:7, from:'amount_with_vat', sortable: true, label: 'Сумма',
-          processor: v=>parseFloat(v ? v : "0")},
+        //  processor: v=>parseFloat(v ? v : "0")},
         user_id:{show: true, order:8, html: item=>item.User ? item.User.user : '-//-', sortable: true, label: 'Автор',
           filters:[
             {type: 'search', _placeholder:'поиск 1'},
@@ -171,11 +164,11 @@ let state = {
       menu: '<span><i class="fab fa-codepen"></i></span> Заказы',
       controller:{
         aliases: {
-          user_id: {path: 'User', column: 'name',
+          user_id: {path: 'User', column: 'name'},
           store_id: {path: 'Store', column: 'name'},
           currency_id: {path: 'Currency', column: 'name'},
-          sellerable_id: {path: 'Sellerable', column: 'name'},
-          buyerable_id: {path: 'Buyerable', column: 'name'},
+          sellerable_id: {path: 'Company', column: 'name', as: 'sellerable'},
+          buyerable_id: {path: 'Company', column: 'name', as: 'buyerable'},
         }
       },
       model: 'Order'

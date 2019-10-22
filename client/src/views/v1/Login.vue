@@ -10,7 +10,7 @@
 </template>
 
 <script>
-    import router from "../router"
+    import router from "../../router"
     import axios from "axios"
     export default {
         name: "Login",
@@ -26,10 +26,12 @@
                     }
                     axios.post("/api/login", data)
                         .then(() => {
+                            // eslint-disable-next-line no-console
                             console.log("Logged in")
                             router.push("/dashboard")
                         })
                         .catch(() => {
+                            // eslint-disable-next-line no-console
                             console.log("Cannot log in")
                         })
                 }
