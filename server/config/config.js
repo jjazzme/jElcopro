@@ -21,7 +21,7 @@ let additionalConfig = {
         host: process.env.DB_HOST,
         database: process.env.DB_DATABASE,
     },
-    //companies: require('./companies').default
+    companies: require('./companies').default
 };
 if (additionalConfig.sequelize.dialect !== 'mysql'){
     additionalConfig.sequelize.dialectOptions = {useUTC: false, timezone: 'Etc/GMT+0'};

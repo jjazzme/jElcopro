@@ -15,14 +15,16 @@ module.exports = (sequelize, DataTypes) => {
   company.associate = function(models) {
     // associations can be defined here
     company.belongsTo(models.Party, {
-      foreignKey: 'party_id'
+      foreignKey: 'party_id',
+      as: 'party'
     });
     company.belongsTo(models.Address, {
       foreignKey: 'fact_address_id',
       as: 'factAddress'
     });
     company.hasMany(models.Store, {
-      foreignKey: 'company_id'
+      foreignKey: 'company_id',
+      as: 'stores'
     })
   };
   return company;

@@ -12,7 +12,8 @@ export default class ProducerService extends Entity {
 
     constructor() {
         super(Producer);
-        this._includes = [{ model: Producer, as: 'rightProducer' }]
+        this._includes = [{ model: Producer, as: 'rightProducer' }];
+        this._right = 'rightProducer';
     }
 
     /**

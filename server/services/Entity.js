@@ -2,27 +2,41 @@ import db from '../models/index';
 
 export default class Entity {
 
+    /**
+     * Model class
+     * @type Object
+     * @private
+     */
     _Entity = undefined;
-    _transaction = undefined;
+
+    /**
+     * Includes for Find
+     * @type {Array}
+     * @private
+     */
     _includes = [];
+
+    /**
+     * Attribute name for right instance
+     * @type {string}
+     * @private
+     */
+    _right = undefined;
 
     constructor(Entity) {
         this._Entity = Entity;
     }
 
     /**
-     *  Get transaction
+     *  Get new transaction
      * @returns {Promise<undefined>}
      */
     async transaction() {
-        if (!this._transaction) {
-            this._transaction = await db.sequelize.transaction();
-        }
-        return this._transaction;
+        return (await db.sequelize.transaction());
     }
 
     /**
-     * Find by id or attributes in searchItem
+     * Find by id or attributes in searchItem & return right instance if possible
      * @param searchItem
      * @returns {Promise<*>}
      */
@@ -33,7 +47,7 @@ export default class Entity {
         } else {
             item = await this._Entity.findOne({ where : searchItem, include: this._includes });
         }
-        return item;
+        return !item ? item : (this._right && item[this._right] ? item[this._right] : item);
     }
 
     /**
@@ -148,7 +162,7 @@ export default class Entity {
     async firstOrNew(newItem) {
         let item = await this.find(newItem);
         if (!item) {
-            item = this._Entity.build(searchItem);
+            item = this._Entity.build(newItem);
         }
         return item;
     }

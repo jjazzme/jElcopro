@@ -18,8 +18,8 @@ export default class CompanyService extends Entity {
         super(Company);
         this._includes = [
             { model: Address, required: true, as: 'factAddress' },
-            { model: Party, required: true },
-            { model: Store }
+            { model: Party, required: true, as: 'party' },
+            { model: Store, as: 'stores' }
         ];
     }
 
@@ -33,9 +33,9 @@ export default class CompanyService extends Entity {
     async updateOrCreateByInnOgrn(inn, ogrn, own = false) {
         let company = await Company.findOne({
             include: [
-                { model: Party, required: true,  where: { inn: inn, ogrn: ogrn } },
+                { model: Party, required: true,  where: { inn: inn, ogrn: ogrn }, as: 'party' },
                 { model: Address, required: true, as: 'factAddress' },
-                { model: Store }
+                { model: Store, as: 'stores' }
              ]
         });
         if (!company) {
@@ -63,12 +63,12 @@ export default class CompanyService extends Entity {
      */
     async updateOrCreateWithStore(inn, ogrn, storeName, own = false, online = false, is_main = true) {
         const company = await this.updateOrCreateByInnOgrn(inn, ogrn, own);
-        if (company.Stores.length === 0) {
+        if (company.stores.length === 0) {
             const store = await this._StoreService.updateOrCreate(
                 { company_id: company.id, address_id: company.fact_address_id },
                 { name: storeName, online: online, is_main: is_main }
             );
-            company.Stores.push(store)
+            company.stores.push(store)
         }
         return company
     }

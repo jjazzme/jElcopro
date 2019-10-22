@@ -1,7 +1,7 @@
-import StoreService from "../services/CompanyService";
+import ProducerService from "../services/ProducerService";
 
 module.exports.run = async () => {
-    const service = new StoreService();
-    const store = await service.getByAlias('dan');
+    const service = new ProducerService();
+    const store = await service.find({ name: 'MAXIM' });
     console.log(store);
 };
