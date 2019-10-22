@@ -44,6 +44,12 @@ app.use(passport.session()); // persistent login sessions
 //-------
 
 
+const indexRouter = require('./routes/index');
+//const usersRouter = require('./routes/users');
+
+app.use('/', indexRouter);
+//app.use('/users', usersRouter);
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
@@ -61,12 +67,6 @@ app.use(function(err, req, res, next) {
 });
 
 // test models
-
-const indexRouter = require('./routes/index');
-//const usersRouter = require('./routes/users');
-
-app.use('/', indexRouter);
-//app.use('/users', usersRouter);
 
 console.log('APP.JS <---------------------------');
 module.exports = app;

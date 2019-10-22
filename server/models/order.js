@@ -8,9 +8,17 @@ module.exports = (sequelize, DataTypes) => {
         document_type_id: DataTypes.STRING,
         parent_id: DataTypes.INTEGER,
         sellerable_id: DataTypes.INTEGER,
-        sellerable_type: DataTypes.STRING,
+        sellerable_type: {
+            type: DataTypes.STRING,
+            defaultValue: 'Company',
+            allowNull: false
+        },
         buyerable_id: DataTypes.INTEGER,
-        buyerable_type: DataTypes.STRING,
+        buyerable_type: {
+            type: DataTypes.STRING,
+            defaultValue: 'Company',
+            allowNull: false
+        },
         store_id: DataTypes.INTEGER,
         foreign_store_id: DataTypes.INTEGER,
         closed: DataTypes.BOOLEAN,
@@ -20,15 +28,32 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         freezeTableName: true,
         tableName: 'documents',
-        defaultScope: {where: {document_type_id: 'order'}}
+        defaultScope: {where: {document_type_id: 'order'}},
     });
+    Order.prototype.getParentAlias = function(){
+        return `${this.Parent.documentType.name} №${this.Parent.number}`
+    };
     Order.associate = function(models) {
-        Order.belongsTo(models.User, {foreignKey: 'user_id'});
         Order.belongsTo(models.documentType, {foreignKey:'document_type_id'});
-        Order.belongsTo(models.Document, {foreignKey: 'parent_id'});
-        Order.belongsTo(models.Store, {foreignKey:'store_id'});
+        Order.belongsTo(models.Document, {
+            foreignKey: 'parent_id',
+            as: 'Parent'
+        });
         Order.belongsTo(models.Store, {foreignKey:'foreign_store_id'});
+
+        Order.belongsTo(models.User, {foreignKey: 'user_id'});
+        Order.belongsTo(models.Store, {foreignKey:'store_id'});
         Order.belongsTo(models.Currency, {foreignKey: 'currency_id'});
+        Order.belongsTo(models.Company, {
+            foreignKey: 'sellerable_id',
+            constraints: false,
+            as: 'Sellerable'
+        });
+        Order.belongsTo(models.Company, {
+            foreignKey: 'buyerable_id',
+            constraints: false,
+            as: 'Buyerable'
+        });
     };
     return Order;
 };
