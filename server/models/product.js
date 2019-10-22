@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
   var Product = sequelize.define('Product', {
     name: DataTypes.STRING,
     search_name: DataTypes.STRING,
-    vat: DataTypes.DECIMAL,
+    vat: { type: DataTypes.DECIMAL, defaultValue: 20.00 },
     category_id: {
       type: DataTypes.INTEGER,
         /*
@@ -42,13 +42,8 @@ module.exports = (sequelize, DataTypes) => {
     },
   }, {});
   Product.associate = function(models) {
-    Product.belongsTo(models.Category, {
-      foreignKey: 'category_id',
-    });
-    Product.belongsTo(models.Producer, {
-      foreignKey: 'producer_id',
-    });
-
+    Product.belongsTo(models.Category, { foreignKey: 'category_id' });
+    Product.belongsTo(models.Producer, { foreignKey: 'producer_id' });
     Product.hasMany(models.Picture, {
       foreignKey: 'model_id',
       constraints: false,

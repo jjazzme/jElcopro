@@ -11,5 +11,16 @@ export default {
                 pass: 'dandealer000'
             }
         }
+    },
+    elcopro: {
+        inn: '7017364619',
+        ogrn: '1147017021876',
+        own: true,
+        stores: {
+            main: {
+                name: 'Склад на 1905',
+                online: true
+            }
+        }
     }
 }

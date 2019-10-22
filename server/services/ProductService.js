@@ -1,13 +1,13 @@
 'use strict';
 
 import Entity from './Entity';
-
-const Product = require('../models').Product;
+import { Producer, Product, Category, Picture } from '../models';
 
 export default class ProductService extends Entity {
 
     constructor() {
         super(Product);
+        this._includes = [{ model: Producer }, { model: Category }, { model: Picture }]
     }
 
     /**
@@ -15,7 +15,7 @@ export default class ProductService extends Entity {
      * @param product
      * @returns {Promise<void>}
      */
-    async before(product){
+    async beforeUpdateOrCreate(product){
         const changes = product.changed();
         if (product.right_product_id && changes && changes.includes('right_product_id')) {
             const right_product = await Product.findOne({ where: { id: product.right_product_id }});
