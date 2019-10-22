@@ -136,11 +136,19 @@ export default class Entity {
         let item = await this.find(searchItem);
         Object.assign(searchItem, newItem);
         if (!item) {
-            item = this._Entity.build(searchItem, { include: this._includes });
+            item = this._Entity.build(searchItem);
             item = await this.create(item)
         } else {
-            item.set(searchItem, { include: this._includes });
+            item.set(searchItem);
             item = await this.update(item);
+        }
+        return item;
+    }
+
+    async firstOrNew(newItem) {
+        let item = await this.find(newItem);
+        if (!item) {
+            item = this._Entity.build(searchItem);
         }
         return item;
     }

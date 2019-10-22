@@ -12,7 +12,7 @@ export default class CompanyService extends Entity {
 
     _PartyService = new PartyService();
     _AddressService = new AddressService();
-    _StoreService = new StoreService();
+    static _StoreService = new StoreService();
 
     constructor(){
         super(Company);

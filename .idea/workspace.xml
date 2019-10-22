@@ -2,14 +2,18 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="09e94829-b941-41e8-95cd-f4a06a6a7730" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/server/commands/SeedCurrencies.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/models/good.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/models/price.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/services/GoodService.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/commands/importDan.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/commands/importDan.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/commands/test.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/commands/test.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/config/companies.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/config/companies.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/models/company.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/models/company.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/services/AddressService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/AddressService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/models/product.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/models/product.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/services/CompanyService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/CompanyService.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/services/ProducerService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/ProducerService.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/services/ProductService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/ProductService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/services/Entity.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/Entity.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/services/StoreService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/StoreService.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -50,13 +54,6 @@
         <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
         <item name="elcopro: schema" type="ebfa3cd1:MariaImplModel$Schema" />
       </path>
-      <path>
-        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="elcopro@127.0.0.1" type="feb32156:DbDataSourceImpl" />
-        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
-        <item name="elcopro: schema" type="ebfa3cd1:MariaImplModel$Schema" />
-        <item name="Stores: table" type="dbc44a63:MariaImplModel$Table" />
-      </path>
     </expand>
     <select />
   </component>
@@ -70,7 +67,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="Vladimir" />
+        <entry key="$PROJECT_DIR$" value="Jjazz" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -166,12 +163,22 @@
       <envs />
       <method v="2" />
     </configuration>
+    <configuration name="syncModelDB" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/server/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="syncModelDB" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="npm.syncModelDB" />
         <item itemvalue="npm.start_old" />
         <item itemvalue="npm.start_NODEMON" />
         <item itemvalue="npm.start" />
-        <item itemvalue="npm.serve" />
         <item itemvalue="npm.serve" />
       </list>
     </recent_temporary>
@@ -183,12 +190,12 @@
           <expand>
             <path>
               <item name="services root" type="e789fda9:ObjectUtils$Sentinel" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@44494fcb" type="7427dc5b:ServiceModel$ServiceGroupNode" />
+              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@41cd138d" type="7427dc5b:ServiceModel$ServiceGroupNode" />
             </path>
             <path>
               <item name="services root" type="e789fda9:ObjectUtils$Sentinel" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@44494fcb" type="7427dc5b:ServiceModel$ServiceGroupNode" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceNode@47a1fc2c" type="9fbbdea:ServiceModel$ServiceNode" />
+              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@41cd138d" type="7427dc5b:ServiceModel$ServiceGroupNode" />
+              <item name="com.intellij.execution.services.ServiceModel$ServiceNode@3920b601" type="9fbbdea:ServiceModel$ServiceNode" />
             </path>
           </expand>
           <select />
@@ -212,7 +219,8 @@
       <workItem from="1571548679284" duration="1571000" />
       <workItem from="1571550312021" duration="5904000" />
       <workItem from="1571569310501" duration="209000" />
-      <workItem from="1571569684060" duration="19292000" />
+      <workItem from="1571569684060" duration="19651000" />
+      <workItem from="1571648294733" duration="14066000" />
     </task>
     <task id="LOCAL-00001" summary="Datata">
       <created>1571292450729</created>
@@ -263,7 +271,14 @@
       <option name="project" value="LOCAL" />
       <updated>1571598536547</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="First part of Services">
+      <created>1571645522894</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1571645522894</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -291,6 +306,7 @@
     <MESSAGE value="Product &amp; Producer service extends Entity class" />
     <MESSAGE value="Transfer Entity to class" />
     <MESSAGE value="In process CompanyService" />
-    <option name="LAST_COMMIT_MESSAGE" value="In process CompanyService" />
+    <MESSAGE value="First part of Services" />
+    <option name="LAST_COMMIT_MESSAGE" value="First part of Services" />
   </component>
 </project>
