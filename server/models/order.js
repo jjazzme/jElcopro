@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = (sequelize, DataTypes) => {
-    var Order = sequelize.define('Order', {
+    const order = sequelize.define('Order', {
         date: DataTypes.DATE,
         number: DataTypes.INTEGER,
         user_id: DataTypes.INTEGER,
@@ -30,30 +30,30 @@ module.exports = (sequelize, DataTypes) => {
         tableName: 'documents',
         defaultScope: {where: {document_type_id: 'order'}},
     });
-    Order.prototype.getParentAlias = function(){
-        return `${this.Parent.documentType.name} №${this.Parent.number}`
+    order.prototype.getParentAlias = function(){
+        return `${this.Parent.DocumentType.name} №${this.Parent.number}`
     };
-    Order.associate = function(models) {
-        Order.belongsTo(models.documentType, {foreignKey:'document_type_id'});
-        Order.belongsTo(models.Document, {
+    order.associate = function(models) {
+        order.belongsTo(models.DocumentType, {foreignKey:'document_type_id'});
+        order.belongsTo(models.Document, {
             foreignKey: 'parent_id',
-            as: 'Parent'
+            as: 'parent'
         });
-        Order.belongsTo(models.Store, {foreignKey:'foreign_store_id'});
+        order.belongsTo(models.Store, {foreignKey:'foreign_store_id'});
 
-        Order.belongsTo(models.User, {foreignKey: 'user_id'});
-        Order.belongsTo(models.Store, {foreignKey:'store_id'});
-        Order.belongsTo(models.Currency, {foreignKey: 'currency_id'});
-        Order.belongsTo(models.Company, {
+        order.belongsTo(models.User, {foreignKey: 'user_id'});
+        order.belongsTo(models.Store, {foreignKey:'store_id'});
+        order.belongsTo(models.Currency, {foreignKey: 'currency_id'});
+        order.belongsTo(models.Company, {
             foreignKey: 'sellerable_id',
             constraints: false,
-            as: 'Sellerable'
+            as: 'sellerable'
         });
-        Order.belongsTo(models.Company, {
+        order.belongsTo(models.Company, {
             foreignKey: 'buyerable_id',
             constraints: false,
-            as: 'Buyerable'
+            as: 'buyerable'
         });
     };
-    return Order;
+    return order;
 };

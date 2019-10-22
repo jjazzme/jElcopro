@@ -1,6 +1,7 @@
 'use strict';
+
 module.exports = (sequelize, DataTypes) => {
-  const tableShells = sequelize.define('tableShells', {
+  const shells = sequelize.define('Shells', {
     user_id: {
       type: DataTypes.INTEGER,
       unique: 'cu_user_table'
@@ -14,14 +15,16 @@ module.exports = (sequelize, DataTypes) => {
     columns: DataTypes.JSON,
     optics: DataTypes.JSON
   }, {
+    freezeTableName: true,
+    tableName: 'shells',
     uniqueKeys: {
       cu_user_table: {
         fields: ['user_id', 'table']
       }
     }
   });
-  tableShells.associate = function(models) {
+  shells.associate = function(models) {
     // associations can be defined here
   };
-  return tableShells;
+  return shells;
 };

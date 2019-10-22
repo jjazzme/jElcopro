@@ -1,7 +1,7 @@
 'use strict'
 
 module.exports = (sequelize, DataTypes) => {
-    var documentType = sequelize.define('documentType', {
+    const documentType = sequelize.define('DocumentType', {
       id: {
           type: DataTypes.STRING,
           primaryKey: true

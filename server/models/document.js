@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = (sequelize, DataTypes) => {
-    var Document = sequelize.define('Document', {
+    const document = sequelize.define('Document', {
         date: DataTypes.DATE,
         number: DataTypes.INTEGER,
         user_id: DataTypes.INTEGER,
@@ -21,13 +21,13 @@ module.exports = (sequelize, DataTypes) => {
         freezeTableName: true,
         tableName: 'documents'
     });
-    Document.associate = function(models) {
-        Document.belongsTo(models.User, {foreignKey: 'user_id'});
-        Document.belongsTo(models.documentType, {foreignKey:'document_type_id'});
-        Document.belongsTo(models.Document, {foreignKey: 'parent_id', constraints:false, as: 'parent'});
-        Document.belongsTo(models.Store, {foreignKey:'store_id'});
-        Document.belongsTo(models.Store, {foreignKey:'foreign_store_id'});
-        Document.belongsTo(models.Currency, {foreignKey: 'currency_id'});
+    document.associate = function(models) {
+        document.belongsTo(models.User, {foreignKey: 'user_id'});
+        document.belongsTo(models.DocumentType, {foreignKey:'document_type_id'});
+        document.belongsTo(models.Document, {foreignKey: 'parent_id', constraints:false, as: 'parent'});
+        document.belongsTo(models.Store, {foreignKey:'store_id'});
+        document.belongsTo(models.Store, {foreignKey:'foreign_store_id'});
+        document.belongsTo(models.Currency, {foreignKey: 'currency_id'});
     };
-    return Document;
+    return document;
 };

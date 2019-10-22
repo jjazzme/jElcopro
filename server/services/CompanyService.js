@@ -17,7 +17,7 @@ export default class CompanyService extends Entity {
     constructor(){
         super(Company);
         this._includes = [
-            { model: Address, required: true, as: 'fact_address' },
+            { model: Address, required: true, as: 'factAddress' },
             { model: Party, required: true },
             { model: Store }
         ];
@@ -34,7 +34,7 @@ export default class CompanyService extends Entity {
         let company = await Company.findOne({
             include: [
                 { model: Party, required: true,  where: { inn: inn, ogrn: ogrn } },
-                { model: Address, required: true, as: 'fact_address' },
+                { model: Address, required: true, as: 'factAddress' },
                 { model: Store }
              ]
         });
