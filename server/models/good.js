@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = (sequelize, DataTypes) => {
-    var Good = sequelize.define('Good', {
+    var good = sequelize.define('Good', {
         store_id: { type: DataTypes.INTEGER, unique: 'goods_store_id_product_id_code_unique' },
         product_id: { type: DataTypes.INTEGER, unique: 'goods_store_id_product_id_code_unique' },
         ballance: { type: DataTypes.INTEGER, defaultValue: 0 },
@@ -14,9 +14,9 @@ module.exports = (sequelize, DataTypes) => {
         freezeTableName: true,
         tableName: 'goods'
     });
-    Good.associate = function(models) {
-        Good.belongsTo(models.Store, { foreignKey:'store_id' });
-        Good.belongsTo(models.Product, { foreignKey: 'product_id' });
+    good.associate = function(models) {
+        good.belongsTo(models.Store, { foreignKey:'store_id' });
+        good.belongsTo(models.Product, { foreignKey: 'product_id' });
     };
-    return Good;
+    return good;
 };

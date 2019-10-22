@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = (sequelize, DataTypes) => {
-    var Price = sequelize.define('Price', {
+    const price = sequelize.define('Price', {
         good_id: DataTypes.INTEGER,
         currency_id: DataTypes.STRING,
         min: DataTypes.INTEGER,
@@ -12,9 +12,9 @@ module.exports = (sequelize, DataTypes) => {
         freezeTableName: true,
         tableName: 'prices'
     });
-    Price.associate = function(models) {
-        Price.belongsTo(models.Good, { foreignKey:'good_id' });
-        Price.belongsTo(models.Currency, { foreignKey: 'currency_id' });
+    price.associate = function(models) {
+        price.belongsTo(models.Good, { foreignKey:'good_id' });
+        price.belongsTo(models.Currency, { foreignKey: 'currency_id' });
     };
-    return Price;
+    return price;
 };

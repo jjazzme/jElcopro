@@ -53,14 +53,15 @@ let state = {
     },
   },
   shells: {
+    //assembled:timestamp
+    //version
+    //updated:timestamp
+    //basket:[],
+    //columns:null,
+    //optics: null,
+    //table: name
+    //controller:{aliases: {_id: {path: '', column: '', as: ''},}},
     Product: {
-      //assembled:timestamp
-      //version
-      //updated:timestamp
-      //basket:[],
-      //columns:null,
-      //optics: null,
-      //table: name
       initial: {
         id:{show:false, hidden: true, sortable: false},
         name:{to:{name:'product', params:{id:'$id'}}, editor:'string' ,show: true, order:1, sortable: true, label: 'Название',
@@ -142,32 +143,41 @@ let state = {
             {type: 'integer_fromto', from:'', to:''},
             {type: 'search', _placeholder:'поиск 1'},
           ]},
-        selName:{show: true, order:3, from:'sellerable.party.name', sortable: true, label: 'Продавец',
+        sellerable_id:{show: true, order:3, html: item=>item.Buyerable ? item.Buyerable.name : '-//-', sortable: true, label: 'Продавец',
           filters:[
             {type: 'search', _placeholder:'поиск 1'},
             {type: 'search', _placeholder:'поиск 2'},
           ]},
-        buyName:{show: true, order:4, from:'buyerable.party.name', sortable: true, label: 'Покупатель',
+        buyerable_id:{show: true, order:4, html: item=>item.Buyerable ? item.Buyerable.name : '-//-', sortable: true, label: 'Покупатель',
           filters:[
             {type: 'search', _placeholder:'поиск 1'},
             {type: 'search', _placeholder:'поиск 2'},
           ]},
-        strName:{show: true, order:5, from:'store.name', sortable: true, label: 'Склад',
+        store_id:{show: true, order:5, html: item=>item.Store ? item.Store.name : '-//-', sortable: true, label: 'Склад',
           filters:[
             {type: 'search', _placeholder:'поиск 1'},
           ]},
-        curName:{show: true, order:6, from:'currency.name', sortable: true, label: 'Валюта',
+        currency_id:{show: true, order:6, html: item=>item.Currency ? item.Currency.name : '-//-', sortable: true, label: 'Валюта',
           filters:[
             {type: 'search', _placeholder:'поиск 1'},
           ]},
-        sum:{show: true, order:7, from:'amount_with_vat', sortable: true, label: 'Сумма',
+        //sum:{show: true, order:7, from:'amount_with_vat', sortable: true, label: 'Сумма',
           processor: v=>parseFloat(v ? v : "0")},
-        usrName:{show: true, order:8, from:'user.name', sortable: true, label: 'Автор',
+        user_id:{show: true, order:8, html: item=>item.User ? item.User.user : '-//-', sortable: true, label: 'Автор',
           filters:[
             {type: 'search', _placeholder:'поиск 1'},
           ]},
       },
       menu: '<span><i class="fab fa-codepen"></i></span> Заказы',
+      controller:{
+        aliases: {
+          user_id: {path: 'User', column: 'name',
+          store_id: {path: 'Store', column: 'name'},
+          currency_id: {path: 'Currency', column: 'name'},
+          sellerable_id: {path: 'Sellerable', column: 'name'},
+          buyerable_id: {path: 'Buyerable', column: 'name'},
+        }
+      },
       model: 'Order'
     },
     Invoice:{

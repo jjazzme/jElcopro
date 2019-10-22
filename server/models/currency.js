@@ -1,7 +1,7 @@
 'use strict'
 
 module.exports = (sequelize, DataTypes) => {
-    var Currency = sequelize.define('Currency', {
+    const currency = sequelize.define('Currency', {
         id: {
             type: DataTypes.STRING,
             primaryKey: true
@@ -10,9 +10,12 @@ module.exports = (sequelize, DataTypes) => {
         char_code: DataTypes.STRING,
         nominal: DataTypes.INTEGER,
         name: DataTypes.STRING,
-    }, {});
-    Currency.associate= function (models) {
+    }, {
+        freezeTableName: true,
+        tableName: 'currencies',
+    });
+    currency.associate= function (models) {
 
     };
-    return Currency
+    return currency
 };

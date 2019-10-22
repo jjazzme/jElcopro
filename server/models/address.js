@@ -1,11 +1,15 @@
 'use strict';
+
 module.exports = (sequelize, DataTypes) => {
-  const Address = sequelize.define('Address', {
+  const address = sequelize.define('Address', {
     address: DataTypes.STRING,
     json: DataTypes.JSON
-  }, {});
-  Address.associate = function(models) {
+  }, {
+    freezeTableName: true,
+    tableName: 'addresses'
+  });
+  address.associate = function(models) {
     // associations can be defined here
   };
-  return Address;
+  return address;
 };

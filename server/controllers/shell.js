@@ -20,7 +20,7 @@ module.exports = {
         }
 
 
-        models.tableShells.findOne({
+        models.Shells.findOne({
             where:{
                 user_id: userID,
                 table: model
@@ -51,7 +51,7 @@ module.exports = {
 
 
         if(id===0) {
-            models.tableShells.create(
+            models.Shells.create(
                 {
                     user_id: userID,
                     table: model,
@@ -67,7 +67,7 @@ module.exports = {
                     return res.status(500).send(err)
                 })
         } else {
-            models.tableShells.update({
+            models.Shells.update({
                 user_id: userID,
                 table: model,
                 version: shell.version,

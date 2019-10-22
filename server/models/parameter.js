@@ -1,20 +1,23 @@
 'use strict';
+
 module.exports = (sequelize, DataTypes) => {
-  const Parameter = sequelize.define('Parameter', {
+  const parameter = sequelize.define('Parameter', {
     key: {
       type: DataTypes.STRING,
       unique: 'cu_key'
     },
     value: DataTypes.STRING
   }, {
+    freezeTableName: true,
+    tableName: 'parameters',
     uniqueKeys: {
       cu_key: {
         fields: ['key']
       }
     }
   });
-  Parameter.associate = function(models) {
+  parameter.associate = function(models) {
     // associations can be defined here
   };
-  return Parameter;
+  return parameter;
 };

@@ -1,14 +1,18 @@
 'use strict';
+
 module.exports = (sequelize, DataTypes) => {
-  const Category = sequelize.define('Category', {
+  const category = sequelize.define('Category', {
     name: DataTypes.STRING,
     lft: DataTypes.INTEGER,
     rgt: DataTypes.INTEGER,
     level: DataTypes.INTEGER,
     picture: DataTypes.STRING
-  }, {});
-  Category.associate = function(models) {
+  }, {
+    freezeTableName: true,
+    tableName: 'categories'
+  });
+  category.associate = function(models) {
     //Category.hasMany(models.Product, {as: 'item'});
   };
-  return Category;
+  return category;
 };

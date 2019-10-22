@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = function(sequelize, Sequelize) {
-    var User = sequelize.define('User', {
+    const user = sequelize.define('User', {
         id: {
             autoIncrement: true,
             primaryKey: true,
@@ -50,10 +50,12 @@ module.exports = function(sequelize, Sequelize) {
         avatar:{
             type: Sequelize.INTEGER
         },
-
-
+    }, {
+        freezeTableName: true,
+        tableName: 'users'
     });
+    user.associate = function(models) {
 
-    return User;
-
-}
+    };
+    return user;
+};
