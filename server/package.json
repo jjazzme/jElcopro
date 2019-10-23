@@ -6,6 +6,7 @@
     "console": "bin/console"
   },
   "scripts": {
+    "console": "console seedUnits",
     "syncModelDB": "babel-node ./bin/sequelizeModelSync",
     "start": "babel-node ./bin/www",
     "start_NODEMON": "nodemon --exec babel-node ./bin/www",
@@ -20,6 +21,7 @@
     "@babel/polyfill": "^7.6.0",
     "@babel/runtime": "^7.6.3",
     "acorn": "^7.1.0",
+    "animate.css": "^3.7.2",
     "axios": "^0.19.0",
     "babel-register": "^6.26.0",
     "cookie-parser": "~1.4.4",

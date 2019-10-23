@@ -13,7 +13,8 @@ module.exports.run = async () => {
         if ( units[i].where.base_unit_id ) {
             units[i].where.base_unit_id = u.id;
         }
-        u = await Unit.findOrCreate(units[i]);
+        u = (await Unit.findOrCreate(units[i]))[0];
+
         console.log(u, u.id);
     }
 };

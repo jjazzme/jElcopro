@@ -1,6 +1,9 @@
 <template>
     <!-- eslint-disable vue/no-use-v-if-with-v-for,vue/no-confusing-v-for-v-if -->
     <article>
+        <page-environment
+                :head="{title: {main: 'таблицы', method: headMethod}}"
+        />
         <div v-if="loadingStatus<=enums.loadingStatus.TableLoading" class="v-t-loader">
             <!--СПИННЕР-->
             <b-spinner class="v-t-l-spinner" variant="warning" label="Загрузка..." />
@@ -62,6 +65,11 @@
                             variant="link"
                             class="text-nowrap"
                         >Сбросить фильтры</b-button>
+                        <b-button
+                                @click="addItem"
+                                variant="link"
+                                class="text-nowrap"
+                        >Добавить запись</b-button>
                     </b-dropdown>
                 </div>
 
@@ -104,18 +112,19 @@
                             >
                                 <template slot="button-content">
                                     <span
-                                        class="h-c-drag sm position-relative"
-                                        :class="`${!table.shell.optics.sorters[k].value ? 'fas fa-bars' : table.shell.optics.sorters[k].value === 'asc' ? 'fas fa-sort-alpha-down' : 'fas fa-sort-alpha-up-alt'}`"
+                                        class="h-c-drag sm"
                                         @dragstart="dragChangeStart"
                                         @dragend="dragChangeEnd"
                                         draggable="true"
                                         :data-index="table.shell.columns[k].order"
                                     >
-                                        <span
-                                            class="position-absolute"
-                                            style="top:-2px; left: -10px; color: white; font-size: 10px"
-                                        >
-                                            {{table.shell.optics.sorters[k].order===null?'':table.shell.optics.sorters[k].order}}
+
+                                        <i v-if="!table.shell.optics.sorters[k].value" class="fas fa-bars" />
+                                        <i v-else-if="table.shell.optics.sorters[k].value === 'asc'" class="fas fa-sort-alpha-down" />
+                                        <i v-else class="fas fa-sort-alpha-up-alt" />
+
+                                        <span v-if="table.shell.optics.sorters[k].order">
+                                            {{!table.shell.optics.sorters[k].order?'':table.shell.optics.sorters[k].order}}
                                         </span>
                                     </span>
                                 </template>
@@ -390,6 +399,7 @@
                 return  ret;
             },
             headerRowStyle(){return `${this.rowWidth===0 ? 'width: auto' : `width: auto; height: ${this.headerHeight}px;` };`},
+            headMethod(){return this.table?.shell?.name?.many},
             tableOptionsIsInitial(){
                 let ret = true;
                 _.forEach(this.table.shell.columns, i=>{
@@ -407,6 +417,14 @@
             },
         },
         methods:{
+            addItem(){
+                Swal.fire({
+                    title: 'Добавление записи',
+                    text:  'Вы действительно хотите добавить запись в таблицу',
+                    type:  'error',
+                    timer: 10000
+                });
+            },
             basketChange(id){
                 if(this.table.shell.basket.filter(item => {
                     return item.id===id
@@ -934,7 +952,7 @@
             },2000),
             SHELL(n,o){
                 // проверка на инициализирующие изменения шелла в сторе
-                if(n && n.assembled && (!o.assembled || n.table!==o.table)) Vue.set(this, 'loadingStatus', this.enums.loadingStatus.ShellLoaded);
+                if(n && n.assembled && (!o || !o.assembled || n.table!==o.table)) Vue.set(this, 'loadingStatus', this.enums.loadingStatus.ShellLoaded);
             },
             userID(n){
                 if(n)  Vue.set(this, 'loadingStatus', this.enums.loadingStatus.Authenticated);
@@ -1007,16 +1025,35 @@
     .h-c-tools {
         margin-left: auto;
         span {display: inline-block}
-        max-width: 30px; min-width: 30px;
+        max-width: 32px; min-width: 32px;
     }
     .h-c-drag {
-        cursor: move;  opacity: 0.5; margin-right: 2px;
-        :hover {opacity: 1}
+        display: inline-block; position: relative; height: 100%; min-width: 15px; min-height: 20px; cursor: move;  opacity: 0.5; margin-right: 2px;
+        :hover {opacity: 1};
+        i {
+            font-size: 16px; margin: auto;
+        }
+        span {
+            position: absolute;
+            display: inline-block;
+            top: 0;
+            left: 6px;
+            color: white;
+            font-size: 10px;
+            background-color: red;
+            width: 10px;
+            height: 10px;
+            opacity: 1;
+            border-radius: 4px;
+            line-height: 10px;
+        }
     }
     .h-c-sizing {
-        min-width: 5px; cursor: col-resize; opacity: 0.5;
+        min-width: 4px; cursor: col-resize; opacity: 0.5; margin-left: 2px;
         :hover {opacity: 1}
     }
-    .h-c-options { &::v-deep .btn {padding: 2px !important;} }
+    .h-c-options {
+        &::v-deep .btn {padding: 2px !important;}
+    }
     .p-options {}
 </style>

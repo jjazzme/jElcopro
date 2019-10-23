@@ -89,8 +89,11 @@ let state = {
           producer_id: {path: 'Producer', column: 'name'}
         }
       },
-      menu: '<span><i class="fas fa-barcode"></i></span> Продукты',
-      model: 'Product'
+      //menu: '<span><i class="fas fa-barcode"></i></span> Продукты',
+      //model: 'Product',
+      menu: true,
+      iClass: "fas fa-barcode",
+      name: {one: 'продукт', many: 'продукты'},
     },
     Producer: {
       initial: {
@@ -122,8 +125,11 @@ let state = {
           right_producer: {path: 'Producer', column: 'name', as: 'rightProducer'}
         }
       },
-      menu: '<span><i class="fas fa-hammer"></i></span> Продюсеры',
-      model: 'Producer'
+      //menu: '<span><i class="fas fa-hammer"></i></span> Продюсеры',
+      //model: 'Producer'
+      menu: true,
+      iClass: "fas fa-hammer",
+      name: {one: 'производитель', many: 'производители'},
     },
     Order:{
       initial:{
@@ -161,7 +167,6 @@ let state = {
             {type: 'search', _placeholder:'поиск 1'},
           ]},
       },
-      menu: '<span><i class="fab fa-codepen"></i></span> Заказы',
       controller:{
         aliases: {
           user_id: {path: 'User', column: 'name'},
@@ -171,7 +176,11 @@ let state = {
           buyerable_id: {path: 'Company', column: 'name', as: 'buyerable'},
         }
       },
-      model: 'Order'
+      //model: 'Order'
+      // menu: '<span><i class="fab fa-codepen"></i></span> Заказы',
+      menu: true,
+      iClass: "fab fa-codepen",
+      name: {one: 'заказ', many: 'заказы'},
     },
     Invoice:{
       directives:{
@@ -216,12 +225,16 @@ let state = {
             {type: 'search', _placeholder:'поиск 1'},
           ]},
       },
-      menu: '<span><i class="fas fa-file-invoice-dollar"></i></span> Счета',
-      model: 'Invoice'
+      //menu: '<span><i class="fas fa-file-invoice-dollar"></i></span> Счета',
+      //model: 'Invoice'
+      iClass: "fas fa-file-invoice-dollar",
+      name: {one: 'счёт', many: 'счета'},
+      menu: true,
     },
     document_lines:{
 
-    }
+    },
+    _class: 'таблицы',
   },
 };
 

@@ -1,5 +1,8 @@
 <template>
   <article>
+    <page-environment
+            :head="{title: {main: 'главная'}}"
+    />
     <h1>{{enums.loadingStatus.ShellLoaded}}</h1>
     <h2> Это заголовок 2</h2>
     <h3> Это заголовок 3</h3>
@@ -23,8 +26,12 @@
   import Enums from '../../modules/enums'
   export default {
     data() {return{
-        enums: new Enums(),
-      }},
+      enums: new Enums(),
+      pagenv:{
+        title: 'Главная'
+      },
+    }},
+
     components:{
 
     },
