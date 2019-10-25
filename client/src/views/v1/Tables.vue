@@ -501,7 +501,7 @@
             }, 200),
 
             getObjectProps(obj){
-                sou = $($(obj.target ? obj.target : obj).closest('div.v-t-col')[0]).children('span')[0];
+                let sou = $($(obj.target ? obj.target : obj).closest('div.v-t-col')[0]).children('span')[0];
 
                 const id = sou.getAttribute('data-key');
                 const col = sou.getAttribute('data-column');
