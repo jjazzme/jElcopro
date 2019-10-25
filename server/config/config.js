@@ -23,6 +23,9 @@ let additionalConfig = {
     },
     companies: require('./companies').default
 };
+if (!global.sequelize_logging) {
+    additionalConfig.sequelize.logging = false;
+}
 if (additionalConfig.sequelize.dialect !== 'mysql'){
     additionalConfig.sequelize.dialectOptions = {useUTC: false, timezone: 'Etc/GMT+0'};
     additionalConfig.sequelize.timezone = 'Etc/GMT+0';

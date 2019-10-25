@@ -22,5 +22,19 @@ export default {
                 online: true
             }
         }
+    },
+    compel: {
+        inn: '7713005406',
+        ogrn: '1027700032161',
+        own: false,
+        api_url: process.env.COMPEL_API_URL,
+        api_hash: process.env.COMPEL_HASH,
+        stores: {
+            main: {
+                name: 'CENTER',
+                online: true,
+                url: 'http://www.compel.ru/stockfiles2/0f3cf59278bb435da00616380f8805af/'
+            }
+        }
     }
 }

@@ -3,8 +3,9 @@
 const XLSX = require('xlsx');
 const _ = require('lodash');
 
-import db from '../models/index';
-const Op = db.Sequelize.Op;
+import unzipper from 'unzipper';
+import fs from 'fs';
+import request from 'request';
 
 import { getData } from "../services/getRowColInXlsX";
 
@@ -15,7 +16,7 @@ import ProductService from "../services/ProductService";
 import PriceService from "../services/PriceService";
 import ParameterNameService from "../services/ParameterNameService";
 import ParameterValueService from "../services/ParameterValueService";
-import { Currency, Good, Parameter } from '../models';
+import { Currency, Parameter } from '../models';
 
 module.exports.run = async () => {
     const zip = await unzipper.Open.url(request, global.gConfig.companies.dan.stores.main.url);
@@ -58,6 +59,7 @@ module.exports.run = async () => {
                         good.set({ product_id: product.id, pack: 1, multiply: 1 });
                     }
                     good.set({ ballance: ballance, is_active: true });
+                    good.changed('updatedAt', true);
                     await good_service.update(good);
                     if (case_value) {
                         case_value = await (new ParameterValueService()).updateOrCreate(
@@ -65,7 +67,7 @@ module.exports.run = async () => {
                         );
                         await Parameter.findOrCreate({
                             where: { product_id: good.product_id, parameter_name_id: case_.id },
-                            defaults: { parametr_value_id: case_value.id }
+                            defaults: { parameter_value_id: case_value.id }
                         });
                     }
                     await (new PriceService()).updateOrCreate({ good_id: good.id }, price);
@@ -105,8 +107,6 @@ module.exports.run = async () => {
                 break;
         }
     }
-    Good.update(
-        { is_active:  false, ballance: 0 },
-        { where: { is_active: true, store_id: store.id, updated_at: { [Op.lt]: start }  } }
-    );
+    const d = await good_service.disactivate(store.id, start);
+    console.log(d);
 };
