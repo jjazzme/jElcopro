@@ -4,10 +4,10 @@ module.exports = (sequelize, DataTypes) => {
   const company = sequelize.define('Company', {
     party_id: DataTypes.INTEGER,
     fact_address_id: DataTypes.INTEGER,
-    own: DataTypes.BOOLEAN,
+    own: { type: DataTypes.BOOLEAN, default: false },
     phone: DataTypes.STRING,
     picture: DataTypes.STRING,
-    with_vat: DataTypes.BOOLEAN
+    with_vat: { type: DataTypes.BOOLEAN, default: true }
   }, {
     freezeTableName: true,
     tableName: 'companies'

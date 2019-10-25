@@ -30,7 +30,7 @@
     "http-errors": "~1.6.3",
     "iconv-lite": "^0.5.0",
     "lodash": "^4.17.15",
-    "mariadb": "^2.1.1",
+    "mariadb": "^2.1.2",
     "minimist": "^1.2.0",
     "morgan": "~1.9.1",
     "mysql2": "^1.7.0",
@@ -38,7 +38,7 @@
     "passport-local": "^1.0.0",
     "pug": "^2.0.4",
     "request": "^2.88.0",
-    "sequelize": "^5.19.6",
+    "sequelize": "^5.21.1",
     "sequelize-cli": "^5.5.1",
     "unzip": "^0.1.11",
     "unzipper": "^0.10.5",
@@ -51,7 +51,7 @@
     "@babel/plugin-proposal-optional-chaining": "^7.6.0",
     "@babel/plugin-transform-runtime": "^7.6.2",
     "@babel/preset-env": "^7.6.3",
-    "dotenv": "^8.1.0",
+    "dotenv": "^8.2.0",
     "eslint": "^6.5.1"
   },
   "nodemon": {

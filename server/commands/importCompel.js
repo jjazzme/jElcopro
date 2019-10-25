@@ -16,6 +16,8 @@ import ProductService from "../services/ProductService";
 import ParameterValueService from "../services/ParameterValueService";
 
 module.exports.run = async () => {
+    const start = new Date();
+
     const response = await axios.get(global.gConfig.companies.compel.stores.main.url, { responseType: 'arraybuffer' });
     const file = await fs.createWriteStream('./storage/COMPELDISTI3_ext_TI.dbf');
     const directory = await unzipper.Open.buffer(response.data);
@@ -23,11 +25,10 @@ module.exports.run = async () => {
 
     console.log('downloading finish.');
 
-    const workbook = XLSX.readFile('./storage/COMPELDISTI3_ext_TI.dbf');
-    const sheet = workbook.Sheets[_.first(workbook.SheetNames)];
+    const workbook = await XLSX.readFile('./storage/COMPELDISTI3_ext_TI.dbf');
+    const sheet = await workbook.Sheets[_.first(workbook.SheetNames)];
 
     const from_row = 2;
-    const start = new Date();
     const company = await (new CompanyService()).getByAlias('compel');
     const store = _.find(company.stores, { is_main: true });
     const currency = await Currency.findOne({ where: { char_code: 'USD' } });
@@ -41,8 +42,9 @@ module.exports.run = async () => {
     let good_additional = {};
     let ballance = 0;
     let case_value = undefined;
-
+    console.log(workbook);
     for (let z in sheet) {
+        console.log('after');
         if (z[0] === '!') continue;
         let {col, row, value} = getData(z, sheet);
         if (row < from_row) continue;
@@ -101,7 +103,7 @@ module.exports.run = async () => {
                 }
                 good.set({ ballance: ballance, is_active: true });
                 good.changed('updatedAt', true);
-                await good_service.update(good);
+                good = await good_service.update(good);
                 if (case_value) {
                     case_value = await (new ParameterValueService()).updateOrCreate(
                         { name: case_value , parameter_name_id: case_.id }
@@ -112,7 +114,7 @@ module.exports.run = async () => {
                     });
                 }
                 for (let i = 0; i < price.length; i++) {
-                    if ( i === price.length - 1 ) {
+                    if ( i == price.length - 1 ) {
                         price[i].max = ballance
                     } else if ( i > 0 ) {
                         price[i - 1].max = price[i].min - 1;

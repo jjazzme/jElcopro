@@ -1,7 +1,8 @@
 import ProducerService from "../services/ProducerService";
+import XLSX from 'xlsx';
 
 module.exports.run = async () => {
-    const service = new ProducerService();
-    const store = await service.find({ name: 'MAXIM' });
-    console.log(store);
+    const workbook = XLSX.readFile('./storage/dan_dealer.xls');
+    const sheet = workbook.Sheets[_.first(workbook.SheetNames)];
+
 };
