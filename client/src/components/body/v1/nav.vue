@@ -10,7 +10,8 @@
                         to="/"
                         :class="$route.name === 'home' ? 'selected' : ''"
                 >
-                    <i class="fas fa-home"></i><span>главная</span>
+                    <span><fa-icon icon="home"/></span>
+                    <span>главная</span>
                 </router-link>
             </li>
             <li>
@@ -18,7 +19,8 @@
                         to="/help"
                         :class="$route.name === 'help' ? 'selected' : ''"
                 >
-                    <i class="fas fa-info-circle"></i><span>помощь</span>
+                    <span><fa-icon icon="info-circle" /></span>
+                    <span>помощь</span>
                 </router-link>
             </li>
 
@@ -31,17 +33,25 @@
                         :to="{ name: 'tables', params: {table: k}}"
                         :class="$route.name === 'tables' && $route.params.table === k ? 'selected' : ''"
                 >
-                    <i :class="v.iClass"></i><span v-html="v.name.many"></span>
+                    <span><fa-icon :icon="[v.faIcon.prefix, v.faIcon.name]"/></span>
+                    <span v-html="v.name.many"></span>
                 </router-link>
             </li>
         </ul>
-
     </nav>
 </template>
 
 <script>
     export default {
         name: "navComponent",
+        data(){
+            return{
+                Test: false,
+            }
+        },
+        methods:{
+            test(){this.Test = true;console.log(this.Test);}
+        },
         computed: {
 
         },
@@ -62,24 +72,26 @@
         li{
             a{
                 font-family: 'Montserrat', 'Open Sans', sans-serif;
+                display: block;
                 font-size: 18px;
                 line-height: 36px;
                 border:none;
-                i{width: 30px; display: inline-block; font-size: 24px; color: royalblue};
-                span{text-transform: capitalize; margin-left: 5px; display: inline-block; max-width: 130px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; position: absolute;}
+                span:first-child{width: 30px; display: inline-block; font-size: 24px; color: royalblue};
+                span:last-child{text-transform: capitalize; margin-left: 5px; display: inline-block; max-width: 130px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; position: absolute;}
                 color: gray;
+                min-height: 36px;
             };
             a:hover{
                 color: black;
-                i{color: black}
+                span:first-child{color: black}
             }
             a.selected{
                 color: black;
-                i{color: black}
+                span:first-child{color: black}
             }
             a.selected:hover{
                 color: silver;
-                i{color: silver}
+                span:first-child{color: silver}
             }
         };
     }

@@ -1,25 +1,42 @@
 import Vue from 'vue';
-import BootstrapVue from 'bootstrap-vue';
 import App from './App.vue';
-import pageEnvironment from "@/components/body/v1/pageEnvironment";
-
 import router from './router';
 import store from './store/_default';
 
-Vue.config.productionTip = false;
+import BootstrapVue from 'bootstrap-vue';
 Vue.use(BootstrapVue);
-Vue.component('page-environment', pageEnvironment);
-
-//import '@fortawesome/fontawesome-free/css/all.css';
-//import '@fortawesome/fontawesome-free/js/all.js';
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 
+
+import pageEnvironment from "@/components/body/v1/pageEnvironment";
+Vue.component('page-environment', pageEnvironment);
+
+import { library } from '@fortawesome/fontawesome-svg-core';
+import {
+  faHome, faInfoCircle, faBarcode, faHammer, faCode, faFileInvoiceDollar, faBars,
+  faSortAlphaDown, faSortAlphaUpAlt, faEllipsisV
+} from '@fortawesome/free-solid-svg-icons';
+import {faCodepen} from '@fortawesome/free-brands-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+library.add(
+    faHome, faInfoCircle, faBarcode, faHammer, faCode, faCodepen, faFileInvoiceDollar, faBars,
+    faSortAlphaDown, faSortAlphaUpAlt, faEllipsisV
+);
+Vue.component('fa-icon', FontAwesomeIcon);
+
+Vue.config.productionTip = false;
+
 window.$  = require('cash-dom');
-window._ = require('lodash')
+window._ = require('lodash');
 
 //import _ from 'lodash';
 //Object.defineProperty(Vue.protoЉtype, '$_', { value: _ });
+//import '@fortawesome/fontawesome-free/css/all.css';
+//import '@fortawesome/fontawesome-free/js/all.js';
+//import animateCss from 'animate.css'
+//Vue.use(animateCss);
+//import fontsawesome from '@fortawesome/fontawesome-free'
 
 
 new Vue({

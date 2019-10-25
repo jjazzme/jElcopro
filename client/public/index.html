@@ -44,6 +44,7 @@
       body>section>header{
         flex: 1 1 auto;
         min-height: 200px;
+        max-height: 200px;
         background-color: cornflowerblue;
       }
       body>section>main{
@@ -62,6 +63,7 @@
         flex: 1 1 auto;
         background-color: whitesmoke;
         min-height: 100px;
+        max-height: 100px;
       }
 
       h1 {font-size: 1.75em}
@@ -71,14 +73,16 @@
         color: darkblue;
         text-decoration: none;
         border-bottom: solid 3px lightseagreen;
+        transition: 0.5s;
       }
-      a:hover{color: black; border-bottom: solid 1px lightseagreen;}
+      a:hover{color: black; border-bottom: solid 1px lightseagreen; text-decoration: none;}
       a.logo{display: block;margin-bottom: 40px; text-align: center}
       li>a:hover{border-bottom: none;}
       a.img, a.img:hover{border-bottom: none;}
     </style>
 
-    <script src="https://kit.fontawesome.com/d89b80b3a0.js" crossorigin="anonymous"></script>
+    <!--script src="https://kit.fontawesome.com/d89b80b3a0.js" crossorigin="anonymous"></script-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css">
   </head>
   <body id="app">
     <nav>

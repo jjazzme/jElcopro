@@ -38,11 +38,20 @@ let state = {
   },
   selectors:{
     vat:{
-      options: [{text:"Без НДС", value:"0.00"}, {text:"10%", value:"10.00"}, {text:"20%", value:"20.00"}]
+      options: [{text:"Без НДС", value:"0"}, {text:"10%", value:"10"}, {text:"20%", value:"20"}]
     },
-    categories:{
+    Category:{
       source: {
-        table: 'categories',
+        fields: ['id','name'],
+        orderby: 'name',
+        map: item => {return {text: item.name, value: item.id}},
+        add: {text: 'Без категории', value: null},
+      },
+      options: null,
+      created: null,
+    },
+    Producer:{
+      source: {
         fields: ['id','name'],
         orderby: 'name',
         map: item => {return {text: item.name, value: item.id}},
@@ -64,16 +73,16 @@ let state = {
     Product: {
       initial: {
         id:{show:false, hidden: true, sortable: false},
-        name:{to:{name:'product', params:{id:'$id'}}, editor:'string' ,show: true, order:1, sortable: true, label: 'Название',
+        name:{to:{name:'modelItem', params:{table: 'Product', id:'$id'}}, editor:'string' ,show: true, order:1, sortable: true, label: 'Название',
           filters:[
             {type: 'search', _placeholder:'поиск 1'}, // value=''
             {type: 'search', _placeholder:'поиск 2'},
           ]
         },
         vat:{editor:'selector', source:'vat' ,show: true, order:2, sortable: true, label: 'НДС %',
-          text: item => parseFloat(item.vat)===0?'Без НДС':`${parseFloat(item.vat)}%`},
+          html: item => parseFloat(item.vat)===0?'Без НДС':`${parseFloat(item.vat)}%`},
         category_id:{editor:'selector', show: true, order:3, html: item=>item.Category ? item.Category.name : '-//-', sortable: true, label: 'Категория'},
-        producer_id:{show: true, order:4, html: item=>item.Producer ? item.Producer.name : '-//-', sortable: true, label: 'Производитель',
+        producer_id:{editor:'selector', show: true, order:4, html: item=>item.Producer ? item.Producer.name : '-//-', sortable: true, label: 'Производитель',
           filters:[
             {type: 'search', _placeholder:'поиск 1'},
             {type: 'search', _placeholder:'поиск 2'},
@@ -92,7 +101,7 @@ let state = {
       //menu: '<span><i class="fas fa-barcode"></i></span> Продукты',
       //model: 'Product',
       menu: true,
-      iClass: "fas fa-barcode",
+      faIcon: {prefix: "fas", name: "barcode"},
       name: {one: 'продукт', many: 'продукты'},
     },
     Producer: {
@@ -128,7 +137,7 @@ let state = {
       //menu: '<span><i class="fas fa-hammer"></i></span> Продюсеры',
       //model: 'Producer'
       menu: true,
-      iClass: "fas fa-hammer",
+      faIcon: {prefix: "fas", name: "hammer"},
       name: {one: 'производитель', many: 'производители'},
     },
     Order:{
@@ -179,7 +188,7 @@ let state = {
       //model: 'Order'
       // menu: '<span><i class="fab fa-codepen"></i></span> Заказы',
       menu: true,
-      iClass: "fab fa-codepen",
+      faIcon: {prefix: "fab", name:"codepen"},
       name: {one: 'заказ', many: 'заказы'},
     },
     Invoice:{
@@ -227,7 +236,7 @@ let state = {
       },
       //menu: '<span><i class="fas fa-file-invoice-dollar"></i></span> Счета',
       //model: 'Invoice'
-      iClass: "fas fa-file-invoice-dollar",
+      faIcon: {prefix: "fas", name: "file-invoice-dollar"},
       name: {one: 'счёт', many: 'счета'},
       menu: true,
     },
@@ -291,7 +300,7 @@ let mutations = {
   SET_SELECTOR_OPTIONS(state, {name, options, add}){
     state.selectors[name].created = Date.now();
     state.selectors[name].options = options;
-    if (add) state.selectors[name].option.push = add;
+    if (add) state.selectors[name].options.push(add);
   },
 };
 
@@ -432,27 +441,30 @@ let actions = {
   // eslint-disable-next-line no-unused-vars
   UPDATE_VALUE({rootGetters}, packet){
     // {table: tab, id: id, column: col, value: val}
-    packet.user_id = 1;//rootGetters.USER.id;
-    return axios.post('/api/table4-update', {packet: JSON.stringify(packet)})
+    const user = rootGetters['AUTH/GET_USER'];
+    return axios.post(`/api/model/update/${packet.model}/${user.id}`, {packet: packet})
   },
-  GET_OPTIONS({state, commit, getters}, {name: sou, value: val, text: text}){
+  GET_OPTIONS({state, commit, getters, rootGetters}, {model, column, value, text}){
     return new Promise((resolve,reject)=>{
+      if (value === undefined) value = null;
+      const user = rootGetters['AUTH/GET_USER'];
+      const sou = state.shells[model].controller?.aliases[column]?.path ? _.last(state.shells[model].controller.aliases[column].path.split('.')) : column;
       const selector = getters.GET_SELECTOR(sou);
-      if (selector.options && (!selector.created || selector.created+state.cacheTTL<Date.now())){
+      if (
+          (selector.options && !selector.source)
+          || (selector.created && selector.created + state.cacheTTL > Date.now())
+      ){
+        // если кэш
         let res = _.cloneDeep(selector.options);
-        if (res.filter(i=>i.value===val).length===0) res.push({text:text, value:val});
-        resolve({options: _.sortBy(res, i=>i.value), selected:val})
+        if (res.filter(i=>i.value==value).length===0) res.push({text:text, value:value});
+        resolve({options: _.sortBy(res, i=>i.value), selected:value})
       } else {
-        // eslint-disable-next-line no-unused-vars
-        const table = selector.source.table;
-        // eslint-disable-next-line no-unused-vars
-        const fields = selector;
-        axios.post(`/api/table4-selector/${selector.source.table}`, {fields: JSON.stringify(selector.source.fields)})
+        axios.put(`/api/model/options/${sou}/${user.id}`, {fields: selector.source.fields})
             .then(r=>{
               let res = r.data.map(selector.source.map);
               commit('SET_SELECTOR_OPTIONS', {name:sou, options:res, add: selector.source.add});
-              if (res.filter(i=>i.value===val).length===0) res.push({text:text, value:val});
-              resolve({options: _.sortBy(res, i=>i.value), selected:val});
+              if (res.filter(i=>i.value==value).length===0) res.push({text:text, value:value});
+              resolve({options: _.sortBy(res, i=>i.text), selected:value});
             })
             .catch(e=>reject(e))
       }

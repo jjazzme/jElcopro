@@ -6,7 +6,7 @@
     "console": "bin/console"
   },
   "scripts": {
-    "console": "console seedUnits",
+    "console": "console seedCurrencies",
     "syncModelDB": "babel-node ./bin/sequelizeModelSync",
     "start": "babel-node ./bin/www",
     "start_NODEMON": "nodemon --exec babel-node ./bin/www",

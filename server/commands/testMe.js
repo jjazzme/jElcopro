@@ -10,20 +10,21 @@ var fs = require('fs');
 
 module.exports = {
     run: () => {
-        console.log(process.cwd());
+        var start = Date.now()
+        console.log('start')
 
         let unzip = async function() {
-            const zip = await unzipper.Open.file('temp/test_pass.zip');
+            const zip = await unzipper.Open.file('temp/COMPELDISTI3_ext_TI.zip');
             return new Promise( (resolve, reject) => {
                 zip.files[0]
-                    .stream('pass')
+                    .stream() //'pass'
                     .pipe(fs.createWriteStream('temp/unzipped/firstFile'))
                     .on('error',reject)
                     .on('finish',resolve)
             });
         };
 
-        unzip().then(ret=>console.log(ret))
+        unzip().then(ret=>console.log((Date.now() - start)/1000))
 
         // server/temp
         //https://www.npmjs.com/package/unzipper

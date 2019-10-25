@@ -14,6 +14,7 @@ const Op = Sequelize.Op;
 //});
 
 module.exports = {
+
     // get model by optics
     getModelByOptics(req, res){
         const userID = parseInt(req.params.userID);
@@ -142,7 +143,70 @@ module.exports = {
             });
 
 
-    }
+    },
+
+    // get selectors
+    getSelectors(req, res){
+        const userID = parseInt(req.params.userID);
+        const model = req.params.model;
+
+        if (Auth.controllerPermissionIsDenied({
+            clientUserID: userID,
+            model: model,
+            requiredPermissons: [enums.authType.Read]})
+        ) {
+            res.status(401).send('Authentication error');
+            return;
+        }
+
+        const fields = req.body.fields;
+
+        models[model].findAll({
+            attributes: fields
+        })
+            .then(resp=>{
+                res.send(resp);
+            })
+            .catch(err=>{
+                res.status(500);
+                res.json({error: err});
+            });
+
+    },
+
+    // апдейт ячейки
+    updateColumn(req, res){
+        const userID = parseInt(req.params.userID);
+        const model = req.params.model;
+
+        const packet = req.body.packet;
+        const id = packet.id;
+        const column = packet.column;
+        const value = packet.value;
+
+        if (Auth.controllerPermissionIsDenied({
+            clientUserID: userID,
+            model: model,
+            id: id,
+            column: column,
+            requiredPermissons: [enums.authType.Update]})
+        ) {
+            res.status(401).send('Authentication error');
+            return;
+        }
+
+        models[model].findByPk(id)
+            .then(oldItem=>{
+                oldItem.set(column, value).save({fields: [column]})
+                    .then(newItem=>{
+                        res.send({old: oldItem[column], new: newItem[column]});
+                    })
+                    .catch(err=>{
+                        res.status(500);
+                        res.json({error: err});
+                    });
+                });
+    },
 };
 
 //router.put('/get/:model/:userID/:page', (req, res) => {});

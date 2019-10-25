@@ -18,6 +18,8 @@ router.put('/api/shell/:model/:userID', shellController.setShell);
 
 /* Model router */
 router.put('/api/model/get/:model/:userID/:page', modelController.getModelByOptics);
+router.put('/api/model/options/:model/:userID', modelController.getSelectors);
+router.post('/api/model/update/:model/:userID', modelController.updateColumn);
 
 /* Auth router */
 router.post('/api/login', authController.login);
