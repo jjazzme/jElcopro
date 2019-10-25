@@ -40,6 +40,7 @@
     "request": "^2.88.0",
     "sequelize": "^5.19.6",
     "sequelize-cli": "^5.5.1",
+    "unzip": "^0.1.11",
     "unzipper": "^0.10.5",
     "xlsx": "^0.15.1",
     "xml2js": "^0.4.22"

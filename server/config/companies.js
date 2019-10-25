@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 export default {
     dan: {
         inn: '5503012474',
