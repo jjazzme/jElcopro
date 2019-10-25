@@ -6,10 +6,8 @@
       <change beforePath="$PROJECT_DIR$/server/commands/importCompel.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/commands/importCompel.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/commands/importDan.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/commands/importDan.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/commands/test.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/commands/test.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/models/company.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/models/company.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/services/CompanyService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/CompanyService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/services/ProductService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/ProductService.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -124,16 +122,6 @@
     <configuration name="test.js" type="NodeJSConfigurationType" temporary="true" nameIsGenerated="true" path-to-js-file="$PROJECT_DIR$/server/commands/test.js" working-dir="$PROJECT_DIR$/server/commands">
       <method v="2" />
     </configuration>
-    <configuration name="start_NODEMON" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
-      <package-json value="$PROJECT_DIR$/server/package.json" />
-      <command value="run" />
-      <scripts>
-        <script value="start_NODEMON" />
-      </scripts>
-      <node-interpreter value="project" />
-      <envs />
-      <method v="2" />
-    </configuration>
     <configuration name="start_old" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
       <package-json value="$PROJECT_DIR$/server/package.json" />
       <command value="run" />
@@ -154,13 +142,23 @@
       <envs />
       <method v="2" />
     </configuration>
+    <configuration name="test_console" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/server/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="test_console" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="npm.test_console" />
+        <item itemvalue="npm.syncModelDB" />
         <item itemvalue="Node.js.test.js" />
         <item itemvalue="Node.js.console" />
-        <item itemvalue="npm.syncModelDB" />
         <item itemvalue="npm.start_old" />
-        <item itemvalue="npm.start_NODEMON" />
       </list>
     </recent_temporary>
   </component>
@@ -171,32 +169,17 @@
           <expand>
             <path>
               <item name="services root" type="e789fda9:ObjectUtils$Sentinel" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@9e9bc6fd" type="7427dc5b:ServiceModel$ServiceGroupNode" />
+              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@f4e49395" type="7427dc5b:ServiceModel$ServiceGroupNode" />
             </path>
             <path>
               <item name="services root" type="e789fda9:ObjectUtils$Sentinel" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@9e9bc6fd" type="7427dc5b:ServiceModel$ServiceGroupNode" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceNode@5509f2cb" type="9fbbdea:ServiceModel$ServiceNode" />
+              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@f4e49395" type="7427dc5b:ServiceModel$ServiceGroupNode" />
+              <item name="com.intellij.execution.services.ServiceModel$ServiceNode@3c04d634" type="9fbbdea:ServiceModel$ServiceNode" />
             </path>
             <path>
               <item name="services root" type="e789fda9:ObjectUtils$Sentinel" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@9e9bc6fd" type="7427dc5b:ServiceModel$ServiceGroupNode" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceNode@546ba638" type="9fbbdea:ServiceModel$ServiceNode" />
-            </path>
-            <path>
-              <item name="services root" type="e789fda9:ObjectUtils$Sentinel" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@9e9bc6fd" type="7427dc5b:ServiceModel$ServiceGroupNode" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceNode@136ff8b9" type="9fbbdea:ServiceModel$ServiceNode" />
-            </path>
-            <path>
-              <item name="services root" type="e789fda9:ObjectUtils$Sentinel" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@9e9bc6fd" type="7427dc5b:ServiceModel$ServiceGroupNode" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceNode@56f72b30" type="9fbbdea:ServiceModel$ServiceNode" />
-            </path>
-            <path>
-              <item name="services root" type="e789fda9:ObjectUtils$Sentinel" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@9e9bc6fd" type="7427dc5b:ServiceModel$ServiceGroupNode" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceNode@67dcc1fb" type="9fbbdea:ServiceModel$ServiceNode" />
+              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@f4e49395" type="7427dc5b:ServiceModel$ServiceGroupNode" />
+              <item name="com.intellij.execution.services.ServiceModel$ServiceNode@19daf47f" type="9fbbdea:ServiceModel$ServiceNode" />
             </path>
           </expand>
           <select />
@@ -224,7 +207,7 @@
       <workItem from="1571648294733" duration="16478000" />
       <workItem from="1571732112252" duration="17222000" />
       <workItem from="1572006218564" duration="62000" />
-      <workItem from="1572006650319" duration="236000" />
+      <workItem from="1572006650319" duration="7330000" />
     </task>
     <task id="LOCAL-00001" summary="Datata">
       <created>1571292450729</created>
@@ -324,7 +307,14 @@
       <option name="project" value="LOCAL" />
       <updated>1572002459311</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="importCompel v2">
+      <created>1572006904339</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1572006904339</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -361,6 +351,7 @@
     <MESSAGE value="inportDan v2" />
     <MESSAGE value="importCompel v1" />
     <MESSAGE value="importCompel v1.1" />
-    <option name="LAST_COMMIT_MESSAGE" value="importCompel v1.1" />
+    <MESSAGE value="importCompel v2" />
+    <option name="LAST_COMMIT_MESSAGE" value="importCompel v2" />
   </component>
 </project>

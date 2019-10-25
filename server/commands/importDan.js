@@ -19,15 +19,18 @@ import ParameterValueService from "../services/ParameterValueService";
 import { Currency, Parameter } from '../models';
 
 module.exports.run = async () => {
-   /* const zip = await unzipper.Open.url(request, global.gConfig.companies.dan.stores.main.url);
+    const start = new Date();
+
+    const zip = await unzipper.Open.url(request, global.gConfig.companies.dan.stores.main.url);
     await new Promise((resolve, reject) => {
         zip.files[0]
             .stream(global.gConfig.companies.dan.stores.main.pass)
             .pipe(fs.createWriteStream('./storage/dan_dealer.xls'))
             .on('error', reject)
             .on('finish', resolve)
-    });*/
+    });
     console.log('downloading finish.');
+
     const company = await (new CompanyService()).getByAlias('dan');
     const store = _.find(company.stores, { is_main: true });
     const currency = await Currency.findOne({ where: { char_code: 'RUB' } });
@@ -37,7 +40,6 @@ module.exports.run = async () => {
     const workbook = XLSX.readFile('./storage/dan_dealer.xls');
     const sheet = workbook.Sheets[_.first(workbook.SheetNames)];
     const from_row = 3;
-    const start = new Date();
 
     let product = {};
     let price = { min: 1, currency_id: currency.id };

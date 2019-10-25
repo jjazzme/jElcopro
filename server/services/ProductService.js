@@ -24,6 +24,7 @@ export default class ProductService extends Entity {
             }
         }
         if (changes && changes.includes('name')) {
+            product.name = product.name.toString();
             product.search_name = product.name.replace(/[^0-9A-Za-zА-Яа-я]/g, '')
         }
     }

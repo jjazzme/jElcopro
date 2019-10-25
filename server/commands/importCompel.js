@@ -18,10 +18,16 @@ import ParameterValueService from "../services/ParameterValueService";
 module.exports.run = async () => {
     const start = new Date();
 
-    const response = await axios.get(global.gConfig.companies.compel.stores.main.url, { responseType: 'arraybuffer' });
-    const file = await fs.createWriteStream('./storage/COMPELDISTI3_ext_TI.dbf');
+    const response = await axios.get(global.gConfig.companies.compel.stores.main.url, {responseType: 'arraybuffer'});
     const directory = await unzipper.Open.buffer(response.data);
-    await directory.files[0].stream().pipe(file);
+    await new Promise( (resolve, reject) => {
+        const file = fs.createWriteStream('./storage/COMPELDISTI3_ext_TI.dbf');
+        directory.files[0]
+            .stream()
+            .pipe(file)
+            .on('error', reject)
+            .on('finish', resolve)
+    });
 
     console.log('downloading finish.');
 
@@ -42,9 +48,8 @@ module.exports.run = async () => {
     let good_additional = {};
     let ballance = 0;
     let case_value = undefined;
-    console.log(workbook);
+
     for (let z in sheet) {
-        console.log('after');
         if (z[0] === '!') continue;
         let {col, row, value} = getData(z, sheet);
         if (row < from_row) continue;
@@ -95,6 +100,7 @@ module.exports.run = async () => {
                 }
                 break;
             case 'AB':
+                //Update ir Create Good
                 good = await good_service.firstOrNew(good);
                 if (good.isNewRecord) {
                     product = await (new ProductService()).updateOrCreate(product);
@@ -104,6 +110,7 @@ module.exports.run = async () => {
                 good.set({ ballance: ballance, is_active: true });
                 good.changed('updatedAt', true);
                 good = await good_service.update(good);
+                //Update Case for Product
                 if (case_value) {
                     case_value = await (new ParameterValueService()).updateOrCreate(
                         { name: case_value , parameter_name_id: case_.id }
@@ -113,15 +120,15 @@ module.exports.run = async () => {
                         defaults: { parameter_value_id: case_value.id }
                     });
                 }
+                //Update prices
                 for (let i = 0; i < price.length; i++) {
-                    if ( i == price.length - 1 ) {
-                        price[i].max = ballance
-                    } else if ( i > 0 ) {
+                    if ( i > 0 ) {
                         price[i - 1].max = price[i].min - 1;
                     }
-                    price.good_id = good.id;
+                    price[i].good_id = good.id;
                 }
-                await Price.destroy({ where: { good_id: good.id}});
+                price[price.length - 1].max = ballance;
+                await Price.destroy({ where: { good_id: good.id } });
                 await Price.bulkCreate(price);
 
                 product = {};
