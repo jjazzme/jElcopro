@@ -240,7 +240,7 @@
                                     @focusout="focusOutCell"
                                     @input="inputCell"
                                     @click="clickCell"
-                                    :data-value="table.data.filter(i=>i.id===row.id)[0][k2]"
+
                                     :data-column="k2"
                                     :data-key="row.id"
                                     :class="`${table.shell.columns[k2].parentClass?table.shell.columns[k2].parentClass:''} ${table.shell.columns[k2].to?'link':''}`"
@@ -257,9 +257,9 @@
         </div>
         <div style="display: none" id="warehouse">
             <b-form-select
-                    id="inputSelect"
-                    :options="inputSelectOptions"
-                    v-model="inputSelectedValue"
+                    id="editorSelector"
+                    :options="editor.selector.options"
+                    v-model="editor.selector.selected"
                     v-on:change="inputSelectChange"
             ></b-form-select>
         </div>
@@ -271,8 +271,10 @@
     import paginator from '../../components/tables/v1/paginator';
     import filters from "../../components/tables/v1/filters";
     import Swal from 'sweetalert2';
-    import Enums from '../../modules/enums'
+    import Enums from '../../modules/enums';
+    import {FieldEditor} from '../../classLib/Editor'
     //import _  from 'lodash';
+
     export default {
         name: "vTable",
         components: {
@@ -286,8 +288,9 @@
                 //enumLoadingStatus: Object.freeze({None:-10, Begin:0, Authenticated: 10, ShellLoaded:20, TableLoading:30, TableLoaded:40, TablePreDisplayed:50, TableDisplayed:60, TableSaved: 70}),
                 //enumPermission: Object.freeze({Create:'Create',Read:'Read',Update:'Update',Delete:'Delete'}),
                 headerHeight: 30,
-                inputSelectedValue: null,
-                inputSelectOptions: [],
+                //inputSelectedValue: null,
+                //inputSelectOptions: [],
+                editor: null,
                 loadingStatus: -10,
                 oldBasket: null,
                 oldColumns: null,
@@ -500,41 +503,24 @@
                 }
             }, 200),
 
-            getObjectProps(obj){
-                let sou = $($(obj.target ? obj.target : obj).closest('div.v-t-col')[0]).children('span')[0];
-
-                const id = sou.getAttribute('data-key');
-                const col = sou.getAttribute('data-column');
-                const value = _.find(this.table.data, item=>item.id===id)[0][col];
-                const iValue = _.find(this.table.iData, item=>item.id===id)[0][col];
-            },
 
             editClick(e){
                 e.preventDefault();
-                const obj = $($(e.target).closest('div.v-t-col')[0]).children('span')[0];
-
-                const id = obj.getAttribute('data-key');
-                const col = obj.getAttribute('data-column');
-
-                if(!this.getPermission(this.enums.permission.Update, id, col )) return;
-
-                let eType = 'none';
-                if ($(obj).attr('data-column') && this.table.shell.columns[$(obj).attr('data-column')].editor ) eType = this.table.shell.columns[$(obj).attr('data-column')].editor;
-
-                if (eType === 'string') {
-                    if(obj.contentEditable!=='true'){
-                        obj.contentEditable = 'true';
-                        obj.focus();
+                Vue.set(this, 'editor', FieldEditor(e, this.table));
+                if (this.editor.type === this.enums.editorTypes.String) {
+                    if(this.editor.isEditable){
+                        this.editor.setEditable(true);
+                        this.editor.focus();
                     } else{
-                        obj.contentEditable = 'false';
+                        this.editor.setEditable(false);
                     }
-                } else if (eType==='selector'){
-                    if($('#inputSelect').parent().attr('id')!=='warehouse'){
-                        if ($(obj).parent().children('#inputSelect').length){
-                            Vue.set(this, 'inputSelectOptions', []);
-                            Vue.set(this, 'inputSelectedValue', null);
+                } else if (this.editor.type==='selector'){
+                    if(this.editor.isEditorInWarehouse()) {
+                        this.editor.moveObjToEditor('in')
+                    } else {
+                        if (editor.objInTarget('inputSelect')){
                             $('#warehouse').append($('#inputSelect'));
-                            $(obj).css('display', 'inline');
+                            $(editor.obj).css('display', 'inline');
                             return;
                         }
                         // перемещение селектора
@@ -543,10 +529,10 @@
                     this.inputSelectOptions = [];
 
                     this.$store.dispatch('TABLES/GET_OPTIONS',{
-                        model: this.table.name,
-                        column: $(obj).attr('data-column'),
-                        value: $(obj).attr('data-value'),
-                        text: obj.innerText
+                        model: editor.modelName,
+                        column: editor.column,
+                        value: editor.dataValue,
+                        text: editor.htmlValue
                     }).then(
                         r=>{
                             this.inputSelectOptions = r.options;
@@ -565,8 +551,8 @@
                     //this.inputSelectOptions = this.table.shell.columns[obj.getAttribute('data-column')].editor_values;
 
 
-                    $(obj).css('display','none');
-                    $(obj).parent().append($('#inputSelect'));
+                    editor.target.css('display','none');
+                    editor.target.parent().append($('#inputSelect'));
                 }
             },
             focusOutCell(obj) {
@@ -634,11 +620,6 @@
                 return v[type];
             },
             inputCell(e){
-                const obj = $($(e.target).closest('div.v-t-col')[0]).children('span')[0];
-
-                const id = obj.getAttribute('data-key');
-                const col = obj.getAttribute('data-column');
-
                 $(e.target).addClass('notsaved');
                 this.inputSave(e);
             },
@@ -646,7 +627,7 @@
                 const cover = document.getElementById('inputSelect').parentElement.getElementsByTagName('span')[0];
                 cover.style.display='inline';
                 cover.innerText = this.inputSelectOptions.filter(i=>i.value===val)[0].text;
-                $(cover).attr('data-value', val);
+                //$(cover).attr('data-value', val);
                 $(cover).addClass('notsaved')
                 this.inputSave(cover);
                 this.inputSelectOptions = [];
@@ -662,7 +643,7 @@
                 const col = obj.getAttribute('data-column');
                 let val = 'none';
                 if (eType === 'string') val = obj.innerText;
-                if (eType === 'selector') val = $(obj).attr('data-value');// parseFloat(obj.innerText); //<----------
+                //if (eType === 'selector') val = $(obj).attr('data-value');// parseFloat(obj.innerText); //<----------
 
                 this.$store.dispatch('TABLES/UPDATE_VALUE', {model: tab, id: id, column: col, value: val, editor: eType}).then(r=>{
                     if(r.data.old !== r.data.new) {
