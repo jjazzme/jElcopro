@@ -1,14 +1,14 @@
-const axios = require('axios').default;
-const Cache = require('./Cache').default;
+import axios from 'axios';
+import Cache from './Cache';
 
-export default {
+export default class Dadata {
     /**
      * Query DaData and get Object with suggestions array
      * @param type
      * @param query
      * @returns {Promise<Object>}
      */
-    query(type, query) {
+    static async query(type, query) {
         return new Promise((resolve, reject) => {
             Cache.remember(
                 type + '_' + query,

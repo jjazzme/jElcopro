@@ -45,7 +45,12 @@ export default class Entity {
         if (searchItem.id) {
             item = await this._Entity.findOne({ where : { id: searchItem.id }, include: this._includes });
         } else {
-            item = await this._Entity.findOne({ where : searchItem, include: this._includes });
+            try {
+                item = await this._Entity.findOne({where: searchItem, include: this._includes});
+            } catch (e) {
+                console.log(1223);
+                console.log(e);
+            }
         }
         return !item ? item : (this._right && item[this._right] ? item[this._right] : item);
     }
@@ -159,6 +164,11 @@ export default class Entity {
         return item;
     }
 
+    /**
+     * First Or New
+     * @param newItem
+     * @returns {Promise<*>}
+     */
     async firstOrNew(newItem) {
         let item = await this.find(newItem);
         if (!item) {

@@ -2,7 +2,7 @@
 
 import Entity from "./Entity";
 import { Address, Company, Party, Store } from "../models";
-import dadata from './dadata';
+import Dadata from './Dadata';
 import Cache from './Cache'
 import PartyService from "./PartyService";
 import AddressService from './AddressService';
@@ -39,7 +39,7 @@ export default class CompanyService extends Entity {
              ]
         });
         if (!company) {
-            let newParty = (await dadata.query('party', inn)).suggestions[0];
+            let newParty = (await Dadata.query('party', inn)).suggestions[0];
             const party = await this._PartyService.updateOrCreate(
                 { inn: inn }, { ogrn: ogrn, name: newParty.value, json: newParty }
             );

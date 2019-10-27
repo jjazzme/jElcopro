@@ -10,7 +10,7 @@
     "start": "babel-node ./bin/www",
     "start_NODEMON": "nodemon --exec babel-node ./bin/www",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "test_console": "babel-node ./bin/console importCompel",
+    "test_console": "babel-node ./bin/console test",
     "start_old": "node ./bin/www",
     "build___": "mkdir dist && babel src -s -d dist",
     "dev__": "nodemon --exec npm run babel-node -- ./app.js",

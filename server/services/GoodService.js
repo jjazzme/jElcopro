@@ -10,7 +10,7 @@ export default class GoodService extends Entity {
 
     constructor() {
         super(Good);
-        this._includes = [{ model: Product }, { model: Store }]
+        this._includes = [{ model: Product, as: 'product' }, { model: Store, as: 'store' }]
     }
 
     /**

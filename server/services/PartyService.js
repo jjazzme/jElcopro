@@ -1,7 +1,7 @@
 'use strict';
 
 const Party = require('../models').Party;
-const dadata = require('./dadata').default;
+const Dadata = require('./Dadata').default;
 import Entity from "./Entity";
 
 export default class PartyService extends Entity {
@@ -16,7 +16,7 @@ export default class PartyService extends Entity {
      * @returns {Promise<Object>}
      */
     async fromDadata(inn) {
-        const res = await dadata.query('party', inn);
+        const res = await Dadata.query('party', inn);
 
         if (res.suggestions.length > 0) {
             return (

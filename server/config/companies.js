@@ -31,6 +31,7 @@ export default {
         own: false,
         api_url: process.env.COMPEL_API_URL,
         api_hash: process.env.COMPEL_HASH,
+        cache_time: 900,
         stores: {
             main: {
                 name: 'CENTER',
