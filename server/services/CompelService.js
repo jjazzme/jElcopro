@@ -1,9 +1,7 @@
 'use strict';
 
-import CompanyService from "./CompanyService";
 import _ from 'lodash';
 import axios from 'axios';
-import Cache from "./Cache";
 import CurrencyService from "./CurrencyService";
 import ParameterNameService from "./ParameterNameService";
 import ProducerService from "./ProducerService";
@@ -11,6 +9,7 @@ import ProductService from "./ProductService";
 import ParameterValueService from "./ParameterValueService";
 import ParameterService from "./ParameterService";
 import GoodService from "./GoodService";
+import ExternalPriceService from "./ExternalPriceService";
 
 /**
  *  Get quantity from proposal
@@ -28,54 +27,61 @@ function getQuantity(proposal) {
     return qty;
 }
 
+/**
+ * Concat item proposals where the same item_id
+ * @param items
+ * @returns {Array}
+ */
+function clearItems(items) {
+    return items.reduce((state, item) => {
+        const rightItem = _.find(state, { item_id: item.item_id });
+        if (rightItem) {
+            rightItem.proposals = rightItem.proposals.concat(item.proposals);
+        } else {
+            state.push(item);
+        }
+        return state;
+    }, []);
+}
+
+/**
+ * Parse Compel Api Item
+ * @param item
+ * @param case_
+ * @param store
+ * @returns {Promise<{product: *, parameter: *, package_: *, producer: *, good: *}>}
+ */
 async function parseApiItem(item, case_, store) {
-    const producer = await (new ProducerService()).updateOrCreate({ name: item.item_brend });
+    const producer = await (new ProducerService()).firstOrCreate({name: item.item_brend});
     const product = await (new ProductService())
-        .updateOrCreate({ name: item.item_name, producer_id: producer.id });
+            .firstOrCreate({name: item.item_name, producer_id: producer.id});
     const package_ = await (new ParameterValueService())
-        .updateOrCreate({ name: item.package_name,  parameter_name_id: case_.id });
+            .firstOrCreate({name: item.package_name, parameter_name_id: case_.id});
     const parameter = await (new ParameterService())
-        .updateOrCreate(
-            { parameter_name_id: case_.id, product_id: product.id},
-            { parameter_value_id: package_.id }
-        );
-    const newItem = item.proposals[0].location_id !== 'CENTRE' ? { } :
-        {
-            ballance: getQuantity(item.proposals[0]),
-            pack: item.qty_in_pack,
-            multiply: item.proposals[0].mpq === 0 ? 1 : item.proposals[0].mpq
-        };
+            .firstOrCreate(
+                {parameter_name_id: case_.id, product_id: product.id},
+                {parameter_value_id: package_.id}
+            );
+    const newItem = item.proposals[0].location_id !== 'CENTRE' ? {} :
+            {
+                ballance: getQuantity(item.proposals[0]),
+                pack: item.qty_in_pack,
+                multiply: item.proposals[0].mpq === 0 ? 1 : item.proposals[0].mpq
+            };
     const good = await (new GoodService())
-        .updateOrCreate({ store_id: store.id, code: item.item_id, product_id: product.id }, newItem);
+            .updateOrCreate({store_id: store.id, code: item.item_id, product_id: product.id}, newItem);
+
     return { producer: producer, product: product, package_: package_, parameter: parameter, good: good }
 }
 
-export default class CompelService {
+export default class CompelService extends ExternalPriceService{
 
     /**
-     * Company info
+     * Comapny alias
+     * @type {string}
+     * @private
      */
-    static _company;
-
-    /**
-     * Get Compel company
-     * @returns {Promise<Object>}
-     */
-    static async getCompany() {
-        if (! this._company) {
-            this._company = await (new CompanyService()).getByAlias('compel');
-        }
-        return this._company;
-    }
-
-    /**
-     * Get Main Compel store
-     * @returns {Promise<Object>}
-     */
-    static async getStore() {
-        const company = await this.getCompany();
-        return _.find(company.stores, { is_main: true });
-    }
+    static _alias = 'compel';
 
     /**
      * Compel API Method
@@ -119,12 +125,19 @@ export default class CompelService {
         return response.result;
     }
 
+    /**
+     * Parse Compel Api answer to price objects
+     * @param result
+     * @param days
+     * @returns {Promise<Array>}
+     */
     static async parseApiAnswer(result, days = 6) {
         const currency = await (new CurrencyService()).getByAlias(result.currency);
         const case_ = await (new ParameterNameService()).getByAlias('case');
         const store = await this.getStore();
+        const items = clearItems(result.items);
         const ret = await Promise.all(
-            result.items.map(item => new Promise(async (resolve, reject) => {
+            items.map(item => new Promise(async (resolve, reject) => {
                 const { good, parameter, producer } = await parseApiItem(item, case_, store);
                 resolve([].concat(...item.proposals.map( proposal => proposal.price_qty.map( price => {
                     return  {
@@ -172,39 +185,5 @@ export default class CompelService {
             })
         ));
         return [].concat(...ret);
-    }
-
-    /**
-     * Search by name
-     * @param name
-     * @param withCache
-     * @param days
-     * @returns {Promise<Object|undefined>}
-     */
-    static async searchByName(name, withCache = true, days = 6) {
-        const key = 'compel_search_name_' + name;
-        if (withCache && (await Cache.hasKey(key))) {
-            return (await Cache.valueByKey(key))
-        }
-        const result = await this.apiSearchByName(name);
-        const ret = await this.parseApiAnswer(result, days);
-        return (await Cache.remember(key, ret, global.gConfig.companies.compel.cache_time))
-    }
-
-    /**
-     * Search by id (compel code)
-     * @param id
-     * @param withCache
-     * @param days
-     * @returns {Promise<Object|undefined>}
-     */
-    static async searchById(id, withCache = true, days = 6) {
-        const key = 'compel_search_id_' + id;
-        if (withCache && (await Cache.hasKey(key))) {
-            return (await Cache.valueByKey(key))
-        }
-        const result = await this.apiSearchById(id);
-        const ret = await this.parseApiAnswer(result, days);
-        return (await Cache.remember(key, ret, global.gConfig.companies.compel.cache_time));
     }
 }

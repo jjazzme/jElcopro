@@ -1,21 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="09e94829-b941-41e8-95cd-f4a06a6a7730" name="Default Changelist" comment="CompelService!">
-      <change afterPath="$PROJECT_DIR$/server/services/CompelService.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/services/CurrencyService.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/services/ParameterService.js" afterDir="false" />
+    <list default="true" id="09e94829-b941-41e8-95cd-f4a06a6a7730" name="Default Changelist" comment="CompelService 2">
+      <change afterPath="$PROJECT_DIR$/server/services/ExternalPriceService.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/services/PromelecService.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/commands/test.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/commands/test.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/config/companies.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/config/companies.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/models/good.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/models/good.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/services/Cache.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/Cache.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/services/CompanyService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/CompanyService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/services/CompelService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/CompelService.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/services/Entity.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/Entity.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/services/GoodService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/GoodService.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/services/PartyService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/PartyService.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/services/dadata.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/Dadata.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -191,22 +183,12 @@
           <expand>
             <path>
               <item name="services root" type="e789fda9:ObjectUtils$Sentinel" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@bc1afb0" type="7427dc5b:ServiceModel$ServiceGroupNode" />
+              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@7ee721ef" type="7427dc5b:ServiceModel$ServiceGroupNode" />
             </path>
             <path>
               <item name="services root" type="e789fda9:ObjectUtils$Sentinel" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@bc1afb0" type="7427dc5b:ServiceModel$ServiceGroupNode" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceNode@42bbdde0" type="9fbbdea:ServiceModel$ServiceNode" />
-            </path>
-            <path>
-              <item name="services root" type="e789fda9:ObjectUtils$Sentinel" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@bc1afb0" type="7427dc5b:ServiceModel$ServiceGroupNode" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceNode@63b8e2e4" type="9fbbdea:ServiceModel$ServiceNode" />
-            </path>
-            <path>
-              <item name="services root" type="e789fda9:ObjectUtils$Sentinel" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@bc1afb0" type="7427dc5b:ServiceModel$ServiceGroupNode" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceNode@22b1964c" type="9fbbdea:ServiceModel$ServiceNode" />
+              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@7ee721ef" type="7427dc5b:ServiceModel$ServiceGroupNode" />
+              <item name="com.intellij.execution.services.ServiceModel$ServiceNode@7d942f23" type="9fbbdea:ServiceModel$ServiceNode" />
             </path>
           </expand>
           <select />
@@ -235,7 +217,8 @@
       <workItem from="1571732112252" duration="17222000" />
       <workItem from="1572006218564" duration="62000" />
       <workItem from="1572006650319" duration="14109000" />
-      <workItem from="1572088240326" duration="16673000" />
+      <workItem from="1572088240326" duration="19238000" />
+      <workItem from="1572237501584" duration="11046000" />
     </task>
     <task id="LOCAL-00001" summary="Datata">
       <created>1571292450729</created>
@@ -349,7 +332,14 @@
       <option name="project" value="LOCAL" />
       <updated>1572031748059</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="CompelService!">
+      <created>1572190387067</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1572190387067</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -389,30 +379,7 @@
     <MESSAGE value="importCompel v2" />
     <MESSAGE value="importCompel &amp; Dan v3" />
     <MESSAGE value="CompelService!" />
-    <option name="LAST_COMMIT_MESSAGE" value="CompelService!" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/server/services/Entity.js</url>
-          <line>71</line>
-          <properties lambdaOrdinal="-1" />
-          <option name="timeStamp" value="63" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/server/services/Entity.js</url>
-          <line>74</line>
-          <properties lambdaOrdinal="-1" />
-          <option name="timeStamp" value="64" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/server/services/Entity.js</url>
-          <line>75</line>
-          <properties lambdaOrdinal="-1" />
-          <option name="timeStamp" value="65" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+    <MESSAGE value="CompelService 2" />
+    <option name="LAST_COMMIT_MESSAGE" value="CompelService 2" />
   </component>
 </project>

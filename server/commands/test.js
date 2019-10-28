@@ -6,6 +6,7 @@ import { Parameter } from "../models";
 import ParameterService from "../services/ParameterService";
 
 module.exports.run = async (args) => {
-    const res = await CompelService.searchByName('max232cpe+');//args.n);
+    const res = await CompelService.searchById('878762');//args.n);
+    //const res = await CompelService.searchByName('max232cpe+');
     console.log(res);
 };

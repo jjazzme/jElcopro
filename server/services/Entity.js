@@ -81,6 +81,7 @@ export default class Entity {
             }
             await t.commit();
         } catch (e) {
+            console.log('Problem with create', this._Entity, item, e);
             await t.rollback();
             throw e
         }
@@ -105,7 +106,7 @@ export default class Entity {
             if (this.beforeUpdateOrCreate) {
                 await this.beforeUpdateOrCreate(item, t);
             }
-            await item.save({transaction: t});
+            await item.save({ transaction: t });
             if (this.afterUpdate) {
                 await this.afterUpdate(item, t);
             }
@@ -114,6 +115,7 @@ export default class Entity {
             }
             await t.commit();
         } catch (e) {
+            console.log('Problem with update', this._Entity, item, e);
             await t.rollback();
             throw e
         }
@@ -165,14 +167,32 @@ export default class Entity {
     }
 
     /**
-     * First Or New
+     * First or Create with find
+     * @param searchItem
      * @param newItem
-     * @returns {Promise<*>}
+     * @returns {Promise<Object>}
      */
-    async firstOrNew(newItem) {
-        let item = await this.find(newItem);
+    async firstOrCreate(searchItem, newItem) {
+        let item = await this.find(searchItem);
         if (!item) {
-            item = this._Entity.build(newItem);
+            Object.assign(searchItem, newItem);
+            item = this._Entity.build(searchItem);
+            item = await this.create(item)
+        }
+        return item;
+    }
+
+    /**
+     * First Or New
+     * @param searchItem
+     * @param newItem
+     * @returns {Promise<Object>}
+     */
+    async firstOrNew(searchItem, newItem) {
+        let item = await this.find(searchItem,);
+        if (!item) {
+            Object.assign(searchItem, newItem);
+            item = this._Entity.build(searchItem);
         }
         return item;
     }
