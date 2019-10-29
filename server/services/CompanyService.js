@@ -87,4 +87,22 @@ export default class CompanyService extends Entity {
             company.inn, company.ogrn, company.stores.main.name, company.own, company.stores.main.online
         )));
     }
+
+    /**
+     * Get company by id, alias or instance
+     * @param company
+     * @returns {Promise<Object>}
+     */
+    async getCompany(company) {
+        let answer = null;
+        if (typeof company == 'number') {
+            answer = await this.find({ id: company });
+        } else if (typeof company == 'string') {
+            answer = await this.getByAlias(company);
+        } else if (company instanceof Company) {
+            answer = company;
+        }
+        return answer;
+    }
+
 }

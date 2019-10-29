@@ -1,12 +1,14 @@
 
 import _ from 'lodash'
-import CompelService from "../services/CompelService";
-import GoodService from "../services/GoodService";
-import { Parameter } from "../models";
-import ParameterService from "../services/ParameterService";
+import ExternalPriceService from "../services/ExternalPriceService";
+import PromelecService from "../services/PromelecService";
+import axios from 'axios';
 
 module.exports.run = async (args) => {
-    const res = await CompelService.searchById('878762');//args.n);
-    //const res = await CompelService.searchByName('max232cpe+');
+    //const service = await ExternalPriceService.forCompany(1);
+    //const res = await service.searchById('665279');
+    const service = new PromelecService();
+    const res = await service.apiSearchByName('max232cpe');
+    //const res = await axios.get('https://ya.ru');
     console.log(res);
 };

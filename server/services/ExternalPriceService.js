@@ -9,60 +9,69 @@ export default class ExternalPriceService {
     /**
      * Company info
      */
-    static _company;
+    _company;
 
     /**
-     * Get company
-     * @returns {Promise<Object>}
+     * Api service for Company
      */
-    static async getCompany() {
-        if (! this._company) {
-            this._company = await (new CompanyService()).getByAlias(this._alias);
+    _service;
+
+    /**
+     * Create instance this class with needing Company
+     * @param company
+     * @returns {Promise<null|ExternalPriceService>}
+     */
+    static async forCompany(company) {
+
+        /**
+         * INN for online stores - need make from config!TODO
+         * @type {*[]}
+         * @private
+         */
+        const companies = _.filter(global.gConfig.companies, { stores: { main: { online: true } } });
+        this._company = await (new CompanyService()).getCompany( company );
+        if (this._company) {
+            const config_company = _.find(companies, { inn: this._company.party.inn })
+            if (config_company) {
+                this._company.days = config_company.stores.main.days;
+                this._company.cache_time = config_company.cache_time;
+                this._service = new (await import('./' + config_company.service)).default(this._company);
+                return this;
+            }
         }
-        return this._company;
-    }
-
-    /**
-     * Get Main Company store
-     * @returns {Promise<Object>}
-     */
-    static async getStore() {
-        const company = await this.getCompany();
-        return _.find(company.stores, { is_main: true });
+        return null;
     }
 
     /**
      * Search by name
      * @param name
      * @param withCache
-     * @param days
      * @returns {Promise<Object|undefined>}
      */
-    static async searchByName(name, withCache = true, days = 6) {
-        const key = this._alias + '_search_name_' + name;
+    static async searchByName(name, withCache = true) {
+        const key = this._company.party.inn + '_search_name_' + name;
         if (withCache && (await Cache.hasKey(key))) {
             return (await Cache.valueByKey(key))
         }
-        const result = await this.apiSearchByName(name);
-        const ret = await this.parseApiAnswer(result, days);
-        return (await Cache.remember(key, ret, global.gConfig.companies[this._alias].cache_time))
+        const result = await this._service.apiSearchByName(name);
+        const ret = await this._service.parseApiAnswer(result, this._company.days);
+        return (await Cache.remember(key, ret, this._company.cache_time))
     }
 
     /**
-     * Search by id  code)
+     * Search by id  (code)
      * @param id
      * @param withCache
      * @param days
      * @returns {Promise<Object|undefined>}
      */
-    static async searchById(id, withCache = true, days = 6) {
-        const key = 'compel_search_id_' + id;
+    static async searchById(id, withCache = true) {
+        const key = this._company.party.inn +'_search_id_' + id;
         if (withCache && (await Cache.hasKey(key))) {
             return (await Cache.valueByKey(key))
         }
-        const result = await this.apiSearchById(id);
-        const ret = await this.parseApiAnswer(result, days);
-        return (await Cache.remember(key, ret, global.gConfig.companies[this._alias].cache_time));
+        const result = await this._service.apiSearchById(id);
+        const ret = await this._service.parseApiAnswer(result, this._company.days);
+        return (await Cache.remember(key, ret, this._company.cache_time));
     }
-
 }
