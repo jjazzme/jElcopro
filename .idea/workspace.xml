@@ -2,8 +2,20 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="09e94829-b941-41e8-95cd-f4a06a6a7730" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/server/commands/seedUnits.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/client/src/components/tables/v1/warehouse.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/commands/mySql-initial.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/classLib/Editor.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/classLib/Editor.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/classLib/Utils.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/classLib/Utils.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/store/tables.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/store/tables.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/views/v1/Help.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/views/v1/Help.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/views/v1/Tables.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/views/v1/Tables.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/views/v2/Tables.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/views/v2/_Tables.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/vue.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/vue.config.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -30,40 +42,37 @@
     <expand>
       <path>
         <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="elcopro@127.0.0.1" type="feb32156:DbDataSourceImpl" />
+        <item name="elcopro@localhost" type="feb32156:DbDataSourceImpl" />
       </path>
       <path>
         <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="elcopro@127.0.0.1" type="feb32156:DbDataSourceImpl" />
+        <item name="elcopro@localhost" type="feb32156:DbDataSourceImpl" />
         <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
       </path>
       <path>
         <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="elcopro@127.0.0.1" type="feb32156:DbDataSourceImpl" />
+        <item name="elcopro@localhost" type="feb32156:DbDataSourceImpl" />
         <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
-        <item name="elcopro: schema" type="ebfa3cd1:MariaImplModel$Schema" />
-      </path>
-      <path>
-        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="elcopro@127.0.0.1" type="feb32156:DbDataSourceImpl" />
-        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
-        <item name="elcopro: schema" type="ebfa3cd1:MariaImplModel$Schema" />
-        <item name="units: table" type="dbc44a63:MariaImplModel$Table" />
+        <item name="elcopro: schema" type="76f4a085:MysqlImplModel$Schema" />
       </path>
     </expand>
     <select />
+  </component>
+  <component name="FavoritesManager">
+    <favorites_list name="jElcopro" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="JavaScript File" />
+        <option value="Vue Single File Component" />
       </list>
     </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="Jjazz" />
+        <entry key="$PROJECT_DIR$" value="master" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -85,10 +94,10 @@
   </component>
   <component name="PropertiesComponent">
     <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
-    <property name="DatabaseDriversLRU" value="mariadb" />
+    <property name="DatabaseDriversLRU" value="mariadb&#10;mysql" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="javascript.nodejs.core.library.configured.version" value="12.11.1" />
+    <property name="javascript.nodejs.core.library.configured.version" value="12.13.0" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.jscs" value="true" />
     <property name="node.js.detected.package.standard" value="true" />
@@ -104,7 +113,7 @@
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="nodejs_package_manager_path" value="npm" />
-    <property name="settings.editor.selected.configurable" value="settings.nodejs" />
+    <property name="settings.editor.selected.configurable" value="preferences.editor" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -118,7 +127,10 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="npm.serve">
+  <component name="RunManager" selected="JavaScript Debug.VUE Debug">
+    <configuration name="VUE Debug" type="JavascriptDebugType" uri="http://localhost:8080" useFirstLineBreakpoints="true">
+      <method v="2" />
+    </configuration>
     <configuration name="serve" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
       <package-json value="$PROJECT_DIR$/client/package.json" />
       <command value="run" />
@@ -169,13 +181,21 @@
       <envs />
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue="JavaScript Debug.VUE Debug" />
+      <item itemvalue="npm.serve" />
+      <item itemvalue="npm.start" />
+      <item itemvalue="npm.start_NODEMON" />
+      <item itemvalue="npm.start_old" />
+      <item itemvalue="npm.syncModelDB" />
+    </list>
     <recent_temporary>
       <list>
+        <item itemvalue="npm.serve" />
+        <item itemvalue="npm.start_NODEMON" />
         <item itemvalue="npm.syncModelDB" />
         <item itemvalue="npm.start_old" />
-        <item itemvalue="npm.start_NODEMON" />
         <item itemvalue="npm.start" />
-        <item itemvalue="npm.serve" />
       </list>
     </recent_temporary>
   </component>
@@ -186,17 +206,7 @@
           <expand>
             <path>
               <item name="services root" type="e789fda9:ObjectUtils$Sentinel" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@9e9bc6fd" type="7427dc5b:ServiceModel$ServiceGroupNode" />
-            </path>
-            <path>
-              <item name="services root" type="e789fda9:ObjectUtils$Sentinel" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@9e9bc6fd" type="7427dc5b:ServiceModel$ServiceGroupNode" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceNode@1e1d8b7" type="9fbbdea:ServiceModel$ServiceNode" />
-            </path>
-            <path>
-              <item name="services root" type="e789fda9:ObjectUtils$Sentinel" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@9e9bc6fd" type="7427dc5b:ServiceModel$ServiceGroupNode" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceNode@109155d8" type="9fbbdea:ServiceModel$ServiceNode" />
+              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@ee46a564" type="7427dc5b:ServiceModel$ServiceGroupNode" />
             </path>
           </expand>
           <select />
@@ -223,6 +233,7 @@
       <workItem from="1571569684060" duration="19651000" />
       <workItem from="1571648294733" duration="16478000" />
       <workItem from="1571732112252" duration="5902000" />
+      <workItem from="1572238244633" duration="36599000" />
     </task>
     <task id="LOCAL-00001" summary="Datata">
       <created>1571292450729</created>

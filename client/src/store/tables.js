@@ -245,6 +245,7 @@ let state = {
     },
     _class: 'таблицы',
   },
+  editorStack:[],
 };
 
 let getters = {
@@ -270,6 +271,13 @@ let mutations = {
   ADD_CACHED_ITEM(state,item) {
     state.cache.unshift(_.cloneDeep(item));
   },
+  ADD_EDITOR_STACK(state, {model, id, column, value, isInitialEqual}){
+    //TODO добавить изменения в кэшах
+
+    // eslint-disable-next-line
+    const removed = _.remove(state.editorStack, item => item.model==model && item.id==id && item.column==column);
+    if (!isInitialEqual) state.editorStack.push({model,id,column,value});
+  },
   ADD_EVENT(state, event){
     state.events.unshift({event: event, created:Date.now()});
     if (state.events.length>state.cacheMaxLen) state.events.splice(state.cacheMaxLen, state.events.length-state.cacheMaxLen);
@@ -287,6 +295,11 @@ let mutations = {
     });
     if (state.cache.length>state.cacheMaxLen) ret = ret.concat(state.cache.splice(state.cacheMaxLen, state.cache.length-state.cacheMaxLen));
   },
+  SET_SELECTOR_OPTIONS(state, {name, options, add}){
+    state.selectors[name].created = Date.now();
+    state.selectors[name].options = options;
+    if (add) state.selectors[name].options.push(add);
+  },
   SET_SHELL(state, shell) {
     state.shells[shell.table] =shell;
   },
@@ -296,11 +309,6 @@ let mutations = {
           return _.isEqual(item, cached)
         })[0]
     );
-  },
-  SET_SELECTOR_OPTIONS(state, {name, options, add}){
-    state.selectors[name].created = Date.now();
-    state.selectors[name].options = options;
-    if (add) state.selectors[name].options.push(add);
   },
 };
 
@@ -330,9 +338,10 @@ let actions = {
               item.timestamp = Date.now();
               commit('ADD_CACHED_ITEM', item);
             },
+              // eslint-disable-next-line
             error=>console.log(error)
           )
-          // eslint-disable-next-line no-console
+          // eslint-disable-next-line
           .catch(error=>console.log(error))
 
     }

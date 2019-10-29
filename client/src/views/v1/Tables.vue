@@ -16,6 +16,7 @@
             <paginator
                 :class="`${loadingStatus<enums.loadingStatus.TableLoaded?'transp':''} text-center`"
                 v-model="table.shell.optics"
+                v-if="!showBasket"
             ></paginator>
 
             <!--ЗАГОЛОВОК ТАБЛИЦЫ-->
@@ -255,14 +256,9 @@
                     v-model="table.shell.optics"
             ></paginator>
         </div>
-        <div style="display: none" id="warehouse">
-            <b-form-select
-                    id="editorSelector"
-                    :options="editor.selector.options"
-                    v-model="editor.selector.selected"
-                    v-on:change="inputSelectChange"
-            ></b-form-select>
-        </div>
+        <warehouse
+                v-model="editor"
+        ></warehouse>
     </article>
 </template>
 
@@ -270,6 +266,8 @@
     import Vue from 'vue'
     import paginator from '../../components/tables/v1/paginator';
     import filters from "../../components/tables/v1/filters";
+    import warehouse from "../../components/tables/v1/warehouse";
+
     import Swal from 'sweetalert2';
     import Enums from '../../modules/enums';
     import {FieldEditor} from '../../classLib/Editor'
@@ -279,7 +277,8 @@
         name: "vTable",
         components: {
             paginator,
-            filters
+            filters,
+            warehouse
         },
         data() {
             return {
@@ -290,7 +289,7 @@
                 headerHeight: 30,
                 //inputSelectedValue: null,
                 //inputSelectOptions: [],
-                editor: null,
+                editor: {},
                 loadingStatus: -10,
                 oldBasket: null,
                 oldColumns: null,
@@ -506,37 +505,34 @@
 
             editClick(e){
                 e.preventDefault();
-                Vue.set(this, 'editor', FieldEditor(e, this.table));
+                Vue.set(this, 'editor', new FieldEditor(e, this.table));
                 if (this.editor.type === this.enums.editorTypes.String) {
                     if(this.editor.isEditable){
-                        this.editor.setEditable(true);
-                        this.editor.focus();
+                        this.editor.isEditable = false;
                     } else{
-                        this.editor.setEditable(false);
+                        this.editor.isEditable = true;
+                        this.editor.focus();
                     }
                 } else if (this.editor.type==='selector'){
-                    if(this.editor.isEditorInWarehouse()) {
-                        this.editor.moveObjToEditor('in')
-                    } else {
-                        if (editor.objInTarget('inputSelect')){
-                            $('#warehouse').append($('#inputSelect'));
-                            $(editor.obj).css('display', 'inline');
+                    if(this.editor.isEditorInWarehouse) {
+                        if (this.editor.isEditorInTarget){
+                            this.editor.moveEditorToTarget();
                             return;
                         }
-                        // перемещение селектора
-                        $($('#inputSelect').parent().children('span')[0]).css('display','inline');
+                        this.editor.moveEditorToTarget();
+                    } else {
+                        this.editor.moveEditorToWaregouse();
                     }
                     this.inputSelectOptions = [];
 
                     this.$store.dispatch('TABLES/GET_OPTIONS',{
-                        model: editor.modelName,
-                        column: editor.column,
-                        value: editor.dataValue,
-                        text: editor.htmlValue
+                        model: this.editor.modelName,
+                        column: this.editor.column,
+                        value: this.editor.dataValue,
+                        text: this.editor.htmlValue
                     }).then(
                         r=>{
-                            this.inputSelectOptions = r.options;
-                            this.inputSelectedValue = r.selected;
+                            this.editor.props.selector = {options: r.options, selected: r.selected}
                         },
                         e=>{
                             Swal.fire({
@@ -547,12 +543,6 @@
                             });
                         }
                     );
-
-                    //this.inputSelectOptions = this.table.shell.columns[obj.getAttribute('data-column')].editor_values;
-
-
-                    editor.target.css('display','none');
-                    editor.target.parent().append($('#inputSelect'));
                 }
             },
             focusOutCell(obj) {
@@ -927,7 +917,6 @@
             },
         }
     }
-
 </script>
 
 <!--suppress CssInvalidPseudoSelector -->
@@ -987,8 +976,8 @@
         span{transition: 0.5s;}
         span.link:not([contenteditable=true]){color:navy; text-decoration: underline; cursor: pointer}
         span[contenteditable=true] {display: block}
-        .notsaved{outline-color: #ff9999; outline-style: auto;}
-        .custom-select{padding: 2px 2px 2px 5px; height: 30px;}
+        //.notsaved{outline-color: #ff9999; outline-style: auto;}
+        //.custom-select{padding: 2px 2px 2px 5px; height: 30px;}
     }
     .v-data-span {display:flex; align-items:center;  min-height: 40px;}
 

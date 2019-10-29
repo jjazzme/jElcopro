@@ -1,17 +1,21 @@
 'use strict';
 
-const capitalize = Symbol();
+export default class Utils {
+    get DateTime(){
+        return new Date();
+    }
+}
 
-String.prototype[capitalize] =  function(){
+
+String.prototype.capitalize =  function(){
     return this.replace(/^[а-я a-z]/, c => c.toUpperCase());
 };
 
-class Utils {
+//Object.prototype.meaning = function () {
+//    return !_.isEmpty(this)
+//};
 
-}
-
-export {
-    Utils,
-    capitalize
-}
+//const meaning = Symbol();
+//Object.prototype[meaning] =  function(){return !_.isEmpty(this)};
+//export {meaning};
 
