@@ -249,34 +249,37 @@ let state = {
 };
 
 let getters = {
-  GET_CACHE_ITEM: state => (table) => {
+    GET_CACHE_ITEM: state => (table) => {
     const optics = actualOptics(table.shell.optics);
     const item = state.cache.find((item)=>{
       return table.name === item.name && _.isEqual(item.optics, optics) && item.timestamp + state.cacheTTL > Date.now();
     });
     return item
-  },
-  GET_INITIAL_SORTER: state => _.cloneDeep(state.initialSorter),
-  GET_INITIAL_TABLE: state => _.cloneDeep(state.initialTable),
-  GET_LAST_EVENT: state => state.events.length>0 ? state.events[0] : null,
-  GET_SELECTOR: state => (name) => state.selectors[name],
-  GET_SHELL: state => name => name ? _.cloneDeep(state.shells[name]) : null,
-  //GET_SHELL_ASSEMBLED: state => name => name? !!state.shells[name].assembled : false,
-  GET_SHELLS: state => _.cloneDeep(state.shells),
+    },
+    GET_INITIAL_SORTER: state => _.cloneDeep(state.initialSorter),
+    GET_INITIAL_TABLE: state => _.cloneDeep(state.initialTable),
+    GET_LAST_EVENT: state => state.events.length>0 ? state.events[0] : null,
+    GET_SELECTOR: state => (name) => state.selectors[name],
+    GET_SHELL: state => name => name ? _.cloneDeep(state.shells[name]) : null,
+    //GET_SHELL_ASSEMBLED: state => name => name? !!state.shells[name].assembled : false,
+    GET_SHELLS: state => _.cloneDeep(state.shells),
+    GET_EDITOR_STACK_COUNT: state => state.editorStack.length,
+    GET_EDITOR_STACK_VALUE: state => ({model, id, column}) => _.find(state.editorStack, item => item.model==model, item.id==id, item.column==column),
 
-  GET_STATE: state=> state,
+
+    GET_STATE: state=> state,
 };
 
 let mutations = {
   ADD_CACHED_ITEM(state,item) {
     state.cache.unshift(_.cloneDeep(item));
   },
-  ADD_EDITOR_STACK(state, {model, id, column, value, isInitialEqual}){
+  ADD_EDITOR_STACK(state, {model, id, column, value, text, isInitialEqual}){
     //TODO добавить изменения в кэшах
 
     // eslint-disable-next-line
     const removed = _.remove(state.editorStack, item => item.model==model && item.id==id && item.column==column);
-    if (!isInitialEqual) state.editorStack.push({model,id,column,value});
+    if (!isInitialEqual) state.editorStack.push({model,id,column,value, text});
   },
   ADD_EVENT(state, event){
     state.events.unshift({event: event, created:Date.now()});
@@ -302,6 +305,9 @@ let mutations = {
   },
   SET_SHELL(state, shell) {
     state.shells[shell.table] =shell;
+  },
+  UPDATE_CACHE_AFTER_CHANGE(state, {model, id, column, value, isInitialEqual}){
+      console.log({model,id, column,value, isInitialEqual});
   },
   UPTOTOP_CACHE(state, cached){
     state.cache.unshift(
@@ -334,7 +340,7 @@ let actions = {
       )
           .then(
             response=>{
-              item.response = _.cloneDeep(response.data);
+              item.response = response.data; ///// _.cloneDeep(
               item.timestamp = Date.now();
               commit('ADD_CACHED_ITEM', item);
             },

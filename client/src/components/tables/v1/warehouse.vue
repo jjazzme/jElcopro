@@ -27,7 +27,7 @@
         computed:{
             editorSelector(){
                 const options = this.value.type === this.enums.editorTypes.Selector && !_.isEmpty(this.value?.props?.selector?.options)
-                    ? this.value.props.selector.options
+                    ? _.sortBy(this.value.props.selector.options, item=>item.text)
                     : [];
                 const selected= this.value.type === this.enums.editorTypes.Selector && !_.isEmpty(this.value?.props?.selector?.options)
                     ? this.value.props.selector.selected
@@ -37,14 +37,8 @@
         },
         methods: {
             inputSelectChange(val){
-                this.value.dataValue = val;
-                this.$store.commit('TABLES/ADD_EDITOR_STACK', {
-                    model: this.value.modelName,
-                    id: this.value.id,
-                    column: this.value.column,
-                    value: val,
-                    isInitialEqual: this.value.isInitialEqual,
-                });
+                const text = _.find(this.editorSelector.options, item=>item.value==val).text;
+                this.value.setDataValue(val, text);
                 this.value.moveEditorToWarehouse();
             },
         },
@@ -53,5 +47,5 @@
 
 <style scoped lang="scss">
     .notsaved{outline-color: #ff9999; outline-style: auto;}
-    .custom-select{padding: 2px 14px 2px 5px; height: 30px;}
+    .custom-select{padding: 2px 14px 2px 5px; height: 30px; margin: 0 3px; width: calc(100% - 6px);}
 </style>

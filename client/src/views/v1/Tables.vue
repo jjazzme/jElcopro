@@ -208,11 +208,11 @@
                         ></b-form-checkbox>
                         <b-dropdown
                                 text=""
-                                :variant="`${dataChanged[row.id]?'outline-warning':'outline-dark'}`"
+                                :variant="`${dataChanged[row.id]._row ? 'outline-warning' : 'outline-dark'}`"
                                 size="sm"
                         >
                             <b-dropdown-item
-                                    v-if="dataChanged[row.id]"
+                                    v-if="dataChanged[row.id]._row"
                                     variant="varning"
                                     @click="rowReturn(row.id)"
                             >До редактирования</b-dropdown-item>
@@ -231,7 +231,7 @@
                             @contextmenu="editClick"
                             v-for="(v2, k2) in row"
                             :key="k2"
-                            class="v-t-col my-auto"
+                            :class="`v-t-col my-auto ${dataChanged[row.id][k2] ? 'dataChanged' : ''}`"
                             :style="style[k2]"
                             :data-column="k2"
                             v-show="table.shell.columns[k2].show"
@@ -244,7 +244,10 @@
 
                                     :data-column="k2"
                                     :data-key="row.id"
-                                    :class="`${table.shell.columns[k2].parentClass?table.shell.columns[k2].parentClass:''} ${table.shell.columns[k2].to?'link':''}`"
+                                    :class="`
+                                        ${table.shell.columns[k2].parentClass?table.shell.columns[k2].parentClass:''}
+                                        ${table.shell.columns[k2].to?'link':''}
+                                    `"
                                     v-html="v2"
                             />
                     </div>
@@ -304,7 +307,10 @@
         },
         computed:{
             // main
-            cacheFromOptics(){return this.loadingStatus === this.enums.loadingStatus.TableLoading ? this.$store.getters['TABLES/GET_CACHE_ITEM'](this.table) : null;},
+            cacheFromOptics(){
+                return this.loadingStatus === this.enums.loadingStatus.TableLoading
+                    ? _.cloneDeep(this.$store.getters['TABLES/GET_CACHE_ITEM'](this.table))
+                    : null;},
             lastEvent(){return this.$store.getters['TABLES/GET_LAST_EVENT']},
             SHELL(){return this.$store.getters['TABLES/GET_SHELL'](this.table?.name)},
             tableData: {
@@ -320,7 +326,6 @@
 
                     let ret = [];
 
-                    // todo тут реализовано this через переменную. В будущем проверить, что исправили хрень с this в отладчике браузера.
                     _.forEach(sou, (souRow)=>{
                         let targetRow = {};
                         _.forEach(souRow, (souVal, souKey)=>{
@@ -344,8 +349,12 @@
             dataChanged(){
                 //let ret = this.table.shell.columns[k2].parentClass;
                 let ret={};
-                _.forEach(this.table.data, (v,i)=>{
-                    ret[v.id] = !_.isEqual(this.table.data[i], this.table.iData[i])
+                _.forEach(this.table.data, (row,i)=>{
+                    let dcItem = ret[row.id] = {};
+                    dcItem._row = !_.isEqual(this.table.data[i], this.table.iData[i]);
+                    _.forEach(row, (col, name)=>{
+                        dcItem[name] = !_.isEqual(this.table.data[i][name]?.toString(), this.table.iData[i][name]?.toString());
+                    })
                 });
                 return ret;
             },
@@ -502,10 +511,9 @@
                 }
             }, 200),
 
-
             editClick(e){
                 e.preventDefault();
-                Vue.set(this, 'editor', new FieldEditor(e, this.table));
+                Vue.set(this, 'editor', new FieldEditor(e, this.table, this.$store));
                 if (this.editor.type === this.enums.editorTypes.String) {
                     if(this.editor.isEditable){
                         this.editor.isEditable = false;
@@ -515,13 +523,10 @@
                     }
                 } else if (this.editor.type==='selector'){
                     if(this.editor.isEditorInWarehouse) {
-                        if (this.editor.isEditorInTarget){
-                            this.editor.moveEditorToTarget();
-                            return;
-                        }
                         this.editor.moveEditorToTarget();
                     } else {
-                        this.editor.moveEditorToWaregouse();
+                        if (this.editor.isEditorInTarget) this.editor.moveEditorToWarehouse();
+                        else this.editor.moveEditorToTarget();
                     }
                     this.inputSelectOptions = [];
 
@@ -660,6 +665,29 @@
                     });
 
             }, 2000),
+            mergeDataWithNotSaved(sou){
+                let tar = _.cloneDeep(sou);
+                if (this.$store.getters['TABLES/GET_EDITOR_STACK_COUNT'] === 0) return tar;
+
+                const a1 =_.forEach(sou, function(row, inx){
+                    const a2 =_.forEach(row, function(colVal, colName){
+                        const notSaved = this.$store.getters['TABLES/GET_EDITOR_STACK_VALUE']({model: this.table.name, id: row.id, column: colName})
+                        if(notSaved) {
+                            const aliases = this.$store.getters['TABLES/GET_SHELL'](this.table.name).controller?.aliases;
+                            const alias = aliases ? aliases[colName] : null;
+                            if (alias) {
+                                tar[inx][colName] = parseInt(notSaved.value);
+                                const classPoint = _.last(alias.path.split('.'));
+                                tar[inx][classPoint].id = tar[inx][colName];
+                                tar[inx][classPoint][alias.column] = notSaved.text;
+                            } else {
+                                tar[inx][colName] = notSaved.value
+                            }
+                        }
+                    });
+                });
+                return tar;
+            },
             opticsChanged(n,o){
                 let isEqual = true;
                 _.forEach(n._forCompare, v=>{
@@ -886,9 +914,10 @@
             },
             cacheFromOptics(n){
                 if(n){
-                    Vue.set(this.table, 'data', n.response.rows);
+                    const data = this.mergeDataWithNotSaved(n.response.rows)
+                    Vue.set(this.table, 'data', data);
                     Vue.set(this.table, 'permissions', n.response.permissions);
-                    Vue.set(this.table, 'iData', _.cloneDeep(n.response.rows));
+                    Vue.set(this.table, 'iData', _.cloneDeep(data));
                     Vue.set(this.table.shell.optics, 'pages', n.response.pages);
                     const pageSize = n.response.pageSize;
                     if (this.table.shell.optics.pageSize !== pageSize) Vue.set(this.table.shell.optics, 'pageSize', pageSize);
@@ -947,7 +976,12 @@
         height: 160px;
         margin: auto;
     }
-    .v-t-header {color: white; background-color: #455fc2; margin-bottom: 5px;}
+    .v-t-header {
+        color: white; background-color: #455fc2; padding: 5px 0;
+        .v-t-col:first-child{
+            div:first-child{margin-right: 5px;}
+        }
+    }
     .v-t-header
     , .v-t-row
     , .v-t-data-row {
@@ -957,10 +991,17 @@
         flex-wrap: nowrap;
         height: auto;
     }
+
     .v-t-data-row{
+        border-left: solid 1px silver;
+        border-right: solid 1px silver;
+        border-bottom: solid 1px silver;
         .v-t-col{
             span{padding: 3px;}
+            border-right: dotted 1px silver;
+            padding: 3px 0;
         }
+        .v-t-col:last-child{border-right: none}
     }
     .v-t-data-row:hover{background-color: #f6f6f6}
     .v-t-data-row-changed{
@@ -979,6 +1020,7 @@
         //.notsaved{outline-color: #ff9999; outline-style: auto;}
         //.custom-select{padding: 2px 2px 2px 5px; height: 30px;}
     }
+    .v-t-col.dataChanged{outline: 2px auto #ff9999}
     .v-data-span {display:flex; align-items:center;  min-height: 40px;}
 
     .h-c-text {overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
