@@ -7,7 +7,7 @@ import PriceService from "../services/PriceService";
 
 module.exports.run = async (args) => {
     const service = new PriceService();
-    const res = await service.searchByNameOnStore( 'MAX232CP', 3);
+    const res = await service.searchByNameOnStore( 'st232', 3);
     //const service = await ExternalPriceService.forCompany('promelec');
     //const res = await service.searchByName('LM2903MX');
     //const service = new PromelecService();
