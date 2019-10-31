@@ -27,10 +27,10 @@ export default class CompanyService extends Entity {
      * Update Or Create By INN & OGRN
      * @param inn
      * @param ogrn
-     * @param own
+     * @param additional
      * @returns {Promise<Object>}
      */
-    async updateOrCreateByInnOgrn(inn, ogrn, own = false) {
+    async updateOrCreateByInnOgrn(inn, ogrn, additional) {
         let company = await Company.findOne({
             include: [
                 { model: Party, required: true,  where: { inn: inn, ogrn: ogrn }, as: 'party' },
@@ -46,7 +46,9 @@ export default class CompanyService extends Entity {
             const address = await this._AddressService.updateOrCreate(
                 { address: newParty.data.address.value}, { json: newParty.data.address }
             );
-            company = await this.create({ party_id: party.id, fact_address_id: address.id, own: own });
+            company = await this.create(Object.assign(
+                { party_id: party.id, fact_address_id: address.id }, additional
+            ));
         }
         return company;
     }
@@ -56,13 +58,13 @@ export default class CompanyService extends Entity {
      * @param inn
      * @param ogrn
      * @param storeName
-     * @param own
+     * @param additional
      * @param online
      * @param is_main
      * @returns {Promise<Object>}
      */
-    async updateOrCreateWithStore(inn, ogrn, storeName, own = false, online = false, is_main = true) {
-        const company = await this.updateOrCreateByInnOgrn(inn, ogrn, own);
+    async updateOrCreateWithStore(inn, ogrn, storeName, additional, online = false, is_main = true) {
+        const company = await this.updateOrCreateByInnOgrn(inn, ogrn, additional);
         if (company.stores.length === 0) {
             const store = await this._StoreService.updateOrCreate(
                 { company_id: company.id, address_id: company.fact_address_id },
@@ -84,7 +86,11 @@ export default class CompanyService extends Entity {
             return undefined;
         }
         return (await Cache.remember('company_' + alias, this.updateOrCreateWithStore(
-            company.inn, company.ogrn, company.stores.main.name, company.own, company.stores.main.online
+            company.inn,
+            company.ogrn,
+            company.stores.main.name,
+            {own: company.own, with_vat: company.with_vat},
+            company.stores.main.online
         )));
     }
 

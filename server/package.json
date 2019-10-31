@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@babel/plugin-proposal-private-methods": "^7.6.0",
     "@babel/polyfill": "^7.6.0",
     "@babel/runtime": "^7.6.3",
     "acorn": "^7.1.0",
@@ -39,9 +40,8 @@
     "passport-local": "^1.0.0",
     "pug": "^2.0.4",
     "request": "^2.88.0",
-    "sequelize": "^5.21.1",
+    "sequelize": "^5.21.2",
     "sequelize-cli": "^5.5.1",
-    "unzip": "^0.1.11",
     "unzipper": "^0.10.5",
     "xlsx": "^0.15.1",
     "xml2js": "^0.4.22"
@@ -53,7 +53,7 @@
     "@babel/plugin-transform-runtime": "^7.6.2",
     "@babel/preset-env": "^7.6.3",
     "dotenv": "^8.2.0",
-    "eslint": "^6.5.1"
+    "eslint": "^6.6.0"
   },
   "nodemon": {
     "name": "nodemon",

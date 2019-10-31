@@ -1,14 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="09e94829-b941-41e8-95cd-f4a06a6a7730" name="Default Changelist" comment="">
+    <list default="true" id="09e94829-b941-41e8-95cd-f4a06a6a7730" name="Default Changelist" comment="PriceService">
+      <change afterPath="$PROJECT_DIR$/server/models/interStoreRoute.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/.babelrc" beforeDir="false" afterPath="$PROJECT_DIR$/server/.babelrc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/bin/console" beforeDir="false" afterPath="$PROJECT_DIR$/server/bin/console" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/commands/importDan.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/commands/importDan.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/commands/test.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/commands/test.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/config/companies.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/config/companies.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/models/product.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/models/product.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/models/store.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/models/store.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/services/CompanyService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/CompanyService.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/services/CompelService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/CompelService.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/services/ExternalPriceService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/ExternalPriceService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/services/PriceService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/PriceService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/services/ProductService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/ProductService.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/services/PromelecService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/PromelecService.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -54,14 +61,14 @@
         <item name="elcopro@127.0.0.1" type="feb32156:DbDataSourceImpl" />
         <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
         <item name="elcopro: schema" type="ebfa3cd1:MariaImplModel$Schema" />
-        <item name="goods: table" type="dbc44a63:MariaImplModel$Table" />
+        <item name="companies: table" type="dbc44a63:MariaImplModel$Table" />
       </path>
       <path>
         <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
         <item name="elcopro@127.0.0.1" type="feb32156:DbDataSourceImpl" />
         <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
         <item name="elcopro: schema" type="ebfa3cd1:MariaImplModel$Schema" />
-        <item name="parameters: table" type="dbc44a63:MariaImplModel$Table" />
+        <item name="goods: table" type="dbc44a63:MariaImplModel$Table" />
       </path>
     </expand>
     <select />
@@ -170,8 +177,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="npm.test_console" />
         <item itemvalue="npm.syncModelDB" />
+        <item itemvalue="npm.test_console" />
         <item itemvalue="Node.js.test.js" />
         <item itemvalue="Node.js.console" />
         <item itemvalue="npm.start_old" />
@@ -185,12 +192,17 @@
           <expand>
             <path>
               <item name="services root" type="e789fda9:ObjectUtils$Sentinel" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@7ee721ef" type="7427dc5b:ServiceModel$ServiceGroupNode" />
+              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@1c06973d" type="7427dc5b:ServiceModel$ServiceGroupNode" />
             </path>
             <path>
               <item name="services root" type="e789fda9:ObjectUtils$Sentinel" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@7ee721ef" type="7427dc5b:ServiceModel$ServiceGroupNode" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceNode@2436ac" type="9fbbdea:ServiceModel$ServiceNode" />
+              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@1c06973d" type="7427dc5b:ServiceModel$ServiceGroupNode" />
+              <item name="com.intellij.execution.services.ServiceModel$ServiceNode@7c76fc22" type="9fbbdea:ServiceModel$ServiceNode" />
+            </path>
+            <path>
+              <item name="services root" type="e789fda9:ObjectUtils$Sentinel" />
+              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@1c06973d" type="7427dc5b:ServiceModel$ServiceGroupNode" />
+              <item name="com.intellij.execution.services.ServiceModel$ServiceNode@7ebd5fc5" type="9fbbdea:ServiceModel$ServiceNode" />
             </path>
           </expand>
           <select />
@@ -221,6 +233,7 @@
       <workItem from="1572006650319" duration="14109000" />
       <workItem from="1572088240326" duration="19238000" />
       <workItem from="1572237501584" duration="11046000" />
+      <workItem from="1572366302426" duration="22112000" />
     </task>
     <task id="LOCAL-00001" summary="Datata">
       <created>1571292450729</created>
@@ -382,18 +395,8 @@
     <MESSAGE value="importCompel &amp; Dan v3" />
     <MESSAGE value="CompelService!" />
     <MESSAGE value="CompelService 2" />
-    <option name="LAST_COMMIT_MESSAGE" value="CompelService 2" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/server/services/PromelecService.js</url>
-          <line>31</line>
-          <properties lambdaOrdinal="-1" />
-          <option name="timeStamp" value="102" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+    <MESSAGE value="PromelecService 2" />
+    <MESSAGE value="PriceService" />
+    <option name="LAST_COMMIT_MESSAGE" value="PriceService" />
   </component>
 </project>

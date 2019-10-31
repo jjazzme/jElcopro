@@ -23,15 +23,10 @@ export default class ExternalPriceService {
      */
     static async forCompany(company) {
 
-        /**
-         * INN for online stores - need make from config!TODO
-         * @type {*[]}
-         * @private
-         */
         const companies = _.filter(global.gConfig.companies, { stores: { main: { online: true } } });
         this._company = await (new CompanyService()).getCompany( company );
         if (this._company) {
-            const config_company = _.find(companies, { inn: this._company.party.inn })
+            const config_company = _.find(companies, { inn: this._company.party.inn });
             if (config_company) {
                 this._company.days = config_company.stores.main.days;
                 this._company.cache_time = config_company.cache_time;
@@ -62,7 +57,6 @@ export default class ExternalPriceService {
      * Search by id  (code)
      * @param id
      * @param withCache
-     * @param days
      * @returns {Promise<Object|undefined>}
      */
     static async searchById(id, withCache = true) {

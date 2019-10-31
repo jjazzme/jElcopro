@@ -21,8 +21,9 @@ module.exports = (sequelize, DataTypes) => {
     tableName: 'products'
   });
   product.associate = function(models) {
-    product.belongsTo(models.Category, { foreignKey: 'category_id' });
-    product.belongsTo(models.Producer, { foreignKey: 'producer_id' });
+    product.belongsTo(models.Category,  { as: 'category', foreignKey: 'category_id' });
+    product.belongsTo(models.Producer, { as: 'producer', foreignKey: 'producer_id' });
+    product.hasMany(models.Parameter, { as: 'parameters', foreignKey: 'product_id' });
     product.hasMany(models.Picture, {
       foreignKey: 'model_id',
       constraints: false,

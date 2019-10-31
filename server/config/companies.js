@@ -5,6 +5,7 @@ export default {
         inn: '5503012474',
         ogrn: '1025500755587',
         own: false,
+        with_vat: true,
         stores: {
             main: {
                 name: 'Склад компании Дан',
@@ -18,6 +19,7 @@ export default {
         inn: '7017364619',
         ogrn: '1147017021876',
         own: true,
+        with_vat: true,
         stores: {
             main: {
                 name: 'Склад на 1905',
@@ -29,6 +31,7 @@ export default {
         inn: '7713005406',
         ogrn: '1027700032161',
         own: false,
+        with_vat: true,
         cache_time: 900,
         service: 'CompelService',
         api_url: process.env.COMPEL_API_URL,
@@ -46,8 +49,10 @@ export default {
         inn: '6659197470',
         ogrn: '1096659012317',
         own: false,
+        with_vat: true,
         cache_time: 900,
         service: 'PromelecService',
+        min_sum: 500,
         api_url: process.env.PROM_URL,
         api_login: process.env.PROM_LOGIN,
         api_pass: process.env.PROM_PASS,

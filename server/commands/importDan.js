@@ -54,33 +54,33 @@ module.exports.run = async () => {
         if (row < from_row) continue;
         switch (col) {
             case 'A':
-                if (good.code) {
+                if (good.code && price.our_price) {
                     good = await good_service.firstOrNew(good);
                     if (good.isNewRecord) {
-                        product = await (new ProductService()).updateOrCreate(product, { remark: remark });
-                        good.set({ product_id: product.id, pack: 1, multiply: 1 });
+                        product = await (new ProductService()).updateOrCreate(product, {remark: remark});
+                        good.set({product_id: product.id, pack: 1, multiply: 1});
                     }
-                    good.set({ ballance: ballance, is_active: true });
+                    good.set({ballance: ballance, is_active: true});
                     good.changed('updatedAt', true);
                     await good_service.update(good);
                     if (case_value) {
                         case_value = await (new ParameterValueService()).updateOrCreate(
-                            { name: case_value , parameter_name_id: case_.id }
+                            {name: case_value, parameter_name_id: case_.id}
                         );
                         await Parameter.findOrCreate({
-                            where: { product_id: good.product_id, parameter_name_id: case_.id },
-                            defaults: { parameter_value_id: case_value.id }
+                            where: {product_id: good.product_id, parameter_name_id: case_.id},
+                            defaults: {parameter_value_id: case_value.id}
                         });
                     }
-                    await (new PriceService()).updateOrCreate({ good_id: good.id }, price);
-                    //clear values
-                    product = {};
-                    price = { min: 1, currency_id: currency.id };
-                    good = { store_id: store.id };
-                    ballance = 0;
-                    remark = '';
-                    case_value = undefined;
+                    await (new PriceService()).updateOrCreate({good_id: good.id}, price);
                 }
+                //clear values
+                product = {};
+                price = { min: 1, currency_id: currency.id };
+                good = { store_id: store.id };
+                ballance = 0;
+                remark = '';
+                case_value = undefined;
                 break;
             case 'B':
                 good.code = value;

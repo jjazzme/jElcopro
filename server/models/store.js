@@ -15,7 +15,10 @@ module.exports = (sequelize, DataTypes) => {
   store.associate = function(models) {
     // associations can be defined here
     store.belongsTo(models.Company, {
-      foreignKey: 'company_id'
+      as: 'company', foreignKey: 'company_id'
+    });
+    store.hasMany(models.InterStoreRoute, {
+      as: 'fromRoutes', foreignKey: 'from_store_id'
     });
   };
   return store;

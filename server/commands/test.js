@@ -3,12 +3,15 @@ import _ from 'lodash'
 import ExternalPriceService from "../services/ExternalPriceService";
 import PromelecService from "../services/PromelecService";
 import axios from 'axios';
+import PriceService from "../services/PriceService";
 
 module.exports.run = async (args) => {
-    //const service = await ExternalPriceService.forCompany(1);
-    //const res = await service.searchById('665279');
-    const service = new PromelecService();
-    const res = await service.apiSearchByName('max232cpe');
+    const service = new PriceService();
+    const res = await service.searchByName({ name: 'MAX232CPE+' });
+    //const service = await ExternalPriceService.forCompany('promelec');
+    //const res = await service.searchByName('LM2903MX');
+    //const service = new PromelecService();
+    //const res = await service.apiSearchByName('max232cpe');
     //const res = await axios.get('https://ya.ru');
     console.log(res);
 };
