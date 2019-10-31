@@ -1,11 +1,9 @@
-'use strict';
 
 import { Address } from '../models';
-import Entity from "./Entity";
+import Entity from './Entity';
 
 export default class AddressService extends Entity {
-
-    constructor() {
-        super(Address);
-    }
+  constructor() {
+    super(Address);
+  }
 }

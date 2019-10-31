@@ -1,7 +1,6 @@
 import db from '../models/index';
 
 export default class Entity {
-
     /**
      * Model class
      * @type Object
@@ -23,16 +22,8 @@ export default class Entity {
      */
     _right = undefined;
 
-    constructor(Entity) {
-        this._Entity = Entity;
-    }
-
-    /**
-     *  Get new transaction
-     * @returns {Promise<undefined>}
-     */
-    async transaction() {
-        return (await db.sequelize.transaction());
+    constructor(entity) {
+        this._Entity = entity;
     }
 
     /**
@@ -41,17 +32,17 @@ export default class Entity {
      * @returns {Promise<*>}
      */
     async find(searchItem) {
-        let item = undefined;
+        let item;
         if (searchItem.id) {
-            item = await this._Entity.findOne({ where : { id: searchItem.id }, include: this._includes });
+            item = await this._Entity.findOne({ where: { id: searchItem.id }, include: this._includes });
         } else {
             try {
-                item = await this._Entity.findOne({where: searchItem, include: this._includes});
+                item = await this._Entity.findOne({ where: searchItem, include: this._includes });
             } catch (e) {
-                console.log(e);
+                console.error(e);
             }
         }
-        return !item ? item : (this._right && item[this._right] ? item[this._right] : item);
+        return item && this._right && item[this._right] ? item[this._right] : item;
     }
 
     /**
@@ -60,31 +51,29 @@ export default class Entity {
      * @returns {Promise<Object>}
      */
     async create(item) {
-        const t = await this.transaction();
-        if (!(item instanceof this._Entity)) {
-            item = this._Entity.build(item);
-        }
+        const t = await db.sequelize.transaction();
+        const createItem = item instanceof this._Entity ? item : this._Entity.build(item);
         try {
             if (this.beforeCreate) {
-                await this.beforeCreate(item, t);
+                await this.beforeCreate(createItem, t);
             }
             if (this.beforeUpdateOrCreate) {
-                await this.beforeUpdateOrCreate(item, t);
+                await this.beforeUpdateOrCreate(createItem, t);
             }
-            await item.save({ transaction: t });
+            await createItem.save({ transaction: t });
             if (this.afterCreate) {
-                await this.afterCreate(item, t);
+                await this.afterCreate(createItem, t);
             }
             if (this.afterUpdateOrCreate) {
-                await this.afterUpdateOrCreate(item, t);
+                await this.afterUpdateOrCreate(createItem, t);
             }
             await t.commit();
+            return await this.find({ id: createItem.id });
         } catch (e) {
-            console.log('Problem with create', this._Entity, item, e);
+            console.warn('Problem with create', this._Entity, item, e);
             await t.rollback();
-            throw e
+            throw e;
         }
-        return (await this.find({ id: item.id }));
     }
 
     /**
@@ -93,32 +82,32 @@ export default class Entity {
      * @returns {Promise<Object>}
      */
     async update(item) {
-        const t = await this.transaction();
+        const t = await db.sequelize.transaction();
+        const updateItem = item instanceof this._Entity ? item : await this._Entity.findOne({ where: { id: item.id } });
         if (!(item instanceof this._Entity)) {
-            const item_by_id = await this._Entity.findOne({ where : { id: item.id } });
-            item = item_by_id.set(item);
+            updateItem.set(item);
         }
         try {
             if (this.beforeUpdate) {
-                await this.beforeUpdate(item, t);
+                await this.beforeUpdate(updateItem, t);
             }
             if (this.beforeUpdateOrCreate) {
-                await this.beforeUpdateOrCreate(item, t);
+                await this.beforeUpdateOrCreate(updateItem, t);
             }
-            await item.save({ transaction: t });
+            await updateItem.save({ transaction: t });
             if (this.afterUpdate) {
-                await this.afterUpdate(item, t);
+                await this.afterUpdate(updateItem, t);
             }
             if (this.afterUpdateOrCreate) {
-                await this.afterUpdateOrCreate(item, t);
+                await this.afterUpdateOrCreate(updateItem, t);
             }
             await t.commit();
+            return await this.find({ id: updateItem.id });
         } catch (e) {
-            console.log('Problem with update', this._Entity, item, e);
+            console.warn('Problem with update', this._Entity, item, e);
             await t.rollback();
-            throw e
+            throw e;
         }
-        return (await this.find({ id: item.id }));
     }
 
     /**
@@ -127,22 +116,22 @@ export default class Entity {
      * @returns {Promise<void>}
      */
     async destroy(item) {
-        const t = await this.transaction();
+        const t = await db.sequelize.transaction();
         if (!(item instanceof this._Entity)) {
-            item = await this._Entity.findOne({ where : { id: item.id } });
+            item = await this._Entity.findOne({ where: { id: item.id } });
         }
         try {
             if (this.beforeDestroy) {
                 await this.beforeDestroy(item, t);
             }
-            await item.destroy({transaction: t});
+            await item.destroy({ transaction: t });
             if (this.afterDestroy) {
                 await this.afterDestroy(item, t);
             }
             await this.transaction().commit();
         } catch (e) {
             await this.transaction().rollback();
-            throw e
+            throw e;
         }
     }
 
@@ -157,7 +146,7 @@ export default class Entity {
         Object.assign(searchItem, newItem);
         if (!item) {
             item = this._Entity.build(searchItem);
-            item = await this.create(item)
+            item = await this.create(item);
         } else {
             item.set(searchItem);
             item = await this.update(item);
@@ -176,7 +165,7 @@ export default class Entity {
         if (!item) {
             Object.assign(searchItem, newItem);
             item = this._Entity.build(searchItem);
-            item = await this.create(item)
+            item = await this.create(item);
         }
         return item;
     }
@@ -188,7 +177,7 @@ export default class Entity {
      * @returns {Promise<Object>}
      */
     async firstOrNew(searchItem, newItem) {
-        let item = await this.find(searchItem,);
+        let item = await this.find(searchItem);
         if (!item) {
             Object.assign(searchItem, newItem);
             item = this._Entity.build(searchItem);
@@ -203,9 +192,9 @@ export default class Entity {
      */
     async getInstance(instance) {
         let answer = null;
-        if (typeof instance == 'number') {
+        if (typeof instance === 'number') {
             answer = await this.find({ id: instance });
-        } else if (typeof instance == 'string' && this.getByAlias) {
+        } else if (typeof instance === 'string' && this.getByAlias) {
             answer = await this.getByAlias(instance);
         } else if (instance instanceof this._Entity) {
             if (this._includes.reduce((flag, item) => !!(flag && item.as && instance[item.as]), true)) {

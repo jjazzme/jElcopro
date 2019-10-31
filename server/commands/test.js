@@ -4,10 +4,11 @@ import ExternalPriceService from "../services/ExternalPriceService";
 import PromelecService from "../services/PromelecService";
 import axios from 'axios';
 import PriceService from "../services/PriceService";
+import PartyService from "../services/PartyService";
 
 module.exports.run = async (args) => {
-    const service = new PriceService();
-    const res = await service.searchByNameOnStore( 'st232', 3);
+    const service = new PartyService();
+    const res = await service.fromDadata('7701129809');
     //const service = await ExternalPriceService.forCompany('promelec');
     //const res = await service.searchByName('LM2903MX');
     //const service = new PromelecService();
