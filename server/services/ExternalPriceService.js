@@ -22,7 +22,6 @@ export default class ExternalPriceService {
      * @returns {Promise<null|ExternalPriceService>}
      */
     static async forCompany(company) {
-
         const companies = _.filter(global.gConfig.companies, { stores: { main: { online: true } } });
         this._company = await (new CompanyService()).getCompany( company );
         if (this._company) {

@@ -19,6 +19,8 @@ import ParameterNameService from "./ParameterNameService";
 import ProductService from "./ProductService";
 import Sequelize from "sequelize";
 import CompanyService from "./CompanyService";
+import StoreService from "./StoreService";
+import ExternalPriceService from "./ExternalPriceService";
 
 export default class PriceService extends Entity {
 
@@ -41,7 +43,6 @@ export default class PriceService extends Entity {
             {
                 model: Parameter,
                 as: 'parameters',
-                //where: { parameter_name_id: case_.id },
                 include: [
                     { model: ParameterValue, as: 'parameterValue' }
                 ]
@@ -57,11 +58,11 @@ export default class PriceService extends Entity {
     _store = {
         model: Store,
         as: 'store',
+        where: { },
         include: [
             {
                 model: Company,
                 as: 'company',
-                where: { },
                 required: true,
                 include: [
                     { model: Party, as: 'party' }
@@ -70,7 +71,6 @@ export default class PriceService extends Entity {
             {
                 model: InterStoreRoute,
                 as: 'fromRoutes',
-                //where: { to_store_id: store.id, is_active: true }
             }
         ]
 
@@ -81,6 +81,11 @@ export default class PriceService extends Entity {
         this._includes = [{ model: Currency, as: 'currency' }]
     }
 
+    /**
+     * Search Prices By name with parameters as stores
+     * @param query
+     * @returns {Promise<Array|*>}
+     */
     async searchByName(query) {
         if (!query || !query.name || query.name.length < 3) return [];
         //
@@ -143,4 +148,18 @@ export default class PriceService extends Entity {
         })
     }
 
+    /**
+     * Serch with Company Store Api or in Database
+     * @param name
+     * @param store
+     * @returns {Promise<Array|*>}
+     */
+    async searchByNameOnStore(name, store) {
+        const store_instance = await (new StoreService()).getInstance(store);
+        const service = await ExternalPriceService.forCompany(store_instance.company);
+        if (service) {
+            return service.searchByName(name);
+        }
+        return this.searchByName({ name: name, from_store_ids: [ store_instance.id ]});
+    }
 };

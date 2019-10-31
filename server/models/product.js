@@ -29,7 +29,8 @@ module.exports = (sequelize, DataTypes) => {
       constraints: false,
       scope: {
         model_type: 'Product'
-      }
+      },
+      as: 'pictures'
     });
   };
   return product;

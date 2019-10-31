@@ -1,13 +1,18 @@
 'use strict';
 
 import Entity from './Entity';
-import { Producer, Product, Category, Picture } from '../models';
+import { Category, Parameter, Picture, Producer, Product } from '../models';
 
 export default class ProductService extends Entity {
 
     constructor() {
         super(Product);
-        this._includes = [{ model: Producer }, { model: Category }, { model: Picture }]
+        this._includes = [
+            { model: Producer, as: 'producer' },
+            { model: Category, as: 'category' },
+            { model: Picture, as: 'pictures' },
+            { model: Parameter, as: 'parameters' }
+        ]
     }
 
     /**
@@ -25,7 +30,7 @@ export default class ProductService extends Entity {
         }
         if (changes && changes.includes('name')) {
             product.name = product.name.toString();
-            product.search_name = this.makeSearchName(name);
+            product.search_name = this.makeSearchName(product.name);
         }
     }
 
@@ -38,4 +43,7 @@ export default class ProductService extends Entity {
         return name ? name.toString().replace(/[^0-9A-Za-zА-Яа-я]/g, '') : '';
     }
 
+    makeSearchName(name) {
+        return name ? name.toString().replace(/[^0-9A-Za-zА-Яа-я]/g, '') : '';
+    }
 }

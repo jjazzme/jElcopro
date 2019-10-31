@@ -1,22 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="09e94829-b941-41e8-95cd-f4a06a6a7730" name="Default Changelist" comment="PriceService">
-      <change afterPath="$PROJECT_DIR$/server/models/interStoreRoute.js" afterDir="false" />
+    <list default="true" id="09e94829-b941-41e8-95cd-f4a06a6a7730" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/bin/console" beforeDir="false" afterPath="$PROJECT_DIR$/server/bin/console" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/commands/importDan.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/commands/importDan.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/commands/test.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/commands/test.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/config/companies.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/config/companies.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/models/product.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/models/product.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/models/store.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/models/store.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/services/CompanyService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/CompanyService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/services/Entity.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/Entity.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/services/ExternalPriceService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/ExternalPriceService.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/services/PriceService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/PriceService.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/services/ProductService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/ProductService.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/services/PromelecService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/PromelecService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/services/StoreService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/StoreService.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -145,21 +139,21 @@
     <configuration name="test.js" type="NodeJSConfigurationType" temporary="true" nameIsGenerated="true" path-to-js-file="$PROJECT_DIR$/server/commands/test.js" working-dir="$PROJECT_DIR$/server/commands">
       <method v="2" />
     </configuration>
-    <configuration name="start_old" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
-      <package-json value="$PROJECT_DIR$/server/package.json" />
-      <command value="run" />
-      <scripts>
-        <script value="start_old" />
-      </scripts>
-      <node-interpreter value="project" />
-      <envs />
-      <method v="2" />
-    </configuration>
     <configuration name="syncModelDB" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
       <package-json value="$PROJECT_DIR$/server/package.json" />
       <command value="run" />
       <scripts>
         <script value="syncModelDB" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <configuration name="test" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/server/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="test" />
       </scripts>
       <node-interpreter value="project" />
       <envs />
@@ -177,11 +171,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="npm.syncModelDB" />
         <item itemvalue="npm.test_console" />
+        <item itemvalue="npm.test" />
+        <item itemvalue="npm.syncModelDB" />
         <item itemvalue="Node.js.test.js" />
         <item itemvalue="Node.js.console" />
-        <item itemvalue="npm.start_old" />
       </list>
     </recent_temporary>
   </component>
@@ -233,7 +227,8 @@
       <workItem from="1572006650319" duration="14109000" />
       <workItem from="1572088240326" duration="19238000" />
       <workItem from="1572237501584" duration="11046000" />
-      <workItem from="1572366302426" duration="22112000" />
+      <workItem from="1572366302426" duration="22280000" />
+      <workItem from="1572517271775" duration="4263000" />
     </task>
     <task id="LOCAL-00001" summary="Datata">
       <created>1571292450729</created>
@@ -354,7 +349,14 @@
       <option name="project" value="LOCAL" />
       <updated>1572190387067</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="PriceService">
+      <created>1572517105583</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1572517105584</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -398,5 +400,23 @@
     <MESSAGE value="PromelecService 2" />
     <MESSAGE value="PriceService" />
     <option name="LAST_COMMIT_MESSAGE" value="PriceService" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/server/services/CompelService.js</url>
+          <line>144</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/server/services/ExternalPriceService.js</url>
+          <line>25</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="6" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

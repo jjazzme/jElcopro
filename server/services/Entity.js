@@ -48,7 +48,6 @@ export default class Entity {
             try {
                 item = await this._Entity.findOne({where: searchItem, include: this._includes});
             } catch (e) {
-                console.log(1223);
                 console.log(e);
             }
         }
@@ -195,6 +194,27 @@ export default class Entity {
             item = this._Entity.build(searchItem);
         }
         return item;
+    }
+
+    /**
+     * Get instance by id, alias or same
+     * @param instance
+     * @returns {Promise<Object>}
+     */
+    async getInstance(instance) {
+        let answer = null;
+        if (typeof instance == 'number') {
+            answer = await this.find({ id: instance });
+        } else if (typeof instance == 'string' && this.getByAlias) {
+            answer = await this.getByAlias(instance);
+        } else if (instance instanceof this._Entity) {
+            if (this._includes.reduce((flag, item) => !!(flag && item.as && instance[item.as]), true)) {
+                answer = instance;
+            } else {
+                answer = await this.find({ id: instance.id });
+            }
+        }
+        return answer;
     }
 
     /**
