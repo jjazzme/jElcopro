@@ -1,9 +1,11 @@
-#!/usr/bin/env node
+#!/usr/bin/env node --tls-min-v1.0
 
 require("@babel/register");
 
-const minimist = require('minimist')
-const args = minimist(process.argv.slice(2))
+const minimist = require('minimist');
+const args = minimist(process.argv.slice(2));
+
+global.sequelize_logging = !!args.l;
 
 // config variables
 require('../config/config.js');
@@ -19,4 +21,4 @@ args._.forEach(command => {
             throw e
         }
     }
-})
+});

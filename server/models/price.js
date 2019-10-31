@@ -13,8 +13,8 @@ module.exports = (sequelize, DataTypes) => {
         tableName: 'prices'
     });
     price.associate = function(models) {
-        price.belongsTo(models.Good, { foreignKey:'good_id' });
-        price.belongsTo(models.Currency, { foreignKey: 'currency_id' });
+        price.belongsTo(models.Good, { foreignKey:'good_id', as: 'good' });
+        price.belongsTo(models.Currency, { foreignKey: 'currency_id', as: 'currency' });
     };
     return price;
 };

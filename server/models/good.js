@@ -15,8 +15,8 @@ module.exports = (sequelize, DataTypes) => {
         tableName: 'goods'
     });
     good.associate = function(models) {
-        good.belongsTo(models.Store, { foreignKey:'store_id' });
-        good.belongsTo(models.Product, { foreignKey: 'product_id' });
+        good.belongsTo(models.Store, { foreignKey:'store_id', as: 'store' });
+        good.belongsTo(models.Product, { foreignKey: 'product_id', as: 'product' });
     };
     return good;
 };

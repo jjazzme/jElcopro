@@ -1,5 +1,5 @@
 'use strict';
-import { Unit } from '../models';
+import UnitService from "../services/UnitService";
 
 module.exports.run = async () => {
     const units = [
@@ -8,13 +8,12 @@ module.exports.run = async () => {
         { where: { alias: 'V' } , defaults: { name: 'вольт', divide: false, coeff: 1 } },
         { where: { alias: 'kV', base_unit_id: true } , defaults: { name: 'киловольт', divide: false, coeff: 1000 } }
     ];
-    let u = undefined;
+    const service = new UnitService();
+    let unit = undefined;
     for (let i = 0; i < units.length; i++) {
         if ( units[i].where.base_unit_id ) {
-            units[i].where.base_unit_id = u.id;
+            units[i].where.base_unit_id = unit.id;
         }
-        u = (await Unit.findOrCreate(units[i]))[0];
-
-        console.log(u, u.id);
+        unit = await service.updateOrCreate(units[i].where, units[i].defaults)
     }
 };

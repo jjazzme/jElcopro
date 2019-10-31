@@ -1,10 +1,11 @@
 'use strict';
 
-const fs = require('fs');
-const unzipper = require('unzipper');
 const XLSX = require('xlsx');
-const request = require('request');
 const _ = require('lodash');
+
+import unzipper from 'unzipper';
+import fs from 'fs';
+import request from 'request';
 
 import { getData } from "../services/getRowColInXlsX";
 
@@ -12,9 +13,14 @@ import GoodService from "../services/GoodService";
 import CompanyService from "../services/CompanyService";
 import ProducerService from "../services/ProducerService";
 import ProductService from "../services/ProductService";
-import { Currency } from '../models';
+import PriceService from "../services/PriceService";
+import ParameterNameService from "../services/ParameterNameService";
+import ParameterValueService from "../services/ParameterValueService";
+import { Currency, Parameter } from '../models';
 
 module.exports.run = async () => {
+    const start = new Date();
+
     const zip = await unzipper.Open.url(request, global.gConfig.companies.dan.stores.main.url);
     await new Promise((resolve, reject) => {
         zip.files[0]
@@ -23,22 +29,24 @@ module.exports.run = async () => {
             .on('error', reject)
             .on('finish', resolve)
     });
+    console.log('downloading finish.');
 
     const company = await (new CompanyService()).getByAlias('dan');
     const store = _.find(company.stores, { is_main: true });
-    const currency = Currency.findOne({ where: { char_code: 'RUB' } });
+    const currency = await Currency.findOne({ where: { char_code: 'RUB' } });
+    const case_ = await (new ParameterNameService()).getByAlias('case');
     const good_service = new GoodService();
 
     const workbook = XLSX.readFile('./storage/dan_dealer.xls');
     const sheet = workbook.Sheets[_.first(workbook.SheetNames)];
     const from_row = 3;
-    const start = new Date();
 
     let product = {};
-    let price = { min: 1 };
+    let price = { min: 1, currency_id: currency.id };
     let good = { store_id: store.id };
     let ballance = 0;
     let remark = '';
+    let case_value = undefined;
 
     for (let z in sheet) {
         if(z[0] === '!') continue;
@@ -46,23 +54,33 @@ module.exports.run = async () => {
         if (row < from_row) continue;
         switch (col) {
             case 'A':
-                if (good.code) {
-                    good = await good_service.find(good);
+                if (good.code && price.our_price) {
+                    good = await good_service.firstOrNew(good);
                     if (good.isNewRecord) {
-                        product = await (new ProductService()).updateOrCreate(product, { remark: remark });
-                        good.set({ product_id: product.id, pack: 1, multiply: 1, is_active: 1 });
+                        product = await (new ProductService()).updateOrCreate(product, {remark: remark});
+                        good.set({product_id: product.id, pack: 1, multiply: 1});
                     }
-                    good.set({ ballance: ballance });
+                    good.set({ballance: ballance, is_active: true});
+                    good.changed('updatedAt', true);
                     await good_service.update(good);
-
-
-
-                    product = {};
-                    price = { min: 1 };
-                    good = { store_id: store.id };
-                    ballance = 0;
-                    remark = '';
+                    if (case_value) {
+                        case_value = await (new ParameterValueService()).updateOrCreate(
+                            {name: case_value, parameter_name_id: case_.id}
+                        );
+                        await Parameter.findOrCreate({
+                            where: {product_id: good.product_id, parameter_name_id: case_.id},
+                            defaults: {parameter_value_id: case_value.id}
+                        });
+                    }
+                    await (new PriceService()).updateOrCreate({good_id: good.id}, price);
                 }
+                //clear values
+                product = {};
+                price = { min: 1, currency_id: currency.id };
+                good = { store_id: store.id };
+                ballance = 0;
+                remark = '';
+                case_value = undefined;
                 break;
             case 'B':
                 good.code = value;
@@ -73,6 +91,9 @@ module.exports.run = async () => {
             case 'D':
                 remark = value;
                 break;
+            case 'E':
+                case_value = value;
+                break;
             case 'F':
                 const producer = await (new ProducerService())
                     .updateOrCreate({ name: value ? value : 'NONAME' });
@@ -81,9 +102,13 @@ module.exports.run = async () => {
             case 'H':
                 price.our_price = value;
                 price.for_all_price = value * 1.25;
+                break;
             case 'I':
                 ballance = value;
+                price.max = value;
                 break;
         }
     }
+    const d = await good_service.disactivate(store.id, start);
+    console.log(d);
 };

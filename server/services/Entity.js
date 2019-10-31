@@ -2,27 +2,41 @@ import db from '../models/index';
 
 export default class Entity {
 
+    /**
+     * Model class
+     * @type Object
+     * @private
+     */
     _Entity = undefined;
-    _transaction = undefined;
+
+    /**
+     * Includes for Find
+     * @type {Array}
+     * @private
+     */
     _includes = [];
+
+    /**
+     * Attribute name for right instance
+     * @type {string}
+     * @private
+     */
+    _right = undefined;
 
     constructor(Entity) {
         this._Entity = Entity;
     }
 
     /**
-     *  Get transaction
+     *  Get new transaction
      * @returns {Promise<undefined>}
      */
     async transaction() {
-        if (!this._transaction) {
-            this._transaction = await db.sequelize.transaction();
-        }
-        return this._transaction;
+        return (await db.sequelize.transaction());
     }
 
     /**
-     * Find by id or attributes in searchItem
+     * Find by id or attributes in searchItem & return right instance if possible
      * @param searchItem
      * @returns {Promise<*>}
      */
@@ -31,9 +45,13 @@ export default class Entity {
         if (searchItem.id) {
             item = await this._Entity.findOne({ where : { id: searchItem.id }, include: this._includes });
         } else {
-            item = await this._Entity.findOne({ where : searchItem, include: this._includes });
+            try {
+                item = await this._Entity.findOne({where: searchItem, include: this._includes});
+            } catch (e) {
+                console.log(e);
+            }
         }
-        return item;
+        return !item ? item : (this._right && item[this._right] ? item[this._right] : item);
     }
 
     /**
@@ -62,6 +80,7 @@ export default class Entity {
             }
             await t.commit();
         } catch (e) {
+            console.log('Problem with create', this._Entity, item, e);
             await t.rollback();
             throw e
         }
@@ -86,7 +105,7 @@ export default class Entity {
             if (this.beforeUpdateOrCreate) {
                 await this.beforeUpdateOrCreate(item, t);
             }
-            await item.save({transaction: t});
+            await item.save({ transaction: t });
             if (this.afterUpdate) {
                 await this.afterUpdate(item, t);
             }
@@ -95,6 +114,7 @@ export default class Entity {
             }
             await t.commit();
         } catch (e) {
+            console.log('Problem with update', this._Entity, item, e);
             await t.rollback();
             throw e
         }
@@ -145,12 +165,56 @@ export default class Entity {
         return item;
     }
 
-    async firstOrNew(newItem) {
-        let item = await this.find(newItem);
+    /**
+     * First or Create with find
+     * @param searchItem
+     * @param newItem
+     * @returns {Promise<Object>}
+     */
+    async firstOrCreate(searchItem, newItem) {
+        let item = await this.find(searchItem);
         if (!item) {
+            Object.assign(searchItem, newItem);
+            item = this._Entity.build(searchItem);
+            item = await this.create(item)
+        }
+        return item;
+    }
+
+    /**
+     * First Or New
+     * @param searchItem
+     * @param newItem
+     * @returns {Promise<Object>}
+     */
+    async firstOrNew(searchItem, newItem) {
+        let item = await this.find(searchItem,);
+        if (!item) {
+            Object.assign(searchItem, newItem);
             item = this._Entity.build(searchItem);
         }
         return item;
+    }
+
+    /**
+     * Get instance by id, alias or same
+     * @param instance
+     * @returns {Promise<Object>}
+     */
+    async getInstance(instance) {
+        let answer = null;
+        if (typeof instance == 'number') {
+            answer = await this.find({ id: instance });
+        } else if (typeof instance == 'string' && this.getByAlias) {
+            answer = await this.getByAlias(instance);
+        } else if (instance instanceof this._Entity) {
+            if (this._includes.reduce((flag, item) => !!(flag && item.as && instance[item.as]), true)) {
+                answer = instance;
+            } else {
+                answer = await this.find({ id: instance.id });
+            }
+        }
+        return answer;
     }
 
     /**

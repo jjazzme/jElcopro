@@ -2,7 +2,7 @@
 
 import Entity from "./Entity";
 import { Address, Company, Party, Store } from "../models";
-import dadata from './dadata';
+import Dadata from './Dadata';
 import Cache from './Cache'
 import PartyService from "./PartyService";
 import AddressService from './AddressService';
@@ -12,14 +12,14 @@ export default class CompanyService extends Entity {
 
     _PartyService = new PartyService();
     _AddressService = new AddressService();
-    static _StoreService = new StoreService();
+    _StoreService = new StoreService();
 
     constructor(){
         super(Company);
         this._includes = [
             { model: Address, required: true, as: 'factAddress' },
-            { model: Party, required: true },
-            { model: Store }
+            { model: Party, required: true, as: 'party' },
+            { model: Store, as: 'stores' }
         ];
     }
 
@@ -27,26 +27,28 @@ export default class CompanyService extends Entity {
      * Update Or Create By INN & OGRN
      * @param inn
      * @param ogrn
-     * @param own
+     * @param additional
      * @returns {Promise<Object>}
      */
-    async updateOrCreateByInnOgrn(inn, ogrn, own = false) {
+    async updateOrCreateByInnOgrn(inn, ogrn, additional) {
         let company = await Company.findOne({
             include: [
-                { model: Party, required: true,  where: { inn: inn, ogrn: ogrn } },
+                { model: Party, required: true,  where: { inn: inn, ogrn: ogrn }, as: 'party' },
                 { model: Address, required: true, as: 'factAddress' },
-                { model: Store }
+                { model: Store, as: 'stores' }
              ]
         });
         if (!company) {
-            let newParty = (await dadata.query('party', inn)).suggestions[0];
+            let newParty = (await Dadata.query('party', inn)).suggestions[0];
             const party = await this._PartyService.updateOrCreate(
                 { inn: inn }, { ogrn: ogrn, name: newParty.value, json: newParty }
             );
             const address = await this._AddressService.updateOrCreate(
                 { address: newParty.data.address.value}, { json: newParty.data.address }
             );
-            company = await this.create({ party_id: party.id, fact_address_id: address.id, own: own });
+            company = await this.create(Object.assign(
+                { party_id: party.id, fact_address_id: address.id }, additional
+            ));
         }
         return company;
     }
@@ -56,19 +58,19 @@ export default class CompanyService extends Entity {
      * @param inn
      * @param ogrn
      * @param storeName
-     * @param own
+     * @param additional
      * @param online
      * @param is_main
      * @returns {Promise<Object>}
      */
-    async updateOrCreateWithStore(inn, ogrn, storeName, own = false, online = false, is_main = true) {
-        const company = await this.updateOrCreateByInnOgrn(inn, ogrn, own);
-        if (company.Stores.length === 0) {
+    async updateOrCreateWithStore(inn, ogrn, storeName, additional, online = false, is_main = true) {
+        const company = await this.updateOrCreateByInnOgrn(inn, ogrn, additional);
+        if (company.stores.length === 0) {
             const store = await this._StoreService.updateOrCreate(
                 { company_id: company.id, address_id: company.fact_address_id },
                 { name: storeName, online: online, is_main: is_main }
             );
-            company.Stores.push(store)
+            company.stores.push(store)
         }
         return company
     }
@@ -84,7 +86,21 @@ export default class CompanyService extends Entity {
             return undefined;
         }
         return (await Cache.remember('company_' + alias, this.updateOrCreateWithStore(
-            company.inn, company.ogrn, company.stores.main.name, company.own, company.stores.main.online
+            company.inn,
+            company.ogrn,
+            company.stores.main.name,
+            {own: company.own, with_vat: company.with_vat},
+            company.stores.main.online
         )));
     }
+
+    /**
+     * Get company by id, alias or instance
+     * @param company
+     * @returns {Promise<Object>}
+     */
+    async getCompany(company) {
+        return (await this.getInstance(company));
+    }
+
 }
