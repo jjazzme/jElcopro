@@ -243,6 +243,13 @@ let state = {
     document_lines:{
 
     },
+    PriceList:{
+        initial: {
+
+        },
+        menu: true,
+        faIcon: {prefix: "fas", name: "hand-holding-usd"},
+    },
     _class: 'таблицы',
   },
   editorStack:[],
