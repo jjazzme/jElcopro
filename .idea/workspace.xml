@@ -1,16 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="09e94829-b941-41e8-95cd-f4a06a6a7730" name="Default Changelist" comment="">
+    <list default="true" id="09e94829-b941-41e8-95cd-f4a06a6a7730" name="Default Changelist" comment="PriceService">
+      <change afterPath="$PROJECT_DIR$/server/commands/seedCompaniesAndStoresFromConfig.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/commands/test.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/commands/test.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/models/product.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/models/product.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/services/CompanyService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/CompanyService.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/services/Entity.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/Entity.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/services/ExternalPriceService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/ExternalPriceService.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/services/PriceService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/PriceService.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/services/ProductService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/ProductService.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/services/StoreService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/StoreService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/package.json" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -55,14 +50,7 @@
         <item name="elcopro@127.0.0.1" type="feb32156:DbDataSourceImpl" />
         <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
         <item name="elcopro: schema" type="ebfa3cd1:MariaImplModel$Schema" />
-        <item name="companies: table" type="dbc44a63:MariaImplModel$Table" />
-      </path>
-      <path>
-        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="elcopro@127.0.0.1" type="feb32156:DbDataSourceImpl" />
-        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
-        <item name="elcopro: schema" type="ebfa3cd1:MariaImplModel$Schema" />
-        <item name="goods: table" type="dbc44a63:MariaImplModel$Table" />
+        <item name="prices: table" type="dbc44a63:MariaImplModel$Table" />
       </path>
     </expand>
     <select />
@@ -229,6 +217,8 @@
       <workItem from="1572237501584" duration="11046000" />
       <workItem from="1572366302426" duration="22280000" />
       <workItem from="1572517271775" duration="4263000" />
+      <workItem from="1572522826233" duration="23000" />
+      <workItem from="1572523148621" duration="2918000" />
     </task>
     <task id="LOCAL-00001" summary="Datata">
       <created>1571292450729</created>
@@ -400,23 +390,5 @@
     <MESSAGE value="PromelecService 2" />
     <MESSAGE value="PriceService" />
     <option name="LAST_COMMIT_MESSAGE" value="PriceService" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/server/services/CompelService.js</url>
-          <line>144</line>
-          <properties lambdaOrdinal="-1" />
-          <option name="timeStamp" value="5" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/server/services/ExternalPriceService.js</url>
-          <line>25</line>
-          <properties lambdaOrdinal="-1" />
-          <option name="timeStamp" value="6" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>
