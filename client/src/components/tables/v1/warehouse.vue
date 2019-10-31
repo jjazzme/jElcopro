@@ -5,7 +5,13 @@
                 :options="editorSelector.options"
                 v-model="editorSelector.selected"
                 v-on:change="inputSelectChange"
+                :disabled="value.disabled"
         ></b-form-select>
+        <div
+                id="editorString"
+                contenteditable="true"
+                @input="inputEditorString"
+        ></div>
     </div>
 </template>
 
@@ -40,6 +46,9 @@
                 const text = _.find(this.editorSelector.options, item=>item.value==val).text;
                 this.value.setDataValue(val, text);
                 this.value.moveEditorToWarehouse();
+            },
+            inputEditorString(e){
+                value.setDataValue(value.textValue);
             },
         },
     }

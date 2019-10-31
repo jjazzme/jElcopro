@@ -3,14 +3,18 @@
 import Utils from "@/classLib/Utils";
 import Vue from 'vue';
 import store from '../store/_default';
+import Enums from "../modules/enums";
+import Swal from "sweetalert2";
 
 export class FieldEditor {
+
     /**
      *
      * @param obj
      * @param table
      */
     constructor(obj, table, store) {
+        this.enums = new Enums();
         this.Utils = new Utils();
         this.obj = obj;
         this.table = table;
@@ -23,6 +27,7 @@ export class FieldEditor {
             }
         };
         this.$store = store;
+        this._disabled = false;
     }
 
 
@@ -36,6 +41,8 @@ export class FieldEditor {
     get dataValue() {
         return _.find(this.table.data, item=>item.id==this.id)[this.column];
     }
+    get disabled(){return this._disabled}
+    set disabled(val){this._disabled = !!val}
     get editorElement(){
         return $(`#editor${this.type.capitalize()}`);
     }
@@ -45,9 +52,7 @@ export class FieldEditor {
     get htmlDataValue(){
         return $(this.target).attr('data-value');
     }
-    get htmlValue(){
-        return $(this.target).html
-    }
+    get htmlValue(){ return $(this.target).html()}
     get id() {
         return $(this.target).attr('data-key');
     }
@@ -84,31 +89,48 @@ export class FieldEditor {
         $(this.target).show();
     }
     setDataValue(val, text){
-        let row = _.find(this.table.data, item=>item.id==this.id)
-
-        const aliases = this.$store.getters['TABLES/GET_SHELL'](this.modelName).controller?.aliases;
-        const alias = aliases ? aliases[this.column] : null;
-        if (alias){
-            Vue.set(row, this.column, parseInt(val));
-            const classPoint = _.last(alias.path.split('.'));
-            Vue.set(row[classPoint], alias.column, text);
-            Vue.set(row[classPoint], 'id', parseInt(val));
-        } else {
-            Vue.set(row, this.column, val);
-        }
-        let ret = {}
+        let ret = {};
         ret.model = this.modelName;
         ret.id = this.id;
         ret.column = this.column;
-        ret.value = this.dataValue;
+        ret.value = val; //this.dataValue;
         ret.text = text;
-        ret.isInitialEqual = this.isInitialEqual;
+        ret.isInitialEqual = _.isEqual(_.find(this.table.data, item=>item.id==this.id)[this.column]?.toString(), val?.toString()); //this.isInitialEqual;
 
         this.$store.commit('TABLES/ADD_EDITOR_STACK', ret);
         //this.$store.commit('TABLES/UPDATE_CACHE_AFTER_CHANGE', ret); // AFTER SAVE
 
         return ret;
     }
+    setEditorElementContent(){
+        if (this.type === this.enums.editorTypes.String) {
+            this.editorElement.text(this.textValue)
+            this.editorElement[0].focus();
+        } else if (this.type === this.enums.editorTypes.Selector){
+            this.disabled = true;
+            this.$store.dispatch('TABLES/GET_OPTIONS',{
+                model: this.modelName,
+                column: this.column,
+                value: this.dataValue,
+                text: this.htmlValue
+            }).then(
+                r=>{
+                    this.props.selector = {options: r.options, selected: r.selected}
+                    this.disabled = false;
+                    this.editorElement[0].focus();
+                },
+                e=>{
+                    Swal.fire({
+                        title: 'Ошибка селектора',
+                        text:  e,
+                        type:  'error',
+                        timer: 10000
+                    });
+                }
+            );
+        }
+    }
+    get textValue(){ return $(this.target).text()}
     get type() {
         return this.table?.shell?.columns[this.column]?.editor ?? 'none';
     }

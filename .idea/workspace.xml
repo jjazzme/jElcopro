@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="09e94829-b941-41e8-95cd-f4a06a6a7730" name="Default Changelist" comment="problem">
+    <list default="true" id="09e94829-b941-41e8-95cd-f4a06a6a7730" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/client/src/views/v1/__Tables.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/classLib/Editor.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/classLib/Editor.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/components/tables/v1/warehouse.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/tables/v1/warehouse.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/store/tables.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/store/tables.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/views/v1/Help.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/views/v1/Help.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/views/v1/Tables.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/views/v1/Tables.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/vue.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/vue.config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/controllers/model.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/controllers/model.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -47,6 +49,13 @@
         <item name="elcopro@localhost" type="feb32156:DbDataSourceImpl" />
         <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
         <item name="elcopro: schema" type="76f4a085:MysqlImplModel$Schema" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="elcopro@localhost" type="feb32156:DbDataSourceImpl" />
+        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
+        <item name="elcopro: schema" type="76f4a085:MysqlImplModel$Schema" />
+        <item name="shells: table" type="285a2a93:MysqlImplModel$Table" />
       </path>
     </expand>
     <select />
@@ -92,6 +101,7 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="javascript.nodejs.core.library.configured.version" value="12.13.0" />
     <property name="js.last.introduce.type" value="CONST" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/client/src/views/v1" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.jscs" value="true" />
     <property name="node.js.detected.package.standard" value="true" />
@@ -108,6 +118,11 @@
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="settings.editor.selected.configurable" value="preferences.editor" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\jazz\PhpstormProjects\jElcopro\client\src\views\v1" />
+    </key>
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -185,8 +200,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="npm.start_NODEMON" />
         <item itemvalue="npm.serve" />
+        <item itemvalue="npm.start_NODEMON" />
         <item itemvalue="npm.syncModelDB" />
         <item itemvalue="npm.start_old" />
         <item itemvalue="npm.start" />
@@ -197,12 +212,7 @@
     <option name="allServicesViewState">
       <serviceView>
         <treeState>
-          <expand>
-            <path>
-              <item name="services root" type="e789fda9:ObjectUtils$Sentinel" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@ee46a564" type="7427dc5b:ServiceModel$ServiceGroupNode" />
-            </path>
-          </expand>
+          <expand />
           <select />
         </treeState>
       </serviceView>
@@ -229,7 +239,7 @@
       <workItem from="1571732112252" duration="5902000" />
       <workItem from="1572238244633" duration="36599000" />
       <workItem from="1572360022559" duration="21862000" />
-      <workItem from="1572437134688" duration="1022000" />
+      <workItem from="1572437134688" duration="34232000" />
     </task>
     <task id="LOCAL-00001" summary="Datata">
       <created>1571292450729</created>
@@ -301,7 +311,14 @@
       <option name="project" value="LOCAL" />
       <updated>1571745529720</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="problem">
+      <created>1572438172591</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1572438172591</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -321,6 +338,8 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
+    <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
+    <option name="CHECK_NEW_TODO" value="false" />
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
     <MESSAGE value="Datata" />
     <MESSAGE value="Config V2" />

@@ -31,7 +31,7 @@ let state = {
     data: [],
     permissions:null,
     saveQueue: {}, //<------- реализовать
-    iData: [],
+    //iData: [],
     name: null,
     queryOptics: null,
     shell: {},
@@ -45,7 +45,7 @@ let state = {
         fields: ['id','name'],
         orderby: 'name',
         map: item => {return {text: item.name, value: item.id}},
-        add: {text: 'Без категории', value: null},
+        add: {text: '-//-', value: null},
       },
       options: null,
       created: null,
@@ -55,7 +55,7 @@ let state = {
         fields: ['id','name'],
         orderby: 'name',
         map: item => {return {text: item.name, value: item.id}},
-        add: {text: 'Без категории', value: null},
+        add: {text: '-//-', value: null},
       },
       options: null,
       created: null,
@@ -264,7 +264,8 @@ let getters = {
     //GET_SHELL_ASSEMBLED: state => name => name? !!state.shells[name].assembled : false,
     GET_SHELLS: state => _.cloneDeep(state.shells),
     GET_EDITOR_STACK_COUNT: state => state.editorStack.length,
-    GET_EDITOR_STACK_VALUE: state => ({model, id, column}) => _.find(state.editorStack, item => item.model==model, item.id==id, item.column==column),
+    GET_EDITOR_STACK_HAS_MODEL_ID: state => ({model, id})=> !!_.find(state.editorStack, item => item.model==model && item.id==id),
+    GET_EDITOR_STACK_VALUE: state => ({model, id, column}) => _.find(state.editorStack, item => item.model==model && item.id==id && item.column==column),
 
 
     GET_STATE: state=> state,
@@ -289,6 +290,10 @@ let mutations = {
     _.forEach(state.shells[name].initial, column=>{
       if (column.filters) _.forEach(column.filters, filter=>{filter.value=''});
     });
+  },
+  REMOVE_EDITOR_STACK_BY_MODEL_ID(state, {model, id}){
+    _.remove(state.editorStack, item=>item.model===model && item.id==id);
+    state.editorStack.splice(0,0)
   },
   REMOVE_OLD_CACHED(state){
     // усекает устаревшие и вышедшие за пределы массива элементы

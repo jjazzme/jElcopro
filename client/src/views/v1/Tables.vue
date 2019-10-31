@@ -238,18 +238,12 @@
                             v-if="table.shell.columns[k2].hidden !== true"
                     >
                             <span
-                                    @focusout="focusOutCell"
-                                    @input="inputCell"
                                     @click="clickCell"
-
                                     :data-column="k2"
                                     :data-key="row.id"
-                                    :class="`
-                                        ${table.shell.columns[k2].parentClass?table.shell.columns[k2].parentClass:''}
-                                        ${table.shell.columns[k2].to?'link':''}
-                                    `"
+                                    :class="`${table.shell.columns[k2].parentClass?table.shell.columns[k2].parentClass:''} ${table.shell.columns[k2].to?'link':''}`"
                                     v-html="v2"
-                            />
+                            ></span>
                     </div>
                 </div>
             </div>
@@ -319,9 +313,7 @@
                     if (this.showBasket){
                         sou = this.table.shell.basket;
                     } else if (this.loadingStatus >= this.enums.loadingStatus.TableLoaded) {
-                        sou = this.table.data
-                    } else if (this.table.iData.length>0) {
-                        sou = this.table.iData
+                        sou = this.mergeDataWithNotSaved(this.table.data);
                     } else {return []}
 
                     let ret = [];
@@ -347,13 +339,14 @@
             
             // for template
             dataChanged(){
-                //let ret = this.table.shell.columns[k2].parentClass;
+                let sou = this.table.data; //? this.mergeDataWithNotSaved(this.table.data);
+                let tar = this.mergeDataWithNotSaved(this.table.data);
                 let ret={};
-                _.forEach(this.table.data, (row,i)=>{
+                _.forEach(sou, (row,i)=>{
                     let dcItem = ret[row.id] = {};
-                    dcItem._row = !_.isEqual(this.table.data[i], this.table.iData[i]);
+                    dcItem._row = !_.isEqual(sou[i], tar[i]);
                     _.forEach(row, (col, name)=>{
-                        dcItem[name] = !_.isEqual(this.table.data[i][name]?.toString(), this.table.iData[i][name]?.toString());
+                        dcItem[name] = !_.isEqual(sou[i][name]?.toString(), tar[i][name]?.toString());
                     })
                 });
                 return ret;
@@ -513,56 +506,25 @@
 
             editClick(e){
                 e.preventDefault();
-                Vue.set(this, 'editor', new FieldEditor(e, this.table, this.$store));
-                if (this.editor.type === this.enums.editorTypes.String) {
-                    if(this.editor.isEditable){
-                        this.editor.isEditable = false;
-                    } else{
-                        this.editor.isEditable = true;
-                        this.editor.focus();
+debugger
+                if(_.isEmpty(this.editor)) {
+                    Vue.set(this, 'editor', new FieldEditor(e, this.table, this.$store));
+                    this.editor.moveEditorToTarget();
+                    this.editor.setEditorElementContent();
+                } else {
+                    if (!this.editor.isEditorInWarehouse) this.editor.moveEditorToWarehouse();
+                    if (this.editor.type !== (new FieldEditor(e, this.table, this.$store)).type){
+                        this.editor.setEditorElementContent();
                     }
-                } else if (this.editor.type==='selector'){
-                    if(this.editor.isEditorInWarehouse) {
-                        this.editor.moveEditorToTarget();
-                    } else {
-                        if (this.editor.isEditorInTarget) this.editor.moveEditorToWarehouse();
-                        else this.editor.moveEditorToTarget();
-                    }
-                    this.inputSelectOptions = [];
+                }
 
-                    this.$store.dispatch('TABLES/GET_OPTIONS',{
-                        model: this.editor.modelName,
-                        column: this.editor.column,
-                        value: this.editor.dataValue,
-                        text: this.editor.htmlValue
-                    }).then(
-                        r=>{
-                            this.editor.props.selector = {options: r.options, selected: r.selected}
-                        },
-                        e=>{
-                            Swal.fire({
-                                title: 'Ошибка селектора',
-                                text:  e,
-                                type:  'error',
-                                timer: 10000
-                            });
-                        }
-                    );
+                if(this.editor.isEditorInWarehouse) {
+                    this.editor.moveEditorToTarget();
+                } else {
+                    if (this.editor.isEditorInTarget) this.editor.moveEditorToWarehouse();
+                    else this.editor.moveEditorToTarget();
                 }
-            },
-            focusOutCell(obj) {
-                let eType = 'string'
-                if (obj.target.getAttribute('data-column') && this.table.shell.columns[obj.target.getAttribute('data-column')].editor ) eType = this.table.shell.columns[obj.target.getAttribute('data-column')].editor
-                if (eType === 'string') {
-                    obj.target.contentEditable = false;
-                    Vue.set(
-                        this.table.data.filter(i=>i.id===parseInt(obj.target.getAttribute('data-key')))[0],
-                        obj.target.getAttribute('data-column'),
-                        obj.target.innerText
-                    )
-                    //this.table.iData.push([]);
-                    //this.table.iData.pop();
-                }
+
             },
             focusOutCellElement(obj){
                 // eslint-disable-next-line no-console
@@ -614,70 +576,21 @@
 
                 return v[type];
             },
-            inputCell(e){
-                $(e.target).addClass('notsaved');
-                this.inputSave(e);
-            },
-            inputSelectChange(val){
-                const cover = document.getElementById('inputSelect').parentElement.getElementsByTagName('span')[0];
-                cover.style.display='inline';
-                cover.innerText = this.inputSelectOptions.filter(i=>i.value===val)[0].text;
-                //$(cover).attr('data-value', val);
-                $(cover).addClass('notsaved')
-                this.inputSave(cover);
-                this.inputSelectOptions = [];
-                this.inputSelectedValue = null;
-                document.getElementById('warehouse').appendChild(document.getElementById('inputSelect'))
-            },
-            inputSave: _.debounce(function(obj) {
-                let eType = 'none';
-                if(obj.target)obj=obj.target;
-                if (obj.getAttribute('data-column') && this.table.shell.columns[obj.getAttribute('data-column')].editor ) eType = this.table.shell.columns[obj.getAttribute('data-column')].editor;
-                const tab = this.table.name;
-                const id = obj.getAttribute('data-key');
-                const col = obj.getAttribute('data-column');
-                let val = 'none';
-                if (eType === 'string') val = obj.innerText;
-                //if (eType === 'selector') val = $(obj).attr('data-value');// parseFloat(obj.innerText); //<----------
-
-                this.$store.dispatch('TABLES/UPDATE_VALUE', {model: tab, id: id, column: col, value: val, editor: eType}).then(r=>{
-                    if(r.data.old !== r.data.new) {
-                        $(obj).removeClass('notsaved');
-                        this.$store.commit('TABLES/ADD_EVENT', r.data)
-                    } else {
-                        // eslint-disable-next-line no-console
-                        console.log(r)
-                        Swal.fire({
-                            title: 'Ошибка сохранения',
-                            text:  r.data.updated,
-                            type:  'error',
-                            timer: 10000
-                        });
-                    }
-                })
-                    .catch(e=>{
-                        Swal.fire({
-                            title: 'Непредвиденная ошибка',
-                            text:  e.response.data.message,
-                            type:  'error',
-                            timer: 10000
-                        });
-                    });
-
-            }, 2000),
             mergeDataWithNotSaved(sou){
                 let tar = _.cloneDeep(sou);
                 if (this.$store.getters['TABLES/GET_EDITOR_STACK_COUNT'] === 0) return tar;
 
-                const a1 =_.forEach(sou, function(row, inx){
-                    const a2 =_.forEach(row, function(colVal, colName){
-                        const notSaved = this.$store.getters['TABLES/GET_EDITOR_STACK_VALUE']({model: this.table.name, id: row.id, column: colName})
+                _.forEach(sou, (row, inx) => {
+                    _.forEach(row, (colVal, colName) => {
+                        let this_ = this;
+                        const notSaved = this_.$store.getters['TABLES/GET_EDITOR_STACK_VALUE']({model: this.table.name, id: row.id, column: colName})
                         if(notSaved) {
-                            const aliases = this.$store.getters['TABLES/GET_SHELL'](this.table.name).controller?.aliases;
+                            const aliases = this_.$store.getters['TABLES/GET_SHELL'](this_.table.name).controller?.aliases;
                             const alias = aliases ? aliases[colName] : null;
                             if (alias) {
                                 tar[inx][colName] = parseInt(notSaved.value);
                                 const classPoint = _.last(alias.path.split('.'));
+                                if(!tar[inx][classPoint]) tar[inx][classPoint] = {}
                                 tar[inx][classPoint].id = tar[inx][colName];
                                 tar[inx][classPoint][alias.column] = notSaved.text;
                             } else {
@@ -707,7 +620,7 @@
                 });
             },
             rowReturn(id){
-                this.table.data.filter(i=>i.id===id)[0] = _.cloneDeep(this.table.iData.filter(i=>i.id===id)[0]);
+                this.$store.commit('TABLES/REMOVE_EDITOR_STACK_BY_MODEL_ID', {model:this.table.name, id: id})
             },
             setOptics(n){
                 if(n && (!this.oldOptics || this.opticsChanged(n,this.oldOptics))) {
@@ -807,12 +720,14 @@
                 return obj
             },
         },
+
         created() {
             this.table = _.cloneDeep(this.$store.getters['TABLES/GET_INITIAL_TABLE']);
             Vue.set(this.table, 'name', this.$route.params.table);
             Vue.set(this.table, 'queryOptics', this.$route.query.optics);
             Vue.set(this, 'loadingStatus', this.userID ? this.enums.loadingStatus.Authenticated : this.enums.loadingStatus.Begin)
         },
+
         updated() {
             // titles for ellipses
             if (this.$refs.tab){
@@ -914,10 +829,10 @@
             },
             cacheFromOptics(n){
                 if(n){
-                    const data = this.mergeDataWithNotSaved(n.response.rows)
-                    Vue.set(this.table, 'data', data);
+                    const sou = n.response.rows; //this.mergeDataWithNotSaved(n.response.rows);
+                    Vue.set(this.table, 'data', sou);
                     Vue.set(this.table, 'permissions', n.response.permissions);
-                    Vue.set(this.table, 'iData', _.cloneDeep(data));
+                    //Vue.set(this.table, 'iData', n.response.rows); //? clone
                     Vue.set(this.table.shell.optics, 'pages', n.response.pages);
                     const pageSize = n.response.pageSize;
                     if (this.table.shell.optics.pageSize !== pageSize) Vue.set(this.table.shell.optics, 'pageSize', pageSize);
@@ -981,6 +896,10 @@
         .v-t-col:first-child{
             div:first-child{margin-right: 5px;}
         }
+        .v-t-col{
+            border-right: dotted 1px white;
+        }
+        //.v-t-col:last-child{border-right: none}
     }
     .v-t-header
     , .v-t-row
@@ -1001,7 +920,7 @@
             border-right: dotted 1px silver;
             padding: 3px 0;
         }
-        .v-t-col:last-child{border-right: none}
+        //.v-t-col:last-child{border-right: none}
     }
     .v-t-data-row:hover{background-color: #f6f6f6}
     .v-t-data-row-changed{
