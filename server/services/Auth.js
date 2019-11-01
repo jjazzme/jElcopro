@@ -1,6 +1,6 @@
-const enums = require('../modules/enums');
-const templates = require('../modules/templates')
+// const enums = require('../modules/enums');
 const _ = require('lodash');
+const templates = require('../modules/templates')
 
 module.exports = {
     controllerPermissionIsDenied({clientUserID: clientUserID, model: model, id: id, column: column, requiredPermissons:requiredPermissons}){

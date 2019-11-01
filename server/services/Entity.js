@@ -117,16 +117,15 @@ export default class Entity {
      */
     async destroy(item) {
         const t = await db.sequelize.transaction();
-        if (!(item instanceof this._Entity)) {
-            item = await this._Entity.findOne({ where: { id: item.id } });
-        }
+        const destroyItem = item instanceof this._Entity
+            ? item : await this._Entity.findOne({ where: { id: item.id } });
         try {
             if (this.beforeDestroy) {
-                await this.beforeDestroy(item, t);
+                await this.beforeDestroy(destroyItem, t);
             }
-            await item.destroy({ transaction: t });
+            await destroyItem.destroy({ transaction: t });
             if (this.afterDestroy) {
-                await this.afterDestroy(item, t);
+                await this.afterDestroy(destroyItem, t);
             }
             await this.transaction().commit();
         } catch (e) {

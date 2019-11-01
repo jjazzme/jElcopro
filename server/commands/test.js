@@ -5,10 +5,11 @@ import PromelecService from "../services/PromelecService";
 import axios from 'axios';
 import PriceService from "../services/PriceService";
 import PartyService from "../services/PartyService";
+import CompanyService from "../services/CompanyService";
 
 module.exports.run = async (args) => {
-    const service = new PartyService();
-    const res = await service.fromDadata('7701129809');
+    const service = new CompanyService();
+    const res = await service.getByAlias('dan');
     //const service = await ExternalPriceService.forCompany('promelec');
     //const res = await service.searchByName('LM2903MX');
     //const service = new PromelecService();

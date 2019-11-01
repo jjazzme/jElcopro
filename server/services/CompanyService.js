@@ -1,25 +1,27 @@
-'use strict';
 
-import Entity from "./Entity";
-import { Address, Company, Party, Store } from "../models";
+import Entity from './Entity';
+import {
+    Address, Company, Party, Store,
+} from '../models';
 import Dadata from './Dadata';
-import Cache from './Cache'
-import PartyService from "./PartyService";
+import Cache from './Cache';
+import PartyService from './PartyService';
 import AddressService from './AddressService';
-import StoreService from "./StoreService";
+import StoreService from './StoreService';
 
 export default class CompanyService extends Entity {
-
     _PartyService = new PartyService();
+
     _AddressService = new AddressService();
+
     _StoreService = new StoreService();
 
-    constructor(){
+    constructor() {
         super(Company);
         this._includes = [
             { model: Address, required: true, as: 'factAddress' },
             { model: Party, required: true, as: 'party' },
-            { model: Store, as: 'stores' }
+            { model: Store, as: 'stores' },
         ];
     }
 
@@ -33,22 +35,24 @@ export default class CompanyService extends Entity {
     async updateOrCreateByInnOgrn(inn, ogrn, additional) {
         let company = await Company.findOne({
             include: [
-                { model: Party, required: true,  where: { inn: inn, ogrn: ogrn }, as: 'party' },
+                {
+                    model: Party, required: true, where: { inn, ogrn }, as: 'party',
+                },
                 { model: Address, required: true, as: 'factAddress' },
-                { model: Store, as: 'stores' }
-             ]
+                { model: Store, as: 'stores' },
+            ],
         });
         if (!company) {
-            let newParty = (await Dadata.query('party', inn)).suggestions[0];
+            const newParty = (await Dadata.query('party', inn)).suggestions[0];
             const party = await this._PartyService.updateOrCreate(
-                { inn: inn }, { ogrn: ogrn, name: newParty.value, json: newParty }
+                { inn }, { ogrn, name: newParty.value, json: newParty },
             );
             const address = await this._AddressService.updateOrCreate(
-                { address: newParty.data.address.value}, { json: newParty.data.address }
+                { address: newParty.data.address.value }, { json: newParty.data.address },
             );
-            company = await this.create(Object.assign(
-                { party_id: party.id, fact_address_id: address.id }, additional
-            ));
+            company = await this.create({
+                party_id: party.id, fact_address_id: address.id, ...additional,
+            });
         }
         return company;
     }
@@ -68,11 +72,11 @@ export default class CompanyService extends Entity {
         if (company.stores.length === 0) {
             const store = await this._StoreService.updateOrCreate(
                 { company_id: company.id, address_id: company.fact_address_id },
-                { name: storeName, online: online, is_main: is_main }
+                { name: storeName, online, is_main },
             );
-            company.stores.push(store)
+            company.stores.push(store);
         }
-        return company
+        return company;
     }
 
     /**
@@ -81,17 +85,22 @@ export default class CompanyService extends Entity {
      * @returns {Promise<Object|undefined>}
      */
     async getByAlias(alias) {
-        let company = require('../config/companies').default[alias];
+        const company = global.gConfig.companies[alias];
         if (!company) {
             return undefined;
         }
-        return (await Cache.remember('company_' + alias, this.updateOrCreateWithStore(
-            company.inn,
-            company.ogrn,
-            company.stores.main.name,
-            {own: company.own, with_vat: company.with_vat},
-            company.stores.main.online
-        )));
+        try {
+            return await Cache.remember(`company_${alias}`, this.updateOrCreateWithStore(
+                company.inn,
+                company.ogrn,
+                company.stores.main.name,
+                { own: company.own, with_vat: company.with_vat },
+                company.stores.main.online,
+            ));
+        } catch (e) {
+            console.warn(e);
+            throw new Error(e);
+        }
     }
 
     /**
@@ -100,7 +109,11 @@ export default class CompanyService extends Entity {
      * @returns {Promise<Object>}
      */
     async getCompany(company) {
-        return (await this.getInstance(company));
+        try {
+            return await this.getInstance(company);
+        } catch (e) {
+            console.error(e);
+            throw e;
+        }
     }
-
 }

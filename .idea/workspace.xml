@@ -2,17 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="09e94829-b941-41e8-95cd-f4a06a6a7730" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/server/.eslintrc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/.eslintrc" beforeDir="false" afterPath="$PROJECT_DIR$/server/.eslintrc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/commands/test.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/commands/test.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/models/address.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/models/address.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/models/good.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/models/good.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/modules/templates.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/modules/templates.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/services/AddressService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/AddressService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/services/Auth.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/Auth.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/services/Cache.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/Cache.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/services/CompanyService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/CompanyService.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/services/Entity.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/Entity.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -231,7 +229,7 @@
       <workItem from="1572517271775" duration="4263000" />
       <workItem from="1572522826233" duration="23000" />
       <workItem from="1572523148621" duration="4016000" />
-      <workItem from="1572536757906" duration="6549000" />
+      <workItem from="1572536757906" duration="9671000" />
     </task>
     <task id="LOCAL-00001" summary="Datata">
       <created>1571292450729</created>
@@ -366,7 +364,14 @@
       <option name="project" value="LOCAL" />
       <updated>1572531390995</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="Try use EsLint">
+      <created>1572550727577</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1572550727577</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -410,6 +415,7 @@
     <MESSAGE value="PromelecService 2" />
     <MESSAGE value="PriceService" />
     <MESSAGE value="CompanySeeder" />
-    <option name="LAST_COMMIT_MESSAGE" value="CompanySeeder" />
+    <MESSAGE value="Try use EsLint" />
+    <option name="LAST_COMMIT_MESSAGE" value="Try use EsLint" />
   </component>
 </project>
