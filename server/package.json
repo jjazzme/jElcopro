@@ -19,6 +19,8 @@
   "dependencies": {
     "@babel/plugin-proposal-class-properties": "^7.5.5",
     "@babel/plugin-proposal-private-methods": "^7.6.0",
+    "@babel/plugin-proposal-optional-chaining": "^7.6.0",
+    "@babel/plugin-transform-runtime": "^7.6.2",
     "@babel/polyfill": "^7.6.0",
     "@babel/runtime": "^7.6.3",
     "acorn": "^7.1.0",
@@ -29,6 +31,7 @@
     "cookie-session": "^1.3.3",
     "debug": "~2.6.9",
     "dotenv": "^8.2.0",
+    "eslint": "^6.6.0",
     "eslint-config-airbnb": "^18.0.1",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-jsx-a11y": "^6.2.3",
@@ -39,6 +42,7 @@
     "express-session": "^1.17.0",
     "http-errors": "~1.6.3",
     "iconv-lite": "^0.5.0",
+    "javascript-state-machine": "^3.1.0",
     "lodash": "^4.17.15",
     "mariadb": "^2.1.2",
     "minimist": "^1.2.0",
@@ -58,10 +62,7 @@
   "devDependencies": {
     "@babel/core": "^7.6.4",
     "@babel/node": "^7.6.3",
-    "@babel/plugin-proposal-optional-chaining": "^7.6.0",
-    "@babel/plugin-transform-runtime": "^7.6.2",
-    "@babel/preset-env": "^7.6.3",
-    "eslint": "^6.6.0"
+    "@babel/preset-env": "^7.6.3"
   },
   "nodemon": {
     "name": "nodemon",
