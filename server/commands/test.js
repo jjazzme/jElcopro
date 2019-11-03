@@ -1,9 +1,9 @@
 import PriceService from '../services/PriceService';
-
+import InvoiceService from "../services/InvoiceService";
+import { Invoice } from '../models';
 
 module.exports.run = async (args) => {
-    const service = await PriceService.getNew();
-    // console.log(service);
-    const res = await service.searchByNameOnStore({ name: 'tda2003', from_store: 1 });
-    console.log(res);
+    const service = await InvoiceService.getNew(1);
+    await service.transition('reserve', { own: true });
+    console.log(service);
 };

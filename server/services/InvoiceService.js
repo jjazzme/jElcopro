@@ -1,5 +1,6 @@
 import DocumentService from './DocumentService';
 import { Invoice } from '../models';
+// import Transaction from "sequelize";
 
 export default class InvoiceService extends DocumentService {
     constructor() {
@@ -15,9 +16,11 @@ export default class InvoiceService extends DocumentService {
     }
 
     // eslint-disable-next-line class-methods-use-this
-    async reserve(own) {
+    async reserve(params) {
+        // const t = new Transaction();
+        //
         await new Promise((resolve) => setTimeout(resolve, 5000));
-        console.log(`It reserved ${own}`);
+        console.log(`It reserved ${params.own}`);
         return Promise.resolve();
     }
 

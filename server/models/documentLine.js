@@ -28,9 +28,9 @@ module.exports = (sequelize, DataTypes) => {
         documentLine.belongsTo(models.StateCustomsDeclaration,
             { foreignKey: 'state_customs_declaration_id', as: 'stateCustomsDeclaration' });
         documentLine.belongsTo(models.Good, { foreignKey: 'from_good_id', as: 'fromGood' });
-        documentLine.hasMany(models.Arrival, { foreignKey: 'document_line_id', as: 'arrivals' });
-        documentLine.hasMany(models.Departure, { foreignKey: 'document_line_id', as: 'departures' });
-        documentLine.hasMany(models.FutureReserve, { foreignKey: 'document_line_id', as: 'futureReserves' });
+        documentLine.hasOne(models.Arrival, { foreignKey: 'document_line_id', as: 'arrival' });
+        documentLine.hasOne(models.Departure, { foreignKey: 'document_line_id', as: 'departure' });
+        documentLine.hasOne(models.FutureReserve, { foreignKey: 'document_line_id', as: 'futureReserve' });
         documentLine.hasMany(models.Reserve, { foreignKey: 'document_line_id', as: 'reserves' });
     };
     return documentLine;

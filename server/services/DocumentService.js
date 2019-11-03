@@ -1,7 +1,7 @@
 import StateMachine from 'javascript-state-machine';
 import _ from 'lodash';
 import Entity from './Entity';
-import { DocumentLine } from '../models';
+import { Document, DocumentLine } from '../models';
 
 export default class DocumentService extends Entity {
     /**
@@ -13,7 +13,11 @@ export default class DocumentService extends Entity {
 
     constructor(entity) {
         super(entity);
-        this._includes = [{ model: DocumentLine, as: 'documentLines' }];
+        this._includes = [
+            { model: DocumentLine, as: 'documentLines' },
+            { model: Document, as: 'parent' },
+            { model: Document, as: 'children' },
+        ];
     }
 
     /**
@@ -36,7 +40,7 @@ export default class DocumentService extends Entity {
                     console.log(`Try ${name}`);
                     await this._instance[name]();
                     console.log(this._instance.state);
-                    this._instance.status = this._instance.state;
+                    this._instance.status_id = this._instance.state;
                     return true;
                 } catch (e) {
                     console.log('reject', e);

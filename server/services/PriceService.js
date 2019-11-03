@@ -1,4 +1,3 @@
-
 import _ from 'lodash';
 import Sequelize from 'sequelize';
 import Entity from './Entity';
@@ -85,7 +84,7 @@ export default class PriceService extends Entity {
      * @param {string} optics.name - searching name
      * @param {Store|number|null} [optics.store = ElcoPro Main Store]  - our store for calculate delivery times
      * @param {Boolean=} optics.online - Use this for store type (oline, offline, if missing - all)
-     * @param {number[]=} optics.from_store_ids - Serach product only this stores or all if missing
+     * @param {number[]=} optics.from_store_ids - Search product only this stores or all if missing
      * @returns {Promise<Array|*>}
      */
     async searchByName(optics) {
@@ -101,6 +100,8 @@ export default class PriceService extends Entity {
         if (!store) {
             const company = await (new CompanyService()).getByAlias('elcopro');
             store = _.find(company.stores, { is_main: true });
+        } else {
+            store = await (new StoreService()).getInstance(store);
         }
         _.find(this._store.include, { as: 'fromRoutes' }).where = { to_store_id: store.id, is_active: true };
         if (optics.online !== null && optics.online !== undefined) {
@@ -151,7 +152,7 @@ export default class PriceService extends Entity {
     }
 
     /**
-     * Serch with Company Store Api or in Database
+     * Search with Company Store Api or in Database
      * @param {Object} optics
      * @param {string} optics.name
      * @param {Store|number|null} [optics.store = ElcoPro Main Store]  - our store for calculate delivery times

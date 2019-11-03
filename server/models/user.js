@@ -1,60 +1,35 @@
-'use strict';
-
-module.exports = function(sequelize, Sequelize) {
+module.exports = function (sequelize, Sequelize) {
     const user = sequelize.define('User', {
         id: {
             autoIncrement: true,
             primaryKey: true,
-            type: Sequelize.INTEGER
+            type: Sequelize.INTEGER,
         },
-        firstname: {
+        name: {
             type: Sequelize.STRING,
-            notEmpty: true
-        },
-        lastname: {
-            type: Sequelize.STRING,
-            notEmpty: true
-        },
-        username: {
-            type: Sequelize.TEXT
-        },
-        about: {
-            type: Sequelize.TEXT
-        },
-        phone: {
-            type: Sequelize.STRING,
-            validate: {
-                isPhone: true
-            }
+            notEmpty: true,
         },
         email: {
             type: Sequelize.STRING,
             validate: {
-                isEmail: true
-            }
+                isEmail: true,
+            },
         },
         password: {
             type: Sequelize.STRING,
-            allowNull: false
-        },
-        last_login: {
-            type: Sequelize.DATE
-        },
-        status: {
-            type: Sequelize.ENUM('active', 'inactive'),
-            defaultValue: 'active'
+            allowNull: false,
         },
         options: {
-            type: Sequelize.JSON
+            type: Sequelize.JSON,
         },
-        avatar:{
-            type: Sequelize.INTEGER
+        avatar: {
+            type: Sequelize.STRING,
         },
     }, {
         freezeTableName: true,
-        tableName: 'users'
+        tableName: 'users',
     });
-    user.associate = function(models) {
+    user.associate = function (models) {
 
     };
     return user;
