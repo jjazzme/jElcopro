@@ -1,5 +1,3 @@
-'use strict';
-
 module.exports = (sequelize, DataTypes) => {
     const document = sequelize.define('Document', {
         date: DataTypes.DATE,
@@ -19,15 +17,17 @@ module.exports = (sequelize, DataTypes) => {
         status_id: DataTypes.STRING,
     }, {
         freezeTableName: true,
-        tableName: 'documents'
+        tableName: 'documents',
     });
-    document.associate = function(models) {
-        document.belongsTo(models.User, {foreignKey: 'user_id'});
-        document.belongsTo(models.DocumentType, {foreignKey:'document_type_id'});
-        document.belongsTo(models.Document, {foreignKey: 'parent_id', constraints:false, as: 'parent'});
-        document.belongsTo(models.Store, {foreignKey:'store_id'});
-        document.belongsTo(models.Store, {foreignKey:'foreign_store_id'});
-        document.belongsTo(models.Currency, {foreignKey: 'currency_id'});
+    document.associate = function (models) {
+        document.belongsTo(models.User, { foreignKey: 'user_id' });
+        document.belongsTo(models.DocumentType, { foreignKey: 'document_type_id' });
+        document.belongsTo(models.Document, { foreignKey: 'parent_id', constraints: false, as: 'parent' });
+        document.belongsTo(models.Store, { foreignKey: 'store_id', as: 'store' });
+        document.belongsTo(models.Store, { foreignKey: 'foreign_store_id', as: 'foreignStore' });
+        document.belongsTo(models.Currency, { foreignKey: 'currency_id', as: 'currency' });
+        document.hasMany(models.Document, { foreignKey: 'parent_id', as: 'children' });
+        document.hasMany(models.DocumentLine, { foreignKey: 'document_id', as: 'documentLines' });
     };
     return document;
 };

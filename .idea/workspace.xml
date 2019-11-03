@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="09e94829-b941-41e8-95cd-f4a06a6a7730" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/server/services/InvoiceService.js" afterDir="false" />
+    <list default="true" id="09e94829-b941-41e8-95cd-f4a06a6a7730" name="Default Changelist" comment="Good Moovement V0">
+      <change afterPath="$PROJECT_DIR$/server/models/arrival.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/models/departure.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/models/documentLine.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/models/futureReserve.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/models/reserve.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/models/stateCustomDeclaration.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/.eslintrc" beforeDir="false" afterPath="$PROJECT_DIR$/server/.eslintrc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/commands/test.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/commands/test.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/models/document.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/models/document.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/services/DocumentService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/DocumentService.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/services/ParameterValueService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/ParameterValueService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/services/Entity.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/Entity.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -48,20 +51,6 @@
         <item name="elcopro@127.0.0.1" type="feb32156:DbDataSourceImpl" />
         <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
         <item name="elcopro: schema" type="ebfa3cd1:MariaImplModel$Schema" />
-      </path>
-      <path>
-        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="elcopro@127.0.0.1" type="feb32156:DbDataSourceImpl" />
-        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
-        <item name="elcopro: schema" type="ebfa3cd1:MariaImplModel$Schema" />
-        <item name="documents: table" type="dbc44a63:MariaImplModel$Table" />
-      </path>
-      <path>
-        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="elcopro@127.0.0.1" type="feb32156:DbDataSourceImpl" />
-        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
-        <item name="elcopro: schema" type="ebfa3cd1:MariaImplModel$Schema" />
-        <item name="prices: table" type="dbc44a63:MariaImplModel$Table" />
       </path>
     </expand>
     <select />
@@ -242,6 +231,7 @@
       <workItem from="1572522826233" duration="23000" />
       <workItem from="1572523148621" duration="4016000" />
       <workItem from="1572536757906" duration="9671000" />
+      <workItem from="1572766424944" duration="5723000" />
     </task>
     <task id="LOCAL-00001" summary="Datata">
       <created>1571292450729</created>
@@ -390,7 +380,14 @@
       <option name="project" value="LOCAL" />
       <updated>1572697517934</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="FSM in DocumentService">
+      <created>1572719482967</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1572719482967</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -411,8 +408,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="Datata" />
-    <MESSAGE value="Config V2" />
     <MESSAGE value="ProducerService V1" />
     <MESSAGE value="Add Entity class&#10;&#10;Product &amp; Producer service use this class" />
     <MESSAGE value="Product &amp; Producer service extends Entity class" />
@@ -436,6 +431,8 @@
     <MESSAGE value="CompanySeeder" />
     <MESSAGE value="Try use EsLint" />
     <MESSAGE value="AfterEslint" />
-    <option name="LAST_COMMIT_MESSAGE" value="AfterEslint" />
+    <MESSAGE value="FSM in DocumentService" />
+    <MESSAGE value="Good Moovement V0" />
+    <option name="LAST_COMMIT_MESSAGE" value="Good Moovement V0" />
   </component>
 </project>
