@@ -1,17 +1,9 @@
+import PriceService from '../services/PriceService';
 
-import _ from 'lodash'
-import ExternalPriceService from "../services/ExternalPriceService";
-import PromelecService from "../services/PromelecService";
-import axios from 'axios';
-import PriceService from "../services/PriceService";
 
 module.exports.run = async (args) => {
-    const service = new PriceService();
-    const res = await service.searchByNameOnStore( 'st232', 3);
-    //const service = await ExternalPriceService.forCompany('promelec');
-    //const res = await service.searchByName('LM2903MX');
-    //const service = new PromelecService();
-    //const res = await service.apiSearchByName('max232cpe');
-    //const res = await axios.get('https://ya.ru');
+    const service = await PriceService.getNew();
+    // console.log(service);
+    const res = await service.searchByNameOnStore({ name: 'tda2003', from_store: 1 });
     console.log(res);
 };

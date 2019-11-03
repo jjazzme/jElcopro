@@ -1,18 +1,22 @@
 // requires
 const _ = require('lodash');
+const companies = require('./companies').default;
 
 // module variables
 const config = require('./config.json');
+
 const defaultConfig = config.development;
 const environment = process.env.NODE_ENV || 'development';
 const environmentConfig = config[environment];
 
-//additional config from .env
+// additional config from .env
+// eslint-disable-next-line import/no-extraneous-dependencies
 require('dotenv').config();
-let additionalConfig = {
-    dadata : {
+
+const additionalConfig = {
+    dadata: {
         token: process.env.DADATA_TOKEN,
-        url: 'https://dadata.ru/api/v2/suggest/'
+        url: 'https://dadata.ru/api/v2/suggest/',
     },
     sequelize: {
         dialect: process.env.DB_CONNECTION,
@@ -21,13 +25,13 @@ let additionalConfig = {
         host: process.env.DB_HOST,
         database: process.env.DB_DATABASE,
     },
-    companies: require('./companies').default
+    companies,
 };
 if (!global.sequelize_logging) {
     additionalConfig.sequelize.logging = false;
 }
-if (additionalConfig.sequelize.dialect !== 'mysql'){
-    additionalConfig.sequelize.dialectOptions = {useUTC: false, timezone: 'Etc/GMT+0'};
+if (additionalConfig.sequelize.dialect !== 'mysql') {
+    additionalConfig.sequelize.dialectOptions = { useUTC: false, timezone: 'Etc/GMT+0' };
     additionalConfig.sequelize.timezone = 'Etc/GMT+0';
 }
 const finalConfig = _.merge(defaultConfig, environmentConfig, additionalConfig);
@@ -38,6 +42,6 @@ const finalConfig = _.merge(defaultConfig, environmentConfig, additionalConfig);
 global.gConfig = finalConfig;
 
 // log global.gConfig
-//console.log(`global.gConfig: ${JSON.stringify(global.gConfig, undefined, global.gConfig.json_indentation)}`);
+// console.log(`global.gConfig: ${JSON.stringify(global.gConfig, undefined, global.gConfig.json_indentation)}`);
 
 module.exports = finalConfig;

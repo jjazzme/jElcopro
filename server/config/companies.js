@@ -11,9 +11,9 @@ export default {
                 name: 'Склад компании Дан',
                 online: false,
                 url: 'http://danomsk.ru/upload/dan_dealer.zip',
-                pass: 'dandealer000'
-            }
-        }
+                pass: 'dandealer000',
+            },
+        },
     },
     elcopro: {
         inn: '7017364619',
@@ -23,9 +23,9 @@ export default {
         stores: {
             main: {
                 name: 'Склад на 1905',
-                online: false
-            }
-        }
+                online: false,
+            },
+        },
     },
     compel: {
         inn: '7713005406',
@@ -41,9 +41,9 @@ export default {
                 name: 'CENTER',
                 online: true,
                 url: 'http://www.compel.ru/stockfiles2/0f3cf59278bb435da00616380f8805af/',
-                days: 6
-            }
-        }
+                days: 6,
+            },
+        },
     },
     promelec: {
         inn: '6659197470',
@@ -61,8 +61,8 @@ export default {
             main: {
                 name: 'Склад ЕКБ',
                 online: true,
-                days: 8
-            }
-        }
-    }
-}
+                days: 8,
+            },
+        },
+    },
+};
