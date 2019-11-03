@@ -7,6 +7,7 @@ export default class Enums {
     }
     get permission() { return Object.freeze({Create: 'Create', Read: 'Read', Update: 'Update', Delete: 'Delete'})}
     get editorTypes() { return Object.freeze({String: 'string', Selector: 'selector'})}
+    get services() {return Object.freeze({Price: 'price'})}
 }
 /*
 module.enums = {

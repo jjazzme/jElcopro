@@ -66,7 +66,7 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-// test models
+global._ = require('lodash')
 
 console.log('APP.JS <---------------------------');
 module.exports = app;

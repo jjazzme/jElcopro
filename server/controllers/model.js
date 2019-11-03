@@ -1,11 +1,8 @@
 'use strict';
 
-const Producer = require('../models').Producer;
-
 const models = require('../models');
 const Auth = require('../services/Auth');
 const enums = require('../modules/enums');
-const _ = require('lodash');
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 
@@ -60,7 +57,8 @@ module.exports = {
                         current.include = [{}];
                         current = current.include[0];
                     } else {
-                        if(val.as) current.as = val.as;
+                        current.as = val.as ? val.as : _.camelCase(_.last(val.path.split('.')));
+
                         let actual = _.cloneDeep(actualFilters[name]);
                         if (actual){
                             if (actual.length>0) {
@@ -207,6 +205,55 @@ module.exports = {
                         res.json({error: err});
                     });
                 });
+    },
+
+    //
+    getModelData(req, res){
+        const userID = parseInt(req.params.userID);
+        const model = req.params.model;
+
+        if (Auth.controllerPermissionIsDenied({
+            clientUserID: userID,
+            model: model,
+            requiredPermissons: [enums.authType.Read]})
+        ) {
+            res.status(401).send('Authentication error');
+            return;
+        }
+
+
+        const includes = req.body.includes;
+        const sorters = req.body.sorters;
+
+        let include = []
+        _.forEach(includes, item=>{
+            let top = {};
+            let current = top;
+            const path = item.path.split('.')
+            _.forEach(path, (model, ind)=>{
+                current.model = models[model];
+                current.as = _.camelCase(model)
+                if(path.length-1 !== ind){
+                    current = current.include = {};
+                }
+            });
+            include.push(top)
+        });
+
+        models[model].findAll({
+            include: include,
+            order: sorters,
+            limit: 1000
+        })
+            .then(resp=>{
+                res.send(Auth.permissionsModelFilter(model, resp));
+            })
+            .catch(err=>{
+                res.status(500);
+                res.json({error: err});
+            });
+
+
     },
 };
 

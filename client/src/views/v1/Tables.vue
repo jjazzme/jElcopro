@@ -506,25 +506,15 @@
 
             editClick(e){
                 e.preventDefault();
-debugger
-                if(_.isEmpty(this.editor)) {
+
+                if(this.editor.isEditorInTarget) {
+                    this.editor.moveEditorToWarehouse()
+                } else {
                     Vue.set(this, 'editor', new FieldEditor(e, this.table, this.$store));
-                    this.editor.moveEditorToTarget();
-                    this.editor.setEditorElementContent();
-                } else {
                     if (!this.editor.isEditorInWarehouse) this.editor.moveEditorToWarehouse();
-                    if (this.editor.type !== (new FieldEditor(e, this.table, this.$store)).type){
-                        this.editor.setEditorElementContent();
-                    }
-                }
-
-                if(this.editor.isEditorInWarehouse) {
+                    this.editor.setEditorElementContent();
                     this.editor.moveEditorToTarget();
-                } else {
-                    if (this.editor.isEditorInTarget) this.editor.moveEditorToWarehouse();
-                    else this.editor.moveEditorToTarget();
                 }
-
             },
             focusOutCellElement(obj){
                 // eslint-disable-next-line no-console
@@ -892,7 +882,7 @@ debugger
         margin: auto;
     }
     .v-t-header {
-        color: white; background-color: #455fc2; padding: 5px 0;
+        color: var(--table-header-text); background-color: var(--table-header-bg); padding: 5px 0;
         .v-t-col:first-child{
             div:first-child{margin-right: 5px;}
         }

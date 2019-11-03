@@ -21,7 +21,6 @@
     },
     methods:{
       test(){
-        debugger
         let t = [1,2,3,4]
         _.forEach(t, i=>{
           let h = this;

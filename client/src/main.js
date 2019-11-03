@@ -15,13 +15,13 @@ Vue.component('page-environment', pageEnvironment);
 import { library } from '@fortawesome/fontawesome-svg-core';
 import {
   faHome, faInfoCircle, faBarcode, faHammer, faCode, faFileInvoiceDollar, faBars,
-  faSortAlphaDown, faSortAlphaUpAlt, faEllipsisV
+  faSortAlphaDown, faSortAlphaUpAlt, faEllipsisV, faHandHoldingUsd
 } from '@fortawesome/free-solid-svg-icons';
 import {faCodepen} from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 library.add(
     faHome, faInfoCircle, faBarcode, faHammer, faCode, faCodepen, faFileInvoiceDollar, faBars,
-    faSortAlphaDown, faSortAlphaUpAlt, faEllipsisV
+    faSortAlphaDown, faSortAlphaUpAlt, faEllipsisV, faHandHoldingUsd
 );
 Vue.component('fa-icon', FontAwesomeIcon);
 
@@ -44,3 +44,12 @@ new Vue({
   store,
   render: h => h(App),
 }).$mount('#app');
+
+/*
+
+ C:\Users\jazz\PhpstormProjects\jElcopro\client\node_modules\@vue\cli-service\lib\config\dev.js
+       webpackConfig
+        .devtool('cheap-module-eval-source-map')
+        //.devtool('source-map')
+
+ */

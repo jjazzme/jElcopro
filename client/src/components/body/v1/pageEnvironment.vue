@@ -1,5 +1,8 @@
 <template />
 <script>
+    /**
+     *
+     */
     export default {
         name: "pageEnvironment",
         props:{
@@ -8,7 +11,6 @@
         created(){
             this.$store.commit('ENV/SET_TITLE', this.head.title);
             $('title').html(this.$store.getters['ENV/GET_HEAD_TITLE']);
-
             /*
             $('*[data-animated=pageEnter]').each(function(){
                 $(this).addClass('animated').addClass($(this).attr('data-animate-effect'));
@@ -17,7 +19,6 @@
                 });
             });
 */
-
         },
         watch:{
             head(n){

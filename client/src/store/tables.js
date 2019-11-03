@@ -8,7 +8,7 @@ let state = {
   cacheMaxLen: 100,
   cacheTTL: 10*60*1000, //ms 10 min
   initialCache: {
-    name: '', //table name
+    name: '', //table name, if service = _service_NAME
     optics:{},
     response:{},
     timestamp: null
@@ -60,6 +60,15 @@ let state = {
       options: null,
       created: null,
     },
+
+  },
+  modelData:{
+    Store:{
+      data:[],
+      created: null,
+      includes: [{path: 'Company.Party'}],
+      sorters: [['company', 'party', 'name', 'ASC'], ['name', 'ASC']]
+    }
   },
   shells: {
     //assembled:timestamp
@@ -243,13 +252,6 @@ let state = {
     document_lines:{
 
     },
-    PriceList:{
-        initial: {
-
-        },
-        menu: true,
-        faIcon: {prefix: "fas", name: "hand-holding-usd"},
-    },
     _class: 'таблицы',
   },
   editorStack:[],
@@ -331,6 +333,44 @@ let mutations = {
 };
 
 let actions = {
+  GET_OPTIONS({state, commit, getters, rootGetters}, {model, column, value, text}){
+    return new Promise((resolve,reject)=>{
+      if (value === undefined) value = null;
+      const user = rootGetters['AUTH/GET_USER'];
+      const sou = state.shells[model].controller?.aliases[column]?.path ? _.last(state.shells[model].controller.aliases[column].path.split('.')) : column;
+      const selector = getters.GET_SELECTOR(sou);
+      if (
+          (selector.options && !selector.source)
+          || (selector.created && selector.created + state.cacheTTL > Date.now())
+      ){
+        // если кэш
+        let res = _.cloneDeep(selector.options);
+        if (res.filter(i=>i.value==value).length===0) res.push({text:text, value:value});
+        resolve({options: _.sortBy(res, i=>i.value), selected:value})
+      } else {
+        axios.put(`/api/model/options/${sou}/${user.id}`, {fields: selector.source.fields})
+            .then(r=>{
+              let res = r.data.map(selector.source.map);
+              commit('SET_SELECTOR_OPTIONS', {name:sou, options:res, add: selector.source.add});
+              if (res.filter(i=>i.value==value).length===0) res.push({text:text, value:value});
+              resolve({options: _.sortBy(res, i=>i.text), selected:value});
+            })
+            .catch(e=>reject(e))
+      }
+    });
+  },
+  LOAD_MODEL({state, rootGetters}, model){
+    return new Promise((resolve, reject)=>{
+      if (state.modelData[model].data.length === 0 || state.modelData[model].created + state.cacheTTL < Date.now()) {
+        const user = rootGetters['AUTH/GET_USER'];
+        axios.put(`/api/model-data/get/${model}/${user.id}`, {includes: state.modelData[model].includes, sorters: state.modelData[model].sorters})
+            .then(r=>{resolve(r.data)})
+            .catch(e=>reject(e))
+      } else {
+        resolve(state.modelData[model].data);
+      }
+    });
+  },
   LOAD_PAGE({state, commit, getters, rootGetters}, table){
     commit('REMOVE_OLD_CACHED');
     let item = getters.GET_CACHE_ITEM(table);
@@ -363,6 +403,17 @@ let actions = {
           .catch(error=>console.log(error))
 
     }
+  },
+  /**
+   *
+   * @param state
+   * @param rootGetters
+   * @param optics {service,name,store}
+   * @constructor
+   */
+  LOAD_SERVICE({state, rootGetters}, optics){
+    const user = rootGetters['AUTH/GET_USER'];
+    axios.put(`/api/service/get/${user.id}`, {optics:optics})
   },
   // eslint-disable-next-line no-unused-vars
   /**
@@ -470,32 +521,6 @@ let actions = {
     // {table: tab, id: id, column: col, value: val}
     const user = rootGetters['AUTH/GET_USER'];
     return axios.post(`/api/model/update/${packet.model}/${user.id}`, {packet: packet})
-  },
-  GET_OPTIONS({state, commit, getters, rootGetters}, {model, column, value, text}){
-    return new Promise((resolve,reject)=>{
-      if (value === undefined) value = null;
-      const user = rootGetters['AUTH/GET_USER'];
-      const sou = state.shells[model].controller?.aliases[column]?.path ? _.last(state.shells[model].controller.aliases[column].path.split('.')) : column;
-      const selector = getters.GET_SELECTOR(sou);
-      if (
-          (selector.options && !selector.source)
-          || (selector.created && selector.created + state.cacheTTL > Date.now())
-      ){
-        // если кэш
-        let res = _.cloneDeep(selector.options);
-        if (res.filter(i=>i.value==value).length===0) res.push({text:text, value:value});
-        resolve({options: _.sortBy(res, i=>i.value), selected:value})
-      } else {
-        axios.put(`/api/model/options/${sou}/${user.id}`, {fields: selector.source.fields})
-            .then(r=>{
-              let res = r.data.map(selector.source.map);
-              commit('SET_SELECTOR_OPTIONS', {name:sou, options:res, add: selector.source.add});
-              if (res.filter(i=>i.value==value).length===0) res.push({text:text, value:value});
-              resolve({options: _.sortBy(res, i=>i.text), selected:value});
-            })
-            .catch(e=>reject(e))
-      }
-    });
   },
 };
 

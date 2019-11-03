@@ -21,6 +21,7 @@ import { Currency, Parameter } from '../models';
 module.exports.run = async () => {
     const start = new Date();
 
+    /*
     const zip = await unzipper.Open.url(request, global.gConfig.companies.dan.stores.main.url);
     await new Promise((resolve, reject) => {
         zip.files[0]
@@ -29,6 +30,7 @@ module.exports.run = async () => {
             .on('error', reject)
             .on('finish', resolve)
     });
+     */
     console.log('downloading finish.');
 
     const company = await (new CompanyService()).getByAlias('dan');

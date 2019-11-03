@@ -17,22 +17,19 @@
         min-height: 100vh;
       }
       body {
+        opacity: 0.5;
         display: flex;
         flex-direction: row;
         min-height: 100vh;
         font-family: 'Open Sans', sans-serif;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
-        color: #2c3e50;
         margin: 0;
         padding: 0;
-        background: whitesmoke;
       }
       body>nav {
         padding: 5px;
         min-width: 190px;
-        background: rgb(255,255,255);
-        background: linear-gradient(0deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 80%, rgba(128,128,128,0.1) 100%);
       }
       body>section {
         display: flex;
@@ -45,14 +42,11 @@
         flex: 1 1 auto;
         min-height: 200px;
         max-height: 200px;
-        background-color: cornflowerblue;
       }
       body>section>main{
         flex: 1 1 auto;
-        background: linear-gradient(to bottom, cornflowerblue 50px, whitesmoke 0);
       }
       body>section>main>article{
-        background-color: white;
         margin: 0 20px;
         padding: 20px;
         border-radius: 10px;
@@ -61,24 +55,9 @@
       }
       body>section>footer{
         flex: 1 1 auto;
-        background-color: whitesmoke;
         min-height: 100px;
         max-height: 100px;
       }
-
-      h1 {font-size: 1.75em}
-      h1, h2, h3, h4, h5, h6{font-family: 'Montserrat', 'Open Sans', sans-serif}
-      p{text-indent: 12px; line-height: 30px; margin: 10px 0;}
-      a{
-        color: darkblue;
-        text-decoration: none;
-        border-bottom: solid 3px lightseagreen;
-        transition: 0.5s;
-      }
-      a:hover{color: black; border-bottom: solid 1px lightseagreen; text-decoration: none;}
-      a.logo{display: block;margin-bottom: 40px; text-align: center}
-      li>a:hover{border-bottom: none;}
-      a.img, a.img:hover{border-bottom: none;}
     </style>
 
     <!--script src="https://kit.fontawesome.com/d89b80b3a0.js" crossorigin="anonymous"></script-->

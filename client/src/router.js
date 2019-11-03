@@ -34,7 +34,13 @@ const router = new Router({
       path:'/tables/:table/:id',
       name: 'modelItem',
       meta: {middleware: env},
-      component: () => import('./views/v1/modelItem.vue'),
+      component: () => import('./views/v1/ModelItem.vue'),
+    },
+    {
+      path:'/prices',
+      name: 'prices',
+      meta: {middleware: env},
+      component: () => import('./views/v1/PriceList.vue'),
     },
     {
       path:'/tables/:table',

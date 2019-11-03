@@ -23,6 +23,15 @@
                     <span>помощь</span>
                 </router-link>
             </li>
+            <li>
+                <router-link
+                        to="/prices"
+                        :class="$route.name === 'prices' ? 'selected' : ''"
+                >
+                    <span><fa-icon icon="hand-holding-usd" /></span>
+                    <span>Прайс</span>
+                </router-link>
+            </li>
 
             <li
                 v-for="(v, k) in this.$store.getters['TABLES/GET_SHELLS']"
