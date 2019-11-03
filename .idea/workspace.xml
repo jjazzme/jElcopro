@@ -1,18 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="09e94829-b941-41e8-95cd-f4a06a6a7730" name="Default Changelist" comment="Good Moovement V0">
-      <change afterPath="$PROJECT_DIR$/server/models/arrival.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/models/departure.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/models/documentLine.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/models/futureReserve.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/models/reserve.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/models/stateCustomDeclaration.js" afterDir="false" />
+    <list default="true" id="09e94829-b941-41e8-95cd-f4a06a6a7730" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/commands/test.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/commands/test.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/models/document.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/models/document.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/services/Entity.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/Entity.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/models/reserve.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/models/reserve.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/models/stateCustomDeclaration.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/models/stateCustomDeclaration.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -170,10 +162,10 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="npm.syncModelDB" />
         <item itemvalue="npm.test_console" />
         <item itemvalue="npm.start" />
         <item itemvalue="npm.test" />
-        <item itemvalue="npm.syncModelDB" />
         <item itemvalue="Node.js.test.js" />
       </list>
     </recent_temporary>
@@ -182,22 +174,7 @@
     <option name="allServicesViewState">
       <serviceView>
         <treeState>
-          <expand>
-            <path>
-              <item name="services root" type="e789fda9:ObjectUtils$Sentinel" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@1c06973d" type="7427dc5b:ServiceModel$ServiceGroupNode" />
-            </path>
-            <path>
-              <item name="services root" type="e789fda9:ObjectUtils$Sentinel" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@1c06973d" type="7427dc5b:ServiceModel$ServiceGroupNode" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceNode@7c76fc22" type="9fbbdea:ServiceModel$ServiceNode" />
-            </path>
-            <path>
-              <item name="services root" type="e789fda9:ObjectUtils$Sentinel" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@1c06973d" type="7427dc5b:ServiceModel$ServiceGroupNode" />
-              <item name="com.intellij.execution.services.ServiceModel$ServiceNode@7ebd5fc5" type="9fbbdea:ServiceModel$ServiceNode" />
-            </path>
-          </expand>
+          <expand />
           <select />
         </treeState>
       </serviceView>
@@ -231,7 +208,7 @@
       <workItem from="1572522826233" duration="23000" />
       <workItem from="1572523148621" duration="4016000" />
       <workItem from="1572536757906" duration="9671000" />
-      <workItem from="1572766424944" duration="5723000" />
+      <workItem from="1572766424944" duration="7078000" />
     </task>
     <task id="LOCAL-00001" summary="Datata">
       <created>1571292450729</created>
@@ -387,7 +364,14 @@
       <option name="project" value="LOCAL" />
       <updated>1572719482967</updated>
     </task>
-    <option name="localTasksCounter" value="23" />
+    <task id="LOCAL-00023" summary="Good Moovement V0">
+      <created>1572773854780</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1572773854780</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

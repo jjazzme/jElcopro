@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-    const reserve = sequelize.define('Departure', {
+    const reserve = sequelize.define('Reserve', {
         document_line_id: DataTypes.INTEGER,
         arrival_id: DataTypes.INTEGER,
         quantity: DataTypes.INTEGER,
