@@ -1,10 +1,9 @@
-import InvoiceService from "../services/InvoiceService";
-import PartyService from "../services/PartyService";
-import PriceService from "../services/PriceService";
+import PriceService from '../services/PriceService';
 
 
 module.exports.run = async (args) => {
-    const service = new PriceService();
-    const res = await service.searchByName({ name: 'max232cpe' });
+    const service = await PriceService.getNew();
+    // console.log(service);
+    const res = await service.searchByNameOnStore({ name: 'tda2003', from_store: 1 });
     console.log(res);
 };

@@ -81,29 +81,33 @@ export default class PriceService extends Entity {
 
     /**
      * Search Prices By name with parameters as stores
-     * @param query
+     * @param {Object} optics
+     * @param {string} optics.name - searching name
+     * @param {Store|number|null} [optics.store = ElcoPro Main Store]  - our store for calculate delivery times
+     * @param {Boolean=} optics.online - Use this for store type (oline, offline, if missing - all)
+     * @param {number[]=} optics.from_store_ids - Serach product only this stores or all if missing
      * @returns {Promise<Array|*>}
      */
-    async searchByName(query) {
-        if (!query || !query.name || query.name.length < 3) return [];
+    async searchByName(optics) {
+        if (!optics || !optics.name || optics.name.length < 3) return [];
         //
-        const searchName = ProductService.makeSearchName(query.name);
+        const searchName = ProductService.makeSearchName(optics.name);
         this._product.where = { name: { [this._Op.substring]: searchName } };
         // eslint-disable-next-line no-underscore-dangle
         const case_ = await (new ParameterNameService()).getByAlias('case');
         _.find(this._product.include, { as: 'parameters' }).where = { parameter_name_id: case_.id };
         //
-        let { store } = query;
+        let { store } = optics;
         if (!store) {
             const company = await (new CompanyService()).getByAlias('elcopro');
             store = _.find(company.stores, { is_main: true });
         }
         _.find(this._store.include, { as: 'fromRoutes' }).where = { to_store_id: store.id, is_active: true };
-        if (query.online !== null && query.online !== undefined) {
-            this._store.where.online = query.online;
+        if (optics.online !== null && optics.online !== undefined) {
+            this._store.where.online = optics.online;
         }
-        if (query.from_store_ids) {
-            this._store.where.id = { [this._Op.in]: query.from_store_ids };
+        if (optics.from_store_ids) {
+            this._store.where.id = { [this._Op.in]: optics.from_store_ids };
         }
         //
         const prices = await Price.findAll({
@@ -148,16 +152,20 @@ export default class PriceService extends Entity {
 
     /**
      * Serch with Company Store Api or in Database
-     * @param name
-     * @param store
+     * @param {Object} optics
+     * @param {string} optics.name
+     * @param {Store|number|null} [optics.store = ElcoPro Main Store]  - our store for calculate delivery times
+     * @param {Store|number} optics.from_store - Instance or Id store for searching in
      * @returns {Promise<Array|*>}
      */
-    async searchByNameOnStore(name, store) {
-        const storeInstance = await (new StoreService()).getInstance(store);
+    async searchByNameOnStore(optics) {
+        const storeInstance = await (new StoreService()).getInstance(optics.from_store);
         const service = await ExternalPriceService.forCompany(storeInstance.company);
         if (service) {
-            return service.searchByName(name);
+            return service.searchByName(optics.name);
         }
-        return this.searchByName({ name, from_store_ids: [storeInstance.id] });
+        return this.searchByName(
+            { name: optics.name, from_store_ids: [storeInstance.id], store: optics.store },
+        );
     }
 }

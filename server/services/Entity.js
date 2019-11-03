@@ -10,6 +10,11 @@ export default class Entity {
     _Entity = undefined;
 
     /**
+     *  Model instance if need
+     */
+    _instance;
+
+    /**
      * Includes for Find
      * @type {Array}
      * @private
@@ -25,6 +30,7 @@ export default class Entity {
 
     constructor(entity) {
         this._Entity = entity;
+        this._instance = null;
     }
 
     /**
@@ -208,6 +214,21 @@ export default class Entity {
             }
         }
         return answer;
+    }
+
+    /**
+     * Set Instance property
+     * @param instance
+     * @returns {Promise<void>}
+     */
+    async setInstance(instance) {
+        this._instance = await this.getInstance(instance);
+    }
+
+    static async getNew(instance) {
+        const ret = new this();
+        if (instance) await ret.setInstance(instance);
+        return ret;
     }
 
     /**

@@ -1,6 +1,7 @@
 import StateMachine from 'javascript-state-machine';
 import _ from 'lodash';
 import Entity from './Entity';
+import { DocumentLine } from '../models';
 
 export default class DocumentService extends Entity {
     /**
@@ -10,28 +11,24 @@ export default class DocumentService extends Entity {
      */
     _transitions = [];
 
-    /**
-     *  Document instance
-     */
-    _instance;
-
     constructor(entity) {
         super(entity);
-        this._instance = null;
+        this._includes = [{ model: DocumentLine, as: 'documentLines' }];
     }
 
     /**
      *  Document status transition
-     * @param name
+     * @param {string} name
+     * @param {Object=} params
      * @returns {Promise<boolean>}
      */
-    async transition(name) {
+    async transition(name, params) {
         if (this._instance) {
             StateMachine.apply(this._instance, {
                 init: this._instance.status_id,
                 transitions: this._transitions,
                 methods: {
-                    [`onBefore${_.upperFirst(name)}`]: () => this[name](),
+                    [`onBefore${_.upperFirst(name)}`]: () => this[name](params),
                 },
             });
             if (this._instance.can(name)) {
@@ -47,14 +44,5 @@ export default class DocumentService extends Entity {
             }
         }
         return false;
-    }
-
-    /**
-     * Set Instance property
-     * @param instance
-     * @returns {Promise<void>}
-     */
-    async setInstance(instance) {
-        this._instance = await this.getInstance(instance);
     }
 }

@@ -15,9 +15,9 @@ export default class InvoiceService extends DocumentService {
     }
 
     // eslint-disable-next-line class-methods-use-this
-    async reserve() {
+    async reserve(own) {
         await new Promise((resolve) => setTimeout(resolve, 5000));
-        console.log('It reserved');
+        console.log(`It reserved ${own}`);
         return Promise.resolve();
     }
 
