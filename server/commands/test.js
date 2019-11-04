@@ -4,6 +4,6 @@ import { Invoice } from '../models';
 
 module.exports.run = async (args) => {
     const service = await PriceService.getNew()
-    const res = await service.searchByNameOnStore({ name: 'max232', from_store: 3})
+    const res = await service.searchByNameOnStore({ name: 'max232cpe', from_store: 1})
     console.log(res);
 };

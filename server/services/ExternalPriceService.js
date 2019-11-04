@@ -1,9 +1,13 @@
-
 import _ from 'lodash';
 import CompanyService from './CompanyService';
 import Cache from './Cache';
 
 export default class ExternalPriceService {
+    constructor(service, company) {
+        this._service = service;
+        this._company = company;
+    }
+
     /**
      * Company info
      */
@@ -16,20 +20,20 @@ export default class ExternalPriceService {
 
     /**
      * Create instance this class with needing Company
-     * @param company
+     * @param {Company|number}company
      * @returns {Promise<null|ExternalPriceService>}
      */
     static async forCompany(company) {
         const companies = _.filter(global.gConfig.companies, { stores: { main: { online: true } } });
-        this._company = await (new CompanyService()).getCompany(company);
-        if (this._company) {
-            const configCompany = _.find(companies, { inn: this._company.party.inn });
+        const companyInstance = await (new CompanyService()).getCompany(company);
+        if (companyInstance) {
+            const configCompany = _.find(companies, { inn: companyInstance.party.inn });
             if (configCompany) {
-                this._company.days = configCompany.stores.main.days;
-                this._company.cache_time = configCompany.cache_time;
+                companyInstance.days = configCompany.stores.main.days;
+                companyInstance.cache_time = configCompany.cache_time;
                 // eslint-disable-next-line new-cap
-                this._service = new (await import(`./${configCompany.service}`)).default(this._company);
-                return this;
+                const service = new (await import(`./${configCompany.service}`)).default(this._company);
+                return new this(service, companyInstance);
             }
         }
         return null;
@@ -37,11 +41,11 @@ export default class ExternalPriceService {
 
     /**
      * Search by name
-     * @param name
-     * @param withCache
+     * @param {string} name
+     * @param {boolean} [withCache = true]
      * @returns {Promise<Object|undefined>}
      */
-    static async searchByName(name, withCache = true) {
+    async searchByName(name, withCache = true) {
         const key = `${this._company.party.inn}_search_name_${name}`;
         if (withCache && (await Cache.hasKey(key))) {
             try {
@@ -63,8 +67,8 @@ export default class ExternalPriceService {
 
     /**
      * Search by id  (code)
-     * @param id
-     * @param withCache
+     * @param {string} id (code)
+     * @param {boolean} [withCache = true]
      * @returns {Promise<Object|undefined>}
      */
     static async searchById(id, withCache = true) {
