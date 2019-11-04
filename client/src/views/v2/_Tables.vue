@@ -137,7 +137,7 @@
         },
         computed:{
             // main
-            cacheFromOptics(){return this.loadingStatus === this.enums.loadingStatus.TableLoading ? this.$store.getters['TABLES/GET_CACHE_ITEM'](this.table) : null;},
+            cacheFromOptics(){return this.loadingStatus === this.enums.loadingStatus.TableLoading ? this.$store.getters['TABLES/GET_CACHE_ITEM']('model', this.table.name, this.table.shell.optics) : null;},
             lastEvent(){return this.$store.getters['TABLES/GET_LAST_EVENT']},
             SHELL(){return this.$store.getters['TABLES/GET_SHELL'](this.table?.name)},
             tableData: {
@@ -542,7 +542,7 @@
                 handler: function (n) {
                     if (n){
                         if(this.loadingStatus>this.enums.loadingStatus.ShellLoaded &&
-                            this.$store.getters['TABLES/GET_CACHE_ITEM'](this.table) &&
+                            this.$store.getters['TABLES/GET_CACHE_ITEM']('model', this.table.name, this.table.shell.optics) &&
                             !_.isEqual(_.last(this.queueSave).optics, n))
                         {
                             this.queueSave.push(_.cloneDeep(this.table.shell));

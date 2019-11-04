@@ -41,21 +41,14 @@
             }
         },
         props:{
-            value: {
-                type: Object,
-                default: {
-                    selectedStores:[],
-                    searchString: '',
-                    quantity: null,
-                    fromQuantity: false
-                }
-            }
+            value: {type: Object,}
         },
         computed: {
         },
         created() {
             this.$store.dispatch('TABLES/LOAD_MODEL', 'Store')
                 .then(r=>{
+                    this.$set(this.value, 'stores', r)
                     this.$set(this, 'stores', _.map(r, item=>{return {text: `${item.company.party.name} - ${item.name}`, value: item.id}}));
                     this.$set(this.value, 'selectedStores', _.map(r, item=>item.id));
                 })

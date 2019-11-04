@@ -303,7 +303,7 @@
             // main
             cacheFromOptics(){
                 return this.loadingStatus === this.enums.loadingStatus.TableLoading
-                    ? _.cloneDeep(this.$store.getters['TABLES/GET_CACHE_ITEM'](this.table))
+                    ? _.cloneDeep(this.$store.getters['TABLES/GET_CACHE_ITEM']('model', this.table.name, this.table.shell.optics))
                     : null;},
             lastEvent(){return this.$store.getters['TABLES/GET_LAST_EVENT']},
             SHELL(){return this.$store.getters['TABLES/GET_SHELL'](this.table?.name)},
@@ -750,7 +750,7 @@
                 handler: function (n) {
                     if (n){
                         if(this.loadingStatus>this.enums.loadingStatus.ShellLoaded &&
-                            this.$store.getters['TABLES/GET_CACHE_ITEM'](this.table) &&
+                            this.$store.getters['TABLES/GET_CACHE_ITEM']('model', this.table.name, this.table.shell.optics) &&
                             !_.isEqual(_.last(this.queueSave).optics, n))
                         {
                             this.queueSave.push(_.cloneDeep(this.table.shell));
@@ -854,7 +854,8 @@
 </script>
 
 <!--suppress CssInvalidPseudoSelector -->
-<style lang="scss" scoped>
+<style lang="less" scoped>
+    @import "~@/less/_variables";
     .transp{opacity: 0}
     .tran05{opacity: 0.5}
     .v-table {
@@ -882,7 +883,7 @@
         margin: auto;
     }
     .v-t-header {
-        color: var(--table-header-text); background-color: var(--table-header-bg); padding: 5px 0;
+        color: @table-header-text; background-color: @table-header-bg; padding: 5px 0;
         .v-t-col:first-child{
             div:first-child{margin-right: 5px;}
         }

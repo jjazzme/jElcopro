@@ -1,14 +1,14 @@
 import axios from 'axios';
 //import _ from 'lodash';
 
-
 let state = {
   events:[],
   cache:[],
   cacheMaxLen: 100,
   cacheTTL: 10*60*1000, //ms 10 min
   initialCache: {
-    name: '', //table name, if service = _service_NAME
+    type: '', // model/service...
+    name: '',
     optics:{},
     response:{},
     timestamp: null
@@ -258,26 +258,20 @@ let state = {
 };
 
 let getters = {
-    GET_CACHE_ITEM: state => (table) => {
-    const optics = actualOptics(table.shell.optics);
-    const item = state.cache.find((item)=>{
-      return table.name === item.name && _.isEqual(item.optics, optics) && item.timestamp + state.cacheTTL > Date.now();
-    });
-    return item
-    },
-    GET_INITIAL_SORTER: state => _.cloneDeep(state.initialSorter),
-    GET_INITIAL_TABLE: state => _.cloneDeep(state.initialTable),
-    GET_LAST_EVENT: state => state.events.length>0 ? state.events[0] : null,
-    GET_SELECTOR: state => (name) => state.selectors[name],
-    GET_SHELL: state => name => name ? _.cloneDeep(state.shells[name]) : null,
-    //GET_SHELL_ASSEMBLED: state => name => name? !!state.shells[name].assembled : false,
-    GET_SHELLS: state => _.cloneDeep(state.shells),
-    GET_EDITOR_STACK_COUNT: state => state.editorStack.length,
-    GET_EDITOR_STACK_HAS_MODEL_ID: state => ({model, id})=> !!_.find(state.editorStack, item => item.model==model && item.id==id),
-    GET_EDITOR_STACK_VALUE: state => ({model, id, column}) => _.find(state.editorStack, item => item.model==model && item.id==id && item.column==column),
+  GET_CACHE_ITEM: state => ({type, name, optics}) => _.find(state.cache, item => type === item.type && name === item.name && _.isEqual(item.optics, actualOptics(optics)) && item.timestamp + state.cacheTTL > Date.now()
+  ),
+  GET_EDITOR_STACK_COUNT: state => state.editorStack.length,
+  GET_EDITOR_STACK_HAS_MODEL_ID: state => ({model, id})=> !!_.find(state.editorStack, item => item.model==model && item.id==id),
+  GET_EDITOR_STACK_VALUE: state => ({model, id, column}) => _.find(state.editorStack, item => item.model==model && item.id==id && item.column==column),
+  GET_INITIAL_SORTER: state => _.cloneDeep(state.initialSorter),
+  GET_INITIAL_TABLE: state => _.cloneDeep(state.initialTable),
+  GET_LAST_EVENT: state => state.events.length>0 ? state.events[0] : null,
+  GET_SELECTOR: state => (name) => state.selectors[name],
+  GET_SHELL: state => name => name ? _.cloneDeep(state.shells[name]) : null,
+  //GET_SHELL_ASSEMBLED: state => name => name? !!state.shells[name].assembled : false,
+  GET_SHELLS: state => _.cloneDeep(state.shells),
 
-
-    GET_STATE: state=> state,
+  GET_STATE: state=> state,
 };
 
 let mutations = {
@@ -322,11 +316,12 @@ let mutations = {
   },
   UPDATE_CACHE_AFTER_CHANGE(state, {model, id, column, value, isInitialEqual}){
       console.log({model,id, column,value, isInitialEqual});
+      // заготовка
   },
   UPTOTOP_CACHE(state, cached){
     state.cache.unshift(
         _.remove(state.cache, function (item) {
-          return _.isEqual(item, cached)
+          return item.type === cached.type && item.model === cached.model && _.isEqual(item.optics, cached.optics)
         })[0]
     );
   },
@@ -373,18 +368,19 @@ let actions = {
   },
   LOAD_PAGE({state, commit, getters, rootGetters}, table){
     commit('REMOVE_OLD_CACHED');
-    let item = getters.GET_CACHE_ITEM(table);
+    const name = table.name;
+    let item = getters.GET_CACHE_ITEM('model', name ,table.shell.optics);
     if(item) {
       commit('UPTOTOP_CACHE', item);
     } else {
       const user = rootGetters['AUTH/GET_USER'];
       const optics = actualOptics(table.shell.optics);
-      const name = table.name;
       const page = optics.page;
 
       let item = _.cloneDeep(state.initialCache);
       item.optics = _.cloneDeep(optics);
       item.name = name;
+      item.type = 'model';
 
       axios.put(
           `/api/model/get/${name}/${user.id}/${page}`,
@@ -405,15 +401,40 @@ let actions = {
     }
   },
   /**
-   *
    * @param state
+   * @param commit
+   * @param getters
    * @param rootGetters
    * @param optics {service,name,store}
    * @constructor
    */
-  LOAD_SERVICE({state, rootGetters}, optics){
-    const user = rootGetters['AUTH/GET_USER'];
-    axios.put(`/api/service/get/${user.id}`, {optics:optics})
+  LOAD_PRICE: function ({state, commit, getters, rootGetters}, optics) {
+    let ret;
+    commit('REMOVE_OLD_CACHED');
+    let item = getters.GET_CACHE_ITEM({type: 'servise', name: 'PriceService', optics});
+    if (item) {
+      commit('UPTOTOP_CACHE', item);
+      return new Promise((resolve) => {
+        resolve(item.response);
+      });
+    } else {
+      const user = rootGetters['AUTH/GET_USER'];
+      item = _.cloneDeep(state.initialCache);
+      item.optics = _.cloneDeep(optics);
+      item.name = name;
+      item.type = 'model';
+      let ret = axios.put(`/api/service/get/PriceService/${user.id}`, {optics: optics});
+      ret
+          .then(res => {
+            item.response = res;
+            item.timestamp = Date.now();
+            commit('ADD_CACHED_ITEM', item);
+          })
+          .catch(e => reject(e));
+      return ret
+    }
+
+
   },
   // eslint-disable-next-line no-unused-vars
   /**
@@ -474,7 +495,7 @@ let actions = {
             }
             // мержим оптику из query
             const queryOptics = JSON.parse(table.queryOptics ? table.queryOptics : '{}');
-            const shelOpticsBeforeMerge = _.cloneDeep(shell.optics)
+            const shelOpticsBeforeMerge = _.cloneDeep(shell.optics);
             shell.optics = _.merge(shell.optics, queryOptics);
             shell.assembled = Date.now();
 

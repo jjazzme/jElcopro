@@ -24,7 +24,7 @@ router.post('/api/model/update/:model/:userID', modelController.updateColumn);
 router.put('/api/model-data/get/:model/:userID', modelController.getModelData);
 
 /* Service router */
-router.put('/api/service/get/:service/:userID/:name/:store', servicesController.getService);
+router.put('/api/service/get/:service/:userID', servicesController.getService);
 
 /* Auth router */
 router.post('/api/login', authController.login);

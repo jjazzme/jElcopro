@@ -9,7 +9,7 @@ module.exports = {
     // get model by optics
     getService(req, res){
         const userID = parseInt(req.params.userID);
-        const serviceName = new Services[req.params.service]();
+        const serviceName = req.params.service;
 
         if (Auth.controllerPermissionIsDenied({
             clientUserID: userID,
@@ -19,23 +19,24 @@ module.exports = {
             return;
         }
 
+        const optics = req.body.optics;
         let promise = null;
-        let service = null
-        if (serviceName==='PriceServise'){
+        let service = null;
+        if (serviceName==='PriceService'){
             service = new PriceService();
 
-            const name = req.params.name;
-            const store = parseInt(req.params.store);
-
-            if (store) promise = service.searchByNameOnStore(name, store);
-            else promise = service.searchByName({name: name});
+            if (optics.from_store) promise = service.searchByNameOnStore(optics);
+            else if (optics.from_store_ids) promise = service.searchByName(optics);
 
         }
 
-        promise
+        if (promise) promise
             .then(r=>res.send(r))
-            .catch(e=>{res.status(500); res.json({error: e})});
-
+            .catch(e=>{
+                res.status(500);
+                res.json({error: e}
+                )});
+        else {res.status(500); res.json({error: 'no promise'})}
     },
 
 };
