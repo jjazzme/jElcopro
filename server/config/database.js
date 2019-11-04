@@ -1,4 +1,3 @@
-const fs = require('fs');
 require('dotenv').config();
 
 module.exports = {
@@ -22,5 +21,5 @@ module.exports = {
         database: process.env.DB_NAME,
         host: process.env.DB_HOSTNAME,
         dialect: 'mysql',
-    }
+    },
 };
