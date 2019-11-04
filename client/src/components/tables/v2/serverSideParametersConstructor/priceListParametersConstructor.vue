@@ -26,6 +26,12 @@
                     stacked
             >
                 {{store.text}}
+                <b-spinner
+                        small
+                        variant="warning"
+                        label="Загрузка..."
+                        v-if="loading[store.value]"
+                />
             </b-form-checkbox>
         </div>
     </div>
@@ -44,6 +50,7 @@
             value: {type: Object,}
         },
         computed: {
+            loading(){return this.value.loading}
         },
         created() {
             this.$store.dispatch('TABLES/LOAD_MODEL', 'Store')

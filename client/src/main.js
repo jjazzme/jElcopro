@@ -18,6 +18,7 @@ import {
   faSortAlphaDown, faSortAlphaUpAlt, faEllipsisV, faHandHoldingUsd
 } from '@fortawesome/free-solid-svg-icons';
 import {faCodepen} from '@fortawesome/free-brands-svg-icons';
+
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 library.add(
     faHome, faInfoCircle, faBarcode, faHammer, faCode, faCodepen, faFileInvoiceDollar, faBars,

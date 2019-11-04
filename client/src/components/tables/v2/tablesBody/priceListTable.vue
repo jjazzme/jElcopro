@@ -4,6 +4,11 @@
                 v-model="value"
         />
 
+        <div v-if="loading" class="v-t-loader">
+            <!--СПИННЕР-->
+            <b-spinner class="v-t-l-spinner" variant="warning" label="Загрузка..." />
+        </div>
+
         <div
                 class="v-t-row"
                 v-for="(row, rowInd) in this.value.table"
@@ -27,22 +32,19 @@
         name: "priceListBody",
         components:{PriceListHeader},
         props:{
-            value: {
-                type: Object,
-                default: {
-                    fieldOrders: [],
-                    fieldWidth: [],
-                    table:[]
-                }
-            }
+            value: {type: Object}
         },
         computed:{
+            loading(){
+                return this.value?.currentOptics?.loading['0'];
+            },
             colStyles(){
                 return _.map(this.value.fieldOrders, (val, ind)=>{
                     const width = this.value.fieldWidth[ind] ? `${this.value.fieldWidth}px` : 'auto';
                     return `order: ${val}; min-width: ${width}; max-width: ${width}`
                 });
             }
+
         }
     }
 </script>

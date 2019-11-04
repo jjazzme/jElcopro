@@ -91,12 +91,14 @@
                 return _.debounce(
                     n => {
                         let loadPrice = (store, optics) => {
-                            this.optics.current.loading[store.toString()] =
+                            this.$set(this.optics.current.loading, store.toString(), true);
                                 this.$store.dispatch('TABLES/LOAD_PRICE', optics)
                                     .then(response=>{
+                                        this.$set(this.optics.current.loading, store.toString(), false);
                                         console.log(response)
                                     })
                                     .catch(error=>{
+                                        this.$set(this.optics.current.loading, store.toString(), false);
                                         console.log(error);
                                         Swal.fire({
                                             title: "ОШИБКА",
@@ -111,10 +113,7 @@
                         this.tableParameters.responces = _.cloneDeep(this.responsesTemplate);
 
                         loadPrice(0, this.optics.actualStoreOptics);
-                        loadPrice(1,{name:'max232cp', from_store:1});
-                        loadPrice(3,{name:'max232cp', from_store:3});
 
-                        /*
                         _.forEach(this.optics.current.selectedStores, storeID=>{
                             let stores = this.optics.current.stores;
                             if(_.find(stores, store=>store.id===storeID).online){
@@ -122,7 +121,6 @@
                                 loadPrice(storeID, StoreOptics);
                             }
                         });
-                         */
 
                         this.optics.setPreviousByCurrent();
                     }, this.optics.current.debounceAmount)

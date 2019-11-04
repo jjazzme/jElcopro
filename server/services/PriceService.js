@@ -159,7 +159,8 @@ export default class PriceService extends Entity {
      * @returns {Promise<Array|*>}
      */
     async searchByNameOnStore(optics) {
-        const storeInstance = await (new StoreService()).getInstance(optics.from_store);
+        const stors = new StoreService()
+        const storeInstance = await stors.getInstance(optics.from_store);
         const service = await ExternalPriceService.forCompany(storeInstance.company);
         if (service) {
             return service.searchByName(optics.name);
@@ -168,4 +169,24 @@ export default class PriceService extends Entity {
             { name: optics.name, from_store_ids: [storeInstance.id], store: optics.store },
         );
     }
+/*
+    searchByNameOnStore(optics) {
+        const stors = new StoreService()
+        stors.getInstance(optics.from_store)
+            .then(response=>{
+                ExternalPriceService.forCompany(storeInstance.company);
+            })
+            .catch(e=>{
+                console.log(e)
+            })
+        const service = await
+        if (service) {
+            return service.searchByName(optics.name);
+        }
+        return this.searchByName(
+            { name: optics.name, from_store_ids: [storeInstance.id], store: optics.store },
+        );
+    }
+
+ */
 }
