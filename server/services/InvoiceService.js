@@ -1,7 +1,7 @@
 import DocumentService from './DocumentService';
 import DocumentLineService from './DocumentLineService';
 import {
-    DocumentLine, FutureReserve, Invoice, Reserve,
+    Arrival, DocumentLine, FutureReserve, Good, Invoice, Product, Reserve,
 } from '../models';
 
 export default class InvoiceService extends DocumentService {
@@ -14,13 +14,13 @@ export default class InvoiceService extends DocumentService {
             { name: 'unWork', from: 'in_work', to: 'reserved' },
             { name: 'close', from: 'in_work', to: 'closed' },
         ];
-        this._instance = { status_id: 'reserved' };
         this._includes.push({
             model: DocumentLine,
             as: 'documentLines',
             include: [
+                { model: Good, as: 'good', include: [{ model: Product, as: 'product' }] },
                 { model: FutureReserve, as: 'futureReserve' },
-                { model: Reserve, as: 'reserves' },
+                { model: Reserve, as: 'reserves', include: [{ model: Arrival, as: 'arrival' }] },
             ],
         });
     }
@@ -49,11 +49,27 @@ export default class InvoiceService extends DocumentService {
         }
     }
 
-    // eslint-disable-next-line class-methods-use-this
-    async _unreserve() {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        console.log('It not unreserved');
-        return Promise.reject(new Error('It not unreserved'));
+    /**
+     * Transition 'unreserve' try to unreserve document lines
+     * @param {Object} params
+     * @param {Transaction} transaction
+     * @returns {Promise<number>}
+     * @private
+     */
+    async _unreserve(params, transaction) {
+        const service = new DocumentLineService();
+        try {
+            let unreserved = 0;
+            // eslint-disable-next-line no-restricted-syntax,no-unused-vars
+            for (const line of this._instance.documentLines) {
+                // eslint-disable-next-line no-await-in-loop
+                unreserved += await service.unreserve(line, { transaction });
+            }
+            return unreserved;
+        } catch (e) {
+            console.error(e);
+            return Promise.reject(e);
+        }
     }
 
     // eslint-disable-next-line class-methods-use-this

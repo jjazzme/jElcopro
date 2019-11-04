@@ -9,7 +9,7 @@
     "syncModelDB": "babel-node ./bin/sequelizeModelSync",
     "start": "babel-node ./bin/www",
     "start_NODEMON": "nodemon --exec babel-node ./bin/www",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha test/**/*.js",
     "test_console": "babel-node --tls-min-v1. ./bin/console test",
     "start_old": "node ./bin/www",
     "build___": "mkdir dist && babel src -s -d dist",
@@ -63,7 +63,10 @@
     "xlsx": "^0.15.1",
     "xml2js": "^0.4.22"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^6.2.2"
+  },
   "nodemon": {
     "name": "nodemon",
     "nodemonConfig": {

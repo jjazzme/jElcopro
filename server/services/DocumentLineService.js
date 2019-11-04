@@ -1,6 +1,6 @@
 import Sequelize from 'sequelize';
 import {
-    Arrival, Departure, Document, DocumentLine, FutureReserve, Reserve,
+    Arrival, Departure, Document, DocumentLine, FutureReserve, Good, Product, Reserve,
 } from '../models';
 import Entity from './Entity';
 
@@ -15,6 +15,7 @@ export default class DocumentLineService extends Entity {
             { model: Departure, as: 'departure' },
             { model: FutureReserve, as: 'futureReserve' },
             { model: Reserve, as: 'reserves' },
+            { model: Good, as: 'good', include: [{ model: Product, as: 'product' }] },
         ];
     }
 
@@ -47,6 +48,38 @@ export default class DocumentLineService extends Entity {
             await lineInstance.futureReserve.destroy({ transaction: params.transaction });
         }
         return reserved;
+    }
+
+    /**
+     * Unreserve && destroy future reserve for document line
+     * @param {DocumentLine|number} line
+     * @param {Object} params
+     * @param {Transaction} params.transaction
+     * @returns {Promise<*>}
+     */
+    async unreserve(line, params) {
+        const lineInstance = await this.getInstance(line);
+        let backToStore = 0;
+        // eslint-disable-next-line no-unused-vars,no-restricted-syntax
+        for (const reserve of lineInstance.reserves) {
+            if (reserve.closed) {
+                return Promise.reject(new Error(`${lineInstance.good.product.name} подобран, снять резерв нельзя`));
+            }
+            backToStore += reserve.quantity;
+            reserve.arrival.ballance += reserve.quantity;
+            // eslint-disable-next-line no-await-in-loop
+            await reserve.arrival.save({ transaction: params.transaction });
+            // eslint-disable-next-line no-await-in-loop
+            await reserve.destroy({ transaction: params.transaction });
+        }
+        if (line.futureReserve) {
+            await line.futureReserve.destroy({ transaction: params.transaction });
+        }
+        // eslint-disable-next-line no-param-reassign
+        line.good.ballance += backToStore;
+        await line.good.save({ transaction: params.transaction });
+        // Тут возможно нужно проверить future_resreves на предмет ожидания этой позиции
+        return backToStore;
     }
 
     /**

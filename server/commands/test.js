@@ -3,7 +3,7 @@ import InvoiceService from "../services/InvoiceService";
 import { Invoice } from '../models';
 
 module.exports.run = async (args) => {
-    const service = await InvoiceService.getNew(1);
-    await service.transition('reserve', { own: true });
-    // console.log(service);
+    const service = await PriceService.getNew()
+    const res = await service.searchByNameOnStore({ name: 'max232', from_store: 3})
+    console.log(res);
 };
