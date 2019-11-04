@@ -1,10 +1,9 @@
-
 module.exports = (sequelize, DataTypes) => {
-    const order = sequelize.define('Order', {
+    const invoice = sequelize.define('Invoice', {
         date: { type: DataTypes.DATE, defaultValue: new Date() },
         number: DataTypes.INTEGER,
         user_id: DataTypes.INTEGER,
-        document_type_id: { type: DataTypes.STRING, defaultValue: 'order' },
+        document_type_id: { type: DataTypes.STRING, defaultValue: 'invoice' },
         parent_id: DataTypes.INTEGER,
         sellerable_id: DataTypes.INTEGER,
         sellerable_type: {
@@ -27,30 +26,30 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         freezeTableName: true,
         tableName: 'documents',
-        defaultScope: { where: { document_type_id: 'order' } },
+        defaultScope: { where: { document_type_id: 'invoice' } },
     });
-    order.prototype.getParentAlias = function () {
-        return `${this.Parent.DocumentType.name} №${this.Parent.number}`;
+    invoice.prototype.getParentAlias = function () {
+        return `${this.parent.documentType.name} №${this.parent.number}`;
     };
-    order.associate = function (models) {
-        order.belongsTo(models.DocumentType, { foreignKey: 'document_type_id', as: 'documentType' });
-        order.belongsTo(models.Document, { foreignKey: 'parent_id', as: 'parent' });
-        order.belongsTo(models.Store, { foreignKey: 'foreign_store_id', as: 'foreignStore' });
-        order.belongsTo(models.User, { foreignKey: 'user_id', as: 'user' });
-        order.belongsTo(models.Store, { foreignKey: 'store_id', as: 'store' });
-        order.belongsTo(models.Currency, { foreignKey: 'currency_id', as: 'currency' });
-        order.belongsTo(models.Company, {
+    invoice.associate = function (models) {
+        invoice.belongsTo(models.DocumentType, { foreignKey: 'document_type_id', as: 'documentType' });
+        invoice.belongsTo(models.Document, { foreignKey: 'parent_id', as: 'parent' });
+        invoice.belongsTo(models.Store, { foreignKey: 'foreign_store_id', as: 'foreignStore' });
+        invoice.belongsTo(models.User, { foreignKey: 'user_id', as: 'user' });
+        invoice.belongsTo(models.Store, { foreignKey: 'store_id', as: 'store' });
+        invoice.belongsTo(models.Currency, { foreignKey: 'currency_id', as: 'currency' });
+        invoice.belongsTo(models.Company, {
             foreignKey: 'sellerable_id',
             constraints: false,
             as: 'sellerable',
         });
-        order.belongsTo(models.Company, {
+        invoice.belongsTo(models.Company, {
             foreignKey: 'buyerable_id',
             constraints: false,
             as: 'buyerable',
         });
-        order.hasMany(models.DocumentLine, { foreignKey: 'document_id', as: 'documentLines' });
-        order.hasMany(models.Document, { foreignKey: 'parent_id', as: 'children' });
+        invoice.hasMany(models.DocumentLine, { foreignKey: 'document_id', as: 'documentLines' });
+        invoice.hasMany(models.Document, { foreignKey: 'parent_id', as: 'children' });
     };
-    return order;
+    return invoice;
 };

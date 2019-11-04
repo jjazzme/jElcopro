@@ -4,19 +4,21 @@ import db from '../models/index';
 export default class Entity {
     /**
      * Model class
-     * @type Object
+     * @type {Object}
      * @private
      */
     _Entity = undefined;
 
     /**
-     *  Model instance if need
+     * Model instance if need
+     * @type {Object}
+     * @private
      */
     _instance;
 
     /**
      * Includes for Find
-     * @type {Array}
+     * @type {Array<Object>}
      * @private
      */
     _includes = [];
@@ -35,7 +37,7 @@ export default class Entity {
 
     /**
      * Find by id or attributes in searchItem & return right instance if possible
-     * @param searchItem
+     * @param {Object} searchItem
      * @returns {Promise<*>}
      */
     async find(searchItem) {
@@ -54,8 +56,8 @@ export default class Entity {
 
     /**
      * Save new instance in DB with triggers
-     * @param item
-     * @param transaction {Transaction}
+     * @param {Object} item
+     * @param {Transaction=} transaction
      * @returns {Promise<Object>}
      */
     async create(item, transaction) {
@@ -86,8 +88,8 @@ export default class Entity {
 
     /**
      * Replace instance in DB with triggers
-     * @param item
-     * @param transaction {Transaction}
+     * @param {Object} item
+     * @param {Transaction=} transaction
      * @returns {Promise<Object>}
      */
     async update(item, transaction) {
@@ -121,8 +123,8 @@ export default class Entity {
 
     /**
      * Destroy instance with triggers
-     * @param item
-     * @param transaction {Transaction}
+     * @param {Object} item
+     * @param {Transaction=} transaction
      * @returns {Promise<void>}
      */
     async destroy(item, transaction) {
@@ -147,8 +149,8 @@ export default class Entity {
 
     /**
      * Update or Create with find
-     * @param searchItem
-     * @param newItem
+     * @param {Object} searchItem
+     * @param {Object=} newItem
      * @returns {Promise<Object>}
      */
     async updateOrCreate(searchItem, newItem) {
@@ -166,8 +168,8 @@ export default class Entity {
 
     /**
      * First or Create with find
-     * @param searchItem
-     * @param newItem
+     * @param {Object} searchItem
+     * @param {Object=} newItem
      * @returns {Promise<Object>}
      */
     async firstOrCreate(searchItem, newItem) {
@@ -182,8 +184,8 @@ export default class Entity {
 
     /**
      * First Or New
-     * @param searchItem
-     * @param newItem
+     * @param {Object} searchItem
+     * @param {Object=} newItem
      * @returns {Promise<Object>}
      */
     async firstOrNew(searchItem, newItem) {
@@ -197,7 +199,7 @@ export default class Entity {
 
     /**
      * Get instance by id, alias or same
-     * @param instance
+     * @param {Object|number} instance
      * @returns {Promise<Object>}
      */
     async getInstance(instance) {
@@ -218,13 +220,18 @@ export default class Entity {
 
     /**
      * Set Instance property
-     * @param instance
+     * @param {Object|number} instance
      * @returns {Promise<void>}
      */
     async setInstance(instance) {
         this._instance = await this.getInstance(instance);
     }
 
+    /**
+     * Create new Instance of Service with model instance if need
+     * @param {Object|number|null} instance
+     * @returns {Promise<Entity>}
+     */
     static async getNew(instance) {
         const ret = new this();
         if (instance) await ret.setInstance(instance);
