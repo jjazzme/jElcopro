@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="09e94829-b941-41e8-95cd-f4a06a6a7730" name="Default Changelist" comment="ExternalPrice service &#10;add constructor&#10;remove some static">
+    <list default="true" id="09e94829-b941-41e8-95cd-f4a06a6a7730" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/commands/test.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/commands/test.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/services/ExternalPriceService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/ExternalPriceService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/config/database.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/config/database.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/test/compel-api-tests.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/test/compel-api-tests.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -151,10 +152,10 @@
     </configuration>
     <list>
       <item itemvalue="Node.js.test.js" />
-      <item itemvalue="npm.start" />
-      <item itemvalue="npm.syncModelDB" />
       <item itemvalue="npm.test" />
       <item itemvalue="npm.test_console" />
+      <item itemvalue="npm.start" />
+      <item itemvalue="npm.syncModelDB" />
     </list>
     <recent_temporary>
       <list>
@@ -395,7 +396,14 @@
       <option name="project" value="LOCAL" />
       <updated>1572860366224</updated>
     </task>
-    <option name="localTasksCounter" value="28" />
+    <task id="LOCAL-00028" summary="ExternalPrice service &#10;add constructor&#10;remove some static">
+      <created>1572876533037</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1572876533037</updated>
+    </task>
+    <option name="localTasksCounter" value="29" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

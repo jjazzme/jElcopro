@@ -9,7 +9,7 @@
     "syncModelDB": "babel-node ./bin/sequelizeModelSync",
     "start": "babel-node ./bin/www",
     "start_NODEMON": "nodemon --exec babel-node ./bin/www",
-    "test": "mocha test/**/*.js",
+    "test": "mocha --require @babel/register test/**/*.js",
     "test_console": "babel-node --tls-min-v1. ./bin/console test",
     "start_old": "node ./bin/www",
     "build___": "mkdir dist && babel src -s -d dist",

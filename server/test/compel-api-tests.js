@@ -1,1 +1,1 @@
-// describe('Compel SearchByName')
+console.log(global.gConfig);
