@@ -49,17 +49,23 @@
                     searchString: '',
                     quantity: null,
                     fromQuantity: false,
-                    debounceAmount: 1000,
-                    stores: null,
                     selectedStores: [],
-                    loading:{
-                      0: null
+
+                    _forProcessing: {
+                        loading:{
+                            0: null
+                        },
+                        promises:{
+                            0: null
+                        },
+                        debounceAmount: 1000,
+                        stores: null,
                     },
                     _forRouter: {
-                        remove: ['debounceAmount', 'stores', 'loading']
+                        remove: ['debounceAmount', 'stores', 'loading', 'promises']
                     },
                     _forStore:{
-                        remove: ['debounceAmount', 'stores', 'quantity', 'fromQuantity', 'loading'],
+                        remove: ['debounceAmount', 'stores', 'quantity', 'fromQuantity', 'loading', 'promises'],
                         transform: source=>{
                             let ret = {};
                             _.forEach(source, (val, name)=>{
@@ -77,7 +83,6 @@
         data(){
             return{
                 optics: new Optics(_.cloneDeep(this.opticsItemTemplate), {}),
-                prevOptics: {},
                 tableParameters:{
                     fieldOrders: _.clone(this.fieldOrdersTemplate),
                     fieldWidth: _.clone(this.fieldWidthTemplate),
@@ -87,18 +92,22 @@
             }
         },
         computed:{
-            opticsProcessor(val){
+            opticsProcessor(){
                 return _.debounce(
                     n => {
                         let loadPrice = (store, optics) => {
-                            this.$set(this.optics.current.loading, store.toString(), true);
-                                this.$store.dispatch('TABLES/LOAD_PRICE', optics)
-                                    .then(response=>{
-                                        this.$set(this.optics.current.loading, store.toString(), false);
-                                        console.log(response)
-                                    })
-                                    .catch(error=>{
-                                        this.$set(this.optics.current.loading, store.toString(), false);
+                            optics.uid = `f${(+new Date).toString(16)}x${(~~(Math.random()*1e8)).toString(16)}`;
+                            this.$set(this.optics.current._forProcessing.loading, store.toString(), true);
+                            let promise = this.$store.dispatch('TABLES/LOAD_PRICE', optics);
+                            promise
+                                .then(response=>{
+
+                                    console.log(response)
+                                })
+                                .catch(error=>{
+                                    if (error==='aborted') {
+                                        console.log(`promise ${optics.uid} aborted`)
+                                    } else {
                                         console.log(error);
                                         Swal.fire({
                                             title: "ОШИБКА",
@@ -106,7 +115,13 @@
                                             type: 'error',
                                             timer: 10000
                                         });
-                                    });
+                                    }
+                                })
+                                .finally(()=>{
+                                    this.$set(this.optics.current._forProcessing.loading, store.toString(), false);
+                                    delete this.optics.current._forProcessing.promises[store.toString()]
+                                });
+                            this.$set(this.optics.current._forProcessing.promises, store.toString(), optics.uid);
                         };
 
                         if (this.optics.isCurrentEquivalentPrevious || this.optics.current.searchString.length<4) return;
@@ -115,15 +130,15 @@
                         loadPrice(0, this.optics.actualStoreOptics);
 
                         _.forEach(this.optics.current.selectedStores, storeID=>{
-                            let stores = this.optics.current.stores;
+                            let stores = this.optics.current._forProcessing.stores;
                             if(_.find(stores, store=>store.id===storeID).online){
-                                let StoreOptics = {name: this.optics.current.searchString, from_store:storeID}
+                                let StoreOptics = {name: this.optics.current.searchString, from_store:storeID};
                                 loadPrice(storeID, StoreOptics);
                             }
                         });
 
                         this.optics.setPreviousByCurrent();
-                    }, this.optics.current.debounceAmount)
+                    }, this.optics.current._forProcessing.debounceAmount)
             },
         },
         created() {

@@ -2,15 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="09e94829-b941-41e8-95cd-f4a06a6a7730" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/client/src/views/v1/__Tables.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/classLib/Editor.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/classLib/Editor.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/components/tables/v1/warehouse.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/tables/v1/warehouse.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/classLib/Optics.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/classLib/Optics.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/components/tables/v2/serverSideParametersConstructor/priceListParametersConstructor.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/tables/v2/serverSideParametersConstructor/priceListParametersConstructor.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/components/tables/v2/tablesBody/priceListTable.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/tables/v2/tablesBody/priceListTable.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/store/tables.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/store/tables.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/views/v1/Help.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/views/v1/Help.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/views/v1/Tables.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/views/v1/Tables.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/vue.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/vue.config.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/controllers/model.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/controllers/model.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/views/v1/PriceList.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/views/v1/PriceList.vue" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -39,24 +37,6 @@
         <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
         <item name="elcopro@localhost" type="feb32156:DbDataSourceImpl" />
       </path>
-      <path>
-        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="elcopro@localhost" type="feb32156:DbDataSourceImpl" />
-        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
-      </path>
-      <path>
-        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="elcopro@localhost" type="feb32156:DbDataSourceImpl" />
-        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
-        <item name="elcopro: schema" type="76f4a085:MysqlImplModel$Schema" />
-      </path>
-      <path>
-        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="elcopro@localhost" type="feb32156:DbDataSourceImpl" />
-        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
-        <item name="elcopro: schema" type="76f4a085:MysqlImplModel$Schema" />
-        <item name="shells: table" type="285a2a93:MysqlImplModel$Table" />
-      </path>
     </expand>
     <select />
   </component>
@@ -66,15 +46,17 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="JavaScript File" />
         <option value="Vue Single File Component" />
+        <option value="SCSS File" />
+        <option value="Less File" />
+        <option value="JavaScript File" />
       </list>
     </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="master" />
+        <entry key="$PROJECT_DIR$" value="Jjazz" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -101,7 +83,8 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="javascript.nodejs.core.library.configured.version" value="12.13.0" />
     <property name="js.last.introduce.type" value="CONST" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/client/src/views/v1" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/client/src/components/tables/v2/tablesBody" />
+    <property name="list.type.of.created.stylesheet" value="Less" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.jscs" value="true" />
     <property name="node.js.detected.package.standard" value="true" />
@@ -117,10 +100,16 @@
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="nodejs_package_manager_path" value="npm" />
-    <property name="settings.editor.selected.configurable" value="preferences.editor" />
+    <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
   </component>
   <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\jazz\PhpstormProjects\jElcopro\client\src" />
+      <recent name="C:\Users\jazz\PhpstormProjects\jElcopro\client\src\assets" />
+    </key>
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\jazz\PhpstormProjects\jElcopro\client\src\components\tables\v2\tablesBody" />
+      <recent name="C:\Users\jazz\PhpstormProjects\jElcopro\server\controllers" />
       <recent name="C:\Users\jazz\PhpstormProjects\jElcopro\client\src\views\v1" />
     </key>
   </component>
@@ -136,48 +125,14 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="JavaScript Debug.VUE Debug">
+  <component name="RunManager" selected="Node.js.test.js">
     <configuration name="VUE Debug" type="JavascriptDebugType" uri="http://localhost:8080" useFirstLineBreakpoints="true">
       <method v="2" />
     </configuration>
-    <configuration name="serve" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
-      <package-json value="$PROJECT_DIR$/client/package.json" />
-      <command value="run" />
-      <scripts>
-        <script value="serve" />
-      </scripts>
-      <node-interpreter value="project" />
-      <envs />
+    <configuration name="console" type="NodeJSConfigurationType" temporary="true" nameIsGenerated="true" path-to-js-file="$PROJECT_DIR$/server/bin/console" working-dir="$PROJECT_DIR$/server/bin">
       <method v="2" />
     </configuration>
-    <configuration name="start" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
-      <package-json value="$PROJECT_DIR$/server/package.json" />
-      <command value="run" />
-      <scripts>
-        <script value="start" />
-      </scripts>
-      <node-interpreter value="project" />
-      <envs />
-      <method v="2" />
-    </configuration>
-    <configuration name="start_NODEMON" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
-      <package-json value="$PROJECT_DIR$/server/package.json" />
-      <command value="run" />
-      <scripts>
-        <script value="start_NODEMON" />
-      </scripts>
-      <node-interpreter value="project" />
-      <envs />
-      <method v="2" />
-    </configuration>
-    <configuration name="start_old" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
-      <package-json value="$PROJECT_DIR$/server/package.json" />
-      <command value="run" />
-      <scripts>
-        <script value="start_old" />
-      </scripts>
-      <node-interpreter value="project" />
-      <envs />
+    <configuration name="test.js" type="NodeJSConfigurationType" temporary="true" nameIsGenerated="true" path-to-js-file="$PROJECT_DIR$/server/commands/test.js" working-dir="$PROJECT_DIR$/server/commands">
       <method v="2" />
     </configuration>
     <configuration name="syncModelDB" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
@@ -190,21 +145,41 @@
       <envs />
       <method v="2" />
     </configuration>
+    <configuration name="test" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/server/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="test" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <configuration name="test_console" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/server/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="test_console" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
     <list>
       <item itemvalue="JavaScript Debug.VUE Debug" />
-      <item itemvalue="npm.serve" />
-      <item itemvalue="npm.start" />
-      <item itemvalue="npm.start_NODEMON" />
-      <item itemvalue="npm.start_old" />
+      <item itemvalue="Node.js.console" />
+      <item itemvalue="Node.js.test.js" />
       <item itemvalue="npm.syncModelDB" />
+      <item itemvalue="npm.test" />
+      <item itemvalue="npm.test_console" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="npm.serve" />
-        <item itemvalue="npm.start_NODEMON" />
+        <item itemvalue="npm.test_console" />
+        <item itemvalue="npm.test" />
         <item itemvalue="npm.syncModelDB" />
-        <item itemvalue="npm.start_old" />
-        <item itemvalue="npm.start" />
+        <item itemvalue="Node.js.test.js" />
+        <item itemvalue="Node.js.console" />
       </list>
     </recent_temporary>
   </component>
@@ -240,6 +215,7 @@
       <workItem from="1572238244633" duration="36599000" />
       <workItem from="1572360022559" duration="21862000" />
       <workItem from="1572437134688" duration="34232000" />
+      <workItem from="1572528897107" duration="2773000" />
     </task>
     <task id="LOCAL-00001" summary="Datata">
       <created>1571292450729</created>
@@ -318,11 +294,49 @@
       <option name="project" value="LOCAL" />
       <updated>1572438172591</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="191031-01">
+      <created>1572531490775</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1572531490775</updated>
+    </task>
+    <task id="LOCAL-00013" summary="191103">
+      <created>1572782042262</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1572782042262</updated>
+    </task>
+    <task id="LOCAL-00014" summary="191103-01">
+      <created>1572782441370</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1572782441370</updated>
+    </task>
+    <task id="LOCAL-00015" summary="191104">
+      <created>1572872440981</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1572872440981</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
+  </component>
+  <component name="Vcs.Log.History.Properties">
+    <option name="COLUMN_ORDER">
+      <list>
+        <option value="0" />
+        <option value="2" />
+        <option value="3" />
+        <option value="1" />
+      </list>
+    </option>
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
@@ -352,6 +366,10 @@
     <MESSAGE value="Import Dan 2" />
     <MESSAGE value="SeedDocumentTypes" />
     <MESSAGE value="problem" />
-    <option name="LAST_COMMIT_MESSAGE" value="problem" />
+    <MESSAGE value="191031-01" />
+    <MESSAGE value="191103" />
+    <MESSAGE value="191103-01" />
+    <MESSAGE value="191104" />
+    <option name="LAST_COMMIT_MESSAGE" value="191104" />
   </component>
 </project>

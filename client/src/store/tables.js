@@ -2,10 +2,11 @@ import axios from 'axios';
 //import _ from 'lodash';
 
 let state = {
+  axiosSources:{},
   events:[],
   cache:[],
   cacheMaxLen: 100,
-  cacheTTL: 10*60*1000, //ms 10 min
+  cacheTTL: 0*60*1000, //ms 60 min
   initialCache: {
     type: '', // model/service...
     name: '',
@@ -258,8 +259,10 @@ let state = {
 };
 
 let getters = {
-  GET_CACHE_ITEM: state => ({type, name, optics}) => _.find(state.cache, item => type === item.type && name === item.name && _.isEqual(item.optics, actualOptics(optics)) && item.timestamp + state.cacheTTL > Date.now()
-  ),
+  GET_AXIOS_SOURCES: state => key => state.axiosSources[key],
+  GET_CACHE_ITEM: state => ({type, name, optics}) => {
+    return       _.find(state.cache, item => type === item.type && name === item.name && _.isEqual(item.optics, actualOptics(optics)) && item.timestamp + state.cacheTTL > Date.now());
+  },
   GET_EDITOR_STACK_COUNT: state => state.editorStack.length,
   GET_EDITOR_STACK_HAS_MODEL_ID: state => ({model, id})=> !!_.find(state.editorStack, item => item.model==model && item.id==id),
   GET_EDITOR_STACK_VALUE: state => ({model, id, column}) => _.find(state.editorStack, item => item.model==model && item.id==id && item.column==column),
@@ -409,30 +412,37 @@ let actions = {
    * @constructor
    */
   LOAD_PRICE: function ({state, commit, getters, rootGetters}, optics) {
-    let ret;
+    let ret
     commit('REMOVE_OLD_CACHED');
-    let item = getters.GET_CACHE_ITEM({type: 'servise', name: 'PriceService', optics});
+    let item = getters.GET_CACHE_ITEM({type: 'service', name: 'PriceService', optics: optics});
     if (item) {
       commit('UPTOTOP_CACHE', item);
-      return new Promise((resolve) => {
+      ret = new Promise((resolve) => {
         resolve(item.response);
       });
     } else {
       const user = rootGetters['AUTH/GET_USER'];
       item = _.cloneDeep(state.initialCache);
       item.optics = _.cloneDeep(optics);
-      item.name = name;
-      item.type = 'model';
-      let ret = axios.put(`/api/service/get/PriceService/${user.id}`, {optics: optics});
+      item.name = "PriceService";
+      item.type = 'service';
+
+      const CancelToken = axios.CancelToken;
+      const source = CancelToken.source();
+
+      ret = axios.put(
+          `/api/service/get/PriceService/${user.id}`,
+          {optics: optics},
+          {cancelToken: source.token});
       ret
           .then(res => {
             item.response = res;
             item.timestamp = Date.now();
             commit('ADD_CACHED_ITEM', item);
-          })
-          .catch(e => reject(e));
-      return ret
+          });
+      state.axiosSources[optics.uid] = source;
     }
+    return ret
 
 
   },
@@ -548,10 +558,12 @@ let actions = {
 function actualOptics(optics) {
   let ret = _.cloneDeep(optics);
   const nfs = _.cloneDeep(ret._notForStore);
-  Object.keys(ret).map(k=>{
-    if (k.charAt(0)==='_') delete ret[k];
-    if (nfs.includes(k)) delete ret[k];
-  });
+  if (nfs){
+    Object.keys(ret).map(k=>{
+      if (k.charAt(0)==='_') delete ret[k];
+      if (nfs.includes(k)) delete ret[k];
+    });
+  }
   return ret;
 }
 // eslint-disable-next-line no-unused-vars

@@ -45,7 +45,11 @@ export default class Optics {
     }
 
     setPreviousByCurrent(){
-        this.previous = _.cloneDeep(this.current);
+        let previous = {};
+        _.forEach(this.current, (value, key)=>{
+            if(key.charAt(0) !== '_') previous[key] = value;
+        });
+        this.previous = previous;
     }
 
 }

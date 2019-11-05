@@ -36,7 +36,7 @@
         },
         computed:{
             loading(){
-                return this.value?.currentOptics?.loading['0'];
+                return this.value?.currentOptics?._forProcessing.loading['0'];
             },
             colStyles(){
                 return _.map(this.value.fieldOrders, (val, ind)=>{

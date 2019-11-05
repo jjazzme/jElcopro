@@ -18,21 +18,32 @@
             </b-form-checkbox>
         </div>
         <div class="stores" v-if="stores.length>0">
-            <b-form-checkbox
-                    v-for="store in stores"
+            <div
+                    v-for="(store, storeInd) in stores"
                     :key="store.value"
-                    v-model="value.selectedStores"
-                    :value="store.value"
-                    stacked
+                    class="store"
             >
-                {{store.text}}
-                <b-spinner
-                        small
-                        variant="warning"
-                        label="Загрузка..."
+                <b-form-checkbox
+                        v-model="store.selected"
+                        class="checkbox"
+                >
+                    {{store.text}}
+                </b-form-checkbox>
+                <div
+                        class="loading"
                         v-if="loading[store.value]"
-                />
-            </b-form-checkbox>
+                        title="Прервать"
+                        @click="abort(store.value)"
+                >
+                    <fa-icon class="abort" icon="times" />
+                    <b-spinner
+                            small
+                            class="spinner"
+                            variant="warning"
+                            label="Загрузка..."
+                    />
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -50,13 +61,13 @@
             value: {type: Object,}
         },
         computed: {
-            loading(){return this.value.loading}
+            loading(){return this.value._forProcessing.loading}
         },
         created() {
             this.$store.dispatch('TABLES/LOAD_MODEL', 'Store')
                 .then(r=>{
-                    this.$set(this.value, 'stores', r)
-                    this.$set(this, 'stores', _.map(r, item=>{return {text: `${item.company.party.name} - ${item.name}`, value: item.id}}));
+                    this.$set(this.value._forProcessing, 'stores', r)
+                    this.$set(this, 'stores', _.map(r, item=>{return {text: `${item.company.party.name} - ${item.name}`, value: item.id, selected: true}}));
                     this.$set(this.value, 'selectedStores', _.map(r, item=>item.id));
                 })
                 .catch(e=>{
@@ -68,7 +79,21 @@
                     });
                 })
         },
+        methods:{
+            abort(sid){
+                let uid = this.value._forProcessing.promises[sid.toString()];
+                let source = this.$store.getters['TABLES/GET_AXIOS_SOURCES'](uid);
+                source.cancel('aborted')
+            },
+        },
         watch:{
+            stores: {
+                handler: function(n){
+                    const selected = _.filter(n, item=>item.selected);
+                    this.$set(this.value, 'selectedStores', _.map(selected , item=>item.value));
+                },
+                deep: true
+            },
             'value.fromQuantity'(n) {
                 if(n && !this.value.quantity) this.$set(this.value, 'quantity', 1);
                 if(!n && this.value.quantity === 1) this.$set(this.value, 'quantity', null);
@@ -77,7 +102,7 @@
     }
 </script>
 
-<style scoped lang="scss">
+<style scoped lang="less">
     .component{
         display: flex;
         justify-content: space-between;
@@ -98,6 +123,26 @@
             input{min-width: 70px;}
             input:nth-child(2){max-width: 70px}
             >div{min-width: 250px}
+        }
+        .stores{
+            .store{
+                height: 30px;
+                display: flex;
+                align-items: center;
+                flex-flow: row nowrap;
+                .checkbox{
+                    margin-right: 10px;
+                }
+                .loading{
+                    cursor: pointer;
+                    position: relative;
+                    display: inline-block;
+                    width: 20px;
+                    height: 20px;
+                    .abort{position: absolute; color: red; width: 12px; height: 12px; top: 4px; left: 4px; opacity: 0.5;}
+                    .spinner{position: absolute; width: 20px; height: 20px}
+                }
+            }
         }
     }
 </style>
