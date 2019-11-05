@@ -1,6 +1,10 @@
 {
-  "extends": ["airbnb"
-    ],
+  "env": {
+    "commonjs": true,
+    "node": true,
+    "mocha": true
+  },
+  "extends": ["airbnb"],
   "parser": "babel-eslint",
   "rules": {
     "func-names": ["error", "never"],
