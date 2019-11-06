@@ -51,6 +51,7 @@
     "lodash": "^4.17.15",
     "mariadb": "^2.1.2",
     "minimist": "^1.2.0",
+    "moment": "^2.24.0",
     "morgan": "~1.9.1",
     "mysql2": "^1.7.0",
     "passport": "^0.4.0",
