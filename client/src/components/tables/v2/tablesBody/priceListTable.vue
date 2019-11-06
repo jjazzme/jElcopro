@@ -1,7 +1,7 @@
 <template>
     <div class="priceTable">
         <price-list-header
-                v-model="value"
+                v-model="$props['value']"
         />
 
         <div v-if="loading" class="v-t-loader">
@@ -9,28 +9,22 @@
             <b-spinner class="v-t-l-spinner" variant="warning" label="Загрузка..." />
         </div>
 
-        <div
-                class="v-t-row"
-                v-for="(row, rowInd) in this.value.table"
-        >
-            <div
-                    :style="colStyles[colInd]"
-                    v-for="(col, colInd) in row"
-                    :key="`${rowInd}-${colInd}`"
-            >
-                <span v-html="col"></span>
-            </div>
-
-        </div>
+        <price-list-row
+            v-for="(row, rowIndex) in value.price.data"
+            v-model="value.price.data[rowIndex]"
+            :card="value.optics.current._forView.card"
+        ></price-list-row>
 
     </div>
 </template>
 
 <script>
     import PriceListHeader from "../tablesHeader/priceListHeader";
+    import PriceListRow from "./tablesRow/priceListRow";
+
     export default {
         name: "priceListBody",
-        components:{PriceListHeader},
+        components:{PriceListRow, PriceListHeader},
         props:{
             value: {type: Object}
         },
@@ -38,12 +32,6 @@
             loading(){
                 return this.value?.currentOptics?._forProcessing.loading['0'];
             },
-            colStyles(){
-                return _.map(this.value.fieldOrders, (val, ind)=>{
-                    const width = this.value.fieldWidth[ind] ? `${this.value.fieldWidth}px` : 'auto';
-                    return `order: ${val}; min-width: ${width}; max-width: ${width}`
-                });
-            }
 
         }
     }

@@ -4,10 +4,10 @@
                 :head="{title: {main: 'сервисы', method: 'прайслист'}}"
         />
         <price-list-parameters-constructor
-                v-model="optics.current"
+                v-model="table.optics.current"
         />
         <price-list-table
-                v-model="tableParameters"
+                v-model="table"
         />
     </article>
 </template>
@@ -17,20 +17,13 @@
         from "../../components/tables/v2/serverSideParametersConstructor/priceListParametersConstructor";
     import PriceListTable from "../../components/tables/v2/tablesBody/priceListTable";
     import Optics from "../../classLib/Optics";
+    import PriceList from "../../classLib/PriceList";
     import Swal from "sweetalert2";
 
     export default {
         name: "PriceList",
         components: {PriceListTable, PriceListParametersConstructor},
         props:{
-            fieldOrdersTemplate:{
-                type: Array,
-                default: ()=>{return [0,1,2,3,4,5,6,7,8,9]},
-            },
-            fieldWidthTemplate:{
-                type: Array,
-                default: ()=>{return [0,0,0,0,0,0,0,0,0,0]},
-            },
             responsesTemplate:{
                 type: Object,
                 default: ()=>{return {
@@ -51,6 +44,83 @@
                     fromQuantity: false,
                     selectedStores: [],
 
+                    _forView: {
+                        fieldOrders: [],
+                        fieldWidth: [],
+                        card:{
+                            add:{
+                                cell1:{alias: 'добавить', component: 'priceRowAdd', vModelComputed: 'comp'}
+                            },
+                            main:{
+                                first:{
+                                    cell1: {alias:'название', field:'name', to: item=> {return {name:'goods', params:{id:item.good_id}}}},
+                                    cell2: {alias: 'производитель', field:'producer_name', to: item=> {return {name:'producer', params:{id:item.producer_id}}} },
+                                    cell3: {alias: 'корпус', field: 'case', to: item=> {return {name:'case', params:{id:item.parameter_id}}}},
+                                    cell4: {alias: 'примечание', field: 'remark'},
+                                },
+                                second:{
+                                    cell1: {alias: 'код', field:'code'},
+                                    cell2: {alias: 'склад', field:'store_name', to: item=> {return {name:'store', params:{id:item.store_id}}}},
+                                    cell3: {alias: 'поставщик', field:'party_name', to: item=> {return {name:'company', params:{id:item.company_id}}} },
+                                    cell4:{alias: 'минимум', field:'min'},
+                                    cell5:{alias: 'максимум', field:'max'},
+                                },
+                                third:{
+                                    cell1: {alias: 'тип', field:'online'},
+                                    cell2: {alias: 'дата', field:'actual'},
+                                    cell3: {alias: 'упаковка', field:'pack'},
+                                    cell4: {alias: 'кратно', field:'multiply'},
+                                    cell5: {alias: 'цена $', field:'our_price', field1:'price_usd'},
+                                    cell6: {alias: 'сумма $', field:'our_price', field1:'sum_usd'},
+                                    cell7: {alias: 'сумма ₽', field:'our_price', field1:'sum_ru'},
+                                }
+                            },
+                            price:{
+                                first:{
+                                    cell1: {alias: 'кол-во', field:'balance'},
+                                    cell2: {alias: 'срок', field:'average_days'},
+                                },
+                                second:{
+                                    cell1: {alias: 'НДС', field:'vat'},
+                                    cell2: {alias: 'цена ₽', field:'our_price', field1:'price_ru'},
+                                },
+                            }
+                        },
+                        fields:{
+                            //actual: {example:"2019-11-06T04:26:04.000Z", title: 'дата'},
+                            //average_days: {example:3},
+                            //ballance: {example:6},
+                            //case: {example:"DIP-16"},
+                            //code: {example:"319844",},
+                            //company_id: {example:3},
+                            //createdAt: {example:"2019-11-03T11:01:52.000Z"},
+                            currency_id: {example:"R01000"},
+                            for_all_price: {example:"87.890000"},
+                            //good_id: {example:21148},
+                            id: {example: 21046},
+                            //max: {example:17},
+                            //min: {example:6},
+                            //multiply: {example:1},
+                            //name: {example:"MAX232CPE+"},
+                            //online: {example:0},
+                            our_price: {example:"76.090000"},
+                            //pack: {example:25},
+                            //parameter_id: {example:1546},
+                            //party_name: {example:"ООО ТД ПРОМЭЛЕКТРОНИКА"},
+                            picture: {example:null},
+                            //producer_id: {example:237},
+                            //producer_name: {example:"MAX"},
+                            //product_id: {example:9469},
+                            //remark: {example:" "},
+                            //store_id: {example:3},
+                            //store_name: {example:"Склад ЕКБ"},
+                            //updatedAt: {example:"2019-11-06T04:26:04.000Z"},
+                            //vat: {example:"20"},
+                            with_vat: {example:true},
+                        },
+                        pageSize: 15,
+                        pages: 1,
+                    },
                     _forProcessing: {
                         loading:{
                             0: null
@@ -82,12 +152,10 @@
         },
         data(){
             return{
-                optics: new Optics(_.cloneDeep(this.opticsItemTemplate), {}),
-                tableParameters:{
-                    fieldOrders: _.clone(this.fieldOrdersTemplate),
-                    fieldWidth: _.clone(this.fieldWidthTemplate),
-                    responses: _.cloneDeep(this.responsesTemplate),
-                    currentOptics: _.cloneDeep(this.opticsItemTemplate),
+                table:{
+                    optics: new Optics(_.cloneDeep(this.opticsItemTemplate), {}),
+                    responses: _.cloneDeep(this.responsesTemplate), //ajaxes
+                    price: new PriceList(), // data
                 },
             }
         },
@@ -97,15 +165,15 @@
                     n => {
                         let loadPrice = (store, optics) => {
                             optics.uid = `f${(+new Date).toString(16)}x${(~~(Math.random()*1e8)).toString(16)}`;
-                            this.$set(this.optics.current._forProcessing.loading, store.toString(), true);
+                            this.$set(this.table.optics.current._forProcessing.loading, store.toString(), true);
                             let promise = this.$store.dispatch('TABLES/LOAD_PRICE', optics);
                             promise
                                 .then(response=>{
-
                                     console.log(response)
+                                    this.table.price.addData(response.data)
                                 })
                                 .catch(error=>{
-                                    if (error==='aborted') {
+                                    if (error.message==='aborted') {
                                         console.log(`promise ${optics.uid} aborted`)
                                     } else {
                                         console.log(error);
@@ -118,34 +186,35 @@
                                     }
                                 })
                                 .finally(()=>{
-                                    this.$set(this.optics.current._forProcessing.loading, store.toString(), false);
-                                    delete this.optics.current._forProcessing.promises[store.toString()]
+                                    this.$set(this.table.optics.current._forProcessing.loading, store.toString(), false);
+                                    delete this.table.optics.current._forProcessing.promises[store.toString()]
                                 });
-                            this.$set(this.optics.current._forProcessing.promises, store.toString(), optics.uid);
+                            this.$set(this.table.optics.current._forProcessing.promises, store.toString(), optics.uid);
                         };
 
-                        if (this.optics.isCurrentEquivalentPrevious || this.optics.current.searchString.length<4) return;
-                        this.tableParameters.responces = _.cloneDeep(this.responsesTemplate);
+                        if (this.table.optics.isCurrentEquivalentPrevious || this.table.optics.current.searchString.length<4) return;
+                        this.table.responces = _.cloneDeep(this.responsesTemplate);
 
-                        loadPrice(0, this.optics.actualStoreOptics);
+                        this.table.price.clearData();
+                        loadPrice(0, this.table.optics.actualStoreOptics);
 
-                        _.forEach(this.optics.current.selectedStores, storeID=>{
-                            let stores = this.optics.current._forProcessing.stores;
+                        _.forEach(this.table.optics.current.selectedStores, storeID=>{
+                            let stores = this.table.optics.current._forProcessing.stores;
                             if(_.find(stores, store=>store.id===storeID).online){
-                                let StoreOptics = {name: this.optics.current.searchString, from_store:storeID};
+                                let StoreOptics = {name: this.table.optics.current.searchString, from_store:storeID};
                                 loadPrice(storeID, StoreOptics);
                             }
                         });
 
-                        this.optics.setPreviousByCurrent();
-                    }, this.optics.current._forProcessing.debounceAmount)
+                        this.table.optics.setPreviousByCurrent();
+                    }, this.table.optics.current._forProcessing.debounceAmount)
             },
         },
         created() {
-            this.tableParameters.currentOptics = this.optics.current;
+
         },
         watch:{
-            'optics.current': {
+            'table.optics.current': {
                 handler: function(n){this.opticsProcessor(n)},
                 deep: true
             }

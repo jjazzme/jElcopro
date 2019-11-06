@@ -10,7 +10,7 @@
     "syncModelDB": "babel-node ./bin/sequelizeModelSync",
     "start": "babel-node ./bin/www --tls-min-v1.0",
     "start_NODEMON": "nodemon --exec babel-node ./bin/www --tls-min-v1.0",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha --timeout 20000 --require @babel/register --tls-min-v1.0 test/**/*.js",
     "test_console": "babel-node --tls-min-v1.0 ./bin/console test",
     "start_old": "node ./bin/www",
     "build___": "mkdir dist && babel src -s -d dist",
@@ -72,7 +72,9 @@
     "@babel/plugin-transform-runtime": "^7.6.2",
     "@babel/preset-env": "^7.6.3",
     "dotenv": "^8.2.0",
-    "eslint": "^6.6.0"
+    "eslint": "^6.6.0",
+    "chai": "^4.2.0",
+    "mocha": "^6.2.2"
   },
   "nodemon": {
     "name": "nodemon",

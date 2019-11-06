@@ -4,8 +4,8 @@
             v-if="value"
     >
         <div
-               v-for="(lvl1, name1) in value.optics.current._forView.card"
-               :class="`p-l-${name1}`"
+                v-for="(lvl1, name1) in card"
+                :class="`p-l-${name1}`"
         >
             <div
                     v-for="(lvl2, name2) in lvl1"
@@ -15,16 +15,17 @@
                 <div
                         v-for="(cell, name3) in lvl2"
                         :class="`p-l-${name3} p-l-cell`"
+                        v-html="value[cell.field]"
                 >
-                    {{cell.alias}}
                 </div>
             </div>
             <div
                     v-for="(cell, name2) in lvl1"
                     :class="`p-l-${name2} p-l-cell`"
                     v-if="cell.alias"
+                    v-html="value[cell.field]"
             >
-                {{cell.alias}}
+
             </div>
         </div>
     </div>
@@ -32,15 +33,10 @@
 
 <script>
     export default {
-        name: "priceListHeader",
+        name: "priceListRow",
         props:{
-            value: {
-                type: Object,
-                default: null,
-            }
-        },
-        computed:{
-
+            value: null,
+            card: null,
         }
     }
 </script>
@@ -48,22 +44,22 @@
 <style scoped lang="less">
     @import "~@/less/_variables";
     @import "~@/less/priceListCard";
+
     .v-t-row{
-        background-color: @table-header-bg;
-        text-transform: uppercase;
-        font-weight: 600;
-        color: @table-header-text;
-        align-items: center;
+        border: @table-body-text-transp solid 1px;
+        margin: 10px 0;
+        background-color: @table-body-bg;
         .p-l-cell{
-            border-right: @table-header-text solid 1px;
-            opacity: 0.75;
+            color: @table-body-text;
+            border-right: @table-body-text-transp solid 1px;
         };
         >div { //lvl1
-            border-right: @table-header-text solid 1px;
+            border-right: @table-body-text-transp solid 1px;
 
             > div { //lvl2
-                border-bottom: @table-header-text solid 1px;
+                border-bottom: @table-body-text-transp solid 1px;
             }
         }
     }
+
 </style>
