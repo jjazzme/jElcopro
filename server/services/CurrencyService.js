@@ -1,9 +1,8 @@
-import Entity from "./Entity";
+import Entity from './Entity';
 import { Currency } from '../models';
-import Cache from "./Cache";
+import Cache from './Cache';
 
 export default class CurrencyService extends Entity {
-
     constructor() {
         super(Currency);
     }
@@ -13,7 +12,8 @@ export default class CurrencyService extends Entity {
      * @param alias
      * @returns {Promise<Object>}
      */
-    async getByAlias(alias){
-        return (await Cache.remember('cuurency' + alias, this.find({ char_code: alias }), 900));
+    async getByAlias(alias) {
+        // eslint-disable-next-line no-return-await
+        return (await Cache.remember(`cuurency${alias}`, this.find({ char_code: alias }), 900));
     }
 }

@@ -1,8 +1,10 @@
 #!/usr/bin/env node --tls-min-v1.0
 
-require("@babel/register");
+// eslint-disable-next-line import/no-extraneous-dependencies
+require('@babel/register');
 
 const minimist = require('minimist');
+
 const args = minimist(process.argv.slice(2));
 
 global.sequelize_logging = !!args.l;
@@ -10,15 +12,16 @@ global.sequelize_logging = !!args.l;
 // config variables
 require('../config/config.js');
 
-//every command must have run method
-args._.forEach(command => {
+// every command must have run method
+args._.forEach((command) => {
     try {
-        require('../commands/' + command).run(args)
+        // eslint-disable-next-line global-require,import/no-dynamic-require
+        require(`../commands/${command}`).run(args);
     } catch (e) {
-       if (e.code === 'MODULE_NOT_FOUND') {
-            console.log(`I don't see ${command} command!`)
+        if (e.code === 'MODULE_NOT_FOUND') {
+            console.log(`I don't see ${command} command!`);
         } else {
-            throw e
+            throw e;
         }
     }
 });

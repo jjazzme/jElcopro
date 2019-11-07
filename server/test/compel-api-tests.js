@@ -5,10 +5,10 @@ import CompanyService from '../services/CompanyService';
 require('../config/config.js');
 
 describe('Compel apiSearchByName:', () => {
-    it('search tda2003v', async () => {
+    it('search TDA2003L-TB5-T', async () => {
         const compel = await (new CompanyService()).getByAlias('compel');
         const service = new CompelService(compel);
-        return service.apiSearchByName('tda2003v')
+        return service.apiSearchByName('TDA2003L-TB5-T')
             .then((res) => {
                 expect(res, 'Response is object').to.be.an('object');
                 // eslint-disable-next-line no-unused-expressions
