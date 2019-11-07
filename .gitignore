@@ -5,3 +5,5 @@
 /client/node_modules/
 /client/dist/
 /.idea/workspace.xml
+.idea/
+.idea/workspace.xml
