@@ -1,9 +1,4 @@
-/.idea/
 /server/node_modules/
-/server/storage/
-/server/.env
 /client/node_modules/
 /client/dist/
-/.idea/workspace.xml
-.idea/
-.idea/workspace.xml
+/server/.env
