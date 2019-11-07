@@ -2,3 +2,6 @@
 /client/node_modules/
 /client/dist/
 /server/.env
+.idea/workspace.xml
+.idea/sqldialects.xml
+.idea/workspace.xml
