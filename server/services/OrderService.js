@@ -17,6 +17,16 @@ export default class OrderService extends DocumentService {
         });
     }
 
+    /* async create(item, transaction) {
+        try {
+            const order = await super.create(item, transaction);
+
+        } catch (e) {
+            console.error(e);
+            throw e;
+        }
+    } */
+
     /**
      * Transition 'toWork' for make order 'in_work' status
      * @param {Object} params

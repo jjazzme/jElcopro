@@ -11,8 +11,9 @@ require('../config/config.js');
 describe('CurrencyRateService - getRatesByDate:', () => {
     const start = new Date('2010-01-01');
     const end = new Date('2020-01-01');
-    const date = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+    let date = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
     const formatDate = moment(date).format('YYYY-MM-DD');
+    date = new Date(formatDate);
     it(`Get currency rates by ${formatDate}`, async () => {
         const service = new CurrencyRateService();
         return service.getRatesByDate(date).then((rates) => {

@@ -1,4 +1,3 @@
-import Transaction from 'sequelize';
 import db from '../models/index';
 
 export default class Entity {
@@ -61,7 +60,7 @@ export default class Entity {
      * @returns {Promise<Object>}
      */
     async create(item, transaction) {
-        const t = transaction instanceof Transaction ? transaction : await db.sequelize.transaction();
+        const t = transaction instanceof db.Sequelize.Transaction ? transaction : await db.sequelize.transaction();
         const createItem = item instanceof this._Entity ? item : this._Entity.build(item);
         try {
             if (this.beforeCreate) {
@@ -93,7 +92,7 @@ export default class Entity {
      * @returns {Promise<Object>}
      */
     async update(item, transaction) {
-        const t = transaction instanceof Transaction ? transaction : await db.sequelize.transaction();
+        const t = transaction instanceof db.Sequelize.Transaction ? transaction : await db.sequelize.transaction();
         const updateItem = item instanceof this._Entity ? item : await this._Entity.findOne({ where: { id: item.id } });
         if (!(item instanceof this._Entity)) {
             updateItem.set(item);
@@ -128,7 +127,7 @@ export default class Entity {
      * @returns {Promise<void>}
      */
     async destroy(item, transaction) {
-        const t = transaction instanceof Transaction ? transaction : await db.sequelize.transaction();
+        const t = transaction instanceof db.Sequelize.Transaction ? transaction : await db.sequelize.transaction();
         const destroyItem = item instanceof this._Entity
             ? item : await this._Entity.findOne({ where: { id: item.id } });
         try {

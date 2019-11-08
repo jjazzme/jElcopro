@@ -1,9 +1,11 @@
 import Sequelize from 'sequelize';
-import {
-    Arrival, Departure, Document, DocumentLine, FutureReserve, Good, Product, Reserve,
-} from '../models';
+import db from '../models';
 import Entity from './Entity';
 import GoodService from './GoodService';
+
+const {
+    Arrival, Departure, Document, DocumentLine, FutureReserve, Good, Product, Reserve,
+} = db;
 
 export default class DocumentLineService extends Entity {
     constructor() {
@@ -22,18 +24,19 @@ export default class DocumentLineService extends Entity {
 
     /**
      * Create new DocumentLine with dependencies on right Good & Store
-     * @param {Object} newItem
+     * @param {Object} item
      * @param {Transaction} transaction
      * @returns {Promise<Object>}
      */
-    async create(newItem, transaction) {
-        if (!newItem.document_id) throw new Error('Attribute document_id required');
-        const document = newItem.document ? newItem.document
-            : await Document.findOne({ where: { id: newItem.document_id } });
+    async create(item, transaction) {
+        const t = transaction instanceof db.Sequelize.Transaction ? transaction : await db.sequelize.transaction();
+        if (!item.document_id) throw new Error('Attribute document_id required');
+        const document = item.document ? item.document
+            : await Document.findOne({ where: { id: item.document_id } });
         if (!document) throw new Error('Attribute document_id wrong');
-        const productId = await (newItem.product_id ? newItem.product_id
-            : (await Good.findOne({ where: { id: newItem.good_id } })).product_id);
-        const newLine = newItem;
+        const productId = await (item.product_id ? item.product_id
+            : (await Good.findOne({ where: { id: item.good_id } })).product_id);
+        const newLine = item;
         const good = await (new GoodService()).firstOrCreate({
             product_id: productId,
             store_id: document.store_id,
@@ -44,10 +47,13 @@ export default class DocumentLineService extends Entity {
             is_active: true,
             ballance: 0,
         });
-        Object.assign(newLine, { store_id: document.store_id, good_id: good.id, from_good_id: newItem.good_id });
+        Object.assign(newLine, { store_id: document.store_id, good_id: good.id, from_good_id: item.good_id });
         try {
-            return await super.create(newLine, transaction);
+            const ret = await super.create(newLine, t);
+            if (!transaction) await t.commit();
+            return ret;
         } catch (e) {
+            if (!transaction) await t.rollback();
             console.error(e);
             throw e;
         }

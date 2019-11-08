@@ -36,10 +36,11 @@ export default class PriceService extends Entity {
         as: 'product',
         required: true,
         include: [
-            { model: Producer, as: 'producer' },
+            { model: Producer, as: 'producer', required: true },
             {
                 model: Parameter,
                 as: 'parameters',
+                required: false,
                 include: [
                     { model: ParameterValue, as: 'parameterValue' },
                 ],
@@ -62,7 +63,7 @@ export default class PriceService extends Entity {
                 as: 'company',
                 required: true,
                 include: [
-                    { model: Party, as: 'party' },
+                    { model: Party, as: 'party', required: true },
                 ],
             },
             {
@@ -91,7 +92,7 @@ export default class PriceService extends Entity {
         if (!optics || !optics.name || optics.name.length < 3) return [];
         //
         const searchName = ProductService.makeSearchName(optics.name);
-        this._product.where = { name: { [this._Op.substring]: searchName } };
+        this._product.where = { search_name: { [this._Op.substring]: searchName } };
         // eslint-disable-next-line no-underscore-dangle
         const case_ = await (new ParameterNameService()).getByAlias('case');
         _.find(this._product.include, { as: 'parameters' }).where = { parameter_name_id: case_.id };
