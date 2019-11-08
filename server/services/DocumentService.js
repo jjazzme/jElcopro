@@ -3,7 +3,9 @@ import _ from 'lodash';
 import Entity from './Entity';
 import db from '../models/index';
 
-const { Document } = db;
+const {
+    Company, Document, Party, Store,
+} = db;
 
 export default class DocumentService extends Entity {
     /**
@@ -18,6 +20,22 @@ export default class DocumentService extends Entity {
         this._includes = [
             { model: Document, as: 'parent' },
             { model: Document, as: 'children' },
+            {
+                model: Company,
+                as: 'sellerable',
+                include: [
+                    { model: Store, as: 'stores' },
+                    { model: Party, as: 'party' },
+                ],
+            },
+            {
+                model: Company,
+                as: 'buyerable',
+                include: [
+                    { model: Store, as: 'stores' },
+                    { model: Party, as: 'party' },
+                ],
+            },
         ];
     }
 

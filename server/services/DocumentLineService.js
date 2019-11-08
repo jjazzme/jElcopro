@@ -3,6 +3,7 @@ import {
     Arrival, Departure, Document, DocumentLine, FutureReserve, Good, Product, Reserve,
 } from '../models';
 import Entity from './Entity';
+import GoodService from './GoodService';
 
 export default class DocumentLineService extends Entity {
     constructor() {
@@ -20,7 +21,40 @@ export default class DocumentLineService extends Entity {
     }
 
     /**
-     * Make reserve && future reserve for document line
+     * Create new DocumentLine with dependencies on right Good & Store
+     * @param {Object} newItem
+     * @param {Transaction} transaction
+     * @returns {Promise<Object>}
+     */
+    async create(newItem, transaction) {
+        if (!newItem.document_id) throw new Error('Attribute document_id required');
+        const document = newItem.document ? newItem.document
+            : await Document.findOne({ where: { id: newItem.document_id } });
+        if (!document) throw new Error('Attribute document_id wrong');
+        const productId = await (newItem.product_id ? newItem.product_id
+            : (await Good.findOne({ where: { id: newItem.good_id } })).product_id);
+        const newLine = newItem;
+        const good = await (new GoodService()).firstOrCreate({
+            product_id: productId,
+            store_id: document.store_id,
+            code: productId,
+        }, {
+            pack: 1,
+            multiply: 1,
+            is_active: true,
+            ballance: 0,
+        });
+        Object.assign(newLine, { store_id: document.store_id, good_id: good.id, from_good_id: newItem.good_id });
+        try {
+            return await super.create(newLine, transaction);
+        } catch (e) {
+            console.error(e);
+            throw e;
+        }
+    }
+
+    /**
+     * Make reserves && future reserve for document line
      * @param {DocumentLine|number} line
      * @param {Object} params
      * @param {boolean} params.own - Reserve only goods that was from our store
