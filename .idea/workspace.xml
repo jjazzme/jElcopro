@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="b8fec58c-fe21-484c-817e-78e5f5047e58" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/server/test/create-order-test.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/commands/test.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/commands/test.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/models/company.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/models/company.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/models/documentLine.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/models/documentLine.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/services/DocumentLineService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/DocumentLineService.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/services/DocumentService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/DocumentService.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/services/OrderService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/OrderService.js" afterDir="false" />
+    <list default="true" id="b8fec58c-fe21-484c-817e-78e5f5047e58" name="Default Changelist" comment="Test">
+      <change beforePath="$PROJECT_DIR$/server/.eslintrc" beforeDir="false" afterPath="$PROJECT_DIR$/server/.eslintrc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/test/compel-api-tests.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/test/compel-api-tests.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -33,23 +29,7 @@
     <option name="HIDDEN_KINDS">
       <set />
     </option>
-    <expand>
-      <path>
-        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="elcopro@127.0.0.1" type="feb32156:DbDataSourceImpl" />
-      </path>
-      <path>
-        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="elcopro@127.0.0.1" type="feb32156:DbDataSourceImpl" />
-        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
-      </path>
-      <path>
-        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="elcopro@127.0.0.1" type="feb32156:DbDataSourceImpl" />
-        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
-        <item name="elcopro: schema" type="ebfa3cd1:MariaImplModel$Schema" />
-      </path>
-    </expand>
+    <expand />
     <select />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -225,6 +205,7 @@
       <updated>1572977371836</updated>
       <workItem from="1572977373137" duration="1322000" />
       <workItem from="1573031977961" duration="35603000" />
+      <workItem from="1573282873825" duration="605000" />
     </task>
     <task id="LOCAL-00001" summary="PriceService Test">
       <created>1572977497460</created>
@@ -278,25 +259,21 @@
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/server/commands/test.js</url>
           <line>26</line>
-          <properties lambdaOrdinal="-1" />
           <option name="timeStamp" value="18" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/server/services/Entity.js</url>
           <line>43</line>
-          <properties lambdaOrdinal="-1" />
           <option name="timeStamp" value="19" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/server/services/Entity.js</url>
           <line>44</line>
-          <properties lambdaOrdinal="-1" />
           <option name="timeStamp" value="20" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/server/services/Entity.js</url>
           <line>45</line>
-          <properties lambdaOrdinal="-1" />
           <option name="timeStamp" value="21" />
         </line-breakpoint>
       </breakpoints>
