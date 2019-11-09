@@ -52,6 +52,54 @@ export default class DocumentLineService extends Entity {
     }
 
     /**
+     *
+     * @param {Document} childDocument
+     * @param {Array|null} parentLineIds
+     * @param {Transaction} transaction
+     * @returns {Promise<Array>}
+     */
+    async createChildren(childDocument, parentLineIds, transaction) {
+        const where = { document_id: childDocument.parent_id };
+        if (parentLineIds && parentLineIds instanceof Array) {
+            where.id = { [db.Sequelize.Op.in]: parentLineIds }
+        }
+        const parentLines = await DocumentLine.finAll({
+            where,
+            attributes: {
+                include: [
+                    [
+                        db.sequelize.literal('COALESCE(' +
+                            '(SELECT sum(a.quantity) FROM document_lines a WHERE a.parent_id = id), 0)'),
+                        'childrenQuantity'
+                    ],
+                    [
+                        db.sequelize.literal('COALESCE(' +
+                            '(SELECT sum(a.amount_without_vat) FROM document_lines a WHERE a.parent_id = id), 0)'),
+                        'childrenAmountWithoutVat'
+                    ],
+                    [
+                        db.sequelize.literal('COALESCE(' +
+                            '(SELECT sum(a.amount_with_vat) FROM document_lines a WHERE a.parent_id = id), 0)'),
+                        'childrenAmountWithVat'
+                    ],
+                ]
+            }
+        });
+        const newLines = parentLines.filter((line) => line.quantity - line.childrenQuantity > 0 )
+            .map(line => {
+                const newLine = Object.assign(line.get({ plain: true }), {
+                    parent_id: line.id,
+                    document_id: childDocument.id,
+                    quantity: line.quantity - line.childrenQuantity,
+                    amount_with_vat: line.amount_with_vat - line.childrenAmountWithVat,
+                    amount_without_vat: line.amount_without_vat - line.childrenAmountWithoutVat,
+                });
+                delete newLine.id;
+            });
+        await DocumentLine.bulkCreate(newLines, { transaction });
+    }
+
+    /**
      * Make reserves && future reserve for document line
      * @param {DocumentLine|number} line
      * @param {Object} params

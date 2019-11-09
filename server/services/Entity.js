@@ -37,15 +37,16 @@ export default class Entity {
     /**
      * Find by id or attributes in searchItem & return right instance if possible
      * @param {Object} searchItem
+     * @param {Transaction=} transaction
      * @returns {Promise<*>}
      */
-    async find(searchItem) {
+    async find(searchItem, transaction) {
         let item;
         if (searchItem.id) {
-            item = await this._Entity.findOne({ where: { id: searchItem.id }, include: this._includes });
+            item = await this._Entity.findOne({ where: { id: searchItem.id }, include: this._includes, transaction });
         } else {
             try {
-                item = await this._Entity.findOne({ where: searchItem, include: this._includes });
+                item = await this._Entity.findOne({ where: searchItem, include: this._includes, transaction });
             } catch (e) {
                 console.error(e);
             }
@@ -76,8 +77,9 @@ export default class Entity {
             if (this.afterUpdateOrCreate) {
                 await this.afterUpdateOrCreate(createItem, t);
             }
+            const ret = await this.find({ id: createItem.id }, t);
             if (!transaction) await t.commit();
-            return await this.find({ id: createItem.id });
+            return ret;
         } catch (e) {
             console.warn('Problem with create', this._Entity, item, e);
             if (!transaction) await t.rollback();
@@ -93,7 +95,8 @@ export default class Entity {
      */
     async update(item, transaction) {
         const t = transaction instanceof db.Sequelize.Transaction ? transaction : await db.sequelize.transaction();
-        const updateItem = item instanceof this._Entity ? item : await this._Entity.findOne({ where: { id: item.id } });
+        const updateItem = item instanceof this._Entity ? item
+            : await this._Entity.findOne({ where: { id: item.id }, transaction: t });
         if (!(item instanceof this._Entity)) {
             updateItem.set(item);
         }
@@ -111,8 +114,9 @@ export default class Entity {
             if (this.afterUpdateOrCreate) {
                 await this.afterUpdateOrCreate(updateItem, t);
             }
+            const ret = await this.find({ id: updateItem.id }, t);
             if (!transaction) await t.commit();
-            return await this.find({ id: updateItem.id });
+            return ret;
         } catch (e) {
             console.warn('Problem with update', this._Entity, item, e);
             if (!transaction) await t.rollback();
@@ -129,7 +133,7 @@ export default class Entity {
     async destroy(item, transaction) {
         const t = transaction instanceof db.Sequelize.Transaction ? transaction : await db.sequelize.transaction();
         const destroyItem = item instanceof this._Entity
-            ? item : await this._Entity.findOne({ where: { id: item.id } });
+            ? item : await this._Entity.findOne({ where: { id: item.id }, transaction: t });
         try {
             if (this.beforeDestroy) {
                 await this.beforeDestroy(destroyItem, t);
@@ -138,10 +142,10 @@ export default class Entity {
             if (this.afterDestroy) {
                 await this.afterDestroy(destroyItem, t);
             }
-            if (!transaction) await this.transaction().commit();
+            if (!transaction) await t.commit();
         } catch (e) {
             console.warn('Problem with delete', this._Entity, item, e);
-            if (!transaction) await this.transaction().rollback();
+            if (!transaction) await t.rollback();
             throw e;
         }
     }

@@ -6,9 +6,16 @@ import ProductService from "../services/ProductService";
 import GoodService from "../services/GoodService";
 import DocumentLineService from "../services/DocumentLineService";
 import PriceService from "../services/PriceService";
+import db from "../models";
+const { DocumentLine } = db;
 
 module.exports.run = async (args) => {
-    const service = new PriceService();
-    const ret = await service.searchByNameOnStore({ name: 'uno r3', from_store: 3 });
-    console.log(ret);
+    const t = await db.sequelize.transaction();
+    const service = new ProducerService();
+    const producer = await service.create({ name: 'TyTyT' }, t);
+    console.log(producer);
+    //const p = await db.Producer.findOne({ where: { id: 1061 }, transaction: t })
+    //console.log(p);
+    await t.rollback();
+
 };
