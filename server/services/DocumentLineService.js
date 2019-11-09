@@ -23,20 +23,19 @@ export default class DocumentLineService extends Entity {
     }
 
     /**
-     * Create new DocumentLine with dependencies on right Good & Store
-     * @param {Object} item
+     * Before Create new DocumentLine resolve dependencies on right Good & Store
+     * @param {DocumentLine} item
      * @param {Transaction} transaction
-     * @returns {Promise<Object>}
+     * @returns {Promise<void>}
      */
-    async create(item, transaction) {
-        const t = transaction instanceof db.Sequelize.Transaction ? transaction : await db.sequelize.transaction();
+    // eslint-disable-next-line class-methods-use-this
+    async beforeCreate(item) {
         if (!item.document_id) throw new Error('Attribute document_id required');
         const document = item.document ? item.document
             : await Document.findOne({ where: { id: item.document_id } });
         if (!document) throw new Error('Attribute document_id wrong');
         const productId = await (item.product_id ? item.product_id
             : (await Good.findOne({ where: { id: item.good_id } })).product_id);
-        const newLine = item;
         const good = await (new GoodService()).firstOrCreate({
             product_id: productId,
             store_id: document.store_id,
@@ -47,16 +46,9 @@ export default class DocumentLineService extends Entity {
             is_active: true,
             ballance: 0,
         });
-        Object.assign(newLine, { store_id: document.store_id, good_id: good.id, from_good_id: item.good_id });
-        try {
-            const ret = await super.create(newLine, t);
-            if (!transaction) await t.commit();
-            return ret;
-        } catch (e) {
-            if (!transaction) await t.rollback();
-            console.error(e);
-            throw e;
-        }
+        item.store_id = document.store_id;
+        item.from_good_id = item.good_id;
+        item.good_id = good.id;
     }
 
     /**
