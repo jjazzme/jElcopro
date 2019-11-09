@@ -1,11 +1,8 @@
 'use strict';
 
-const Producer = require('../models').Producer;
-
 const models = require('../models');
 const Auth = require('../services/Auth');
 const enums = require('../modules/enums');
-const _ = require('lodash');
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 
@@ -14,6 +11,7 @@ const Op = Sequelize.Op;
 //});
 
 module.exports = {
+
     // get model by optics
     getModelByOptics(req, res){
         const userID = parseInt(req.params.userID);
@@ -27,6 +25,7 @@ module.exports = {
             res.status(401).send('Authentication error');
             return;
         }
+
 
         const optics = req.body.optics;
         const params = req.body.params;
@@ -58,7 +57,8 @@ module.exports = {
                         current.include = [{}];
                         current = current.include[0];
                     } else {
-                        if(val.as) current.as = val.as;
+                        current.as = val.as ? val.as : _.camelCase(_.last(val.path.split('.')));
+
                         let actual = _.cloneDeep(actualFilters[name]);
                         if (actual){
                             if (actual.length>0) {
@@ -142,7 +142,119 @@ module.exports = {
             });
 
 
-    }
+    },
+
+    // get selectors
+    getSelectors(req, res){
+        const userID = parseInt(req.params.userID);
+        const model = req.params.model;
+
+        if (Auth.controllerPermissionIsDenied({
+            clientUserID: userID,
+            model: model,
+            requiredPermissons: [enums.authType.Read]})
+        ) {
+            res.status(401).send('Authentication error');
+            return;
+        }
+
+        const fields = req.body.fields;
+
+        models[model].findAll({
+            attributes: fields
+        })
+            .then(resp=>{
+                res.send(resp);
+            })
+            .catch(err=>{
+                res.status(500);
+                res.json({error: err});
+            });
+
+    },
+
+    // апдейт ячейки
+    updateColumn(req, res){
+        const userID = parseInt(req.params.userID);
+        const model = req.params.model;
+
+        const packet = req.body.packet;
+        const id = packet.id;
+        const column = packet.column;
+        const value = packet.value;
+
+        if (Auth.controllerPermissionIsDenied({
+            clientUserID: userID,
+            model: model,
+            id: id,
+            column: column,
+            requiredPermissons: [enums.authType.Update]})
+        ) {
+            res.status(401).send('Authentication error');
+            return;
+        }
+
+        models[model].findByPk(id)
+            .then(oldItem=>{
+                oldItem.set(column, value).save({fields: [column]})
+                    .then(newItem=>{
+                        res.send({old: oldItem[column], new: newItem[column]});
+                    })
+                    .catch(err=>{
+                        res.status(500);
+                        res.json({error: err});
+                    });
+                });
+    },
+
+    //
+    getModelData(req, res){
+        const userID = parseInt(req.params.userID);
+        const model = req.params.model;
+
+        if (Auth.controllerPermissionIsDenied({
+            clientUserID: userID,
+            model: model,
+            requiredPermissons: [enums.authType.Read]})
+        ) {
+            res.status(401).send('Authentication error');
+            return;
+        }
+
+
+        const includes = req.body.includes;
+        const sorters = req.body.sorters;
+
+        let include = []
+        _.forEach(includes, item=>{
+            let top = {};
+            let current = top;
+            const path = item.path.split('.')
+            _.forEach(path, (model, ind)=>{
+                current.model = models[model];
+                current.as = _.camelCase(model)
+                if(path.length-1 !== ind){
+                    current = current.include = {};
+                }
+            });
+            include.push(top)
+        });
+
+        models[model].findAll({
+            include: include,
+            order: sorters,
+            limit: 1000
+        })
+            .then(resp=>{
+                res.send(Auth.permissionsModelFilter(model, resp));
+            })
+            .catch(err=>{
+                res.status(500);
+                res.json({error: err});
+            });
+
+
+    },
 };
 
 //router.put('/get/:model/:userID/:page', (req, res) => {});

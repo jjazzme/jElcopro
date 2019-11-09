@@ -2,7 +2,7 @@
 
 module.exports = {
     routeLog(req, res, next){
-        console.log(`Time: ${Date.now()}`);
+        console.log(`MIDDLE/MAIN Time: ${Date.now()}`);
         next();
     },
     auth: (req, res, next) => {

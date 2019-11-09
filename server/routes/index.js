@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 const modelController = require('../controllers/model');
+const servicesController = require('../controllers/services')
 const shellController = require('../controllers/shell');
 const middlewareController = require('../controllers/middle/main');
 const authController = require('../controllers/auth');
@@ -18,6 +19,12 @@ router.put('/api/shell/:model/:userID', shellController.setShell);
 
 /* Model router */
 router.put('/api/model/get/:model/:userID/:page', modelController.getModelByOptics);
+router.put('/api/model/options/:model/:userID', modelController.getSelectors);
+router.post('/api/model/update/:model/:userID', modelController.updateColumn);
+router.put('/api/model-data/get/:model/:userID', modelController.getModelData);
+
+/* Service router */
+router.put('/api/service/get/:service/:userID', servicesController.getService);
 
 /* Auth router */
 router.post('/api/login', authController.login);

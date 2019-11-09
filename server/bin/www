@@ -1,4 +1,5 @@
-#!/usr/bin/env node
+#!/usr/bin/env node --tls-min-v1.0
+console.log('WWW STARTED')
 
 /**
  * BABEL

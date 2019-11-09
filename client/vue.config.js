@@ -1,12 +1,20 @@
 module.exports = {
-    configureWebpack:{
-    },
     devServer:{
         host: 'localhost',
         hot:true,
         port: 8080,
-        open: 'Chrome',
+        //sourceMap: true,
+        //sourceMapPathOverrides:{
+        //    "webpack:///*": "${webRoot}/*",
+        //    "webpack:///./*": "${webRoot}/*",
+        //    "webpack:///src/*": "${webRoot}/src/*"
+        //},
+        //open: 'Chrome',
         proxy: {
+            '/api': {
+                target: 'http://localhost:3000',
+                pathRewrite:{'^/api' : '/api'}
+            },
             //https://cli.vuejs.org/guide/html-and-static-assets.html#disable-index-generation
             /*
             '/*':{ //everything from root
@@ -25,10 +33,6 @@ module.exports = {
                 ws: false
             },
              */
-            '/api': {
-                target: 'http://localhost:3000',
-                pathRewrite:{'^/api' : '/api'}
-            },
         }
-    }
+    },
 }

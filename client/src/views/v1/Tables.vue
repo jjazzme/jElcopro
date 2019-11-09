@@ -1,176 +1,204 @@
 <template>
     <!-- eslint-disable vue/no-use-v-if-with-v-for,vue/no-confusing-v-for-v-if -->
     <article>
-        <div v-if="loadingStatus<=enumLoadingStatus.TableLoading" class="v-t-loader">
+        <page-environment
+                :head="{title: {main: 'таблицы', method: headMethod}}"
+        />
+        <div v-if="loadingStatus<=enums.loadingStatus.TableLoading" class="v-t-loader">
             <!--СПИННЕР-->
             <b-spinner class="v-t-l-spinner" variant="warning" label="Загрузка..." />
         </div>
         <div
-                class="v-table"
-                ref="tab"
+            class="v-table"
+            ref="tab"
         >
             <!-- ВСЯ ТАБЛИЦА -->
             <paginator
-                    :class="`${loadingStatus<enumLoadingStatus.TableLoaded?'transp':''} text-center`"
-                    v-model="table.shell.optics"
+                :class="`${loadingStatus<enums.loadingStatus.TableLoaded?'transp':''} text-center`"
+                v-model="table.shell.optics"
+                v-if="!showBasket"
             ></paginator>
 
+            <!--ЗАГОЛОВОК ТАБЛИЦЫ-->
             <div
-                    :class="`${loadingStatus===enumLoadingStatus.TableLoading?'tran05':''} v-t-header`"
-                    :style="headerRowStyle"
-                    v-if="loadingStatus>=enumLoadingStatus.TableLoading"
+                :class="`${loadingStatus===enums.loadingStatus.TableLoading?'tran05':''} v-t-header`"
+                :style="headerRowStyle"
+                v-if="loadingStatus>=enums.loadingStatus.TableLoading"
             >
-                <!--ЗАГОЛОВОК ТАБЛИЦЫ-->
+                <!--ПЕРВАЯ ЯЧЕЙКА ЗАГОЛОВКА-->
                 <div
-                        class="v-t-col text-center p-0 m-0"
-                        style="min-width: 70px; max-width: 70px; order:-1000000"
+                    class="v-t-col text-center p-0 m-0"
+                    style="min-width: 70px; max-width: 70px; order:-1000000"
                 >
-                    <!--ПЕРВАЯ ЯЧЕЙКА ЗАГОЛОВКА-->
+                    <!-- выбор баскета -->
                     <b-form-checkbox
-                            v-model="showBasket"
-                            :disabled="table.shell.basket.length===0"
-                            name="check-button"
-                            button
-                            size="sm"
-                            :button-variant="table.shell.basket.length===0?'outline-light':'outline-warning'"
+                        v-model="showBasket"
+                        :disabled="table.shell.basket.length===0"
+                        name="check-button"
+                        button
+                        size="sm"
+                        :button-variant="table.shell.basket.length===0?'outline-light':'outline-warning'"
                     >{{table.shell.basket.length}}</b-form-checkbox>
+
+                    <!-- опции таблицы  -->
                     <b-dropdown
-                            text=""
-                            :variant="tableOptionsIsInitial?'outline-light':'outline-warning'"
-                            size="sm"
-                            title="Опции таблицы"
-                            class=""
+                        text=""
+                        :variant="tableOptionsIsInitial?'outline-light':'outline-warning'"
+                        size="sm"
+                        title="Опции таблицы"
+                        class=""
                     >
                         <b-form-checkbox
-                                v-if="i.hidden!==true"
-                                v-for="(i,k) in table.shell.columns"
-                                :key="k"
-                                v-model="i.show"
+                            v-if="i.hidden!==true"
+                            v-for="(i,k) in table.shell.columns"
+                            class="text-nowrap mx-2"
+                            :key="k"
+                            v-model="i.show"
                         >{{i.label}}</b-form-checkbox>
+
                         <b-button
-                                @click="optiTab"
-                                variant="link"
+                            @click="optiTab"
+                            variant="link"
+                            class="text-nowrap"
                         >Оптимизировать вид</b-button>
                         <b-button
-                                @click="reset"
-                                variant="link"
+                            @click="reset"
+                            variant="link"
+                            class="text-nowrap"
                         >Сбросить фильтры</b-button>
+                        <b-button
+                                @click="addItem"
+                                variant="link"
+                                class="text-nowrap"
+                        >Добавить запись</b-button>
                     </b-dropdown>
                 </div>
 
+                <!-- поля заголовка -->
                 <div
-                        v-for="(v, k, i) in table.shell.columns"
-                        v-show="table.shell.columns[k].show"
-                        class="v-t-col"
-                        :key="i"
-                        :style="style[k]"
-                        :data-header="k"
-                        :data-index="table.shell.columns[k].order"
-                        :data-index-main="table.shell.columns[k].order"
-                        @dragover="dragover"
-                        @dragleave="dragleave"
-
+                    v-for="(v, k, i) in table.shell.columns"
+                    v-show="table.shell.columns[k].show"
+                    class="v-t-col"
+                    :key="i"
+                    :style="style[k]"
+                    :data-header="k"
+                    :data-index="table.shell.columns[k].order"
+                    :data-index-main="table.shell.columns[k].order"
+                    @dragover="dragover"
+                    @dragleave="dragleave"
                 >
                     <div
-                            v-if="table.shell.columns[k].hidden !== true"
-                            class="v-t-row"
-                            :data-index="table.shell.columns[k].order"
+                        v-if="table.shell.columns[k].hidden !== true"
+                        class="v-t-row"
+                        :data-index="table.shell.columns[k].order"
                     >
-                                <span
-                                        class="h-c-text"
-                                        :data-index="table.shell.columns[k].order"
-                                >
-                                    {{v.label}}
-                                </span>
+                        <!-- label -->
                         <span
-                                class="h-c-tools"
-                                :data-index="table.shell.columns[k].order"
+                            class="h-c-text"
+                            :data-index="table.shell.columns[k].order"
                         >
-                                    <b-dropdown
-                                            :variant="columnsOptionsVariant[k] ? 'outline-light' : 'outline-warning'"
-                                            size="sm"
-                                            no-caret
-                                            class="h-c-options"
-                                    >
-                                        <template slot="button-content">
-                                            <span
-                                                    class="h-c-drag sm position-relative"
-                                                    :class="`${!table.shell.optics.sorters[k].value ? 'fas fa-bars' : table.shell.optics.sorters[k].value === 'asc' ? 'fas fa-sort-alpha-down' : 'fas fa-sort-alpha-up-alt'}`"
-                                                    @dragstart="dragChangeStart"
-                                                    @dragend="dragChangeEnd"
-                                                    draggable="true"
-                                                    :data-index="table.shell.columns[k].order"
-                                            >
-                                                <span
-                                                        class="position-absolute"
-                                                        style="top:-2px; left: -10px; color: white; font-size: 10px"
-                                                >{{table.shell.optics.sorters[k].order===null?'':table.shell.optics.sorters[k].order}}</span>
-                                            </span>
-                                        </template>
-                                        <b-dropdown-group
-                                                v-if="table.shell.columns[k].sortable"
-                                        >
-                                            <b-dropdown-item
-                                                    @click="tableSort(k, 'asc')"
-                                                    :disabled="table.shell.optics.sorters[k].value ==='asc'"
-                                            >
-                                                Сортировать А...Я <i class="fas fa-sort-alpha-down"></i>
-                                            </b-dropdown-item>
-                                            <b-dropdown-item
-                                                    @click="tableSort(k, 'desc')"
-                                                    :disabled="table.shell.optics.sorters[k].value ==='desc'"
-                                            >
-                                                Сортировать Я...А <i class="fas fa-sort-alpha-up-alt"></i>
-                                            </b-dropdown-item>
-                                            <b-dropdown-item
-                                                    @click="tableSort(k, null)"
-                                                    :disabled="!table.shell.optics.sorters[k].value"
-                                            >
-                                                Не сортировать
-                                            </b-dropdown-item>
-                                        </b-dropdown-group>
-                                        <b-dropdown-group
+                            {{v.label}}
+                        </span>
 
-                                        >
-                                            <filters
-                                                    v-if="table.shell.optics.filters[k]"
-                                                    v-model="table.shell.optics.filters[k]"
-                                            ></filters>
-                                        </b-dropdown-group>
-                                        <b-dropdown-item
-                                                @click="table.shell.columns[k].show=false"
-                                                variant="danger"
-                                        >Скрыть</b-dropdown-item>
-                                    </b-dropdown>
-                            <!--i class="h-c-drag fas fa-grip-vertical"></i-->
+                        <!-- утилиты столбца -->
+                        <span
+                            class="h-c-tools"
+                            :data-index="table.shell.columns[k].order"
+                        >
+                            <b-dropdown
+                                :variant="columnsOptionsVariant[k] ? 'outline-light' : 'outline-warning'"
+                                size="sm"
+                                no-caret
+                                class="h-c-options"
+                            >
+                                <template slot="button-content">
                                     <span
-                                            :data-index="table.shell.columns[k].order"
-                                            class="fa fa-ellipsis-v h-c-sizing"
-                                            @dragstart="dragResizeStart"
-                                            @drag="dragResize"
-                                            draggable="true"
-                                    ></span>
-                                </span>
+                                        class="h-c-drag sm"
+                                        @dragstart="dragChangeStart"
+                                        @dragend="dragChangeEnd"
+                                        draggable="true"
+                                        :data-index="table.shell.columns[k].order"
+                                    >
+                                        <span>
+                                            <fa-icon :icon="
+                                                !table.shell.optics.sorters[k].value ? 'bars'
+                                                : table.shell.optics.sorters[k].value === 'asc' ? 'sort-alpha-down'
+                                                : 'sort-alpha-up-alt'
+                                            " />
+                                        </span>
+                                        <span v-if="table.shell.optics.sorters[k].order">
+                                            {{!table.shell.optics.sorters[k].order?'':table.shell.optics.sorters[k].order}}
+                                        </span>
+                                    </span>
+                                </template>
+                                <b-dropdown-group
+                                        v-if="table.shell.columns[k].sortable"
+                                >
+                                    <b-dropdown-item
+                                            @click="tableSort(k, 'asc')"
+                                            :disabled="table.shell.optics.sorters[k].value ==='asc'"
+                                    >
+                                        Сортировать А...Я
+                                        <fa-icon icon="sort-alpha-down" />
+                                    </b-dropdown-item>
+                                    <b-dropdown-item
+                                            @click="tableSort(k, 'desc')"
+                                            :disabled="table.shell.optics.sorters[k].value ==='desc'"
+                                    >
+                                        Сортировать Я...А
+                                        <fa-icon icon="sort-alpha-up-alt" />
+                                    </b-dropdown-item>
+                                    <b-dropdown-item
+                                            @click="tableSort(k, null)"
+                                            :disabled="!table.shell.optics.sorters[k].value"
+                                    >
+                                        Не сортировать
+                                    </b-dropdown-item>
+                                </b-dropdown-group>
+                                <b-dropdown-group
+
+                                >
+                                    <filters
+                                            v-if="table.shell.optics.filters[k]"
+                                            v-model="table.shell.optics.filters[k]"
+                                    ></filters>
+                                </b-dropdown-group>
+                                <b-dropdown-item
+                                        @click="table.shell.columns[k].show=false"
+                                        variant="danger"
+                                >Скрыть</b-dropdown-item>
+                            </b-dropdown>
+                            <!--i class="h-c-drag fas fa-grip-vertical"></i-->
+                            <span
+                                    :data-index="table.shell.columns[k].order"
+                                    class="h-c-sizing"
+                                    @dragstart="dragResizeStart"
+                                    @drag="dragResize"
+                                    draggable="true"
+                            >
+                                <fa-icon icon="ellipsis-v"/>
+                            </span>
+                        </span>
                     </div>
                 </div>
             </div>
+            <!--БОДИ ТАБЛИЦЫ-->
             <div
                     :class="shading?'tran05':''"
             >
-                <!--БОДИ ТАБЛИЦЫ-->
                 <div
-                        :style="rowStyle"
-                        v-for="(row, i1) in tableData"
-                        class="v-t-data-row"
-                        :key="i1"
-                        :data-id="row.id"
+                    :style="rowStyle"
+                    v-for="(row, i1) in tableData"
+                    class="v-t-data-row"
+                    :key="i1"
+                    :data-id="row.id"
                 >
+                    <!--ПЕРВАЯ ЯЧЕЙКА СТРОКИ-->
                     <div
-                            class="v-t-col text-center"
-                            style="min-width: 70px; max-width: 70px; order:-1000000"
-                            :data-id="`t_ch_${row.id}`"
+                        class="v-t-col text-center"
+                        style="min-width: 70px; max-width: 70px; order:-1000000"
+                        :data-id="`t_ch_${row.id}`"
                     >
-                        <!--ПЕРВАЯ ЯЧЕЙКА СТРОКИ-->
                         <b-form-checkbox
                                 size="sm"
                                 class="d-inline-block pl-4 pr-0"
@@ -180,21 +208,21 @@
                         ></b-form-checkbox>
                         <b-dropdown
                                 text=""
-                                :variant="`${dataChanged[row.id]?'outline-warning':'outline-dark'}`"
+                                :variant="`${dataChanged[row.id]._row ? 'outline-warning' : 'outline-dark'}`"
                                 size="sm"
                         >
                             <b-dropdown-item
-                                    v-if="dataChanged[row.id]"
+                                    v-if="dataChanged[row.id]._row"
                                     variant="varning"
                                     @click="rowReturn(row.id)"
                             >До редактирования</b-dropdown-item>
                             <b-dropdown-item
-                                    v-if="getPermission(enumPermission.Update, row.id)"
+                                    v-if="getPermission(enums.permission.Update, row.id)"
                             >
                                 <router-link
-                                        :to="{name:'tabledit', params: {table: table.name, id:row.id}}"
-                                        class="fa fa-pencil-square"
-                                > редактировать</router-link>
+                                        :to="{name:'modelItem', params: {table: table.name, id:row.id}}"
+                                        class="fa fa-pencil-square text-capitalize"
+                                > {{$store.getters['TABLES/GET_SHELL'](table.name).name.one}}: карточка</router-link>
                             </b-dropdown-item>
 
                         </b-dropdown>
@@ -203,62 +231,62 @@
                             @contextmenu="editClick"
                             v-for="(v2, k2) in row"
                             :key="k2"
-                            class="v-t-col my-auto"
+                            :class="`v-t-col my-auto ${dataChanged[row.id][k2] ? 'dataChanged' : ''}`"
                             :style="style[k2]"
                             :data-column="k2"
                             v-show="table.shell.columns[k2].show"
                             v-if="table.shell.columns[k2].hidden !== true"
                     >
                             <span
-                                    @focusout="focusOutCell"
-                                    @input="inputCell"
                                     @click="clickCell"
-                                    :data-value="table.data.filter(i=>i.id===row.id)[0][k2]"
                                     :data-column="k2"
                                     :data-key="row.id"
                                     :class="`${table.shell.columns[k2].parentClass?table.shell.columns[k2].parentClass:''} ${table.shell.columns[k2].to?'link':''}`"
                                     v-html="v2"
-                            />
+                            ></span>
                     </div>
                 </div>
             </div>
 
             <paginator
-                    :class="`${loadingStatus<enumLoadingStatus.TableLoaded?'transp':''} text-center`"
+                    :class="`${loadingStatus<enums.loadingStatus.TableLoaded?'transp':''} text-center`"
                     v-model="table.shell.optics"
             ></paginator>
         </div>
-        <div style="display: none" id="warehouse">
-            <b-form-select
-                    id="inputSelect"
-                    :options="inputSelectOptions"
-                    v-model="inputSelectedValue"
-                    v-on:change="inputSelectChange"
-            ></b-form-select>
-        </div>
+        <warehouse
+                v-model="editor"
+        ></warehouse>
     </article>
 </template>
 
 <script>
     import Vue from 'vue'
-    import paginator from '../components/tables/v1/paginator';
-    import filters from "../components/tables/v1/filters";
+    import paginator from '../../components/tables/v1/paginator';
+    import filters from "../../components/tables/v1/filters";
+    import warehouse from "../../components/tables/v1/warehouse";
+
     import Swal from 'sweetalert2';
+    import Enums from '../../modules/enums';
+    import {FieldEditor} from '../../classLib/Editor'
     //import _  from 'lodash';
+
     export default {
         name: "vTable",
         components: {
             paginator,
-            filters
+            filters,
+            warehouse
         },
         data() {
             return {
+                enums: new Enums(),
                 drag:{before:0, column:null, from:0, startObjWidth:0, startX: 0},
-                enumLoadingStatus: Object.freeze({None:-10, Begin:0, Authenticated: 10, ShellLoaded:20, TableLoading:30, TableLoaded:40, TablePreDisplayed:50, TableDisplayed:60, TableSaved: 70}),
-                enumPermission: Object.freeze({Create:'Create',Read:'Read',Update:'Update',Delete:'Delete'}),
+                //enumLoadingStatus: Object.freeze({None:-10, Begin:0, Authenticated: 10, ShellLoaded:20, TableLoading:30, TableLoaded:40, TablePreDisplayed:50, TableDisplayed:60, TableSaved: 70}),
+                //enumPermission: Object.freeze({Create:'Create',Read:'Read',Update:'Update',Delete:'Delete'}),
                 headerHeight: 30,
-                inputSelectedValue: null,
-                inputSelectOptions: [],
+                //inputSelectedValue: null,
+                //inputSelectOptions: [],
+                editor: {},
                 loadingStatus: -10,
                 oldBasket: null,
                 oldColumns: null,
@@ -273,7 +301,10 @@
         },
         computed:{
             // main
-            cacheFromOptics(){return this.loadingStatus === this.enumLoadingStatus.TableLoading ? this.$store.getters['TABLES/GET_CACHE_ITEM'](this.table) : null;},
+            cacheFromOptics(){
+                return this.loadingStatus === this.enums.loadingStatus.TableLoading
+                    ? _.cloneDeep(this.$store.getters['TABLES/GET_CACHE_ITEM']('model', this.table.name, this.table.shell.optics))
+                    : null;},
             lastEvent(){return this.$store.getters['TABLES/GET_LAST_EVENT']},
             SHELL(){return this.$store.getters['TABLES/GET_SHELL'](this.table?.name)},
             tableData: {
@@ -281,15 +312,12 @@
                     let sou = [];
                     if (this.showBasket){
                         sou = this.table.shell.basket;
-                    } else if (this.loadingStatus >= this.enumLoadingStatus.TableLoaded) {
-                        sou = this.table.data
-                    } else if (this.table.iData.length>0) {
-                        sou = this.table.iData
+                    } else if (this.loadingStatus >= this.enums.loadingStatus.TableLoaded) {
+                        sou = this.mergeDataWithNotSaved(this.table.data);
                     } else {return []}
 
                     let ret = [];
 
-                    // todo тут реализовано this через переменную. В будущем проверить, что исправили хрень с this в отладчике браузера.
                     _.forEach(sou, (souRow)=>{
                         let targetRow = {};
                         _.forEach(souRow, (souVal, souKey)=>{
@@ -304,53 +332,6 @@
                     });
 
                     return ret;
-/*
-                    ret = sou.map((item) => {
-                        let rem = {};
-                        Object.keys(this.table.shell.columns).map((k,i) => {
-                            const cName = this.table.shell.columns[k].from ? this.table.shell.columns[k].from : k;
-                            let v = this.getObjectValue(item, cName);
-
-                            if(this.table.shell.initial[k].processor){
-                                try{
-                                    v = this.table.shell.initial[k].processor(v);
-                                } catch (e) {
-                                    console.log(e);
-                                }
-                            }
-                            rem[k] = v;
-                        });
-                        return rem;
-                    });
-                    return ret;
-                    */
-
-                    /*
-
-
-                    _.forEach(sou, (souRow)=>{
-                        let targetRow = {};
-                        let t = this.table;
-                        _.forEach(souRow, (souVal, souKey)=>{
-                            let val;
-                            if(this.table.shell.initial[souKey].html){
-                                try{
-                                    val = this.table.shell.initial[souKey].html(souVal);
-                                } catch (e) {
-                                    // eslint-disable-next-line no-console
-                                    console.log(e);
-                                }
-                            } else {
-                                val = souVal;
-                            }
-                            targetRow[souKey] = val;
-                        });
-                        ret.push(targetRow);
-                    });
-
-                    return ret;
-
-                     */
                 },
             },
             userID(){return this.$store.getters['AUTH/GET_USER']?.id;},
@@ -358,10 +339,15 @@
             
             // for template
             dataChanged(){
-                //let ret = this.table.shell.columns[k2].parentClass;
+                let sou = this.table.data; //? this.mergeDataWithNotSaved(this.table.data);
+                let tar = this.mergeDataWithNotSaved(this.table.data);
                 let ret={};
-                _.forEach(this.table.data, (v,i)=>{
-                    ret[v.id] = !_.isEqual(this.table.data[i], this.table.iData[i])
+                _.forEach(sou, (row,i)=>{
+                    let dcItem = ret[row.id] = {};
+                    dcItem._row = !_.isEqual(sou[i], tar[i]);
+                    _.forEach(row, (col, name)=>{
+                        dcItem[name] = !_.isEqual(sou[i][name]?.toString(), tar[i][name]?.toString());
+                    })
                 });
                 return ret;
             },
@@ -376,6 +362,7 @@
                 return  ret;
             },
             headerRowStyle(){return `${this.rowWidth===0 ? 'width: auto' : `width: auto; height: ${this.headerHeight}px;` };`},
+            headMethod(){return this.table?.shell?.name?.many},
             tableOptionsIsInitial(){
                 let ret = true;
                 _.forEach(this.table.shell.columns, i=>{
@@ -393,6 +380,14 @@
             },
         },
         methods:{
+            addItem(){
+                Swal.fire({
+                    title: 'Добавление записи',
+                    text:  'Вы действительно хотите добавить запись в таблицу',
+                    type:  'error',
+                    timer: 10000
+                });
+            },
             basketChange(id){
                 if(this.table.shell.basket.filter(item => {
                     return item.id===id
@@ -508,69 +503,21 @@
                     this.setRowWidth();
                 }
             }, 200),
+
             editClick(e){
                 e.preventDefault();
-                const obj = $($(e.target).closest('div.v-t-col')[0]).find('>span')[0];
 
-                const id = obj.getAttribute('data-key');
-                const col = obj.getAttribute('data-column');
-                if(this.getPermission(this.enumPermission.Update, id, col )){
-                    let eType = 'none';
-                    if (obj.getAttribute('data-column') && this.table.shell.columns[obj.getAttribute('data-column')].editor ) eType = this.table.shell.columns[obj.getAttribute('data-column')].editor;
-                    if (eType === 'string') {
-                        if(obj.contentEditable!==true){
-                            obj.contentEditable = true;
-                            obj.focus();
-                        } else{
-                            obj.contentEditable = false;
-                            //obj.focusOutCell(obj);
-                        }
-                    } else if (eType==='selector'){
-                        if(document.getElementById('inputSelect').parentElement.id!=='warehouse'){
-                            // перемещение селектора
-                            document.getElementById('inputSelect').parentElement.getElementsByTagName('span')[0].style.display='inline';
-                        }
-                        this.inputSelectOptions = [];
-                        const sou = this.table.shell.columns[obj.getAttribute('data-column')].source;
-                        this.$store.dispatch('TABLES/GET_OPTIONS',{name: sou, value: $(obj).attr('data-value'), text: obj.innerText}).then(
-                            r=>{
-                                this.inputSelectOptions = r.options;
-                                this.inputSelectedValue = r.selected;
-                            },
-                            e=>{
-                                Swal.fire({
-                                    title: 'Ошибка селектора',
-                                    text:  e,
-                                    type:  'error',
-                                    timer: 10000
-                                });
-                            }
-                        );
-
-                        //this.inputSelectOptions = this.table.shell.columns[obj.getAttribute('data-column')].editor_values;
-
-
-                        obj.style.display = 'none';
-                        obj.parentElement.appendChild(document.getElementById('inputSelect'));
-                    }
-                }
-
-            },
-            focusOutCell(obj) {
-                let eType = 'string'
-                if (obj.target.getAttribute('data-column') && this.table.shell.columns[obj.target.getAttribute('data-column')].editor ) eType = this.table.shell.columns[obj.target.getAttribute('data-column')].editor
-                if (eType === 'string') {
-                    obj.target.contentEditable = false;
-                    Vue.set(
-                        this.table.data.filter(i=>i.id===parseInt(obj.target.getAttribute('data-key')))[0],
-                        obj.target.getAttribute('data-column'),
-                        obj.target.innerText
-                    )
-                    //this.table.iData.push([]);
-                    //this.table.iData.pop();
+                if(this.editor.isEditorInTarget) {
+                    this.editor.moveEditorToWarehouse()
+                } else {
+                    Vue.set(this, 'editor', new FieldEditor(e, this.table, this.$store));
+                    if (!this.editor.isEditorInWarehouse) this.editor.moveEditorToWarehouse();
+                    this.editor.setEditorElementContent();
+                    this.editor.moveEditorToTarget();
                 }
             },
             focusOutCellElement(obj){
+                // eslint-disable-next-line no-console
                 console.log(obj)
             },
             flattenObject(obj, prefix=''){
@@ -619,57 +566,31 @@
 
                 return v[type];
             },
-            inputCell(obj){
-                $(obj.target).addClass('notsaved');
-                this.inputSave(obj);
-            },
-            inputSelectChange(val){
-                const cover = document.getElementById('inputSelect').parentElement.getElementsByTagName('span')[0];
-                cover.style.display='inline';
-                cover.innerText = this.inputSelectOptions.filter(i=>i.value===val)[0].text;
-                $(cover).attr('data-value', val);
-                $(cover).addClass('notsaved')
-                this.inputSave(cover);
-                this.inputSelectOptions = [];
-                this.inputSelectedValue = null;
-                document.getElementById('warehouse').appendChild(document.getElementById('inputSelect'))
-            },
-            inputSave: _.debounce(function(obj) {
-                let eType = 'none';
-                if(obj.target)obj=obj.target;
-                if (obj.getAttribute('data-column') && this.table.shell.columns[obj.getAttribute('data-column')].editor ) eType = this.table.shell.columns[obj.getAttribute('data-column')].editor;
-                const tab = this.table.name;
-                const id = obj.getAttribute('data-key');
-                const col = obj.getAttribute('data-column');
-                let val = 'none'
-                if (eType === 'string') val = obj.innerText;
-                if (eType === 'selector') val = $(obj).attr('data-value');// parseFloat(obj.innerText); //<----------
+            mergeDataWithNotSaved(sou){
+                let tar = _.cloneDeep(sou);
+                if (this.$store.getters['TABLES/GET_EDITOR_STACK_COUNT'] === 0) return tar;
 
-                this.$store.dispatch('TABLES/UPDATE_VALUE', {table: tab, id: id, column: col, value: val, editor: eType}).then(r=>{
-                    if(r.data.updated) {
-                        //console.log(r.data);
-                        $(obj).removeClass('notsaved');
-                        this.$store.commit('TABLES/ADD_EVENT', r.data)
-                    } else {
-                        console.log(r)
-                        Swal.fire({
-                            title: 'Ошибка сохранения',
-                            text:  r.data.updated,
-                            type:  'error',
-                            timer: 10000
-                        });
-                    }
-                })
-                    .catch(e=>{
-                        Swal.fire({
-                            title: 'Непредвиденная ошибка',
-                            text:  e.response.data.message,
-                            type:  'error',
-                            timer: 10000
-                        });
+                _.forEach(sou, (row, inx) => {
+                    _.forEach(row, (colVal, colName) => {
+                        let this_ = this;
+                        const notSaved = this_.$store.getters['TABLES/GET_EDITOR_STACK_VALUE']({model: this.table.name, id: row.id, column: colName})
+                        if(notSaved) {
+                            const aliases = this_.$store.getters['TABLES/GET_SHELL'](this_.table.name).controller?.aliases;
+                            const alias = aliases ? aliases[colName] : null;
+                            if (alias) {
+                                tar[inx][colName] = parseInt(notSaved.value);
+                                const classPoint = _.last(alias.path.split('.'));
+                                if(!tar[inx][classPoint]) tar[inx][classPoint] = {}
+                                tar[inx][classPoint].id = tar[inx][colName];
+                                tar[inx][classPoint][alias.column] = notSaved.text;
+                            } else {
+                                tar[inx][colName] = notSaved.value
+                            }
+                        }
                     });
-
-            }, 2000),
+                });
+                return tar;
+            },
             opticsChanged(n,o){
                 let isEqual = true;
                 _.forEach(n._forCompare, v=>{
@@ -689,13 +610,13 @@
                 });
             },
             rowReturn(id){
-                this.table.data.filter(i=>i.id===id)[0] = _.cloneDeep(this.table.iData.filter(i=>i.id===id)[0]);
+                this.$store.commit('TABLES/REMOVE_EDITOR_STACK_BY_MODEL_ID', {model:this.table.name, id: id})
             },
             setOptics(n){
                 if(n && (!this.oldOptics || this.opticsChanged(n,this.oldOptics))) {
                     this.oldOptics = _.cloneDeep(n);
                     this.oldOptics.table = this.table.name;
-                    Vue.set(this, 'loadingStatus', this.enumLoadingStatus.TableLoading);
+                    Vue.set(this, 'loadingStatus', this.enums.loadingStatus.TableLoading);
                 }
             },
             setRowWidth(){
@@ -736,9 +657,10 @@
             waitForTab(){
                 if (this.$refs.tab && this.$refs.tab.querySelectorAll('.v-t-data-row').length == this.table.data.length){
                     this.calcTab();
-                    Vue.set(this, 'loadingStatus', this.enumLoadingStatus.TableDisplayed);
+                    Vue.set(this, 'loadingStatus', this.enums.loadingStatus.TableDisplayed);
                 } else {
                     this.WFTcounter++;
+                    // eslint-disable-next-line no-console
                     if (this.WFTcounter<100) _.delay(this.waitForTab, 100); else console.log(`WFTcounter=${this.WFTcounter}`);
                 }
             },
@@ -788,12 +710,14 @@
                 return obj
             },
         },
+
         created() {
             this.table = _.cloneDeep(this.$store.getters['TABLES/GET_INITIAL_TABLE']);
             Vue.set(this.table, 'name', this.$route.params.table);
             Vue.set(this.table, 'queryOptics', this.$route.query.optics);
-            Vue.set(this, 'loadingStatus', this.userID ? this.enumLoadingStatus.Authenticated : this.enumLoadingStatus.Begin)
+            Vue.set(this, 'loadingStatus', this.userID ? this.enums.loadingStatus.Authenticated : this.enums.loadingStatus.Begin)
         },
+
         updated() {
             // titles for ellipses
             if (this.$refs.tab){
@@ -810,7 +734,7 @@
             if(this.table.name != to.params.table) {
                 Vue.set(this, 'table',  _.cloneDeep(this.$store.getters['TABLES/GET_INITIAL_TABLE']));
                 Vue.set(this.table, 'name', to.params.table);
-                Vue.set(this, 'loadingStatus', this.userID ? this.enumLoadingStatus.Authenticated : this.enumLoadingStatus.Begin);
+                Vue.set(this, 'loadingStatus', this.userID ? this.enums.loadingStatus.Authenticated : this.enums.loadingStatus.Begin);
                 this.oldOptics = null;
             }
             next();
@@ -825,19 +749,19 @@
             'table.shell.optics': {
                 handler: function (n) {
                     if (n){
-                        if(this.loadingStatus>this.enumLoadingStatus.ShellLoaded &&
-                            this.$store.getters['TABLES/GET_CACHE_ITEM'](this.table) &&
+                        if(this.loadingStatus>this.enums.loadingStatus.ShellLoaded &&
+                            this.$store.getters['TABLES/GET_CACHE_ITEM']('model', this.table.name, this.table.shell.optics) &&
                             !_.isEqual(_.last(this.queueSave).optics, n))
                         {
                             this.queueSave.push(_.cloneDeep(this.table.shell));
                             this.setOptics(n);
-                        } else if (this.loadingStatus>this.enumLoadingStatus.ShellLoaded &&
+                        } else if (this.loadingStatus>this.enums.loadingStatus.ShellLoaded &&
                             !_.isEqual(_.last(this.queueSave).optics, n))
                         {
                             this.shading = true;
                             this.queueSave.push(_.cloneDeep(this.table.shell));
                             this.delayedSetOptics(n);
-                        } else if (this.loadingStatus===this.enumLoadingStatus.ShellLoaded &&
+                        } else if (this.loadingStatus===this.enums.loadingStatus.ShellLoaded &&
                             _.isEqual(_.last(this.queueSave).optics, n))
                         {
                             this.setOptics(n);
@@ -849,21 +773,24 @@
             },
             'table.shell.columns': {
                 handler: function (n) {
-                    if(n && !_.isEqual(_.last(this.queueSave.columns, n))) this.queueSave.push(this.table.shell)
+                    if(n && !_.isEqual(_.last(this.queueSave.columns), n)) {
+                        this.queueSave.push(this.table.shell)
+                    }
                 },
                 deep: true
             },
             loadingStatus(n){
-                if (n===this.enumLoadingStatus.Begin){
-                } else if (n===this.enumLoadingStatus.Authenticated){
+                // eslint-disable-next-line no-empty
+                if (n===this.enums.loadingStatus.Begin){
+                } else if (n===this.enums.loadingStatus.Authenticated){
                     this.$store.dispatch('TABLES/SET_SHELL', _.cloneDeep(this.table));
-                } else if (n===this.enumLoadingStatus.ShellLoaded) {
+                } else if (n===this.enums.loadingStatus.ShellLoaded) {
                     this.queueSave=[_.cloneDeep(this.SHELL)];
                     Vue.set(this.table, 'shell', _.cloneDeep(this.SHELL));
                     Vue.set(this.table, 'queryOptics', null);
-                } else if (n===this.enumLoadingStatus.TableLoading) {
+                } else if (n===this.enums.loadingStatus.TableLoading) {
                     this.$store.dispatch('TABLES/LOAD_PAGE', _.cloneDeep(this.table));
-                } else if (n===this.enumLoadingStatus.TableLoaded) {
+                } else if (n===this.enums.loadingStatus.TableLoaded) {
                     this.shading = false;
                     let items=[];
                     this.table.data.forEach(item=>{
@@ -875,58 +802,60 @@
 
                     const jOptics = JSON.stringify(optics);
                     if (this.$route.query.optics!==jOptics) this.$router.push({query: {optics: jOptics}});
-                    Vue.set(this, 'loadingStatus', this.enumLoadingStatus.TablePreDisplayed);
-                } else if (n===this.enumLoadingStatus.TablePreDisplayed) {
+                    Vue.set(this, 'loadingStatus', this.enums.loadingStatus.TablePreDisplayed);
+                } else if (n===this.enums.loadingStatus.TablePreDisplayed) {
                     if (!this.table.shell.optics._visualOptimized) {
                         this.waitForTab();
                     } else {
-                        Vue.set(this, 'loadingStatus', this.enumLoadingStatus.TableDisplayed);
+                        Vue.set(this, 'loadingStatus', this.enums.loadingStatus.TableDisplayed);
                     }
-                } else if (n===this.enumLoadingStatus.TableDisplayed) {
+                } else if (n===this.enums.loadingStatus.TableDisplayed) {
                     //this.headerHeight = this.$refs.tab.querySelector('.v-t-header').offsetHeight;
                     this.table.shell.optics._visualOptimized = true;
                     //this.displayedToSaved();
-                } else if (n===this.enumLoadingStatus.TableSaved) {
+                } else if (n===this.enums.loadingStatus.TableSaved) {
                     // this.oldColumns = _.cloneDeep(this.table.shell.columns)
                 }
             },
             cacheFromOptics(n){
                 if(n){
-                    Vue.set(this.table, 'data', n.response.rows);
+                    const sou = n.response.rows; //this.mergeDataWithNotSaved(n.response.rows);
+                    Vue.set(this.table, 'data', sou);
                     Vue.set(this.table, 'permissions', n.response.permissions);
-                    Vue.set(this.table, 'iData', _.cloneDeep(n.response.rows));
+                    //Vue.set(this.table, 'iData', n.response.rows); //? clone
                     Vue.set(this.table.shell.optics, 'pages', n.response.pages);
                     const pageSize = n.response.pageSize;
                     if (this.table.shell.optics.pageSize !== pageSize) Vue.set(this.table.shell.optics, 'pageSize', pageSize);
 
-                    Vue.set(this, 'loadingStatus', this.enumLoadingStatus.TableLoaded);
+                    Vue.set(this, 'loadingStatus', this.enums.loadingStatus.TableLoaded);
                 }
             },
             lastEvent(n){
+                // eslint-disable-next-line no-console
                 console.log(n);
             },
             queueSave: _.debounce(function(n){
-                if (n.length>1 && this.loadingStatus>=this.enumLoadingStatus.TableDisplayed){
+                if (n.length>1 && this.loadingStatus>=this.enums.loadingStatus.TableDisplayed){
                     if(!_.isEqual(_.first(this.queueSave), _.last(this.queueSave))) this.$store.dispatch('TABLES/UPDATE_SHELL', _.last(this.queueSave));
                     this.queueSave.unshift(this.queueSave.splice(-1,1));
                     this.queueSave.splice(1, this.queueSave.length-1);
-                    Vue.set(this, 'loadingStatus', this.enumLoadingStatus.TableSaved);
+                    Vue.set(this, 'loadingStatus', this.enums.loadingStatus.TableSaved);
                 }
             },2000),
             SHELL(n,o){
                 // проверка на инициализирующие изменения шелла в сторе
-                if(n && n.assembled && (!o.assembled || n.table!==o.table)) Vue.set(this, 'loadingStatus', this.enumLoadingStatus.ShellLoaded);
+                if(n && n.assembled && (!o || !o.assembled || n.table!==o.table)) Vue.set(this, 'loadingStatus', this.enums.loadingStatus.ShellLoaded);
             },
             userID(n){
-                if(n)  Vue.set(this, 'loadingStatus', this.enumLoadingStatus.Authenticated);
+                if(n)  Vue.set(this, 'loadingStatus', this.enums.loadingStatus.Authenticated);
             },
         }
     }
-
 </script>
 
 <!--suppress CssInvalidPseudoSelector -->
-<style lang="scss" scoped>
+<style lang="less" scoped>
+    @import "~@/less/_variables";
     .transp{opacity: 0}
     .tran05{opacity: 0.5}
     .v-table {
@@ -944,13 +873,25 @@
         width: 100%;
         height: 100%;
         display: flex;
+        top:0;
+        left:0;
+        border-radius: 10px;
     }
     .v-t-l-spinner {
         width: 160px;
         height: 160px;
         margin: auto;
     }
-    .v-t-header {color: white; background-color: #455fc2; margin-bottom: 5px;}
+    .v-t-header {
+        color: @table-header-text; background-color: @table-header-bg; padding: 5px 0;
+        .v-t-col:first-child{
+            div:first-child{margin-right: 5px;}
+        }
+        .v-t-col{
+            border-right: dotted 1px white;
+        }
+        //.v-t-col:last-child{border-right: none}
+    }
     .v-t-header
     , .v-t-row
     , .v-t-data-row {
@@ -960,10 +901,17 @@
         flex-wrap: nowrap;
         height: auto;
     }
+
     .v-t-data-row{
+        border-left: solid 1px silver;
+        border-right: solid 1px silver;
+        border-bottom: solid 1px silver;
         .v-t-col{
             span{padding: 3px;}
+            border-right: dotted 1px silver;
+            padding: 3px 0;
         }
+        //.v-t-col:last-child{border-right: none}
     }
     .v-t-data-row:hover{background-color: #f6f6f6}
     .v-t-data-row-changed{
@@ -979,25 +927,45 @@
         span{transition: 0.5s;}
         span.link:not([contenteditable=true]){color:navy; text-decoration: underline; cursor: pointer}
         span[contenteditable=true] {display: block}
-        .notsaved{outline-color: #ff9999; outline-style: auto;}
-        .custom-select{padding: 2px 2px 2px 5px; height: 30px;}
+        //.notsaved{outline-color: #ff9999; outline-style: auto;}
+        //.custom-select{padding: 2px 2px 2px 5px; height: 30px;}
     }
+    .v-t-col.dataChanged{outline: 2px auto #ff9999}
     .v-data-span {display:flex; align-items:center;  min-height: 40px;}
 
     .h-c-text {overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
     .h-c-tools {
         margin-left: auto;
         span {display: inline-block}
-        max-width: 30px; min-width: 30px;
+        max-width: 32px; min-width: 32px;
     }
     .h-c-drag {
-        cursor: move;  opacity: 0.5; margin-right: 2px;
-        :hover {opacity: 1}
+        display: inline-block; position: relative; height: 100%; min-width: 15px; min-height: 20px; cursor: move;  opacity: 0.5; margin-right: 2px;
+        :hover {opacity: 1};
+        span:first-child {
+            font-size: 16px; margin: auto;
+        }
+        span:nth-child(2) {
+            position: absolute;
+            display: inline-block;
+            top: 0;
+            left: 6px;
+            color: white;
+            font-size: 10px;
+            background-color: red;
+            width: 10px;
+            height: 10px;
+            opacity: 1;
+            border-radius: 4px;
+            line-height: 10px;
+        }
     }
     .h-c-sizing {
-        min-width: 5px; cursor: col-resize; opacity: 0.5;
+        min-width: 4px; cursor: col-resize; opacity: 0.5; margin-left: 2px;
         :hover {opacity: 1}
     }
-    .h-c-options { &::v-deep .btn {padding: 2px !important;} }
+    .h-c-options {
+        &::v-deep .btn {padding: 2px !important;}
+    }
     .p-options {}
 </style>

@@ -33,8 +33,40 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
-  p{
-    b{color:black;}
+<style lang="less">
+  @import "~@/less/_variables";
+  body{
+    opacity: 1;
+    background: @body-bg;
+    >nav{
+      background: @nav-bg;
+    }
+    >section{
+      >header{
+        background: @header-bg;
+      }
+      >main{
+        >article{
+          background: @main-article-bg;
+        }
+      }
+      >footer{
+        background: @footer-bg;
+      }
+    }
   }
+  h1 {font-size: 1.75em}
+  h1, h2, h3, h4, h5, h6{font-family: 'Montserrat', 'Open Sans', sans-serif}
+  p{text-indent: 12px; line-height: 30px; margin: 10px 0;}
+  a{
+    color: @a-color;
+    text-decoration: none;
+    border-bottom: solid 3px lightseagreen;
+    transition: 0.5s;
+  }
+  a:hover{color: @a-hover-color; border-bottom: solid 1px lightseagreen; text-decoration: none;}
+  a.logo{display: block;margin-bottom: 40px; text-align: center}
+  li>a:hover{border-bottom: none;}
+  a.img, a.img:hover{border-bottom: none;}
+
 </style>
