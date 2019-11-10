@@ -56,7 +56,7 @@ export default class DocumentLineService extends Entity {
      * @param {Document} childDocument
      * @param {Array|null} parentLineIds
      * @param {Transaction} transaction
-     * @returns {Promise<Array>}
+     * @returns {Promise<Void>}
      */
     async createChildren(childDocument, parentLineIds, transaction) {
         const where = { document_id: childDocument.parent_id };

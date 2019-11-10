@@ -20,7 +20,7 @@ const XLSX = require('xlsx');
 module.exports.run = async () => {
     const start = new Date();
 
-    /*
+
     const zip = await unzipper.Open.url(request, global.gConfig.companies.dan.stores.main.url);
     await new Promise((resolve, reject) => {
         zip.files[0]
@@ -29,12 +29,13 @@ module.exports.run = async () => {
             .on('error', reject)
             .on('finish', resolve);
     });
-     */
+
     console.log('downloading finish.');
 
     const company = await (new CompanyService()).getByAlias('dan');
     const store = _.find(company.stores, { is_main: true });
     const currency = await Currency.findOne({ where: { char_code: 'RUB' } });
+    // eslint-disable-next-line no-underscore-dangle
     const case_ = await (new ParameterNameService()).getByAlias('case');
     const good_service = new GoodService();
 

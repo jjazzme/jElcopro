@@ -38,6 +38,7 @@ module.exports.run = async () => {
     const company = await (new CompanyService()).getByAlias('compel');
     const store = _.find(company.stores, { is_main: true });
     const currency = await Currency.findOne({ where: { char_code: 'USD' } });
+    // eslint-disable-next-line no-underscore-dangle
     const case_ = await (new ParameterNameService()).getByAlias('case');
     const good_service = new GoodService();
 
@@ -54,92 +55,92 @@ module.exports.run = async () => {
         let {col, row, value} = getData(z, sheet);
         if (row < from_row) continue;
         switch (col) {
-            case 'A':
-                good.code = value;
-                break;
-            case 'C':
-                product.name = value;
-                break;
-            case 'D':
-                const producer = await (new ProducerService())
-                    .updateOrCreate({ name: value ? value : 'NONAME' });
-                product.producer_id = producer.id;
-                break;
-            case 'E':
-                good_additional.pack = value;
-                break;
-            case 'G':
-                ballance = value;
-                break;
-            case 'R':
-                case_value = value;
-                break;
-            case 'X':
-                good_additional.multiply = value == 0 ? 1 : good_additional.pack;
-                break;
-            case 'H':
-            case 'J':
-            case 'L':
-            case 'N':
-            case 'P':
-                cost = value;
-                break;
-            case 'I':
-            case 'K':
-            case 'M':
-            case 'O':
-            case 'Q':
-                if (cost != 0) {
-                    price.push({
-                        min: value == 0 ? 1 : value,
-                        our_price: cost,
-                        for_all_price: 0,
-                        currency_id: currency.id
-                    });
-                    cost = 0;
-                }
-                break;
-            case 'AB':
-                //Update ir Create Good
-                good = await good_service.firstOrNew(good);
-                if (good.isNewRecord) {
-                    product = await (new ProductService()).updateOrCreate(product);
-                    good_additional.product_id = product.id;
-                    good.set(good_additional);
-                }
-                good.set({ ballance: ballance, is_active: true });
-                good.changed('updatedAt', true);
-                good = await good_service.update(good);
-                //Update Case for Product
-                if (case_value) {
-                    case_value = await (new ParameterValueService()).updateOrCreate(
-                        { name: case_value , parameter_name_id: case_.id }
-                    );
-                    await Parameter.findOrCreate({
-                        where: { product_id: good.product_id, parameter_name_id: case_.id },
-                        defaults: { parameter_value_id: case_value.id }
-                    });
-                }
-                //Update prices
-                for (let i = 0; i < price.length; i++) {
-                    if ( i > 0 ) {
-                        price[i - 1].max = price[i].min - 1;
-                    }
-                    price[i].good_id = good.id;
-                }
-                price[price.length - 1].max = ballance;
-                await Price.destroy({ where: { good_id: good.id } });
-                await Price.bulkCreate(price);
-
-                product = {};
-                price = [];
+        case 'A':
+            good.code = value;
+            break;
+        case 'C':
+            product.name = value;
+            break;
+        case 'D':
+            const producer = await (new ProducerService())
+                .updateOrCreate({ name: value ? value : 'NONAME' });
+            product.producer_id = producer.id;
+            break;
+        case 'E':
+            good_additional.pack = value;
+            break;
+        case 'G':
+            ballance = value;
+            break;
+        case 'R':
+            case_value = value;
+            break;
+        case 'X':
+            good_additional.multiply = value === 0 ? 1 : good_additional.pack;
+            break;
+        case 'H':
+        case 'J':
+        case 'L':
+        case 'N':
+        case 'P':
+            cost = value;
+            break;
+        case 'I':
+        case 'K':
+        case 'M':
+        case 'O':
+        case 'Q':
+            if (cost !== 0) {
+                price.push({
+                    min: value === 0 ? 1 : value,
+                    our_price: cost,
+                    for_all_price: 0,
+                    currency_id: currency.id
+                });
                 cost = 0;
-                good = { store_id: store.id };
-                good_additional = {};
-                ballance = 0;
-                case_value = undefined;
+            }
+            break;
+        case 'AB':
+            //Update ir Create Good
+            good = await good_service.firstOrNew(good);
+            if (good.isNewRecord) {
+                product = await (new ProductService()).updateOrCreate(product);
+                good_additional.product_id = product.id;
+                good.set(good_additional);
+            }
+            good.set({ ballance: ballance, is_active: true });
+            good.changed('updatedAt', true);
+            good = await good_service.update(good);
+            //Update Case for Product
+            if (case_value) {
+                case_value = await (new ParameterValueService()).updateOrCreate(
+                    { name: case_value , parameter_name_id: case_.id }
+                );
+                await Parameter.findOrCreate({
+                    where: { product_id: good.product_id, parameter_name_id: case_.id },
+                    defaults: { parameter_value_id: case_value.id }
+                });
+            }
+            //Update prices
+            for (let i = 0; i < price.length; i++) {
+                if ( i > 0 ) {
+                    price[i - 1].max = price[i].min - 1;
+                }
+                price[i].good_id = good.id;
+            }
+            price[price.length - 1].max = ballance;
+            await Price.destroy({ where: { good_id: good.id } });
+            await Price.bulkCreate(price);
 
-                break;
+            product = {};
+            price = [];
+            cost = 0;
+            good = { store_id: store.id };
+            good_additional = {};
+            ballance = 0;
+            case_value = undefined;
+
+            break;
         }
     }
     const d = await good_service.disactivate(store.id, start);

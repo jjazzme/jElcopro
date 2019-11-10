@@ -2,9 +2,10 @@ import StateMachine from 'javascript-state-machine';
 import _ from 'lodash';
 import Entity from './Entity';
 import db from '../models/index';
+import DocumentLineService from "./DocumentLineService";
 
 const {
-    Company, Document, Party, Store,
+    Company, Document, DocumentLine, Party, Store,
 } = db;
 
 export default class DocumentService extends Entity {
@@ -72,5 +73,31 @@ export default class DocumentService extends Entity {
             await t.rollback();
         }
         return Promise.reject(error);
+    }
+
+    /**
+     * Create child Document with DocumentLines
+     * @param parent
+     * @param child
+     * @param parentLines
+     * @returns {Promise<Object>}
+     */
+    async createChild(parent, child, parentLines) {
+        const parentInstance = await this.getInstance(parent);
+        const parentLineIds = parentLines.map((line) => isNaN(line) ? line.id : line );
+        const t = await db.sequelize.transaction();
+        let childInsatnce = Object.assign(parentInstance.get({ plain: true }), child);
+        try {
+            childInsatnce = await this.create(childInsatnce, t);
+            await (new DocumentLineService()).createChildren(childInsatnce, parentLineIds, t);
+            childInsatnce.document_lines =
+                await DocumentLine.findAll({ where: { document_id: childInsatnce.id }, transaction: t });
+            t.commit();
+            return childInsatnce;
+        } catch (e) {
+            console.error(e);
+            t.rollback();
+            throw e;
+        }
     }
 }
