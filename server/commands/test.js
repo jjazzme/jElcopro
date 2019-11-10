@@ -10,12 +10,12 @@ import db from "../models";
 const { DocumentLine } = db;
 
 module.exports.run = async (args) => {
-    const t = await db.sequelize.transaction();
+    //const t = await db.sequelize.transaction();
     const service = new ProducerService();
-    const producer = await service.create({ name: 'TyTyT' }, t);
+    const producer = await service.create({ name: 'TESTPRODUCER' });
     console.log(producer);
     //const p = await db.Producer.findOne({ where: { id: 1061 }, transaction: t })
     //console.log(p);
-    await t.rollback();
+    //await t.rollback();
 
 };
