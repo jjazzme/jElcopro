@@ -20,7 +20,7 @@ describe('Entity(Producer) without transaction:', () => {
         });
     });
     it('Try Create Producer TESTPRODUCER again with exeption', async () => {
-        return expect(service.create({ name: 'TESTPRODUCER' }), '123')
+        return expect(service.create({ name: 'TESTPRODUCER' }), 'Validation error')
             .to.be.rejectedWith(db.Sequelize.UniqueConstraintError, "Validation error")
     });
     it('Update Producer TESTPRODUCER', async () => {

@@ -79,7 +79,7 @@ export default class Entity {
             }
             const ret = await this.find({ id: createItem.id }, t);
             if (!transaction) await t.commit();
-            return ret;
+            return ret ? ret : createItem;
         } catch (e) {
             // console.warn('Problem with create', this._Entity, item, e);
             if (!transaction) await t.rollback();
@@ -205,7 +205,7 @@ export default class Entity {
      * @param {Object|number} instance
      * @returns {Promise<Object>}
      */
-    async getInstance(instance) {
+    async getModel(instance) {
         let answer = null;
         if (typeof instance === 'number') {
             answer = await this.find({ id: instance });
@@ -222,12 +222,29 @@ export default class Entity {
     }
 
     /**
+     * Instance getter
+     * @returns {Object}
+     */
+    get instance() {
+        return this._instance;
+    }
+
+    /**
+     * Instance setter
+     * @param {Object|number} value
+     * @returns {Promise<void>}
+     */
+    set instance(value) {
+        return this.setInstance(value);
+    }
+
+    /**
      * Set Instance property
      * @param {Object|number} instance
      * @returns {Promise<void>}
      */
     async setInstance(instance) {
-        this._instance = await this.getInstance(instance);
+        this._instance = await this.getModel(instance);
     }
 
     /**

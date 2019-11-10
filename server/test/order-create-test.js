@@ -12,12 +12,18 @@ chai.use(require('chai-string'));
 
 const { expect } = chai;
 
-describe('FirstOrCreate TEST Order with one DocumentLine with TEST Product', async () => {
+describe('TEST Order create with one DocumentLine with TEST Product', () => {
+    let dan, danStore, producer, product, elcopro, elcoproStore;
+    before(async () => {
+        dan = await (new CompanyService()).getByAlias('dan');
+        danStore = _.find(dan.stores, { is_main: true });
+        producer = await (new ProducerService()).find({ name: 'TEST' });
+        product = await (new ProductService()).find({ name: 'TEST', producer_id: producer.id });
+        elcopro = await (new CompanyService()).getByAlias('elcopro');
+        elcoproStore = _.find(elcopro.stores, { is_main: true });
+
+    });
     it('Create TEST Good on Main Dan Store', async () => {
-        const dan = await (new CompanyService()).getByAlias('dan');
-        const danStore = _.find(dan.stores, { is_main: true });
-        const producer = await (new ProducerService()).find({ name: 'TEST' });
-        const product = await (new ProductService()).find({ name: 'TEST', producer_id: producer.id });
         const service = new GoodService();
         return service.firstOrCreate(
             {
@@ -43,10 +49,6 @@ describe('FirstOrCreate TEST Order with one DocumentLine with TEST Product', asy
         });
     });
     it('Create TEST Order', async () => {
-        const dan = await (new CompanyService()).getByAlias('dan');
-        const danStore = _.find(dan.stores, { is_main: true });
-        const elcopro = await (new CompanyService()).getByAlias('elcopro');
-        const elcoproStore = _.find(elcopro.stores, { is_main: true });
         const service = new OrderService();
         return service.firstOrCreate({
             number: '1',
@@ -69,10 +71,6 @@ describe('FirstOrCreate TEST Order with one DocumentLine with TEST Product', asy
         });
     });
     it('TEST Order is inclusive', async () => {
-        const dan = await (new CompanyService()).getByAlias('dan');
-        const danStore = _.find(dan.stores, { is_main: true });
-        const elcopro = await (new CompanyService()).getByAlias('elcopro');
-        const elcoproStore = _.find(elcopro.stores, { is_main: true });
         return Order.findAll({
             where: {
                 number: '1',
@@ -89,10 +87,6 @@ describe('FirstOrCreate TEST Order with one DocumentLine with TEST Product', asy
         });
     });
     it('Create TEST DocumentLine with TEST Good in TEST Order', async () => {
-        const dan = await (new CompanyService()).getByAlias('dan');
-        const danStore = _.find(dan.stores, { is_main: true });
-        const elcopro = await (new CompanyService()).getByAlias('elcopro');
-        const elcoproStore = _.find(elcopro.stores, { is_main: true });
         const order = await (new OrderService()).find({
             number: '1',
             user_id: 1,
@@ -102,8 +96,6 @@ describe('FirstOrCreate TEST Order with one DocumentLine with TEST Product', asy
             foreign_store_id: danStore.id,
             number_prefix: 'TEST',
         });
-        const producer = await (new ProducerService()).find({ name: 'TEST' });
-        const product = await (new ProductService()).find({ name: 'TEST', producer_id: producer.id });
         const good = await (new GoodService()).find({ product_id: product.id, store_id: danStore.id });
         const rightGood = await (new GoodService()).find({ product_id: product.id, store_id: elcoproStore.id });
         const service = new DocumentLineService();

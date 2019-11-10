@@ -7,10 +7,10 @@ import GoodService from "../services/GoodService";
 import DocumentLineService from "../services/DocumentLineService";
 import PriceService from "../services/PriceService";
 import db from "../models";
+import CompelService from "../services/CompelService";
 const { DocumentLine } = db;
 
 module.exports.run = async (args) => {
-    const service = new PriceService();
-    const res = await service.searchByName({ name: 'MAX232cpe', from_store: 2 });
-    console.log(res);
+    const service = new CompelService();
+    await service.apiSearchByName('uno r3')
 };

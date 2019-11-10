@@ -1,6 +1,8 @@
 import _ from 'lodash';
 import CompanyService from '../services/CompanyService';
 import PriceService from '../services/PriceService';
+import moxios from 'moxios';
+import fs from "fs";
 
 const chai = require('chai');
 chai.use(require('chai-string'));
@@ -10,8 +12,20 @@ const { expect } = chai;
 require('../config/config.js');
 
 describe('PriceService searchByNameOnStore:', () => {
+    let compel;
+    before(async () => {
+        moxios.install();
+        compel = await fs.readFileSync(__dirname + '/httpAnswers/uno_r3.txt', "utf8");
+        moxios.stubRequest(global.gConfig.companies.compel.api_url, {
+            status: 200,
+            responseText: compel
+        });
+    });
+    after(async () => {
+        moxios.uninstall();
+    });
     Object.keys(global.gConfig.companies).forEach((alias) => {
-        if (alias !== 'elcopro') {
+        if (alias !== 'elcopro' && alias !== 'promelec') {
             it(`Search uno r3 on ${alias}`, async () => {
                 const company = await (new CompanyService()).getByAlias(alias);
                 const store = _.find(company.stores, { is_main: true });

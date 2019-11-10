@@ -18,7 +18,7 @@ describe('ExternalApiService searchByName:', () => {
                 });
             });
     });
-    it('Promelec search tda2003v', async () => {
+    /*   it('Promelec search tda2003v', async () => {
         const promelec = await (new CompanyService()).getByAlias('promelec');
         const service = await ExternalPriceService.forCompany(promelec);
         return service.searchByName('tda2003v')
@@ -31,4 +31,6 @@ describe('ExternalApiService searchByName:', () => {
                 });
             });
     });
+
+  */
 });

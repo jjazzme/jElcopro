@@ -110,7 +110,7 @@ export default class CompanyService extends Entity {
      */
     async getCompany(company) {
         try {
-            return await this.getInstance(company);
+            return await this.getModel(company);
         } catch (e) {
             console.error(e);
             throw e;

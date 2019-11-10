@@ -2,6 +2,7 @@ import Sequelize from 'sequelize';
 import db from '../models';
 import Entity from './Entity';
 import GoodService from './GoodService';
+import _ from 'lodash';
 
 const {
     Arrival, Departure, Document, DocumentLine, FutureReserve, Good, Product, Reserve,
@@ -63,38 +64,45 @@ export default class DocumentLineService extends Entity {
         if (parentLineIds && parentLineIds instanceof Array) {
             where.id = { [db.Sequelize.Op.in]: parentLineIds }
         }
-        const parentLines = await DocumentLine.finAll({
+        const parentLines = await DocumentLine.findAll({
             where,
+            transaction,
             attributes: {
                 include: [
                     [
                         db.sequelize.literal('COALESCE(' +
-                            '(SELECT sum(a.quantity) FROM document_lines a WHERE a.parent_id = id), 0)'),
+                            '(SELECT sum(a.quantity) FROM document_lines a ' +
+                            'WHERE a.parent_id = `DocumentLine`.`id`), 0)'),
                         'childrenQuantity'
                     ],
                     [
                         db.sequelize.literal('COALESCE(' +
-                            '(SELECT sum(a.amount_without_vat) FROM document_lines a WHERE a.parent_id = id), 0)'),
+                            '(SELECT sum(a.amount_without_vat) FROM document_lines a ' +
+                            'WHERE a.parent_id = `DocumentLine`.`id`), 0)'),
                         'childrenAmountWithoutVat'
                     ],
                     [
                         db.sequelize.literal('COALESCE(' +
-                            '(SELECT sum(a.amount_with_vat) FROM document_lines a WHERE a.parent_id = id), 0)'),
+                            '(SELECT sum(a.amount_with_vat) FROM document_lines a ' +
+                            'WHERE a.parent_id = `DocumentLine`.`id`), 0)'),
                         'childrenAmountWithVat'
                     ],
                 ]
             }
         });
-        const newLines = parentLines.filter((line) => line.quantity - line.childrenQuantity > 0 )
+        const newLines = parentLines.filter((line) => {
+            const values = line.get({ palin: true });
+            return values.quantity - values.childrenQuantity > 0;
+        })
             .map(line => {
-                const newLine = Object.assign(line.get({ plain: true }), {
+                const values = _.omit(line.get({ plain: true }), ['id', 'createdAt', 'updatedAt']);
+                return Object.assign(values, {
                     parent_id: line.id,
                     document_id: childDocument.id,
-                    quantity: line.quantity - line.childrenQuantity,
-                    amount_with_vat: line.amount_with_vat - line.childrenAmountWithVat,
-                    amount_without_vat: line.amount_without_vat - line.childrenAmountWithoutVat,
+                    quantity: line.quantity - values.childrenQuantity,
+                    amount_with_vat: line.amount_with_vat - values.childrenAmountWithVat,
+                    amount_without_vat: line.amount_without_vat - values.childrenAmountWithoutVat,
                 });
-                delete newLine.id;
             });
         await DocumentLine.bulkCreate(newLines, { transaction });
     }
@@ -108,7 +116,7 @@ export default class DocumentLineService extends Entity {
      * @returns {Promise<number>}
      */
     async reserve(line, params) {
-        const lineInstance = await this.getInstance(line);
+        const lineInstance = await this.getModel(line);
         const reserveQuantity = this._reserveQuantity(lineInstance);
         let reserved = 0;
         if (reserveQuantity < lineInstance.quantity) {
@@ -138,7 +146,7 @@ export default class DocumentLineService extends Entity {
      * @returns {Promise<*>}
      */
     async unreserve(line, params) {
-        const lineInstance = await this.getInstance(line);
+        const lineInstance = await this.getModel(line);
         let backToStore = 0;
         // eslint-disable-next-line no-unused-vars,no-restricted-syntax
         for (const reserve of lineInstance.reserves) {

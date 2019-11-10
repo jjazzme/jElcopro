@@ -1,4 +1,4 @@
-
+// import fs from 'fs';
 import _ from 'lodash';
 import axios from 'axios';
 import CurrencyService from './CurrencyService';
@@ -123,12 +123,13 @@ export default class CompelService {
     async apiSearchByName(name, deep = false) {
         const searchName = deep ? `*${name.toString().trim()}` : name.toString();
         const response = await this.method('search_item_ext', { query_string: `${searchName}*` });
+        // fs.writeFileSync("uno_r3.txt", JSON.stringify(response));
         return response.result;
     }
 
     /**
      * Use Api Method search_item_ext with id ( compel code )
-     * @param {stirng} id - compel product id(code)
+     * @param {string} id - compel product id(code)
      * @returns {Promise<*>}
      */
     async apiSearchById(id) {

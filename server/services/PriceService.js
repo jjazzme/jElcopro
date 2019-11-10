@@ -102,7 +102,7 @@ export default class PriceService extends Entity {
             const company = await (new CompanyService()).getByAlias('elcopro');
             store = _.find(company.stores, { is_main: true });
         } else {
-            store = await (new StoreService()).getInstance(store);
+            store = await (new StoreService()).getModel(store);
         }
         _.find(this._store.include, { as: 'fromRoutes' }).where = { to_store_id: store.id, is_active: true };
         if (optics.online !== null && optics.online !== undefined) {
@@ -161,8 +161,8 @@ export default class PriceService extends Entity {
      * @returns {Promise<Array|*>}
      */
     async searchByNameOnStore(optics) {
-        const stors = new StoreService()
-        const storeInstance = await stors.getInstance(optics.from_store);
+        const stors = new StoreService();
+        const storeInstance = await stors.getModel(optics.from_store);
         const service = await ExternalPriceService.forCompany(storeInstance.company);
         if (service) {
             return service.searchByName(optics.name);

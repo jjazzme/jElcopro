@@ -1,6 +1,6 @@
 import DocumentService from './DocumentService';
 import {
-    DocumentLine, Order,
+    Document, DocumentLine, Order, TransferIn
 } from '../models';
 
 export default class OrderService extends DocumentService {
@@ -11,21 +11,12 @@ export default class OrderService extends DocumentService {
             { name: 'unWork', from: 'in_work', to: 'formed' },
             { name: 'close', from: 'in_work', to: 'closed' },
         ];
-        this._includes.push({
-            model: DocumentLine,
-            as: 'documentLines',
-        });
+        this._includes = this._includes.concat(
+            { model: DocumentLine, as: 'documentLines'},
+            { model: Document, as: 'parent', required: false },
+            { model: TransferIn, as: 'children', required: false },
+        );
     }
-
-    /* async create(item, transaction) {
-        try {
-            const order = await super.create(item, transaction);
-
-        } catch (e) {
-            console.error(e);
-            throw e;
-        }
-    } */
 
     /**
      * Transition 'toWork' for make order 'in_work' status
@@ -65,5 +56,28 @@ export default class OrderService extends DocumentService {
         }
         this._instance.closed = true;
         return true;
+    }
+
+    /**
+     * Create child TransferIn for Order
+     * @param optics
+     * @returns {Promise<Object>}
+     */
+    async createTransferIn(optics) {
+        try {
+            return await this.createChild(
+                optics.parent_id,
+                {
+                    document_type_id: 'transfer-in',
+                    number: optics.number,
+                    number_prefix: optics.number_prefix,
+                    user_id: optics.user_id,
+                    status_id: 'formed'
+                },
+                optics.lines
+            );
+        } catch (e) {
+            throw e
+        }
     }
 }
