@@ -123,7 +123,7 @@ export default class CompelService {
     async apiSearchByName(name, deep = false) {
         const searchName = deep ? `*${name.toString().trim()}` : name.toString();
         const response = await this.method('search_item_ext', { query_string: `${searchName}*` });
-        // fs.writeFileSync("uno_r3.txt", JSON.stringify(response));
+        // fs.writeFileSync("TDA2003L-TB5-T.json", JSON.stringify(response));
         return response.result;
     }
 

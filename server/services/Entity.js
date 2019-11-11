@@ -118,7 +118,7 @@ export default class Entity {
             if (!transaction) await t.commit();
             return ret;
         } catch (e) {
-            console.warn('Problem with update', this._Entity, item, e);
+        //    console.warn('Problem with update', this._Entity, item, e);
             if (!transaction) await t.rollback();
             throw e;
         }

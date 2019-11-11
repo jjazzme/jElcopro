@@ -8,9 +8,10 @@ import DocumentLineService from "../services/DocumentLineService";
 import PriceService from "../services/PriceService";
 import db from "../models";
 import CompelService from "../services/CompelService";
+import PromelecService from "../services/PromelecService";
 const { DocumentLine } = db;
 
 module.exports.run = async (args) => {
-    const service = new CompelService();
-    await service.apiSearchByName('uno r3')
+    const service = new PromelecService();
+    await service.apiSearchByName('tda2003v')
 };

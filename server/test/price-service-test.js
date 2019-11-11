@@ -12,20 +12,25 @@ const { expect } = chai;
 require('../config/config.js');
 
 describe('PriceService searchByNameOnStore:', () => {
-    let compel;
+    let compel, promelec;
     before(async () => {
         moxios.install();
         compel = await fs.readFileSync(__dirname + '/httpAnswers/uno_r3.txt', "utf8");
+        promelec = await fs.readFileSync(__dirname + '/httpAnswers/prom_uno_r3.json', "utf8");
         moxios.stubRequest(global.gConfig.companies.compel.api_url, {
             status: 200,
             responseText: compel
+        });
+        moxios.stubRequest(global.gConfig.companies.promelec.api_url, {
+            status: 200,
+            responseText: promelec
         });
     });
     after(async () => {
         moxios.uninstall();
     });
     Object.keys(global.gConfig.companies).forEach((alias) => {
-        if (alias !== 'elcopro' && alias !== 'promelec') {
+        if (alias !== 'elcopro') {
             it(`Search uno r3 on ${alias}`, async () => {
                 const company = await (new CompanyService()).getByAlias(alias);
                 const store = _.find(company.stores, { is_main: true });

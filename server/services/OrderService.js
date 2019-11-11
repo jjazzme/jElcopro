@@ -2,6 +2,7 @@ import DocumentService from './DocumentService';
 import {
     Document, DocumentLine, Order, TransferIn
 } from '../models';
+import TransferInService from "./TransferInService";
 
 export default class OrderService extends DocumentService {
     constructor() {
@@ -65,7 +66,7 @@ export default class OrderService extends DocumentService {
      */
     async createTransferIn(optics) {
         try {
-            return await this.createChild(
+            const child = await this.createChild(
                 optics.parent_id,
                 {
                     document_type_id: 'transfer-in',
@@ -76,6 +77,7 @@ export default class OrderService extends DocumentService {
                 },
                 optics.lines
             );
+            return await (new TransferInService()).find({ id: child.id })
         } catch (e) {
             throw e
         }

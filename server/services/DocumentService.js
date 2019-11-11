@@ -5,7 +5,7 @@ import db from '../models/index';
 import DocumentLineService from "./DocumentLineService";
 
 const {
-    Company, Document, DocumentLine, Party, Store,
+    Company, Document, Party, Store,
 } = db;
 
 export default class DocumentService extends Entity {
@@ -55,7 +55,7 @@ export default class DocumentService extends Entity {
             });
             if (this._instance.can(name)) {
                 try {
-                    console.log(`Try ${name} transition`);
+                    // console.log(`Try ${name} transition`);
                     await this._instance[name]();
                     this._instance.status_id = this._instance.state;
                     await this._instance.save({ transaction: t });
@@ -91,8 +91,6 @@ export default class DocumentService extends Entity {
             childInsatnce = await this.create(childInsatnce, t);
             const service = new DocumentLineService();
             await service.createChildren(childInsatnce, parentLineIds, t);
-            childInsatnce.document_lines =
-                await DocumentLine.findAll({ where: { document_id: childInsatnce.id }, transaction: t });
             await t.commit();
             return childInsatnce;
         } catch (e) {

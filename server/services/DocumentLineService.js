@@ -24,9 +24,44 @@ export default class DocumentLineService extends Entity {
     }
 
     /**
+     * Sum quantity children lines must less then parent quantity
+     * @param {DocumentLine} line
+     * @returns {Promise<void>}
+     * @private
+     */
+    async _checkParentQuantity(line) {
+        if (line.parent_id) {
+            const parent = line.parent ? line.parent : await this.find({ id: line.parent_id });
+            const previousQuantity = line.previous('quantity') ? line.previous('quantity') : 0;
+            const sumQuantity = parent.children.reduce((sum, child) => sum + child.quantity, 0)
+                - previousQuantity + line.quantity;
+            if (sumQuantity > parent.quantity) {
+                const possibleQuantity = parent.quantity - sumQuantity + line.quantity;
+                throw new Error(`${line.quantity} more than possible ${possibleQuantity}`);
+            }
+        }
+    }
+
+    /**
+     * Parent quantity must more then sum quantity children
+     * @param {DocumentLine} line
+     * @returns {Promise<void>}
+     * @private
+     */
+    async _checkChildrenQuantity(line) {
+        const children = line.children ? line.children
+            : await DocumentLine.findAll({ where: { parent_id: line.id} });
+        if (children.length > 0) {
+            const sumQuantity = children.reduce((sum, child) => sum + child.quantity, 0);
+            if (line.quantity < sumQuantity) {
+                throw new Error(`${line.quantity} less than possible ${sumQuantity}`);
+            }
+        }
+    }
+
+    /**
      * Before Create new DocumentLine resolve dependencies on right Good & Store
      * @param {DocumentLine} item
-     * @param {Transaction} transaction
      * @returns {Promise<void>}
      */
     // eslint-disable-next-line class-methods-use-this
@@ -53,11 +88,30 @@ export default class DocumentLineService extends Entity {
     }
 
     /**
-     *
+     * Chech quantity and re-sum before update or create;
+     * @param {DocumentLine} line
+     * @returns {Promise<void>}
+     */
+    async beforeUpdateOrCreate(line) {
+        const changes = line.changed();
+        if (changes && changes.includes('quantity')) {
+            await this._checkParentQuantity(line);
+            await this._checkChildrenQuantity(line);
+            if (!changes.includes('amount_without_vat')) {
+                line.amount_without_vat = line.price_without_vat * line.quantity;
+            }
+            if (!changes.includes('amount_with_vat')) {
+                line.amount_with_vat = line.price_with_vat * line.quantity;
+            }
+        }
+    }
+
+    /**
+     * Create children lines for lines of parent document
      * @param {Document} childDocument
      * @param {Array|null} parentLineIds
      * @param {Transaction} transaction
-     * @returns {Promise<Void>}
+     * @returns {Promise<void>}
      */
     async createChildren(childDocument, parentLineIds, transaction) {
         const where = { document_id: childDocument.parent_id };

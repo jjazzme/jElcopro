@@ -18,7 +18,7 @@ describe('CurrencyRateService - getRatesByDate:', () => {
         moxios.uninstall();
     });
     const start = new Date('2010-01-01');
-    const end = new Date('2020-01-01');
+    const end = new Date('2012-01-01');
     let date = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
     const formatDate = moment(date).format('YYYY-MM-DD');
     date = new Date(formatDate);

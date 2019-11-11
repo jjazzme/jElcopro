@@ -1,5 +1,4 @@
-'use strict';
-
+// import fs from 'fs';
 import crypto from 'crypto';
 import axios from 'axios';
 import _ from 'lodash';
@@ -70,6 +69,7 @@ export default class PromelecService  {
             method: method,
         });
         const response = await axios.post(global.gConfig.companies.promelec.api_url, params);
+        // fs.writeFileSync("tda2003v.json", JSON.stringify(response.data));
         return response.data;
     }
 
