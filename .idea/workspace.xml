@@ -1,48 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="09e94829-b941-41e8-95cd-f4a06a6a7730" name="Default Changelist" comment="191104">
-      <change afterPath="$PROJECT_DIR$/client/src/classLib/Footer.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/src/classLib/PriceSource.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/src/components/body/v1/footerComponents/footerStandard.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/src/components/body/v1/footerComponents/priceListFooter.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/src/components/tables/v2/tablesBody/tablesRow/tablesCell/cellComponents/addButton.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/src/components/tables/v2/tablesBody/tablesRow/tablesCell/cellComponents/priceListStandard.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/src/components/tables/v2/tablesBody/tablesRow/tablesCell/priceListCell.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/src/components/tables/v3/serverSideParametersConstructor/priceListParametersConstructor.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/src/components/tables/v3/tablesBody/priceListTable.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/src/components/tables/v3/tablesBody/tablesRow/priceListRow.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/src/components/tables/v3/tablesBody/tablesRow/tablesCell/cellComponents/addButton.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/src/components/tables/v3/tablesBody/tablesRow/tablesCell/cellComponents/priceListStandard.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/src/components/tables/v3/tablesBody/tablesRow/tablesCell/priceListCell.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/src/components/tables/v3/tablesHeader/priceListHeader.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/src/views/v2/PriceList.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/services/index.js" afterDir="false" />
+    <list default="true" id="09e94829-b941-41e8-95cd-f4a06a6a7730" name="Default Changelist" comment="Прайс версии 3">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/public/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/client/public/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/App.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/App.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/classLib/Optics.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/classLib/Optics.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/classLib/PriceList.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/classLib/PriceList.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/components/body/v1/footer.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/body/v1/footer.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/components/body/v1/pageEnvironment.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/body/v1/pageEnvironment.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/components/tables/v2/clientSideTable.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/components/tables/v2/serverSideParametersConstructor/priceListParametersConstructor.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/tables/v2/serverSideParametersConstructor/priceListParametersConstructor.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/components/tables/v2/tablesBody/priceListTable.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/tables/v2/tablesBody/priceListTable.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/components/tables/v2/tablesBody/tablesRow/priceListRow.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/tables/v2/tablesBody/tablesRow/priceListRow.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/less/_variables.less" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/less/_variables.less" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/less/priceListCard.less" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/less/priceListCard.less" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/router.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/router.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/store/env.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/store/env.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/store/tables.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/store/tables.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/views/v1/PriceList.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/views/v1/PriceList.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/views/v1/Tables.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/views/v1/Tables.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/views/v2/_Tables.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/config/config.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/config/config.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/controllers/model.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/controllers/model.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/controllers/services.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/controllers/services.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/models/price.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/models/price.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/routes/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/routes/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/services/CurrencyRateService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/CurrencyRateService.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -66,30 +26,7 @@
     <option name="HIDDEN_KINDS">
       <set />
     </option>
-    <expand>
-      <path>
-        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="elcopro@localhost" type="feb32156:DbDataSourceImpl" />
-      </path>
-      <path>
-        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="elcopro@localhost" type="feb32156:DbDataSourceImpl" />
-        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
-      </path>
-      <path>
-        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="elcopro@localhost" type="feb32156:DbDataSourceImpl" />
-        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
-        <item name="elcopro: schema" type="76f4a085:MysqlImplModel$Schema" />
-      </path>
-      <path>
-        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
-        <item name="elcopro@localhost" type="feb32156:DbDataSourceImpl" />
-        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
-        <item name="elcopro: schema" type="76f4a085:MysqlImplModel$Schema" />
-        <item name="prices: table" type="285a2a93:MysqlImplModel$Table" />
-      </path>
-    </expand>
+    <expand />
     <select />
   </component>
   <component name="FavoritesManager">
@@ -108,7 +45,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="Jjazz" />
+        <entry key="$PROJECT_DIR$" value="Vladimir" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -149,6 +86,7 @@
     <property name="node.js.selected.package.jscs" value="" />
     <property name="node.js.selected.package.standard" value="" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="nodejs.mocha.mocha_node_package_dir" value="$PROJECT_DIR$/server/node_modules/mocha" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="nodejs_package_manager_path" value="npm" />
@@ -236,18 +174,18 @@
     <list>
       <item itemvalue="JavaScript Debug.VUE Debug" />
       <item itemvalue="npm.syncModelDB" />
+      <item itemvalue="npm.start_NODEMON" />
       <item itemvalue="npm.test" />
       <item itemvalue="npm.test_console" />
       <item itemvalue="npm.serve" />
-      <item itemvalue="npm.start_NODEMON" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="npm.start_NODEMON" />
-        <item itemvalue="npm.syncModelDB" />
         <item itemvalue="npm.serve" />
         <item itemvalue="npm.test_console" />
         <item itemvalue="npm.test" />
+        <item itemvalue="npm.syncModelDB" />
       </list>
     </recent_temporary>
   </component>
@@ -284,7 +222,7 @@
       <workItem from="1572360022559" duration="21862000" />
       <workItem from="1572437134688" duration="34232000" />
       <workItem from="1572528897107" duration="2773000" />
-      <workItem from="1573102263376" duration="128411000" />
+      <workItem from="1573102263376" duration="129879000" />
     </task>
     <task id="LOCAL-00001" summary="Datata">
       <created>1571292450729</created>
@@ -391,7 +329,14 @@
       <option name="project" value="LOCAL" />
       <updated>1572872440981</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="Прайс версии 3">
+      <created>1573549857929</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1573549857930</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -439,6 +384,7 @@
     <MESSAGE value="191103" />
     <MESSAGE value="191103-01" />
     <MESSAGE value="191104" />
-    <option name="LAST_COMMIT_MESSAGE" value="191104" />
+    <MESSAGE value="Прайс версии 3" />
+    <option name="LAST_COMMIT_MESSAGE" value="Прайс версии 3" />
   </component>
 </project>
