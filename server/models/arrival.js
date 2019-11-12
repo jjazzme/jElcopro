@@ -9,6 +9,7 @@ module.exports = (sequelize, DataTypes) => {
     arrival.associate = function (models) {
         arrival.belongsTo(models.DocumentLine, { foreignKey: 'document_line_id', as: 'documentLine' });
         arrival.hasMany(models.Reserve, { foreignKey: 'arrival_id', as: 'reserves' });
+        arrival.hasMany(models.Departure, { foreignKey: 'arrival_id', as: 'departures' });
     };
     return arrival;
 };

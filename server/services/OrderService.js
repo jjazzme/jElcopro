@@ -1,6 +1,6 @@
 import DocumentService from './DocumentService';
 import {
-    Document, DocumentLine, Order, TransferIn
+    Document, DocumentLine, Order, TransferIn,
 } from '../models';
 
 export default class OrderService extends DocumentService {
@@ -12,7 +12,7 @@ export default class OrderService extends DocumentService {
             { name: 'close', from: 'in_work', to: 'closed' },
         ];
         this._includes = this._includes.concat(
-            { model: DocumentLine, as: 'documentLines'},
+            { model: DocumentLine, as: 'documentLines' },
             { model: Document, as: 'parent', required: false },
             { model: TransferIn, as: 'children', required: false },
         );
@@ -37,24 +37,9 @@ export default class OrderService extends DocumentService {
      * @returns {Promise<boolean>}
      * @private
      */
+
     // eslint-disable-next-line no-unused-vars,class-methods-use-this
     async _unWork(params, transaction) {
-        return true;
-    }
-
-    /**
-     * Transition 'close' for make order 'closed' status
-     * @param {Object} params
-     * @param {Transaction} transaction
-     * @returns {Promise<boolean>}
-     * @private
-     */
-    // eslint-disable-next-line no-unused-vars
-    async _close(params, transaction) {
-        if (!this._instance.documentLines.reduce((result, line) => result && line.closed, true)) {
-            return Promise.reject(new Error('Some lines for this document is not close!'));
-        }
-        this._instance.closed = true;
         return true;
     }
 }

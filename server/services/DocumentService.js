@@ -2,7 +2,7 @@ import StateMachine from 'javascript-state-machine';
 import _ from 'lodash';
 import ModelService from './ModelService';
 import db from '../models/index';
-import DocumentLineService from "./DocumentLineService";
+import DocumentLineService from './DocumentLineService';
 
 const {
     Company, Party, Store,
@@ -36,6 +36,23 @@ export default class DocumentService extends ModelService {
                 ],
             },
         ];
+    }
+
+    /**
+     * Transition 'close' for make document 'closed' status
+     * Unique for all types of document
+     * @param {Object} params
+     * @param {Transaction} transaction
+     * @returns {Promise<boolean>}
+     * @private
+     */
+    // eslint-disable-next-line no-unused-vars
+    async _close(params, transaction) {
+        if (!this._instance.documentLines.reduce((result, line) => result && line.closed, true)) {
+            return Promise.reject(new Error('Some lines for this document is not close!'));
+        }
+        this._instance.closed = true;
+        return true;
     }
 
     /**
@@ -81,7 +98,7 @@ export default class DocumentService extends ModelService {
      * @returns {Promise<Object>}
      */
     async createChild(parent, child, parentLines) {
-        const parentLineIds = parentLines ? parentLines.map((line) => isNaN(line) ? line.id : line ) : null;
+        const parentLineIds = parentLines ? parentLines.map((line) => (Number.isNaN(line) ? line.id : line)) : null;
         const t = await db.sequelize.transaction();
         let childInsatnce = Object.assign(parent.get({ plain: true }), child);
         childInsatnce.parent_id = parent.id;

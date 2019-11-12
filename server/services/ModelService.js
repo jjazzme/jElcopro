@@ -79,7 +79,7 @@ export default class ModelService {
             }
             const ret = await this.find({ id: createItem.id }, t);
             if (!transaction) await t.commit();
-            return ret ? ret : createItem;
+            return ret || createItem;
         } catch (e) {
             // console.warn('Problem with create', this._Entity, item, e);
             if (!transaction) await t.rollback();
@@ -257,13 +257,5 @@ export default class ModelService {
         const ret = new this();
         if (instance) await ret.setInstance(instance);
         return ret;
-    }
-
-    /**
-     * Return current Entity
-     * @returns {*}
-     */
-    getEntity() {
-        return this._Entity;
     }
 }
