@@ -3,12 +3,12 @@
 import db from '../models/index';
 const Op = db.Sequelize.Op;
 
-import Entity from './Entity';
+import ModelService from './ModelService';
 
 const Producer = require('../models').Producer;
 const Product = require('../models').Product;
 
-export default class ProducerService extends Entity {
+export default class ProducerService extends ModelService {
 
     constructor() {
         super(Producer);

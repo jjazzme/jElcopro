@@ -1,7 +1,6 @@
-import Transaction from 'sequelize';
 import db from '../models/index';
 
-export default class Entity {
+export default class ModelService {
     /**
      * Model class
      * @type {Object}
@@ -38,15 +37,16 @@ export default class Entity {
     /**
      * Find by id or attributes in searchItem & return right instance if possible
      * @param {Object} searchItem
+     * @param {Transaction=} transaction
      * @returns {Promise<*>}
      */
-    async find(searchItem) {
+    async find(searchItem, transaction) {
         let item;
         if (searchItem.id) {
-            item = await this._Entity.findOne({ where: { id: searchItem.id }, include: this._includes });
+            item = await this._Entity.findOne({ where: { id: searchItem.id }, include: this._includes, transaction });
         } else {
             try {
-                item = await this._Entity.findOne({ where: searchItem, include: this._includes });
+                item = await this._Entity.findOne({ where: searchItem, include: this._includes, transaction });
             } catch (e) {
                 console.error(e);
             }
@@ -61,7 +61,7 @@ export default class Entity {
      * @returns {Promise<Object>}
      */
     async create(item, transaction) {
-        const t = transaction instanceof Transaction ? transaction : await db.sequelize.transaction();
+        const t = transaction instanceof db.Sequelize.Transaction ? transaction : await db.sequelize.transaction();
         const createItem = item instanceof this._Entity ? item : this._Entity.build(item);
         try {
             if (this.beforeCreate) {
@@ -77,10 +77,11 @@ export default class Entity {
             if (this.afterUpdateOrCreate) {
                 await this.afterUpdateOrCreate(createItem, t);
             }
+            const ret = await this.find({ id: createItem.id }, t);
             if (!transaction) await t.commit();
-            return await this.find({ id: createItem.id });
+            return ret ? ret : createItem;
         } catch (e) {
-            console.warn('Problem with create', this._Entity, item, e);
+            // console.warn('Problem with create', this._Entity, item, e);
             if (!transaction) await t.rollback();
             throw e;
         }
@@ -93,8 +94,9 @@ export default class Entity {
      * @returns {Promise<Object>}
      */
     async update(item, transaction) {
-        const t = transaction instanceof Transaction ? transaction : await db.sequelize.transaction();
-        const updateItem = item instanceof this._Entity ? item : await this._Entity.findOne({ where: { id: item.id } });
+        const t = transaction instanceof db.Sequelize.Transaction ? transaction : await db.sequelize.transaction();
+        const updateItem = item instanceof this._Entity ? item
+            : await this._Entity.findOne({ where: { id: item.id }, transaction: t });
         if (!(item instanceof this._Entity)) {
             updateItem.set(item);
         }
@@ -112,10 +114,11 @@ export default class Entity {
             if (this.afterUpdateOrCreate) {
                 await this.afterUpdateOrCreate(updateItem, t);
             }
+            const ret = await this.find({ id: updateItem.id }, t);
             if (!transaction) await t.commit();
-            return await this.find({ id: updateItem.id });
+            return ret;
         } catch (e) {
-            console.warn('Problem with update', this._Entity, item, e);
+        //    console.warn('Problem with update', this._Entity, item, e);
             if (!transaction) await t.rollback();
             throw e;
         }
@@ -128,9 +131,9 @@ export default class Entity {
      * @returns {Promise<void>}
      */
     async destroy(item, transaction) {
-        const t = transaction instanceof Transaction ? transaction : await db.sequelize.transaction();
+        const t = transaction instanceof db.Sequelize.Transaction ? transaction : await db.sequelize.transaction();
         const destroyItem = item instanceof this._Entity
-            ? item : await this._Entity.findOne({ where: { id: item.id } });
+            ? item : await this._Entity.findOne({ where: { id: item.id }, transaction: t });
         try {
             if (this.beforeDestroy) {
                 await this.beforeDestroy(destroyItem, t);
@@ -139,10 +142,10 @@ export default class Entity {
             if (this.afterDestroy) {
                 await this.afterDestroy(destroyItem, t);
             }
-            if (!transaction) await this.transaction().commit();
+            if (!transaction) await t.commit();
         } catch (e) {
             console.warn('Problem with delete', this._Entity, item, e);
-            if (!transaction) await this.transaction().rollback();
+            if (!transaction) await t.rollback();
             throw e;
         }
     }
@@ -200,22 +203,40 @@ export default class Entity {
     /**
      * Get instance by id, alias or same
      * @param {Object|number} instance
+     * @param {Transaction} transaction
      * @returns {Promise<Object>}
      */
-    async getInstance(instance) {
+    async getModel(instance, transaction) {
         let answer = null;
         if (typeof instance === 'number') {
-            answer = await this.find({ id: instance });
+            answer = await this.find({ id: instance }, transaction);
         } else if (typeof instance === 'string' && this.getByAlias) {
             answer = await this.getByAlias(instance);
         } else if (instance instanceof this._Entity) {
             if (this._includes.reduce((flag, item) => !!(flag && item.as && instance[item.as]), true)) {
                 answer = instance;
             } else {
-                answer = await this.find({ id: instance.id });
+                answer = await this.find({ id: instance.id }, transaction);
             }
         }
         return answer;
+    }
+
+    /**
+     * Instance getter
+     * @returns {Object}
+     */
+    get instance() {
+        return this._instance;
+    }
+
+    /**
+     * Instance setter
+     * @param {Object|number} value
+     * @returns {Promise<void>}
+     */
+    set instance(value) {
+        return this.setInstance(value);
     }
 
     /**
@@ -224,13 +245,13 @@ export default class Entity {
      * @returns {Promise<void>}
      */
     async setInstance(instance) {
-        this._instance = await this.getInstance(instance);
+        this._instance = await this.getModel(instance);
     }
 
     /**
      * Create new Instance of Service with model instance if need
      * @param {Object|number|null} instance
-     * @returns {Promise<Entity>}
+     * @returns {Promise<ModelService>}
      */
     static async getNew(instance) {
         const ret = new this();

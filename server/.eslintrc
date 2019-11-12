@@ -4,13 +4,13 @@
     "node": true,
     "mocha": true
   },
-  "extends": ["airbnb"],
   "parser": "babel-eslint",
   "rules": {
     "func-names": ["error", "never"],
     "no-underscore-dangle": [2, { "allowAfterThis": true }],
     "max-len": ["error", { "code": 120, "tabWidth" : 4 }],
     "indent": [2, 4],
-    "no-console": ["error", { "allow": ["log", "warn", "error"] }]
+    "no-console": ["error", { "allow": ["log", "warn", "error"] }],
+    "no-param-reassign": ["error", { "props": false }]
   }
 }

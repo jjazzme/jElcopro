@@ -1,6 +1,11 @@
+/.idea/
 /server/node_modules/
+/server/storage/
+/server/.env
 /client/node_modules/
 /client/dist/
+/.idea/workspace.xml
+.idea
 /server/.env
 .idea/workspace.xml
 .idea/sqldialects.xml

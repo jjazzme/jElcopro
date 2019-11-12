@@ -1,7 +1,7 @@
 import { ParameterValue, ParameterName } from '../models';
-import Entity from './Entity';
+import ModelService from './ModelService';
 
-export default class ParameterValueService extends Entity {
+export default class ParameterValueService extends ModelService {
     constructor() {
         super(ParameterValue);
         this._includes = [

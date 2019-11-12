@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import Sequelize from 'sequelize';
-import Entity from './Entity';
+import ModelService from './ModelService';
 import {
     Currency,
     Company,
@@ -20,7 +20,7 @@ import CompanyService from './CompanyService';
 import StoreService from './StoreService';
 import ExternalPriceService from './ExternalPriceService';
 
-export default class PriceService extends Entity {
+export default class PriceService extends ModelService {
     /**
      *
      */
@@ -36,10 +36,11 @@ export default class PriceService extends Entity {
         as: 'product',
         required: true,
         include: [
-            { model: Producer, as: 'producer' },
+            { model: Producer, as: 'producer', required: true },
             {
                 model: Parameter,
                 as: 'parameters',
+                required: false,
                 include: [
                     { model: ParameterValue, as: 'parameterValue' },
                 ],
@@ -62,7 +63,7 @@ export default class PriceService extends Entity {
                 as: 'company',
                 required: true,
                 include: [
-                    { model: Party, as: 'party' },
+                    { model: Party, as: 'party', required: true },
                 ],
             },
             {
@@ -91,7 +92,7 @@ export default class PriceService extends Entity {
         if (!optics || !optics.name || optics.name.length < 3) return [];
         //
         const searchName = ProductService.makeSearchName(optics.name);
-        this._product.where = { name: { [this._Op.substring]: searchName } };
+        this._product.where = { search_name: { [this._Op.substring]: searchName } };
         // eslint-disable-next-line no-underscore-dangle
         const case_ = await (new ParameterNameService()).getByAlias('case');
         _.find(this._product.include, { as: 'parameters' }).where = { parameter_name_id: case_.id };
@@ -101,7 +102,7 @@ export default class PriceService extends Entity {
             const company = await (new CompanyService()).getByAlias('elcopro');
             store = _.find(company.stores, { is_main: true });
         } else {
-            store = await (new StoreService()).getInstance(store);
+            store = await (new StoreService()).getModel(store);
         }
         _.find(this._store.include, { as: 'fromRoutes' }).where = { to_store_id: store.id, is_active: true };
         if (optics.online !== null && optics.online !== undefined) {
@@ -160,8 +161,8 @@ export default class PriceService extends Entity {
      * @returns {Promise<Array|*>}
      */
     async searchByNameOnStore(optics) {
-        const stors = new StoreService()
-        const storeInstance = await stors.getInstance(optics.from_store);
+        const stors = new StoreService();
+        const storeInstance = await stors.getModel(optics.from_store);
         const service = await ExternalPriceService.forCompany(storeInstance.company);
         if (service) {
             return service.searchByName(optics.name);

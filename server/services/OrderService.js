@@ -1,7 +1,6 @@
 import DocumentService from './DocumentService';
-import DocumentLineService from './DocumentLineService';
 import {
-    Arrival, DocumentLine, FutureReserve, Good, Order, Product, Reserve,
+    Document, DocumentLine, Order, TransferIn
 } from '../models';
 
 export default class OrderService extends DocumentService {
@@ -12,10 +11,11 @@ export default class OrderService extends DocumentService {
             { name: 'unWork', from: 'in_work', to: 'formed' },
             { name: 'close', from: 'in_work', to: 'closed' },
         ];
-        this._includes.push({
-            model: DocumentLine,
-            as: 'documentLines',
-        });
+        this._includes = this._includes.concat(
+            { model: DocumentLine, as: 'documentLines'},
+            { model: Document, as: 'parent', required: false },
+            { model: TransferIn, as: 'children', required: false },
+        );
     }
 
     /**

@@ -1,11 +1,14 @@
 import StateMachine from 'javascript-state-machine';
 import _ from 'lodash';
-import Entity from './Entity';
+import ModelService from './ModelService';
 import db from '../models/index';
+import DocumentLineService from "./DocumentLineService";
 
-const { Document } = db;
+const {
+    Company, Party, Store,
+} = db;
 
-export default class DocumentService extends Entity {
+export default class DocumentService extends ModelService {
     /**
      * Transitions used in children
      * @type {Array}
@@ -16,8 +19,22 @@ export default class DocumentService extends Entity {
     constructor(entity) {
         super(entity);
         this._includes = [
-            { model: Document, as: 'parent' },
-            { model: Document, as: 'children' },
+            {
+                model: Company,
+                as: 'sellerable',
+                include: [
+                    { model: Store, as: 'stores' },
+                    { model: Party, as: 'party' },
+                ],
+            },
+            {
+                model: Company,
+                as: 'buyerable',
+                include: [
+                    { model: Store, as: 'stores' },
+                    { model: Party, as: 'party' },
+                ],
+            },
         ];
     }
 
@@ -38,7 +55,7 @@ export default class DocumentService extends Entity {
             });
             if (this._instance.can(name)) {
                 try {
-                    console.log(`Try ${name} transition`);
+                    // console.log(`Try ${name} transition`);
                     await this._instance[name]();
                     this._instance.status_id = this._instance.state;
                     await this._instance.save({ transaction: t });
@@ -54,5 +71,31 @@ export default class DocumentService extends Entity {
             await t.rollback();
         }
         return Promise.reject(error);
+    }
+
+    /**
+     * Create child Document with DocumentLines
+     * @param {Order} parent
+     * @param {Object} child
+     * @param {Array|null} parentLines
+     * @returns {Promise<Object>}
+     */
+    async createChild(parent, child, parentLines) {
+        const parentLineIds = parentLines ? parentLines.map((line) => isNaN(line) ? line.id : line ) : null;
+        const t = await db.sequelize.transaction();
+        let childInsatnce = Object.assign(parent.get({ plain: true }), child);
+        childInsatnce.parent_id = parent.id;
+        delete childInsatnce.id;
+        try {
+            childInsatnce = await this.create(childInsatnce, t);
+            const service = new DocumentLineService();
+            await service.createChildren(childInsatnce, parentLineIds, t);
+            await t.commit();
+            return childInsatnce;
+        } catch (e) {
+            console.error(e);
+            await t.rollback();
+            throw e;
+        }
     }
 }

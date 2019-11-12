@@ -1,7 +1,9 @@
 {
   "development": {
-    "node_port": 3000
-
+    "node_port": 3000,
+    "user": {
+      "id": 1
+    }
   },
   "test": {
     "username": "root",

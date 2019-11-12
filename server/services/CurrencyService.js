@@ -1,8 +1,8 @@
-import Entity from './Entity';
+import ModelService from './ModelService';
 import { Currency } from '../models';
 import Cache from './Cache';
 
-export default class CurrencyService extends Entity {
+export default class CurrencyService extends ModelService {
     constructor() {
         super(Currency);
     }

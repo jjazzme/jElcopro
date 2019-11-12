@@ -1,9 +1,9 @@
 import db from '../models/index';
-import Entity from './Entity';
+import ModelService from './ModelService';
 
 const { Good, Product, Store } = db;
 
-export default class GoodService extends Entity {
+export default class GoodService extends ModelService {
     constructor() {
         super(Good);
         this._includes = [{ model: Product, as: 'product' }, { model: Store, as: 'store' }];
@@ -11,7 +11,7 @@ export default class GoodService extends Entity {
 
     /**
      * Disactivate ended goods
-     * @param {number} store_id
+     * @param {number} storeId
      * @param {Date} start
      * @returns {Promise<int>}
      */

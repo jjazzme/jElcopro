@@ -2,11 +2,11 @@ import axios from 'axios';
 import iconv from 'iconv-lite';
 import { parseString } from 'xml2js';
 import moment from 'moment';
-import Entity from './Entity';
+import ModelService from './ModelService';
 import { Currency, CurrencyRate } from '../models';
 import CurrencyService from './CurrencyService';
 
-export default class CurrencyRateService extends Entity {
+export default class CurrencyRateService extends ModelService {
     constructor() {
         super(CurrencyRate);
         this._includes = [{ model: Currency, as: 'currency' }];
@@ -32,8 +32,7 @@ export default class CurrencyRateService extends Entity {
 
     /**
      * Syncronize with CBR
-     * @param {Date|string}
-     * @param date
+     * @param {Date|string} date
      * @returns {Promise<void>}
      */
     async synchronizeWithCBR(date) {
