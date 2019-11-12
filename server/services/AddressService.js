@@ -1,8 +1,8 @@
 
 import { Address } from '../models';
-import Entity from './Entity';
+import ModelService from './ModelService';
 
-export default class AddressService extends Entity {
+export default class AddressService extends ModelService {
     constructor() {
         super(Address);
     }

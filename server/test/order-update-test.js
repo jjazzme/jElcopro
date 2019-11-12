@@ -3,6 +3,7 @@ import CompanyService from "../services/CompanyService";
 import _ from "lodash";
 import { TransferIn } from '../models';
 import DocumentLineService from "../services/DocumentLineService";
+import TransferInService from "../services/TransferInService";
 
 const chai = require('chai');
 chai.use(require('chai-as-promised'));
@@ -10,10 +11,11 @@ chai.use(require('chai-as-promised'));
 const { expect } = chai;
 
 describe('TEST Order operations', async () => {
-    let dan, danStore, lineService, elcopro, elcoproStore, parent, service, child;
+    let child, dan, danStore, elcopro, elcoproStore, lineService, parent, service, transferService;
     before(async () => {
         service = new OrderService();
         lineService = new DocumentLineService();
+        transferService = new TransferInService();
         dan = await (new CompanyService()).getByAlias('dan');
         danStore = _.find(dan.stores, { is_main: true });
         elcopro = await (new CompanyService()).getByAlias('elcopro');
@@ -42,7 +44,7 @@ describe('TEST Order operations', async () => {
         expect(service.instance.status_id).to.equal('in_work');
     });
     it('Create child TransferIn', async () => {
-        child = await service.createTransferIn({
+        child = await transferService.createTransferIn({
             parent_id: parent.id,
             number: 1,
             number_prefix: 'TEST',

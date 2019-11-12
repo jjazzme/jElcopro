@@ -2,7 +2,6 @@ import DocumentService from './DocumentService';
 import {
     Document, DocumentLine, Order, TransferIn
 } from '../models';
-import TransferInService from "./TransferInService";
 
 export default class OrderService extends DocumentService {
     constructor() {
@@ -57,29 +56,5 @@ export default class OrderService extends DocumentService {
         }
         this._instance.closed = true;
         return true;
-    }
-
-    /**
-     * Create child TransferIn for Order
-     * @param optics
-     * @returns {Promise<Object>}
-     */
-    async createTransferIn(optics) {
-        try {
-            const child = await this.createChild(
-                optics.parent_id,
-                {
-                    document_type_id: 'transfer-in',
-                    number: optics.number,
-                    number_prefix: optics.number_prefix,
-                    user_id: optics.user_id,
-                    status_id: 'formed'
-                },
-                optics.lines
-            );
-            return await (new TransferInService()).find({ id: child.id })
-        } catch (e) {
-            throw e
-        }
     }
 }

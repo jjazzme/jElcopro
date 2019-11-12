@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import Sequelize from 'sequelize';
-import Entity from './Entity';
+import ModelService from './ModelService';
 import {
     Currency,
     Company,
@@ -20,7 +20,7 @@ import CompanyService from './CompanyService';
 import StoreService from './StoreService';
 import ExternalPriceService from './ExternalPriceService';
 
-export default class PriceService extends Entity {
+export default class PriceService extends ModelService {
     /**
      *
      */

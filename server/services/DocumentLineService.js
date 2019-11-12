@@ -1,6 +1,6 @@
 import Sequelize from 'sequelize';
 import db from '../models';
-import Entity from './Entity';
+import ModelService from './ModelService';
 import GoodService from './GoodService';
 import _ from 'lodash';
 
@@ -8,7 +8,7 @@ const {
     Arrival, Departure, Document, DocumentLine, FutureReserve, Good, Product, Reserve,
 } = db;
 
-export default class DocumentLineService extends Entity {
+export default class DocumentLineService extends ModelService {
     constructor() {
         super(DocumentLine);
         this._includes = [
@@ -21,6 +21,23 @@ export default class DocumentLineService extends Entity {
             { model: Reserve, as: 'reserves' },
             { model: Good, as: 'good', include: [{ model: Product, as: 'product' }] },
         ];
+    }
+
+    /**
+     * Parent quantity must more then sum quantity children
+     * @param {DocumentLine} line
+     * @returns {Promise<void>}
+     * @private
+     */
+    async _checkChildrenQuantity(line) {
+        const children = line.children ? line.children
+            : await DocumentLine.findAll({ where: { parent_id: line.id} });
+        if (children.length > 0) {
+            const sumQuantity = children.reduce((sum, child) => sum + child.quantity, 0);
+            if (line.quantity < sumQuantity) {
+                throw new Error(`${line.quantity} less than possible ${sumQuantity}`);
+            }
+        }
     }
 
     /**
@@ -43,20 +60,67 @@ export default class DocumentLineService extends Entity {
     }
 
     /**
-     * Parent quantity must more then sum quantity children
+     * Reserve procedure
      * @param {DocumentLine} line
-     * @returns {Promise<void>}
+     * @param {Transaction} transaction
+     * @param {number|null} reserved
+     * @returns {Promise<number>}
      * @private
      */
-    async _checkChildrenQuantity(line) {
-        const children = line.children ? line.children
-            : await DocumentLine.findAll({ where: { parent_id: line.id} });
-        if (children.length > 0) {
-            const sumQuantity = children.reduce((sum, child) => sum + child.quantity, 0);
-            if (line.quantity < sumQuantity) {
-                throw new Error(`${line.quantity} less than possible ${sumQuantity}`);
+    async _reserveLines(line, transaction, reserved) {
+        const reserves = reserved || this._reserveQuantity(line);
+        let needReserve = line.quantity - reserves;
+        const { Op } = Sequelize;
+        const arrivals = await Arrival.findAll({
+            where: { ballance: { [Op.gt]: 0 } },
+            include: { model: DocumentLine, as: 'documentLine', where: { good_id: line.good_id } },
+        });
+        // eslint-disable-next-line no-restricted-syntax,no-unused-vars
+        for (const arrival of arrivals) {
+            if (arrival.ballance > needReserve) {
+                arrival.ballance -= needReserve;
+                // eslint-disable-next-line no-await-in-loop
+                await arrival.save({ transaction });
+                // eslint-disable-next-line no-await-in-loop
+                await Reserve.create(
+                    {
+                        document_line_id: line.id, arrival_id: arrival.id, quantity: needReserve, closed: false,
+                    },
+                    { transaction },
+                );
+                needReserve = 0;
+                break;
+            } else {
+                needReserve -= arrival.ballance;
+                // eslint-disable-next-line no-await-in-loop
+                await Reserve.create(
+                    {
+                        document_line_id: line.id, arrival_id: arrival.id, quantity: arrival.ballance, closed: false,
+                    },
+                    { transaction },
+                );
+                arrival.ballance = 0;
+                // eslint-disable-next-line no-await-in-loop
+                await arrival.save({ transaction });
             }
         }
+        if (needReserve !== line.quantity - reserves) {
+            // eslint-disable-next-line no-param-reassign
+            line.good.ballance -= line.quantity - reserves - needReserve;
+            await line.good.save({ transaction });
+        }
+        return line.quantity - reserves - needReserve;
+    }
+
+    /**
+     * Sum reserve quantity for this line
+     * @param {DocumentLine} line
+     * @returns {number}
+     * @private
+     */
+    // eslint-disable-next-line class-methods-use-this
+    _reserveQuantity(line) {
+        return line.reserves.reduce((sum, reserve) => sum + reserve.quantity, 0);
     }
 
     /**
@@ -222,69 +286,5 @@ export default class DocumentLineService extends Entity {
         await line.good.save({ transaction: params.transaction });
         // Тут возможно нужно проверить future_resreves на предмет ожидания этой позиции
         return backToStore;
-    }
-
-    /**
-     * Sum reserve quantity for this line
-     * @param {DocumentLine} line
-     * @returns {number}
-     * @private
-     */
-    // eslint-disable-next-line class-methods-use-this
-    _reserveQuantity(line) {
-        return line.reserves.reduce((sum, reserve) => sum + reserve.quantity, 0);
-    }
-
-    /**
-     * Reserve procedure
-     * @param {DocumentLine} line
-     * @param {Transaction} transaction
-     * @param {number|null} reserved
-     * @returns {Promise<number>}
-     * @private
-     */
-    async _reserveLines(line, transaction, reserved) {
-        const reserves = reserved || this._reserveQuantity(line);
-        let needReserve = line.quantity - reserves;
-        const { Op } = Sequelize;
-        const arrivals = await Arrival.findAll({
-            where: { ballance: { [Op.gt]: 0 } },
-            include: { model: DocumentLine, as: 'documentLine', where: { good_id: line.good_id } },
-        });
-        // eslint-disable-next-line no-restricted-syntax,no-unused-vars
-        for (const arrival of arrivals) {
-            if (arrival.ballance > needReserve) {
-                arrival.ballance -= needReserve;
-                // eslint-disable-next-line no-await-in-loop
-                await arrival.save({ transaction });
-                // eslint-disable-next-line no-await-in-loop
-                await Reserve.create(
-                    {
-                        document_line_id: line.id, arrival_id: arrival.id, quantity: needReserve, closed: false,
-                    },
-                    { transaction },
-                );
-                needReserve = 0;
-                break;
-            } else {
-                needReserve -= arrival.ballance;
-                // eslint-disable-next-line no-await-in-loop
-                await Reserve.create(
-                    {
-                        document_line_id: line.id, arrival_id: arrival.id, quantity: arrival.ballance, closed: false,
-                    },
-                    { transaction },
-                );
-                arrival.ballance = 0;
-                // eslint-disable-next-line no-await-in-loop
-                await arrival.save({ transaction });
-            }
-        }
-        if (needReserve !== line.quantity - reserves) {
-            // eslint-disable-next-line no-param-reassign
-            line.good.ballance -= line.quantity - reserves - needReserve;
-            await line.good.save({ transaction });
-        }
-        return line.quantity - reserves - needReserve;
     }
 }

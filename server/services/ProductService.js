@@ -1,9 +1,9 @@
 'use strict';
 
-import Entity from './Entity';
+import ModelService from './ModelService';
 import { Category, Parameter, Picture, Producer, Product } from '../models';
 
-export default class ProductService extends Entity {
+export default class ProductService extends ModelService {
 
     constructor() {
         super(Product);

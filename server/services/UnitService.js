@@ -1,9 +1,9 @@
 'use strict';
 
 import { Unit } from '../models';
-import Entity from "./Entity";
+import ModelService from "./ModelService";
 
-export default class UnitService extends Entity {
+export default class UnitService extends ModelService {
 
     constructor() {
         super(Unit);

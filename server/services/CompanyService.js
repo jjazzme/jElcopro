@@ -1,5 +1,5 @@
 
-import Entity from './Entity';
+import ModelService from './ModelService';
 import {
     Address, Company, Party, Store,
 } from '../models';
@@ -9,7 +9,7 @@ import PartyService from './PartyService';
 import AddressService from './AddressService';
 import StoreService from './StoreService';
 
-export default class CompanyService extends Entity {
+export default class CompanyService extends ModelService {
     _PartyService = new PartyService();
 
     _AddressService = new AddressService();

@@ -2,9 +2,9 @@
 
 const Party = require('../models').Party;
 const Dadata = require('./Dadata').default;
-import Entity from "./Entity";
+import ModelService from "./ModelService";
 
-export default class PartyService extends Entity {
+export default class PartyService extends ModelService {
 
     constructor() {
         super(Party)

@@ -1,14 +1,14 @@
 import StateMachine from 'javascript-state-machine';
 import _ from 'lodash';
-import Entity from './Entity';
+import ModelService from './ModelService';
 import db from '../models/index';
 import DocumentLineService from "./DocumentLineService";
 
 const {
-    Company, Document, Party, Store,
+    Company, Party, Store,
 } = db;
 
-export default class DocumentService extends Entity {
+export default class DocumentService extends ModelService {
     /**
      * Transitions used in children
      * @type {Array}
@@ -75,17 +75,16 @@ export default class DocumentService extends Entity {
 
     /**
      * Create child Document with DocumentLines
-     * @param {Document|number} parent
+     * @param {Order} parent
      * @param {Object} child
      * @param {Array|null} parentLines
      * @returns {Promise<Object>}
      */
     async createChild(parent, child, parentLines) {
-        const parentInstance = await this.getModel(parent);
         const parentLineIds = parentLines ? parentLines.map((line) => isNaN(line) ? line.id : line ) : null;
         const t = await db.sequelize.transaction();
-        let childInsatnce = Object.assign(parentInstance.get({ plain: true }), child);
-        childInsatnce.parent_id = parentInstance.id;
+        let childInsatnce = Object.assign(parent.get({ plain: true }), child);
+        childInsatnce.parent_id = parent.id;
         delete childInsatnce.id;
         try {
             childInsatnce = await this.create(childInsatnce, t);

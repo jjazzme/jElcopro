@@ -1,9 +1,9 @@
 'use strict';
 
 import { ParameterName, Unit } from '../models';
-import Entity from "./Entity";
+import ModelService from "./ModelService";
 
-export default class ParameterNameService extends Entity {
+export default class ParameterNameService extends ModelService {
 
     constructor() {
         super(ParameterName);

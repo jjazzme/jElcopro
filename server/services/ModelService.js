@@ -1,6 +1,6 @@
 import db from '../models/index';
 
-export default class Entity {
+export default class ModelService {
     /**
      * Model class
      * @type {Object}
@@ -250,7 +250,7 @@ export default class Entity {
     /**
      * Create new Instance of Service with model instance if need
      * @param {Object|number|null} instance
-     * @returns {Promise<Entity>}
+     * @returns {Promise<ModelService>}
      */
     static async getNew(instance) {
         const ret = new this();
