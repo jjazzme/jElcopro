@@ -52,6 +52,13 @@ export default {
       }
       >footer{
         background: @footer-bg;
+        color: @footer-text;
+        a{
+          color: @footer-text;
+          opacity: 0.8;
+          border: none;
+        }
+        a:hover{opacity: 1; color: @footer-text;}
       }
     }
   }

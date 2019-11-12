@@ -1,8 +1,8 @@
 <template>
     <div class="priceTable">
-        <price-list-header
+        <!--price-list-header
                 v-model="$props['value']"
-        />
+        /-->
 
         <div v-if="loading" class="v-t-loader">
             <!--СПИННЕР-->
@@ -10,10 +10,20 @@
         </div>
 
         <price-list-row
-            v-for="(row, rowIndex) in value.price.data"
-            v-model="value.price.data[rowIndex]"
+            v-for="(row, rowIndex) in tableData"
+            v-model="tableData[rowIndex]"
             :card="value.optics.current._forView.card"
+            :quantity="parseInt(value.optics.current.quantity)"
         ></price-list-row>
+
+        <b-button
+          v-if="value.price.count>value.optics.itemsLimit"
+          @click="value.optics.nextPage()"
+        >Показать еще</b-button>
+
+        <div>
+
+        </div>
 
     </div>
 </template>
@@ -23,12 +33,15 @@
     import PriceListRow from "./tablesRow/priceListRow";
 
     export default {
-        name: "priceListBody",
+        name: "priceListTable",
         components:{PriceListRow, PriceListHeader},
         props:{
             value: {type: Object}
         },
         computed:{
+            tableData(){
+                return this.value.price.data;
+            },
             loading(){
                 return this.value?.currentOptics?._forProcessing.loading['0'];
             },
@@ -40,21 +53,13 @@
 <style scoped lang="less">
     @import "~@/less/_variables";
     @breakpoint: 500px;
-    .priceTable{
-        background-color: @table-body-bg;
-        color: @table-header-bg;
+    .v-t-row{
         display: flex;
-        flex-flow: column nowrap;
-        transition: 0.5s;
-        .v-t-row{
-            display: flex;
-            >div{
-                flex: 1 1 auto;
-                text-align: left;
-                border-right: var(--table-body-text) solid 1px;
-                min-height: 20px;
-            }
+        >div{
+            flex: 1 1 auto;
+            text-align: left;
+            border-right: var(--table-body-text) solid 1px;
+            min-height: 20px;
         }
-
     }
 </style>

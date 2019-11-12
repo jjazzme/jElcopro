@@ -87,4 +87,8 @@ export default class CurrencyRateService extends Entity {
         }
         return rates;
     }
+
+    get default(){
+        return this.getRatesByDate(Date.now());
+    }
 }

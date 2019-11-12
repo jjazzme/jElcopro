@@ -3,33 +3,43 @@
         <div class="left-part">
             <b-form-input
                     type="text"
-                    v-model="value.searchString"
+                    v-model="value.optics.search"
                     placeholder="Строка поиска"
             />
             <b-form-input
                     type="number"
                     min="1"
-                    v-model="value.quantity"
+                    v-model="value.optics.quantity"
                     :formatter="intFormatter"
                     placeholder="Минимальное количество"
             />
             <b-form-checkbox
-                    v-model="value.fromQuantity"
+                    v-model="value.optics.fromQuantity"
                     switch>
                 Учитывать количество
             </b-form-checkbox>
         </div>
-        <div class="stores" v-if="stores.length>0">
-            <div
-                    v-for="(store, storeInd) in stores"
-                    :key="store.value"
+        <div class="stores">
+
+            <b-form-checkbox-group
+              v-model="value.optics.selectedStores"
+              class="checkbox"
+              :options="options"
+              stacked
+            >
+            </b-form-checkbox-group>
+
+
+            <!--div
+                    v-for="(store, storeInd) in value.data.stores"
+                    :key="store.id"
                     class="store"
             >
                 <b-form-checkbox
                         v-model="store.selected"
                         class="checkbox"
                 >
-                    {{store.text}}
+                    {{`${store.company.party.name} - ${store.name}`}}
                 </b-form-checkbox>
                 <div
                         class="loading"
@@ -45,7 +55,11 @@
                             label="Загрузка..."
                     />
                 </div>
-            </div>
+            </div
+
+                          //
+
+            -->
         </div>
     </div>
 </template>
@@ -56,30 +70,24 @@
         name: "priceListParametersConstructor",
         data(){
             return {
-                stores:[],
+
             }
         },
         props:{
             value: {type: Object,}
         },
         computed: {
-            loading(){return this.value._forProcessing.loading}
-        },
-        created() {
-            this.$store.dispatch('TABLES/LOAD_REFDATA', 'Store')
-                .then(r=>{
-                    this.$set(this.value._forProcessing, 'stores', r)
-                    this.$set(this, 'stores', _.map(r, item=>{return {text: `${item.company.party.name} - ${item.name}`, value: item.id, selected: !item.online}}));
-                    this.$set(this.value, 'selectedStores', _.map(r, item=>{if (!item.online) item.id}));
-                })
-                .catch(e=>{
-                    Swal.fire({
-                        title: 'Ошибка получения модели Store',
-                        text:  e,
-                        type:  'error',
-                        timer: 10000
-                    });
-                })
+            loading(){return this.value.data.promiseSources},
+            options(){
+                return this.value.data.stores.map(function(store){return{
+                    value: store.id,
+                    html:
+`<div id="Store_${store.id}">
+  <span style="color:${store._loading ? 'red' : ''}">${store._loading ? '<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="download" class="svg-inline--fa fa-download fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M216 0h80c13.3 0 24 10.7 24 24v168h87.7c17.8 0 26.7 21.5 14.1 34.1L269.7 378.3c-7.5 7.5-19.8 7.5-27.3 0L90.1 226.1c-12.6-12.6-3.7-34.1 14.1-34.1H192V24c0-13.3 10.7-24 24-24zm296 376v112c0 13.3-10.7 24-24 24H24c-13.3 0-24-10.7-24-24V376c0-13.3 10.7-24 24-24h146.7l49 49c20.1 20.1 52.5 20.1 72.6 0l49-49H488c13.3 0 24 10.7 24 24zm-124 88c0-11-9-20-20-20s-20 9-20 20 9 20 20 20 20-9 20-20zm64 0c0-11-9-20-20-20s-20 9-20 20 9 20 20 20 20-9 20-20z"></path></svg> ' : ''}${store.company.party.name} - ${store.name} </span>
+</div>`
+                }})
+            },
+            backSensitive(){return this.value.optics.backSensitive}
         },
         methods:{
             abort(sid){
@@ -93,25 +101,17 @@
                 return parseInt(ret);
             }
         },
-        watch:{
-            stores: {
-                handler: function(n){
-                    const selected = _.filter(n, item=>item.selected);
-                    this.$set(this.value, 'selectedStores', _.map(selected , item=>item.value));
-                },
-                deep: true
-            },
-            //'value.fromQuantity'(n) {
-            //    if(n && !this.value.quantity) this.$set(this.value, 'quantity', 1);
-            //    if(!n && this.value.quantity === 1) this.$set(this.value, 'quantity', null);
-            //}
-        },
+    }
+
+    function cancelAxios(val){
+        console.log(val)
     }
 </script>
 
 <style scoped lang="less">
     .component{
         display: flex;
+        flex: 1 1 1;
         justify-content: space-between;
         > div{
             flex: 1 1 auto;

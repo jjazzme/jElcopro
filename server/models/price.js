@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
         currency_id: DataTypes.STRING,
         min: DataTypes.INTEGER,
         max: DataTypes.INTEGER,
-        our_price: DataTypes.DECIMAL(18, 6),
+        our_price:  DataTypes.DECIMAL(18, 6),
         for_all_price: DataTypes.DECIMAL(18, 6)
     }, {
         freezeTableName: true,

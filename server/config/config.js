@@ -33,6 +33,8 @@ if (!global.sequelize_logging) {
 if (additionalConfig.sequelize.dialect !== 'mysql') {
     additionalConfig.sequelize.dialectOptions = { useUTC: false, timezone: 'Etc/GMT+0' };
     additionalConfig.sequelize.timezone = 'Etc/GMT+0';
+} else {
+    additionalConfig.sequelize.dialectOptions = {decimalNumbers: true}
 }
 const finalConfig = _.merge(defaultConfig, environmentConfig, additionalConfig);
 

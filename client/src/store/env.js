@@ -10,7 +10,10 @@ let state = {
         delimeter_two: ' : '
 
         // Продукты | Таблицы | ELCOPRO : ddgs sdgsgdfdgdg sdgsdgsd
-    }
+    },
+    footer: {
+        component: {name:'footerStandard', vmodel: null}
+    },
 };
 
 let getters = {
@@ -22,6 +25,7 @@ let getters = {
         return title;
     },
     GET_TITLE: state => state.title,
+    GET_FOOTER_COMPONENT: state => {return state.footer.component},
 };
 
 let mutations = {
@@ -29,8 +33,8 @@ let mutations = {
         state.title.main = main;
         state.title.method = method;
         state.title.note = note;
-    }
-
+    },
+    SET_FOOTER_COMPONENT(state, value) { state.footer.component=value },
 };
 
 let actions = {
