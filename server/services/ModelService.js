@@ -203,19 +203,20 @@ export default class ModelService {
     /**
      * Get instance by id, alias or same
      * @param {Object|number} instance
+     * @param {Transaction} transaction
      * @returns {Promise<Object>}
      */
-    async getModel(instance) {
+    async getModel(instance, transaction) {
         let answer = null;
         if (typeof instance === 'number') {
-            answer = await this.find({ id: instance });
+            answer = await this.find({ id: instance }, transaction);
         } else if (typeof instance === 'string' && this.getByAlias) {
             answer = await this.getByAlias(instance);
         } else if (instance instanceof this._Entity) {
             if (this._includes.reduce((flag, item) => !!(flag && item.as && instance[item.as]), true)) {
                 answer = instance;
             } else {
-                answer = await this.find({ id: instance.id });
+                answer = await this.find({ id: instance.id }, transaction);
             }
         }
         return answer;

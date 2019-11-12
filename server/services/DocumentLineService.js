@@ -234,7 +234,7 @@ export default class DocumentLineService extends ModelService {
      * @returns {Promise<number>}
      */
     async reserve(line, params) {
-        const lineInstance = await this.getModel(line);
+        const lineInstance = await this.getModel(line, params.transaction);
         const reserveQuantity = this._reserveQuantity(lineInstance);
         let reserved = 0;
         if (reserveQuantity < lineInstance.quantity) {
@@ -264,7 +264,7 @@ export default class DocumentLineService extends ModelService {
      * @returns {Promise<*>}
      */
     async unreserve(line, params) {
-        const lineInstance = await this.getModel(line);
+        const lineInstance = await this.getModel(line, params.transaction);
         let backToStore = 0;
         // eslint-disable-next-line no-unused-vars,no-restricted-syntax
         for (const reserve of lineInstance.reserves) {
@@ -284,7 +284,7 @@ export default class DocumentLineService extends ModelService {
         // eslint-disable-next-line no-param-reassign
         line.good.ballance += backToStore;
         await line.good.save({ transaction: params.transaction });
-        // Тут возможно нужно проверить future_resreves на предмет ожидания этой позиции
+        await (new FutureReserveService()).checkFutureReserveByGood(line.good, params.transaction);
         return backToStore;
     }
 }
