@@ -6,6 +6,7 @@ export default class Optics {
         this.previous = previous;
     }
 
+
     get actualStoreOptics() {
         let ret = _.cloneDeep(this.current);
         const remove = this.current._forStore.remove;
@@ -35,13 +36,22 @@ export default class Optics {
     isEquivalent(other){
         let isEqual = true;
         _.forEach(this.current._forCompare, compared=>{
-            if(!_.isEqual(this.current[compared], other[compared] )) isEqual = false;
+            if(!compared.skip && !_.isEqual(this.current[compared.name], other[compared.name] )) isEqual = false;
         });
         return isEqual;
     }
 
     get isCurrentEquivalentPrevious(){
         return this.isEquivalent(this.previous);
+    }
+
+    get itemsLimit(){
+        return (this.current._forView?.pageSize??0) *
+          (this.current?._forView?.pages??0);
+    }
+
+    nextPage(){
+        this.current._forView.pages++;
     }
 
     setPreviousByCurrent(){

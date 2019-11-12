@@ -1,5 +1,7 @@
 'use strict';
 
+import Services from "../services";
+
 const models = require('../models');
 const Auth = require('../services/Auth');
 const enums = require('../modules/enums');
@@ -208,51 +210,63 @@ module.exports = {
     },
 
     //
-    getModelData(req, res){
+    getRefData(req, res){
         const userID = parseInt(req.params.userID);
-        const model = req.params.model;
+        const name = req.params.name;
+        const services = new Services();
 
         if (Auth.controllerPermissionIsDenied({
             clientUserID: userID,
-            model: model,
+            model: name,
             requiredPermissons: [enums.authType.Read]})
         ) {
             res.status(401).send('Authentication error');
             return;
         }
 
+        if(models[name]) {
+            const includes = req.body.includes;
+            const sorters = req.body.sorters;
 
-        const includes = req.body.includes;
-        const sorters = req.body.sorters;
-
-        let include = []
-        _.forEach(includes, item=>{
-            let top = {};
-            let current = top;
-            const path = item.path.split('.')
-            _.forEach(path, (model, ind)=>{
-                current.model = models[model];
-                current.as = _.camelCase(model)
-                if(path.length-1 !== ind){
-                    current = current.include = {};
-                }
+            let include = []
+            _.forEach(includes, item=>{
+                let top = {};
+                let current = top;
+                const path = item.path.split('.')
+                _.forEach(path, (model, ind)=>{
+                    current.model = models[model];
+                    current.as = _.camelCase(model)
+                    if(path.length-1 !== ind){
+                        current = current.include = {};
+                    }
+                });
+                include.push(top)
             });
-            include.push(top)
-        });
 
-        models[model].findAll({
-            include: include,
-            order: sorters,
-            limit: 1000
-        })
-            .then(resp=>{
-                res.send(Auth.permissionsModelFilter(model, resp));
+            models[name].findAll({
+                include: include,
+                order: sorters,
+                limit: 1000
             })
-            .catch(err=>{
+              .then(resp=>{
+                  res.send(Auth.permissionsModelFilter(name, resp));
+              })
+              .catch(err=>{
+                  res.status(500);
+                  res.json({error: err});
+              });
+        } else if (services.all[name])  {
+            const Service = services.all[name];
+            const service = new Service();
+            service.default
+              .then(resp=>{
+                  res.send(resp);
+              })
+              .catch(err=>{
                 res.status(500);
                 res.json({error: err});
-            });
-
+              });
+        }
 
     },
 };

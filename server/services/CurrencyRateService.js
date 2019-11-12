@@ -86,4 +86,8 @@ export default class CurrencyRateService extends ModelService {
         }
         return rates;
     }
+
+    get default(){
+        return this.getRatesByDate(Date.now());
+    }
 }

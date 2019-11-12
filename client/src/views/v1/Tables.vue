@@ -303,7 +303,7 @@
             // main
             cacheFromOptics(){
                 return this.loadingStatus === this.enums.loadingStatus.TableLoading
-                    ? _.cloneDeep(this.$store.getters['TABLES/GET_CACHE_ITEM']('model', this.table.name, this.table.shell.optics))
+                    ? _.cloneDeep(this.$store.getters['TABLES/GET_CACHE_ITEM']({type:'model', name:this.table.name, optics: this.table.shell.optics}))
                     : null;},
             lastEvent(){return this.$store.getters['TABLES/GET_LAST_EVENT']},
             SHELL(){return this.$store.getters['TABLES/GET_SHELL'](this.table?.name)},
@@ -750,7 +750,7 @@
                 handler: function (n) {
                     if (n){
                         if(this.loadingStatus>this.enums.loadingStatus.ShellLoaded &&
-                            this.$store.getters['TABLES/GET_CACHE_ITEM']('model', this.table.name, this.table.shell.optics) &&
+                            this.$store.getters['TABLES/GET_CACHE_ITEM']({type: 'model', name: this.table.name, optics:this.table.shell.optics}) &&
                             !_.isEqual(_.last(this.queueSave).optics, n))
                         {
                             this.queueSave.push(_.cloneDeep(this.table.shell));
@@ -797,7 +797,7 @@
                         items.push(item.id);
                     });
                     const optics = this.zipup(_.cloneDeep(this.table.shell.optics), items);
-                    Vue.set(this.table.shell.optics, 'items', items)
+                    Vue.set(this.table.shell.optics, 'items', items);
                     Vue.set(this.table, 'queryOptics', optics);
 
                     const jOptics = JSON.stringify(optics);

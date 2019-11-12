@@ -40,7 +40,7 @@ const router = new Router({
       path:'/prices',
       name: 'prices',
       meta: {middleware: env},
-      component: () => import('./views/v1/PriceList.vue'),
+      component: () => import('./views/v2/PriceList.vue'),
     },
     {
       path:'/tables/:table',

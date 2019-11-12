@@ -21,7 +21,7 @@ router.put('/api/shell/:model/:userID', shellController.setShell);
 router.put('/api/model/get/:model/:userID/:page', modelController.getModelByOptics);
 router.put('/api/model/options/:model/:userID', modelController.getSelectors);
 router.post('/api/model/update/:model/:userID', modelController.updateColumn);
-router.put('/api/model-data/get/:model/:userID', modelController.getModelData);
+router.put('/api/refdata/get/:name/:userID', modelController.getRefData);
 
 /* Service router */
 router.put('/api/service/get/:service/:userID', servicesController.getService);

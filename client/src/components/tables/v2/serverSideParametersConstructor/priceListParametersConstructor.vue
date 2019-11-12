@@ -8,7 +8,9 @@
             />
             <b-form-input
                     type="number"
+                    min="1"
                     v-model="value.quantity"
+                    :formatter="intFormatter"
                     placeholder="Минимальное количество"
             />
             <b-form-checkbox
@@ -64,11 +66,11 @@
             loading(){return this.value._forProcessing.loading}
         },
         created() {
-            this.$store.dispatch('TABLES/LOAD_MODEL', 'Store')
+            this.$store.dispatch('TABLES/LOAD_REFDATA', 'Store')
                 .then(r=>{
                     this.$set(this.value._forProcessing, 'stores', r)
-                    this.$set(this, 'stores', _.map(r, item=>{return {text: `${item.company.party.name} - ${item.name}`, value: item.id, selected: true}}));
-                    this.$set(this.value, 'selectedStores', _.map(r, item=>item.id));
+                    this.$set(this, 'stores', _.map(r, item=>{return {text: `${item.company.party.name} - ${item.name}`, value: item.id, selected: !item.online}}));
+                    this.$set(this.value, 'selectedStores', _.map(r, item=>{if (!item.online) item.id}));
                 })
                 .catch(e=>{
                     Swal.fire({
@@ -85,6 +87,11 @@
                 let source = this.$store.getters['TABLES/GET_AXIOS_SOURCES'](uid);
                 source.cancel('aborted')
             },
+            intFormatter(val, e){
+                let ret = parseInt(val);
+                if (!ret) ret = 1
+                return parseInt(ret);
+            }
         },
         watch:{
             stores: {
@@ -94,10 +101,10 @@
                 },
                 deep: true
             },
-            'value.fromQuantity'(n) {
-                if(n && !this.value.quantity) this.$set(this.value, 'quantity', 1);
-                if(!n && this.value.quantity === 1) this.$set(this.value, 'quantity', null);
-            }
+            //'value.fromQuantity'(n) {
+            //    if(n && !this.value.quantity) this.$set(this.value, 'quantity', 1);
+            //    if(!n && this.value.quantity === 1) this.$set(this.value, 'quantity', null);
+            //}
         },
     }
 </script>
@@ -120,8 +127,8 @@
                 align-self: center;
                 margin: 10px;
             }
-            input{min-width: 70px;}
-            input:nth-child(2){max-width: 70px}
+            input{min-width: 80px;}
+            input:nth-child(2){max-width: 80px}
             >div{min-width: 250px}
         }
         .stores{

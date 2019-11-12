@@ -31,7 +31,9 @@ module.exports = {
         }
 
         if (promise) promise
-            .then(r=>res.send(r))
+            .then(r=>
+              res.send(r)
+            )
             .catch(e=>{
                 res.status(500);
                 res.json({error: e}
