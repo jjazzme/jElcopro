@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="09e94829-b941-41e8-95cd-f4a06a6a7730" name="Default Changelist" comment="Прайс версии 3">
+    <list default="true" id="09e94829-b941-41e8-95cd-f4a06a6a7730" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/classLib/PriceSource.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/classLib/PriceSource.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/components/tables/v3/serverSideParametersConstructor/priceListParametersConstructor.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/tables/v3/serverSideParametersConstructor/priceListParametersConstructor.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/components/tables/v3/tablesBody/priceListTable.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/tables/v3/tablesBody/priceListTable.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/components/tables/v3/tablesBody/tablesRow/priceListRow.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/tables/v3/tablesBody/tablesRow/priceListRow.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/components/tables/v3/tablesBody/tablesRow/tablesCell/priceListCell.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/tables/v3/tablesBody/tablesRow/tablesCell/priceListCell.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/views/v2/PriceList.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/views/v2/PriceList.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/storage/dan_dealer.xls" beforeDir="false" afterPath="$PROJECT_DIR$/server/storage/dan_dealer.xls" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -26,7 +33,23 @@
     <option name="HIDDEN_KINDS">
       <set />
     </option>
-    <expand />
+    <expand>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="elcopro@localhost" type="feb32156:DbDataSourceImpl" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="elcopro@localhost" type="feb32156:DbDataSourceImpl" />
+        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="elcopro@localhost" type="feb32156:DbDataSourceImpl" />
+        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
+        <item name="elcopro: schema" type="76f4a085:MysqlImplModel$Schema" />
+      </path>
+    </expand>
     <select />
   </component>
   <component name="FavoritesManager">
@@ -181,11 +204,11 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="npm.start_NODEMON" />
         <item itemvalue="npm.serve" />
-        <item itemvalue="npm.test_console" />
+        <item itemvalue="npm.start_NODEMON" />
         <item itemvalue="npm.test" />
         <item itemvalue="npm.syncModelDB" />
+        <item itemvalue="npm.test_console" />
       </list>
     </recent_temporary>
   </component>
@@ -193,7 +216,17 @@
     <option name="allServicesViewState">
       <serviceView>
         <treeState>
-          <expand />
+          <expand>
+            <path>
+              <item name="services root" type="e789fda9:ObjectUtils$Sentinel" />
+              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@2c6cbf3e" type="7427dc5b:ServiceModel$ServiceGroupNode" />
+            </path>
+            <path>
+              <item name="services root" type="e789fda9:ObjectUtils$Sentinel" />
+              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@2c6cbf3e" type="7427dc5b:ServiceModel$ServiceGroupNode" />
+              <item name="com.intellij.execution.services.ServiceModel$ServiceNode@3a069fcf" type="9fbbdea:ServiceModel$ServiceNode" />
+            </path>
+          </expand>
           <select />
         </treeState>
       </serviceView>
@@ -222,7 +255,7 @@
       <workItem from="1572360022559" duration="21862000" />
       <workItem from="1572437134688" duration="34232000" />
       <workItem from="1572528897107" duration="2773000" />
-      <workItem from="1573102263376" duration="129879000" />
+      <workItem from="1573102263376" duration="159940000" />
     </task>
     <task id="LOCAL-00001" summary="Datata">
       <created>1571292450729</created>
@@ -336,7 +369,14 @@
       <option name="project" value="LOCAL" />
       <updated>1573549857930</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="Прайс версии 3+">
+      <created>1573563320577</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1573563320577</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -385,6 +425,7 @@
     <MESSAGE value="191103-01" />
     <MESSAGE value="191104" />
     <MESSAGE value="Прайс версии 3" />
-    <option name="LAST_COMMIT_MESSAGE" value="Прайс версии 3" />
+    <MESSAGE value="Прайс версии 3+" />
+    <option name="LAST_COMMIT_MESSAGE" value="Прайс версии 3+" />
   </component>
 </project>

@@ -11,8 +11,8 @@
           v-else
         >
             <price-list-row
-              v-for="(row, rowIndex) in tableData"
-              v-model="tableData[rowIndex]"
+              v-for="(row, rowIndex) in table"
+              v-model="table[rowIndex]"
               :card="value.shell.card"
               :quantity="parseInt(value.optics.quantity)"
             ></price-list-row>
@@ -31,10 +31,18 @@
             value: {type: Object},
             loading: null
         },
+        data(){
+            return{
+                table: null,
+            }
+        },
         computed:{
-            tableData(){
-                return this.value.data.price(this.value.optics);
-            },
+            frontSensitive(){return this.value.optics.frontSensitive}
+        },
+        watch:{
+            'value.optics.frontSensitive'(n,o){
+                this.$set(this, 'table', this.value.data.price(n));
+            }
         }
     }
 </script>

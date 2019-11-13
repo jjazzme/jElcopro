@@ -3,21 +3,28 @@
         <div class="left-part">
             <b-form-input
                     type="text"
-                    v-model="value.optics.search"
+                    v-model="value.search"
                     placeholder="Строка поиска"
             />
             <b-form-input
                     type="number"
                     min="1"
-                    v-model="value.optics.quantity"
+                    v-model="value.quantity"
                     :formatter="intFormatter"
                     placeholder="Минимальное количество"
             />
-            <b-form-checkbox
-                    v-model="value.optics.fromQuantity"
-                    switch>
-                Учитывать количество
-            </b-form-checkbox>
+            <div>
+                <b-form-checkbox
+                  v-model="value.fromQuantity"
+                  switch>
+                    Учитывать количество
+                </b-form-checkbox>
+                <b-form-checkbox
+                  v-model="value.onlyDB"
+                  switch>
+                     только БД
+                </b-form-checkbox>
+            </div>
         </div>
         <div class="stores">
 
@@ -28,38 +35,6 @@
               stacked
             >
             </b-form-checkbox-group>
-
-
-            <!--div
-                    v-for="(store, storeInd) in value.data.stores"
-                    :key="store.id"
-                    class="store"
-            >
-                <b-form-checkbox
-                        v-model="store.selected"
-                        class="checkbox"
-                >
-                    {{`${store.company.party.name} - ${store.name}`}}
-                </b-form-checkbox>
-                <div
-                        class="loading"
-                        v-if="loading[store.value]"
-                        title="Прервать"
-                        @click="abort(store.value)"
-                >
-                    <fa-icon class="abort" icon="times" />
-                    <b-spinner
-                            small
-                            class="spinner"
-                            variant="warning"
-                            label="Загрузка..."
-                    />
-                </div>
-            </div
-
-                          //
-
-            -->
         </div>
     </div>
 </template>
@@ -87,7 +62,6 @@
 </div>`
                 }})
             },
-            backSensitive(){return this.value.optics.backSensitive}
         },
         methods:{
             abort(sid){

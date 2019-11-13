@@ -64,9 +64,9 @@
     .p-l-alias {
       position: absolute;
       font-size: 12px;
-      line-height: 12px;
+      line-height: 9px;
       opacity: 0.5;
-      top: 0;
+      top: 1px;
       left: 5px;
     }
     .p-l-value {
@@ -75,8 +75,11 @@
       padding-top: 10px;
     }
   }
-  .p-l-c-priceRUR{background-color: #ffcc66;}
-  .p-l-c-priceRUR, .p-l-c-vat, .p-l-c-ballance, .p-l-c-average_days {font-size: 24px; font-weight: bold;}
+  .p-l-c-min, .p-l-c-max, .p-l-c-pack, .p-l-c-multiply {min-width:40px}
+  .p-l-c-online{max-width: 50px; font-size: 16px}
+  .p-l-c-code{max-width: 80px;}
+  .p-l-c-_priceRUR{background-color: #ffcc66; height: 100%}
+  .p-l-c-_priceRUR, .p-l-c-vat, .p-l-c-ballance, .p-l-c-average_days {font-size: 20px; font-weight: bold;}
   .p-l-c-name {font-size: 16px; font-weight: bold; background-color: #ff9999}
-  .p-l-c-online {font-size: 20px;}
+  .p-l-c-vat{max-width: 40px;}
 </style>

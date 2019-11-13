@@ -34,7 +34,7 @@
                 rootLoading: false,
                 prevBackOptics: null,
                 value: new PriceSource({
-                    optics: {search:'max', quantity:5, fromQuantity:false, selectedStores:[2,4], depth:10, pages:1, debounceAmount:1000},
+                    optics: {search:'max', quantity:5, fromQuantity:false, onlyDB: true, selectedStores:[1,2], depth:10, pages:1, debounceAmount:1000},
                 }),
             }
         },
@@ -87,12 +87,15 @@
 
                         this.value.data.clear();
                         loadPrice(0, backOptics);
-                        _.forEach(this.value.optics.selectedStores, storeID=>{
-                            if(_.find(this.value.data.references.stores, store=>store.id===storeID).online){
-                                let StoreOptics = {name: backOptics.name, from_store:storeID};
-                                loadPrice(storeID, StoreOptics);
-                            }
-                        });
+                        if(!this.value.onlyDB)
+                        {
+                            _.forEach(this.value.optics.selectedStores, storeID=>{
+                                if(_.find(this.value.data.references.stores, store=>store.id===storeID).online){
+                                    let StoreOptics = {name: backOptics.name, from_store:storeID};
+                                    loadPrice(storeID, StoreOptics);
+                                }
+                            });
+                        }
 
                         this.prevBackOptics = backOptics
                     }, this.value.optics.debounceAmount)
