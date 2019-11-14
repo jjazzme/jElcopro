@@ -2,6 +2,7 @@ import DocumentService from './DocumentService';
 import db from '../models';
 import OrderService from './OrderService';
 import ArrivalService from './ArrivalService';
+import DocumentLineService from './DocumentLineService';
 
 const {
     Document, DocumentLine, Order, TransferIn,
@@ -40,9 +41,9 @@ export default class TransferInService extends DocumentService {
             }, transaction);
             line.closed = true;
             await line.save({ transaction });
-            const parent = await (new OrderService()).getModel(line.parent, transaction);
-            const quantity = parent.documentLines.reduce((sum, l) => sum + l.quantity, 0);
-            const closed = parent.documentLines.reduce((cls, l) => cls && l.closed, true);
+            const parent = await (new DocumentLineService()).getModel(line.parent_id, transaction);
+            const quantity = parent.children.reduce((sum, l) => sum + l.quantity, 0);
+            const closed = parent.children.reduce((cls, l) => cls && l.closed, true);
             parent.closed = closed && parent.quantity === quantity;
             await parent.save({ transaction });
         }
@@ -66,7 +67,7 @@ export default class TransferInService extends DocumentService {
             await service.destroy(arrival, transaction);
             line.closed = false;
             await line.save({ transaction });
-            const parent = await (new OrderService()).getModel(line.parent, transaction);
+            const parent = await (new DocumentLineService()).getModel(line.parent_id, transaction);
             parent.closed = false;
             await parent.save({ transaction });
         }

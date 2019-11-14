@@ -79,7 +79,7 @@ export default class DocumentService extends ModelService {
                     await t.commit();
                     return true;
                 } catch (e) {
-                    console.error(e);
+                    // console.error(e);
                     error = e;
                 }
             } else {

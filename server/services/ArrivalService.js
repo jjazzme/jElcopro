@@ -1,8 +1,7 @@
 import ModelService from './ModelService';
 import db from '../models';
-import DocumentLineService from './DocumentLineService';
 import GoodService from './GoodService';
-import FutureReserveService from './FutureReserveService';
+import DocumentLineService from './DocumentLineService';
 
 const { Arrival } = db;
 
@@ -19,12 +18,28 @@ export default class ArrivalService extends ModelService {
      */
     // eslint-disable-next-line class-methods-use-this
     async afterCreate(arrival, transaction) {
-        const lineFrom = await (new DocumentLineService())
-            .find({ id: arrival.document_line_id }, transaction);
+        const service = new DocumentLineService();
+        const lineFrom = await service.find({ id: arrival.document_line_id }, transaction);
         lineFrom.good.ballance += arrival.ballance;
-        const good = await (new GoodService()).save(lineFrom.good, transaction);
-        const service = new FutureReserveService();
+        const good = await (new GoodService()).update(lineFrom.good, transaction);
         await service.checkFutureReserveByGood(good, transaction);
+    }
+
+    /**
+     * Change good ballance
+     * @param arrival
+     * @param transaction
+     * @returns {Promise<void>}
+     */
+    // eslint-disable-next-line class-methods-use-this
+    async beforeUpdate(arrival, transaction) {
+        const service = new DocumentLineService();
+        const lineFrom = await service.find({ id: arrival.document_line_id }, transaction);
+        lineFrom.good.ballance += arrival.ballance - arrival.previous('ballance');
+        const good = await (new GoodService()).update(lineFrom.good, transaction);
+        if (arrival.ballance > arrival.previous('ballance')) {
+            await service.checkFutureReserveByGood(good, transaction);
+        }
     }
 
     /**
@@ -40,6 +55,6 @@ export default class ArrivalService extends ModelService {
         if (lineFrom.quantity !== arrival.ballance) throw new Error('Check reserves & departures');
         lineFrom.good.ballance -= arrival.ballance;
         if (lineFrom.good.ballance < 0) throw new Error('Impossible minus ballance');
-        await (new GoodService()).save(lineFrom.good, transaction);
+        await (new GoodService()).update(lineFrom.good, transaction);
     }
 }

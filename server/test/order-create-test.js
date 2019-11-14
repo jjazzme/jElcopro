@@ -13,7 +13,8 @@ chai.use(require('chai-string'));
 const { expect } = chai;
 
 describe('TEST Order create with one DocumentLine with TEST Product', () => {
-    let dan, danStore, producer, product, elcopro, elcoproStore;
+    let dan; let danStore; let producer; let product; let elcopro; let
+        elcoproStore;
     before(async () => {
         dan = await (new CompanyService()).getByAlias('dan');
         danStore = _.find(dan.stores, { is_main: true });
@@ -21,7 +22,6 @@ describe('TEST Order create with one DocumentLine with TEST Product', () => {
         product = await (new ProductService()).find({ name: 'TEST', producer_id: producer.id });
         elcopro = await (new CompanyService()).getByAlias('elcopro');
         elcoproStore = _.find(elcopro.stores, { is_main: true });
-
     });
     it('Create TEST Good on Main Dan Store', async () => {
         const service = new GoodService();
@@ -70,22 +70,20 @@ describe('TEST Order create with one DocumentLine with TEST Product', () => {
                 );
         });
     });
-    it('TEST Order is inclusive', async () => {
-        return Order.findAll({
-            where: {
-                number: '1',
-                user_id: 1,
-                sellerable_id: dan.id,
-                buyerable_id: elcopro.id,
-                store_id: elcoproStore.id,
-                foreign_store_id: danStore.id,
-                number_prefix: 'TEST',
-            },
-        }).then((res) => {
-            expect(res, 'Array with one element').to.be.an('array').that.to.have.lengthOf(1);
-            expect(res[0], 'An this element is Order').to.be.an.instanceof(Order);
-        });
-    });
+    it('TEST Order is inclusive', async () => Order.findAll({
+        where: {
+            number: '1',
+            user_id: 1,
+            sellerable_id: dan.id,
+            buyerable_id: elcopro.id,
+            store_id: elcoproStore.id,
+            foreign_store_id: danStore.id,
+            number_prefix: 'TEST',
+        },
+    }).then((res) => {
+        expect(res, 'Array with one element').to.be.an('array').that.to.have.lengthOf(1);
+        expect(res[0], 'An this element is Order').to.be.an.instanceof(Order);
+    }));
     it('Create TEST DocumentLine with TEST Good in TEST Order', async () => {
         const order = await (new OrderService()).find({
             number: '1',

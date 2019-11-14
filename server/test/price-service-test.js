@@ -1,8 +1,8 @@
 import _ from 'lodash';
+import moxios from 'moxios';
+import fs from 'fs';
 import CompanyService from '../services/CompanyService';
 import PriceService from '../services/PriceService';
-import moxios from 'moxios';
-import fs from "fs";
 
 const chai = require('chai');
 chai.use(require('chai-string'));
@@ -12,18 +12,19 @@ const { expect } = chai;
 require('../config/config.js');
 
 describe('PriceService searchByNameOnStore:', () => {
-    let compel, promelec;
+    let compel; let
+        promelec;
     before(async () => {
         moxios.install();
-        compel = await fs.readFileSync(__dirname + '/httpAnswers/uno_r3.txt', "utf8");
-        promelec = await fs.readFileSync(__dirname + '/httpAnswers/prom_uno_r3.json', "utf8");
+        compel = await fs.readFileSync(`${__dirname}/httpAnswers/uno_r3.txt`, 'utf8');
+        promelec = await fs.readFileSync(`${__dirname}/httpAnswers/prom_uno_r3.json`, 'utf8');
         moxios.stubRequest(global.gConfig.companies.compel.api_url, {
             status: 200,
-            responseText: compel
+            responseText: compel,
         });
         moxios.stubRequest(global.gConfig.companies.promelec.api_url, {
             status: 200,
-            responseText: promelec
+            responseText: promelec,
         });
     });
     after(async () => {
@@ -44,6 +45,8 @@ describe('PriceService searchByNameOnStore:', () => {
                                 .to.be.an('object').with.property('company_id', company.id);
                             expect(value, 'Array value is object with property name contains "uno r3"')
                                 .to.be.an('object').with.property('name').that.containIgnoreCase('uno r3');
+                            expect(value, 'Array value is object with property multiply contains number')
+                                .to.be.an('object').with.property('multiply').that.to.be.an('number');
                         });
                     });
             });
