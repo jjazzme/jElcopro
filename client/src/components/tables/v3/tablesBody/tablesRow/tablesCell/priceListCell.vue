@@ -8,6 +8,7 @@
     <component
       v-bind:is="component"
       v-model="cellHTML"
+      :key="cellKey"
       class="p-l-value"
     ></component>
     <!--div
@@ -24,15 +25,20 @@
     data(){
       return{
         component: null,
+        cellHTML: null,
       }
     },
     props:{
       value: null,
       cell: null,
       quantity: null,
+      cellKeySuffix: null
     },
     computed:{
-      cellHTML(){
+      cellKey(){
+        return `${this.cell.field}_${this.cellKeySuffix}`;
+      },
+      cellHTML2(){
         if (this.cell.html) {
           return this.cell.html(this.value);
         } else if (this.cell.component) {
@@ -44,7 +50,19 @@
     },
     mounted() {
       let component = this.cell.component ? this.cell.component : "priceListStandard";
-      this.component = () => import(`./cellComponents/${component}`)
+      this.component = () => import(`./cellComponents/${component}`);
+
+      if (this.cell.html) this.$set(this, 'cellHTML', this.cell.html(this.value));
+      else if (this.cell.component) this.$set(this, 'cellHTML', this.value);
+      else this.$set(this, 'cellHTML', this.value[this.cell.field]);
+    },
+    watch:{
+      value(n,o){
+        debugger
+        if (this.cell.html) this.$set(this, 'cellHTML', this.cell.html(this.value));
+        else if (this.cell.component) this.$set(this, 'cellHTML', this.value);
+        else this.$set(this, 'cellHTML', this.value[this.cell.field]);
+      }
     }
   }
 </script>

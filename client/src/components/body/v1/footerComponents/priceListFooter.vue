@@ -1,20 +1,20 @@
 <template>
   <div class="p-l-additional">
     <div class="p-l-info">
-      <span>Всего: {{value.data.count}}</span>
-      <span>Фильтр: {{value.data.filteredCount}}</span>
+      <span>Всего: {{value.count}}</span>
+      <span>Фильтр: {{value.filteredCount}}</span>
       <span>Показано: {{showed}}</span>
     </div>
     <div class="p-l-buttons">
       <b-button
         class="p-l-page-add"
-        v-if="value.data.count>value.optics.depth"
-        @click="value.optics.nextPage()"
+        v-if="value.count>value.depth"
+        @click="value.nextPage()"
       >Показать еще</b-button>
       <b-button
         class="p-l-page-1"
-        v-if="value.data.count>value.optics.depth"
-        @click="value.optics.onePage()"
+        v-if="value.count>value.depth"
+        @click="value.onePage()"
       > 1 стр</b-button>
     </div>
   </div>
@@ -28,8 +28,8 @@
     },
     computed: {
       showed(){
-        const limit = this.value.optics.depth * this.value.optics.pages;
-        const fCount = this.value.data.filteredCount;
+        const limit = this.value.depth * this.value.pages;
+        const fCount = this.value.filteredCount;
         return limit > fCount ? fCount : limit;
       }
     }

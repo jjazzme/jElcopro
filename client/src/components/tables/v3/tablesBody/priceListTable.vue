@@ -13,8 +13,9 @@
             <price-list-row
               v-for="(row, rowIndex) in table"
               v-model="table[rowIndex]"
-              :card="value.shell.card"
-              :quantity="parseInt(value.optics.quantity)"
+              :card="value.card"
+              :cell-key-suffix="value.priceKey"
+              :quantity="parseInt(value.quantity)"
             ></price-list-row>
         </div>
     </div>
@@ -37,11 +38,14 @@
             }
         },
         computed:{
-            frontSensitive(){return this.value.optics.frontSensitive}
+            frontSensitive(){return this.value.frontSensitive}
         },
         watch:{
-            'value.optics.frontSensitive'(n,o){
-                this.$set(this, 'table', this.value.data.price(n));
+            'value.frontSensitive': {
+                handler: function(n){
+                    this.$set(this, 'table', this.value.price(n));
+                },
+                deep: true
             }
         }
     }

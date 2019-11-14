@@ -1,7 +1,7 @@
 <template>
     <article>
         <price-list-parameters-constructor
-          v-if="value.data.stores"
+          v-if="value.stores"
           v-model="value"
         />
         <price-list-table
@@ -34,20 +34,21 @@
                 rootLoading: false,
                 prevBackOptics: null,
                 value: new PriceSource({
-                    optics: {search:'max', quantity:5, fromQuantity:false, onlyDB: true, selectedStores:[1,2], depth:10, pages:1, debounceAmount:1000},
+                    search:'max', quantity:5, fromQuantity:false, onlyDB: true, selectedStores:[1,2],
+                    depth:10, pages:1, debounceAmount:1000
                 }),
             }
         },
         computed:{
-            opticsProcessorBack(){
+            getSources(){
                 return _.debounce(
                     backOptics => {
                         if (
                           _.isEqual(this.prevBackOptics, backOptics)
-                          || this.value.optics.search.length < this.value.optics.minSearchLenSensitivity) return;
+                          || this.value.search.length < this.value.minSearchLenSensitivity) return;
 
                         let loadPrice = (storeID, optics) => {
-                            let store =  this.value.data.getStoreById(storeID);
+                            let store =  this.value.getStoreById(storeID);
                             let uid = store ? store._loading : this.rootLoading;
                             let source = uid ? this.$store.getters['TABLES/GET_AXIOS_SOURCES'](uid) : null;
                             if (uid) {
@@ -63,8 +64,9 @@
                             let promise = this.$store.dispatch('TABLES/LOAD_PRICE', optics);
                             promise
                               .then(response=>{
-                                  console.log(response);
-                                  this.value.data.add(response.data)
+                                  this.value.add(response.data)
+
+
                               })
                               .catch(error=>{
                                   if (error.message==='aborted') {
@@ -85,12 +87,12 @@
                               });
                         };
 
-                        this.value.data.clear();
+                        this.value.clear();
                         loadPrice(0, backOptics);
                         if(!this.value.onlyDB)
                         {
-                            _.forEach(this.value.optics.selectedStores, storeID=>{
-                                if(_.find(this.value.data.references.stores, store=>store.id===storeID).online){
+                            _.forEach(this.value.selectedStores, storeID=>{
+                                if(_.find(this.value.references.stores, store=>store.id===storeID).online){
                                     let StoreOptics = {name: backOptics.name, from_store:storeID};
                                     loadPrice(storeID, StoreOptics);
                                 }
@@ -98,15 +100,16 @@
                         }
 
                         this.prevBackOptics = backOptics
-                    }, this.value.optics.debounceAmount)
+                    }, this.value.debounceAmount)
             },
         },
         created() {
+            // загрузка справочников
             const refLoader = (refs) => {
                 _.forEach(refs, item=>{
                     this.$store.dispatch('TABLES/LOAD_REFDATA', item.dispatchParam)
                       .then(resp=>{
-                          this.value.data[item.dataName] = resp})
+                          this.value.references[item.dataName] = resp})
                       .catch(err=>{
                           console.log(err);
                           Swal.fire({
@@ -120,15 +123,15 @@
                           if(item.after) refLoader(item.after)
                       });
                 });
-            }
-            refLoader(this.value.data.refsOrder)
+            };
+            refLoader(this.value.refsOrder)
 
             this.footer.vmodel = this.value;
         },
         watch:{
-            'value.optics.backSensitive'(n) {
+            'value.backSensitive'(n) {
                 let usingProcessor = true;
-                _.forEach(this.value.data.references.stores, store=>{
+                _.forEach(this.value.references.stores, store=>{
                     let uid = store._loading;
                     if (uid){
                         if (!n.from_store_ids.includes(store.id)) {
@@ -139,7 +142,7 @@
                         }
                     }
                 });
-                if (usingProcessor) this.opticsProcessorBack(n)
+                if (usingProcessor) this.getSources(n)
             },
         }
     }

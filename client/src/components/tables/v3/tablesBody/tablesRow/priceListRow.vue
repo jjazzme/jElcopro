@@ -38,6 +38,7 @@
               v-for="(cell, name) in lvl1"
               v-model="value[cell.field]"
               :quantity="quantity"
+              :cell-key-suffix="cellKeySuffix"
               :cell="cell"
             />
         </div>
@@ -53,6 +54,7 @@
             value: null,
             card: null,
             quantity: null,
+            cellKeySuffix: null,
         }
     }
 </script>

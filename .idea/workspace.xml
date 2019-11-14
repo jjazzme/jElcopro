@@ -4,12 +4,12 @@
     <list default="true" id="09e94829-b941-41e8-95cd-f4a06a6a7730" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/classLib/PriceSource.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/classLib/PriceSource.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/components/body/v1/footerComponents/priceListFooter.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/body/v1/footerComponents/priceListFooter.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/components/tables/v3/serverSideParametersConstructor/priceListParametersConstructor.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/tables/v3/serverSideParametersConstructor/priceListParametersConstructor.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/components/tables/v3/tablesBody/priceListTable.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/tables/v3/tablesBody/priceListTable.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/components/tables/v3/tablesBody/tablesRow/priceListRow.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/tables/v3/tablesBody/tablesRow/priceListRow.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/components/tables/v3/tablesBody/tablesRow/tablesCell/priceListCell.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/tables/v3/tablesBody/tablesRow/tablesCell/priceListCell.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/views/v2/PriceList.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/views/v2/PriceList.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/storage/dan_dealer.xls" beforeDir="false" afterPath="$PROJECT_DIR$/server/storage/dan_dealer.xls" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -255,7 +255,7 @@
       <workItem from="1572360022559" duration="21862000" />
       <workItem from="1572437134688" duration="34232000" />
       <workItem from="1572528897107" duration="2773000" />
-      <workItem from="1573102263376" duration="159940000" />
+      <workItem from="1573102263376" duration="167713000" />
     </task>
     <task id="LOCAL-00001" summary="Datata">
       <created>1571292450729</created>
@@ -376,7 +376,14 @@
       <option name="project" value="LOCAL" />
       <updated>1573563320577</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="Прайс версии 3++">
+      <created>1573655682596</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1573655682596</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -426,6 +433,7 @@
     <MESSAGE value="191104" />
     <MESSAGE value="Прайс версии 3" />
     <MESSAGE value="Прайс версии 3+" />
-    <option name="LAST_COMMIT_MESSAGE" value="Прайс версии 3+" />
+    <MESSAGE value="Прайс версии 3++" />
+    <option name="LAST_COMMIT_MESSAGE" value="Прайс версии 3++" />
   </component>
 </project>

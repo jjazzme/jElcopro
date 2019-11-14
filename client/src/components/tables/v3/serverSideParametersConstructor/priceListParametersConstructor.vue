@@ -29,7 +29,7 @@
         <div class="stores">
 
             <b-form-checkbox-group
-              v-model="value.optics.selectedStores"
+              v-model="value.selectedStores"
               class="checkbox"
               :options="options"
               stacked
@@ -52,9 +52,8 @@
             value: {type: Object,}
         },
         computed: {
-            loading(){return this.value.data.promiseSources},
             options(){
-                return this.value.data.stores.map(function(store){return{
+                return this.value.stores.map(function(store){return{
                     value: store.id,
                     html:
 `<div id="Store_${store.id}">
@@ -64,11 +63,11 @@
             },
         },
         methods:{
-            abort(sid){
-                let uid = this.value._forProcessing.promises[sid.toString()];
-                let source = this.$store.getters['TABLES/GET_AXIOS_SOURCES'](uid);
-                source.cancel('aborted')
-            },
+            //abort(sid){
+            //    let uid = this.value._forProcessing.promises[sid.toString()];
+            //    let source = this.$store.getters['TABLES/GET_AXIOS_SOURCES'](uid);
+            //    source.cancel('aborted')
+            //},
             intFormatter(val, e){
                 let ret = parseInt(val);
                 if (!ret) ret = 1
@@ -77,9 +76,9 @@
         },
     }
 
-    function cancelAxios(val){
-        console.log(val)
-    }
+    //function cancelAxios(val){
+    //    console.log(val)
+    //}
 </script>
 
 <style scoped lang="less">
