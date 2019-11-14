@@ -16,7 +16,9 @@
                 <price-list-cell
                   v-if="cell.alias"
                   v-for="(cell, name) in lvl2"
+                  :key="`${rowKeyPrefix}_${cell.field}`"
                   v-model="value"
+                  :cell-key-prefix="`${rowKeyPrefix}_${cell.field}`"
                   :cell="cell"
                 />
                 <div
@@ -27,7 +29,9 @@
                     <price-list-cell
                       v-if="cell.alias"
                       v-for="(cell, name) in lvl3"
+                      :key="`${rowKeyPrefix}_${cell.field}`"
                       v-model="value"
+                      :cell-key-prefix="`${rowKeyPrefix}_${cell.field}`"
                       :cell="cell"
                     />
 
@@ -36,9 +40,9 @@
             <price-list-cell
               v-if="cell.alias"
               v-for="(cell, name) in lvl1"
-              v-model="value[cell.field]"
-              :quantity="quantity"
-              :cell-key-suffix="cellKeySuffix"
+              :key="`${rowKeyPrefix}_${cell.field}`"
+              v-model="value"
+              :cell-key-prefix="`${rowKeyPrefix}_${cell.field}`"
               :cell="cell"
             />
         </div>
@@ -54,7 +58,7 @@
             value: null,
             card: null,
             quantity: null,
-            cellKeySuffix: null,
+            rowKeyPrefix: null,
         }
     }
 </script>

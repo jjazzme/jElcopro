@@ -1,7 +1,7 @@
 <template>
     <article>
         <price-list-parameters-constructor
-          v-if="value.stores"
+          v-if="value.isStores"
           v-model="value"
         />
         <price-list-table
@@ -35,71 +35,36 @@
                 prevBackOptics: null,
                 value: new PriceSource({
                     search:'max', quantity:5, fromQuantity:false, onlyDB: true, selectedStores:[1,2],
-                    depth:10, pages:1, debounceAmount:1000
+                    depth:10, pages:1, debounceAmount:1000, minSearchLenSensitivity:4
                 }),
             }
         },
         computed:{
+            backSensitive(){
+                return {name: this.value.search, from_store_ids: this.value.selectedStores, onlyDB: this.value.onlyDB}
+            },
             getSources(){
+                // вынесено сюда для динамического амаунтинга
                 return _.debounce(
-                    backOptics => {
-                        if (
-                          _.isEqual(this.prevBackOptics, backOptics)
-                          || this.value.search.length < this.value.minSearchLenSensitivity) return;
+                  (backOptics, isCanceled) => {
+                    if (
+                      (_.isEqual(this.prevBackOptics, backOptics) && !isCanceled)
+                      || this.value.search.length < this.value.minSearchLenSensitivity) return;
 
-                        let loadPrice = (storeID, optics) => {
-                            let store =  this.value.getStoreById(storeID);
-                            let uid = store ? store._loading : this.rootLoading;
-                            let source = uid ? this.$store.getters['TABLES/GET_AXIOS_SOURCES'](uid) : null;
-                            if (uid) {
-                                source.cancel('aborted');
-                                if (store) this.$set(store, "_loading", false);
-                                else this.$set(this, "rootLoading", false);
+                    this.$set(this.value, 'source', []);
+
+                    this.loadPrice(0, backOptics);
+                    if(!this.value.onlyDB)
+                    {
+                        _.forEach(this.value.selectedStores, storeID=>{
+                            if(_.find(this.value.references.stores, store=>store.id===storeID).online){
+                                let StoreOptics = {name: backOptics.name, from_store:storeID};
+                                this.loadPrice(storeID, StoreOptics);
                             }
+                        });
+                    }
 
-                            optics._uid = `f${(+new Date).toString(16)}x${(~~(Math.random()*1e8)).toString(16)}`;
-                            if (store) this.$set(store, "_loading", optics._uid);
-                            else this.$set(this, "rootLoading", optics._uid);
-
-                            let promise = this.$store.dispatch('TABLES/LOAD_PRICE', optics);
-                            promise
-                              .then(response=>{
-                                  this.value.add(response.data)
-
-
-                              })
-                              .catch(error=>{
-                                  if (error.message==='aborted') {
-                                      console.log(`promise ${optics._uid} aborted`)
-                                  } else {
-                                      console.log(error);
-                                      Swal.fire({
-                                          title: "ОШИБКА",
-                                          text: error,
-                                          type: 'error',
-                                          timer: 10000
-                                      });
-                                  }
-                              })
-                              .finally(()=>{
-                                  if (store) this.$set(store, "_loading", false);
-                                  else this.$set(this, "rootLoading", false);
-                              });
-                        };
-
-                        this.value.clear();
-                        loadPrice(0, backOptics);
-                        if(!this.value.onlyDB)
-                        {
-                            _.forEach(this.value.selectedStores, storeID=>{
-                                if(_.find(this.value.references.stores, store=>store.id===storeID).online){
-                                    let StoreOptics = {name: backOptics.name, from_store:storeID};
-                                    loadPrice(storeID, StoreOptics);
-                                }
-                            });
-                        }
-
-                        this.prevBackOptics = backOptics
+                    this.prevBackOptics = backOptics
                     }, this.value.debounceAmount)
             },
         },
@@ -108,8 +73,9 @@
             const refLoader = (refs) => {
                 _.forEach(refs, item=>{
                     this.$store.dispatch('TABLES/LOAD_REFDATA', item.dispatchParam)
-                      .then(resp=>{
-                          this.value.references[item.dataName] = resp})
+                      .then(resp=> {
+                          this.$set(this.value.references, item.dataName, resp)
+                      })
                       .catch(err=>{
                           console.log(err);
                           Swal.fire({
@@ -120,29 +86,89 @@
                           });
                       })
                       .finally(()=>{
+                          // последовательность
                           if(item.after) refLoader(item.after)
                       });
                 });
             };
-            refLoader(this.value.refsOrder)
+            refLoader(this.value.refsOrder);
 
             this.footer.vmodel = this.value;
         },
+        methods:{
+            loadPrice(store, optics){
+                if (_.isInteger(store) && store !== 0) store = this.value.getStoreById(store);
+                this.cancelAxios(store);
+
+                optics._uid = `f${(+new Date).toString(16)}x${(~~(Math.random()*1e8)).toString(16)}`;
+                if (store) this.$set(store, "_loading", optics._uid);
+                else this.$set(this, "rootLoading", optics._uid);
+
+                let promise = this.$store.dispatch('TABLES/LOAD_PRICE', optics);
+                promise
+                  .then(response=>{
+                      // агрегируем
+                      _.forEach(response.data, row=>{
+                          if(row.id === 0){
+                              this.value.source.push(row);
+                          } else{
+                              const ind = _.findIndex(this.value.source, function (item) {
+                                  item.id === row.id
+                              });
+                              if (ind<0) {
+                                  this.value.source.push(row);
+                              } else {
+                                  if (Date.parse(row.actual)>Date.parse(item.actual)) {
+                                      this.value.source.splice(ind, 1, row)
+                                  }
+                              }
+                          }
+                      });
+                      // для перерисовки
+                      this.value.updateID = `f${(+new Date).toString(16)}x${(~~(Math.random()*1e8)).toString(16)}`;
+                  })
+                  .catch(error=>{
+                      if (error.message==='aborted') {
+                          console.log(`promise ${optics._uid} aborted`)
+                      } else {
+                          console.log(error);
+                          Swal.fire({
+                              title: "ОШИБКА",
+                              text: error,
+                              type: 'error',
+                              timer: 10000
+                          });
+                      }
+                  })
+                  .finally(()=>{
+                      if (store) this.$set(store, "_loading", false);
+                      else this.$set(this, "rootLoading", false);
+                  });
+            },
+            cancelAxios(store){
+                if (_.isInteger(store) && store !== 0) store = this.value.getStoreById(store);
+                let uid = store ? store._loading : this.rootLoading;
+                if (uid){
+                    let source = this.$store.getters['TABLES/GET_AXIOS_SOURCES'](uid);
+                    source.cancel('aborted');
+                    if (store) this.$set(store, "_loading", false);
+                    else this.$set(this, "rootLoading", false);
+                    return true;
+                }
+                return false;
+            },
+        },
         watch:{
-            'value.backSensitive'(n) {
-                let usingProcessor = true;
+            backSensitive(n) {
+                // прерываем мгновенно уже созданные
+                let isCanceled = false;
                 _.forEach(this.value.references.stores, store=>{
-                    let uid = store._loading;
-                    if (uid){
-                        if (!n.from_store_ids.includes(store.id)) {
-                            let source = this.$store.getters['TABLES/GET_AXIOS_SOURCES'](uid);
-                            source.cancel('aborted');
-                            this.$set(store, "_loading", false)
-                            usingProcessor = false;
-                        }
-                    }
+                    if (n.onlyDB) isCanceled = isCanceled || this.cancelAxios(store);
+                    else if(n.name!==this.prevBackOptics?.name) isCanceled = isCanceled || this.cancelAxios(store);
+                    else if (!n.from_store_ids.includes(store.id)) isCanceled = isCanceled || this.cancelAxios(store);
                 });
-                if (usingProcessor) this.getSources(n)
+                // передаём на дебоунс
+                this.getSources(n, isCanceled)
             },
         }
     }

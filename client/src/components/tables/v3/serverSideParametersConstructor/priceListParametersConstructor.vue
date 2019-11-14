@@ -5,20 +5,46 @@
                     type="text"
                     v-model="value.search"
                     placeholder="Строка поиска"
+                    class="p-l-search"
             />
-            <b-form-input
-                    type="number"
-                    min="1"
-                    v-model="value.quantity"
-                    :formatter="intFormatter"
-                    placeholder="Минимальное количество"
-            />
-            <div>
+            <div class="p-l-filter">
+                <b-form-input
+                  class="p-l-input"
+                  type="number"
+                  min="1"
+                  v-model="value.quantity"
+                  :formatter="intFormatter"
+                  placeholder="Мин количество"
+                >
+                </b-form-input>
+                <div class="p-l-alias">Мин. количество</div>
+                <div class="p-l-additional">ед-цы</div>
                 <b-form-checkbox
+                  class="p-l-checkbox"
+                  size="sm"
                   v-model="value.fromQuantity"
-                  switch>
-                    Учитывать количество
-                </b-form-checkbox>
+                  switch></b-form-checkbox>
+            </div>
+            <div class="p-l-filter">
+                <b-form-input
+                  class="p-l-input"
+                  type="number"
+                  min="1"
+                  v-model="value.relevance"
+                  :formatter="intFormatter"
+                  placeholder="Мин актуальность"
+                >
+                </b-form-input>
+                <div class="p-l-alias">Мин.актуальность</div>
+                <div class="p-l-additional">часы</div>
+                <b-form-checkbox
+                  class="p-l-checkbox"
+                  size="sm"
+                  v-model="value.fromRelevance"
+                  switch></b-form-checkbox>
+            </div>
+
+            <div class="p-l-options">
                 <b-form-checkbox
                   v-model="value.onlyDB"
                   switch>
@@ -53,7 +79,7 @@
         },
         computed: {
             options(){
-                return this.value.stores.map(function(store){return{
+                return this.value.references.stores.map(function(store){return{
                     value: store.id,
                     html:
 `<div id="Store_${store.id}">
@@ -90,7 +116,7 @@
             flex: 1 1 auto;
             align-self: stretch;
             margin: 10px;
-            min-width: 500px;
+            min-width: 400px;
         }
         > div.left-part{
             display: flex;
@@ -99,10 +125,40 @@
                 flex: 1 1 auto;
                 align-self: center;
                 margin: 10px;
+                height: 50px;
             }
-            input{min-width: 80px;}
-            input:nth-child(2){max-width: 80px}
-            >div{min-width: 250px}
+            .p-l-search{width: 300px; font-size: 24px}
+            .p-l-options{min-width: 150px}
+            .p-l-filter{
+                min-width: 120px;
+                height: 50px;
+                position: relative;
+                >*{position: absolute}
+                .p-l-alias{
+                    top: 0;
+                    left: 2px;
+                    font-size: 10px;
+                    opacity: 0.5;
+                }
+                .p-l-additional{
+                    bottom: 0;
+                    left: 30px;
+                    font-size: 10px;
+                    opacity: 0.5;
+                }
+                .p-l-input{
+                    top: 0;
+                    left: 0;
+                    width: 120px;
+                    padding-left: 30px;
+                    height: 50px;
+                    font-size: 20px;
+                }
+                .p-l-checkbox{
+                    top: 15px;
+                    left: -5px;
+                }
+            }
         }
         .stores{
             .store{

@@ -3,7 +3,7 @@
 export default class PriceSource{
 
   constructor({
-      search, quantity, fromQuantity, onlyDB, selectedStores, depth, pages, debounceAmount
+      search, quantity, fromQuantity, onlyDB, selectedStores, depth, pages, debounceAmount, minSearchLenSensitivity
   }){
     this.card = {
       //add:{
@@ -27,13 +27,13 @@ export default class PriceSource{
         two12:{
           store: {alias: 'склад', field:'store_name', to: item=> {return {name:'store', params:{id:item.store_id}}}},
           party: {alias: 'поставщик', field:'party_name', to: item=> {return {name:'company', params:{id:item.company_id}}} },
-          actual: {alias: 'дата', field:'actual', html: row=>Intl.DateTimeFormat(
+          actual: {alias: 'дата', field:'actual', html: row=>`<span ${Math.abs(Date.now() -new Date(row.actual)) / 36e5 >= row._relevance ? 'class="text-danger"' : ''}>${Intl.DateTimeFormat(
               'ru-RU',
               {
                 year: 'numeric', month: 'numeric', day: 'numeric',
                 hour: 'numeric', minute: 'numeric', second: 'numeric',
                 hour12: false
-              }).format(new Date(row.actual))},
+              }).format(new Date(row.actual))}</span>`},
           three121:{
             min:{alias: 'мин.', field:'min'},
             max:{alias: 'макс.', field:'max'},
@@ -41,8 +41,8 @@ export default class PriceSource{
             multiply: {alias: 'кратно', field:'multiply'},
           },
           three122:{
-            priceUSD: {alias: 'цена $', field:'_priceUSD', _html: row=>row.convertPrice(row.our_price, row.currency_id).usd.toFixed(2)},
-            sumUSD: {alias: 'сумма $', field:'_sumUSD', _html: row=>row.summPrice(row).usd.toFixed(2)},
+            priceUSD: {alias: 'цена $', field:'_priceUSD', html: row=>row._priceUSD.toFixed(2), _html: row=>row.convertPrice(row.our_price, row.currency_id).usd.toFixed(2)},
+            sumUSD: {alias: 'сумма $', field:'_sumUSD', html: row=>row._sumUSD.toFixed(2), _html: row=>row.summPrice(row).usd.toFixed(2)},
           }
         },
       },
@@ -53,20 +53,24 @@ export default class PriceSource{
           average: {alias: 'дней', field:'average_days'},
         },
         two22:{
-          priceRUR: {alias: 'цена ₽', field:'_priceRUR', _html: row=>row.convertPrice(row.our_price, row.currency_id).rur.toFixed(2)},
-          sumRUR: {alias: 'сумма ₽', field:'_sumRUR', _html: row=>row.summPrice(row).rur.toFixed(2)},
+          priceRUR: {alias: 'цена ₽', field:'_priceRUR', html: row=>row._priceRUR.toFixed(2), _html: row=>row.convertPrice(row.our_price, row.currency_id).rur.toFixed(2)},
+          sumRUR: {alias: 'сумма ₽', field:'_sumRUR', html: row=>row._sumRUR.toFixed(2), _html: row=>row.summPrice(row).rur.toFixed(2)},
           vat: {alias: 'ндс', field:'vat'},
         },
       }
     };
     this.debounceAmount = debounceAmount;
     this.depth = depth;
+    this.filteredCount = 0;
     this.fromQuantity = !!fromQuantity;
-    this.minSearchLenSensitivity = 4;
+    this.fromRelevance = false;
+    this.minSearchLenSensitivity = minSearchLenSensitivity;
+    this.offset = 0;
     this.onlyDB = onlyDB;
     this.quantity = parseInt(quantity);
     this.pages = pages;
-    this._price = [];
+    this.relevance = 24;
+    this.source = [];
     this.priceKey = 'initial';
     this.references = {
       stores: null,
@@ -84,19 +88,25 @@ export default class PriceSource{
     ];
     this.search = search;
     this.selectedStores = selectedStores;
-    this.updateFlag = null;
+    this.updateID = 0;
 
 
 
     //this.optics = new Optics({search, quantity, fromQuantity, onlyDB, selectedStores, depth, pages, debounceAmount});
     //this.shell = new Shell();
     //this.data = new Data({depth, pages, quantity, fromQuantity});
-
     //this._quantity = parseInt(quantity);
     //this._fromQuantity = !!fromQuantity;
     //this._search = search;
     //this.onlyDB = onlyDB;
   }
+
+  get count(){return this.source.length}
+  getStoreById(id){return _.find(this.references.stores, store => store.id === id);}
+  get isReferenceReceived(){return !_.find(this.references, item=>item === null);}
+  get isStores() {return this.references.stores ? this.references.stores.length > 0 : false }
+  nextPage(){this.pages++;}
+  onePage(){this.pages = 1;}
 
   /*
   get quantity(){return this._quantity}
@@ -116,63 +126,59 @@ export default class PriceSource{
     this._search = val;
     this.optics.search = val;
   }
-   */
 
-  add(newRaw){
+    add(newRaw){
     _.forEach(newRaw, row=>{
       if(row.id === 0){
-        this._price.push(row);
+        this.source.push(row);
       } else{
-        const ind = _.findIndex(this._price, function (item) {
+        const ind = _.findIndex(this.source, function (item) {
           item.id === row.id
         });
         if (ind<0) {
-          this._price.push(row);
+          this.source.push(row);
         } else {
           if (Date.parse(row.actual)>Date.parse(item.actual)) {
-            this._price.splice(ind, 1, row)
+            this.source.splice(ind, 1, row)
           }
         }
       }
     })
     this.updateFlag = `f${(+new Date).toString(16)}x${(~~(Math.random()*1e8)).toString(16)}`;
   }
+
   get backSensitive(){
     return {name: this.search, from_store_ids: this.selectedStores}
   }
-  clear(){this._price = [];}
-  get count(){
-    return this._price.length
-  }
-  set currencies(val) {this.references.currencies = val};
-  set currencyRates(val) {this.references.currencyRates = val}
-  get filteredCount(){
-    return this._price.length
-  }
-  get frontSensitive(){
+    clear(){this.source = [];}
+
+      get frontSensitive(){
     return {quantity: this.quantity, fromQuantity: this.fromQuantity, depth: this.depth, pages: this.pages, updateFlag: this.updateFlag, rates: this.references.currencyRates}
   }
-  getStoreById(id){
-    let ret = _.find(this.references.stores, store=>store.id===id);
-    return ret;
-  }
-  get isReferenceReceived(){
-    return !_.find(this.references, item=>item === null);
-  }
-  nextPage(){
-    this.pages++;
-  }
-  onePage(){
-    this.pages = 1;
-  }
-  price(optics){
-    if (this._price.length === 0) return null;
+
+   */
+
+
+
+  //set currencies(val) {this.references.currencies = val};
+  //set currencyRates(val) {this.references.currencyRates = val}
+  //get filteredCount(){
+  //  return this.source.length
+  //}
+
+  //nextPage(){
+  //  this.pages++;
+  //}
+  //onePage(){
+  //  this.pages = 1;
+  //}
+  price2(optics){
+    if (this.source.length === 0) return null;
     const limit = optics.depth*optics.pages;
     const offset = optics.offset ?? 0;
 
-    //let price = new Price(this._price, limit, offset)
 
-    _.forEach(this._price, (row)=>{
+    _.forEach(this.source, (row)=>{
 
         const rates = this.references.currencyRates;
         const cures = this.references.currency;
@@ -230,22 +236,22 @@ export default class PriceSource{
        */
     });
 
-    //let ret = _.orderBy(this._price, item=>item.summPrice(item).rur);
-    //this._price.sort(function (a,b) {
+    //let ret = _.orderBy(this.source, item=>item.summPrice(item).rur);
+    //this.source.sort(function (a,b) {
     //  if (a.summPrice(a) > b.summPrice(b)) return 1;
     //  if (a.summPrice(a) < b.summPrice(b)) return -1;
     //  return 0;
     //});
 
 
-    let ret = this._price.slice(offset, limit);
+    let ret = this.source.slice(offset, limit);
     this.priceKey = `f${(+new Date).toString(16)}x${(~~(Math.random()*1e8)).toString(16)}`;
     return ret
   }
-  set stores(val) {this.references.stores = val}
-  get stores(){
-    return this.references.stores //_.sortBy(this.references.stores, item=>{return [item.company.party.name, item.name]})
-  }
+  //set stores(val) {this.references.stores = val}
+  //get stores(){
+  //  return this.references.stores //_.sortBy(this.references.stores, item=>{return [item.company.party.name, item.name]})
+  //}
 }
 
 /*
@@ -355,44 +361,44 @@ class Data{
             ]},
         ]},
     ];
-    this._price = [];
+    this.source = [];
   }
 
   add(newRaw){
     _.forEach(newRaw, row=>{
       if(row.id === 0){
-        this._price.push(row);
+        this.source.push(row);
       } else{
-        const ind = _.findIndex(this._price, function (item) {
+        const ind = _.findIndex(this.source, function (item) {
           item.id === row.id
         });
         if (ind<0) {
-          this._price.push(row);
+          this.source.push(row);
         } else {
           if (Date.parse(row.actual)>Date.parse(item.actual)) {
-            this._price.splice(ind, 1, row)
+            this.source.splice(ind, 1, row)
           }
         }
       }
     })
   }
-  clear(){this._price = [];}
+  clear(){this.source = [];}
   get count(){
-    return this._price.length
+    return this.source.length
   }
   set currencies(val) {this.references.currencies = val};
   set currencyRates(val) {this.references.currencyRates = val}
   get filteredCount(){
-    return this._price.length
+    return this.source.length
   }
   price(optics){
-    if (this._price.length === 0) return null;
+    if (this.source.length === 0) return null;
     const limit = optics.depth*optics.pages;
     const offset = optics.offset ?? 0;
 
-    //let price = new Price(this._price, limit, offset)
+    //let price = new Price(this.source, limit, offset)
 
-    _.forEach(this._price, (row)=>{
+    _.forEach(this.source, (row)=>{
         row._priceRUR = Date.now() % 10000;
         row._priceUSD = Date.now() % 10000 + 1;
         row._sumUSD = Date.now() % 10000 +2;
@@ -433,16 +439,16 @@ class Data{
       //}
     });
 
-    //let ret = _.orderBy(this._price, item=>item.summPrice(item).rur);
+    //let ret = _.orderBy(this.source, item=>item.summPrice(item).rur);
 
-    //this._price.sort(function (a,b) {
+    //this.source.sort(function (a,b) {
     //  if (a.summPrice(a) > b.summPrice(b)) return 1;
     //  if (a.summPrice(a) < b.summPrice(b)) return -1;
     //  return 0;
     //});
 
 
-    let ret = this._price.slice(offset, limit);
+    let ret = this.source.slice(offset, limit);
 
     return ret
   }

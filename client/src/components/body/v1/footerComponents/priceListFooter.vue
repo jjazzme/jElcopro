@@ -13,7 +13,7 @@
       >Показать еще</b-button>
       <b-button
         class="p-l-page-1"
-        v-if="value.count>value.depth"
+        v-if="value.count>value.depth && value.pages>1"
         @click="value.onePage()"
       > 1 стр</b-button>
     </div>

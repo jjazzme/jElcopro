@@ -8,13 +8,9 @@
     <component
       v-bind:is="component"
       v-model="cellHTML"
-      :key="cellKey"
+      :key="`${cellKeyPrefix}_comp`"
       class="p-l-value"
     ></component>
-    <!--div
-      v-html="cellHTML"
-      class="p-l-value"
-    ></div-->
   </div>
 </template>
 
@@ -25,44 +21,36 @@
     data(){
       return{
         component: null,
-        cellHTML: null,
       }
     },
     props:{
       value: null,
       cell: null,
       quantity: null,
-      cellKeySuffix: null
+      cellKeyPrefix: null
     },
     computed:{
-      cellKey(){
-        return `${this.cell.field}_${this.cellKeySuffix}`;
-      },
-      cellHTML2(){
-        if (this.cell.html) {
-          return this.cell.html(this.value);
-        } else if (this.cell.component) {
-          return this.quantity;
-        } else {
-          return this.value[this.cell.field];
-        }
+      cellHTML(){
+        if (this.cell.html) return this.cell.html(this.value);
+        else if (this.cell.component) return this.value;
+        else return this.value[this.cell.field];
       },
     },
     mounted() {
       let component = this.cell.component ? this.cell.component : "priceListStandard";
       this.component = () => import(`./cellComponents/${component}`);
 
-      if (this.cell.html) this.$set(this, 'cellHTML', this.cell.html(this.value));
-      else if (this.cell.component) this.$set(this, 'cellHTML', this.value);
-      else this.$set(this, 'cellHTML', this.value[this.cell.field]);
+      //if (this.cell.html) this.$set(this, 'cellHTML', this.cell.html(this.value));
+      //else if (this.cell.component) this.$set(this, 'cellHTML', this.value);
+      //else this.$set(this, 'cellHTML', this.value[this.cell.field]);
     },
     watch:{
-      value(n,o){
-        debugger
-        if (this.cell.html) this.$set(this, 'cellHTML', this.cell.html(this.value));
-        else if (this.cell.component) this.$set(this, 'cellHTML', this.value);
-        else this.$set(this, 'cellHTML', this.value[this.cell.field]);
-      }
+      //value(n,o){
+      //  debugger
+      //  if (this.cell.html) this.$set(this, 'cellHTML', this.cell.html(this.value));
+      //  else if (this.cell.component) this.$set(this, 'cellHTML', this.value);
+      //  else this.$set(this, 'cellHTML', this.value[this.cell.field]);
+      //}
     }
   }
 </script>

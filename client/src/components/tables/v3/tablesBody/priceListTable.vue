@@ -1,5 +1,6 @@
 <template>
     <div class="priceTable">
+        <!--spinner-->
         <div
           class="svg-cover"
           v-if="loading"
@@ -11,11 +12,11 @@
           v-else
         >
             <price-list-row
-              v-for="(row, rowIndex) in table"
-              v-model="table[rowIndex]"
+              v-for="(row, rowIndex) in showingPrice"
+              :key="`${value.priceKey}_${rowIndex}`"
+              v-model="showingPrice[rowIndex]"
               :card="value.card"
-              :cell-key-suffix="value.priceKey"
-              :quantity="parseInt(value.quantity)"
+              :row-key-prefix="`${value.priceKey}_${rowIndex}`"
             ></price-list-row>
         </div>
     </div>
@@ -29,23 +30,75 @@
         name: "priceListTable",
         components:{PriceListRow, PriceListHeader},
         props:{
-            value: {type: Object},
+            value: null,
             loading: null
         },
-        data(){
-            return{
-                table: null,
+        computed:{
+            showingPrice(){
+                return this.showingPriceMethod();
             }
         },
-        computed:{
-            frontSensitive(){return this.value.frontSensitive}
-        },
-        watch:{
-            'value.frontSensitive': {
-                handler: function(n){
-                    this.$set(this, 'table', this.value.price(n));
-                },
-                deep: true
+        methods:{
+            showingPriceMethod(){
+                if (this.value.source.length === 0) return null;
+
+                // обрубаем неприменимое (если УЧИТЫВАТЬ КОЛ-ВО)
+                const minBallance = this.fromQuantity ? this.quantity : 1;
+                let ret = this.value.fromQuantity
+                  ? _.filter(this.value.source, row=>row.ballance>=minBallance && row.ballance>=row.min)
+                  : _.clone(this.value.source);
+
+                // обрезаем вывод если чекрыжек по актуальности
+                if (this.value.fromRelevance) ret = _.filter(ret, row=>Math.abs(Date.now() - new Date(row.actual)) / 36e5 <= this.value.relevance);
+
+                const limit = this.value.depth*this.value.pages;
+                const offset = this.value.offset;
+
+                const rates = this.value.references.currencyRates;
+                const cures = this.value.references.currency;
+
+                //считаем рубли и суммы
+                _.forEach(ret, (row)=>{
+                    let rur = row.currency_id==='R01000'
+                      ? row.our_price
+                      : row.currency_id==='R01235'
+                        ? row.our_price*_.find(rates, item=>item.currency_id==="R01235").rate
+                        : row.our_price * _.find(rates, item => item.currency_id === row.currency_id).rate / _.find(cures, item => item.id === row.currency_id).nominal;
+
+                    const v1 = this.value.quantity<row.min ? row.min : this.value.quantity;
+                    const v2 = v1 % row.multiply ? row.multiply + v1 - (v1 % row.multiply) : v1;
+                    row._realCount = row.max > v2 ? v2 : row.max;
+
+                    row._priceRUR = rur;
+                    row._sumRUR = rur * row._realCount;
+
+                });
+
+                // обрезаем вывод если чекрыжек по количеству
+                if (this.value.fromQuantity) ret = _.filter(ret, row=>row._realCount>=this.value.quantity);
+
+                this.$set(this.value, 'filteredCount', ret.length)
+                // сортировка и обрезка
+                ret = (this.fromQuantity ? _.sortBy(ret, ['_sumRUR']) : _.sortBy(ret, ['_realCount', '_priceRUR'], ['desc','asc']) )
+                  .slice(offset, limit);
+
+                // валютные суммы
+                _.forEach(ret, (row)=>{
+                    let usd = row.currency_id==='R01235'
+                      ? row.our_price
+                      : row.currency_id==='R01000'
+                        ? row.our_price/_.find(rates, item=>item.currency_id==="R01235").rate
+                        : row._priceRUR / _.find(rates, item => item.currency_id === "R01235").rate;
+
+
+                    row._priceUSD = usd;
+                    row._sumUSD = usd * row._realCount;
+                    row._relevance = this.value.relevance;
+                });
+
+                // для генерации кеев в-форов
+                this.$set(this.value, 'priceKey', `f${(+new Date).toString(16)}x${(~~(Math.random()*1e8)).toString(16)}`);
+                return ret
             }
         }
     }
