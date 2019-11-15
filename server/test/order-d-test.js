@@ -14,9 +14,12 @@ chai.use(require('chai-as-promised'));
 const { expect } = chai;
 
 describe('Test Invoice', () => {
+    let dan;
+    let danStore;
     let elcopro;
     let elcoproStore;
     let good;
+    let goodDan;
     let producer;
     let product;
     let promelec;
@@ -33,6 +36,9 @@ describe('Test Invoice', () => {
         service = new InvoiceService();
         transferService = new TransferInService();
         good = await (new GoodService()).find({ product_id: product.id, store_id: elcoproStore.id });
+        dan = await (new CompanyService()).getByAlias('dan');
+        danStore = _.find(dan.stores, { is_main: true });
+        goodDan = await (new GoodService()).find({ product_id: product.id, store_id: danStore.id });
     });
     it('Create Invoice', async () => service.firstOrCreate({
         number: '1',
@@ -53,6 +59,40 @@ describe('Test Invoice', () => {
                 { sellerable_id: elcopro.id, buyerable_id: promelec.id, number_prefix: 'TEST' },
             );
     }));
+    it('Create TEST DocumentLine with TEST Good from Dan Store in TEST Invoice', async () => {
+        const invoice = await service.find({
+            number: '1',
+            user_id: 1,
+            sellerable_id: elcopro.id,
+            buyerable_id: promelec.id,
+            store_id: elcoproStore.id,
+            foreign_store_id: promelecStore.id,
+            number_prefix: 'TEST',
+        });
+        const documenLineService = new DocumentLineService();
+        const line = await documenLineService.firstOrCreate({
+            document_id: invoice.id,
+            times: 10,
+        }, {
+            good_id: goodDan.id,
+            quantity: 1,
+            vat: 20,
+            price_without_vat: 20,
+            price_with_vat: 24,
+            amount_without_vat: 20,
+            amount_with_vat: 24,
+            store_id: danStore.id,
+            remark: 'TEST',
+        });
+        expect(line, `It DocumentLine where document_id=${invoice.id}, good_id=${good.id}
+            , store_id=${elcoproStore.id}, from_good_id=${goodDan.id}`)
+            .to.be.an.instanceof(DocumentLine)
+            .and.deep.include(
+                {
+                    document_id: invoice.id, good_id: good.id, store_id: elcoproStore.id, from_good_id: goodDan.id,
+                },
+            );
+    });
     it('Create TEST DocumentLine with TEST Good from our Store in TEST Invoice', async () => {
         const invoice = await service.find({
             number: '1',
@@ -66,7 +106,7 @@ describe('Test Invoice', () => {
         const documenLineService = new DocumentLineService();
         return documenLineService.firstOrCreate({
             document_id: invoice.id,
-            times: 10,
+            times: 1,
         }, {
             good_id: good.id,
             quantity: 4,
@@ -79,7 +119,7 @@ describe('Test Invoice', () => {
             remark: 'TEST',
         }).then((res) => {
             expect(res, `It DocumentLine where document_id=${invoice.id}, good_id=${good.id}
-            , store_id=${elcoproStore.id}, from_good_id=${elcoproStore.id}`)
+            , store_id=${elcoproStore.id}, from_good_id=${good.id}`)
                 .to.be.an.instanceof(DocumentLine)
                 .and.deep.include(
                     {
@@ -103,9 +143,17 @@ describe('Test Invoice', () => {
         // eslint-disable-next-line no-unused-expressions
         expect(res, 'Is true').to.be.true;
         expect(service.instance.status_id).to.equal('reserved');
-        const line = await (new DocumentLineService()).find({ id: _.first(service.instance.documentLines).id });
-        expect(line.reserves[0].quantity).to.equal(2);
-        expect(line.futureReserve.ballance).to.equal(2);
+        const lines = (await service.find(service.instance)).documentLines;
+        lines.forEach((line) => {
+            if (line.times === 10) {
+                // eslint-disable-next-line no-unused-expressions
+                expect(line.reserves).is.empty;
+                expect(line.futureReserve.ballance).to.equal(1);
+            } else {
+                expect(line.reserves[0].quantity).to.equal(2);
+                expect(line.futureReserve.ballance).to.equal(2);
+            }
+        });
     });
 
     it('Remove first arrival with exeption', async () => {

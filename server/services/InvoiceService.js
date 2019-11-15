@@ -92,4 +92,46 @@ export default class InvoiceService extends DocumentService {
         console.log('It not close');
         return Promise.reject(new Error('It not close'));
     }
+
+    /**
+     * First variant close invoice reserves
+     * @param {Object|Invoice|number} invoice
+     * @param {Transaction} transaction
+     * @returns {Promise<void>}
+     */
+    // eslint-disable-next-line class-methods-use-this
+    async closeReserves(invoice, transaction) {
+        const reserves = await Reserve.findAll({
+            where: { closed: false },
+            include: [
+                { model: DocumentLine, as: 'documentLine', where: { document_id: invoice.id } },
+            ],
+            transaction,
+        });
+        await Promise.all(reserves.map((reserve) => {
+            reserve.closed = true;
+            return reserve.save({ transaction });
+        }));
+    }
+
+    /**
+     * First variant open invoice reserves
+     * @param {Object|Invoice|number} invoice
+     * @param {Transaction} transaction
+     * @returns {Promise<void>}
+     */
+    // eslint-disable-next-line class-methods-use-this
+    async openReserves(invoice, transaction) {
+        const reserves = await Reserve.findAll({
+            where: { closed: true },
+            include: [
+                { model: DocumentLine, as: 'documentLine', where: { document_id: invoice.id } },
+            ],
+            transaction,
+        });
+        await Promise.all(reserves.map((reserve) => {
+            reserve.closed = false;
+            return reserve.save({ transaction });
+        }));
+    }
 }

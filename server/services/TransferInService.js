@@ -80,8 +80,9 @@ export default class TransferInService extends DocumentService {
      * @returns {Promise<Object>}
      */
     async createTransferIn(optics) {
-        const parent = await (new OrderService()).find({ id: optics.parent_id });
-        const child = await this.createChild(
+        const service = new OrderService();
+        const parent = await service.find({ id: optics.parent_id });
+        const child = await service.createChild(
             parent,
             {
                 document_type_id: 'transfer-in',

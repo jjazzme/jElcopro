@@ -87,6 +87,7 @@ export default class DocumentLineService extends ModelService {
         const arrivals = await Arrival.findAll({
             where: { ballance: { [Op.gt]: 0 } },
             include: { model: DocumentLine, as: 'documentLine', where: { good_id: line.good_id } },
+            transaction,
         });
         // eslint-disable-next-line no-restricted-syntax,no-unused-vars
         for (const arrival of arrivals) {
@@ -311,6 +312,9 @@ export default class DocumentLineService extends ModelService {
         }
         // eslint-disable-next-line no-unused-vars,no-restricted-syntax
         for (const reserve of lineInstance.reserves) {
+            if (reserve.closed) {
+                throw new Error(`${lineInstance.good.product.name} подоbран, снять резерв не возможно`);
+            }
             backToStore += reserve.quantity;
             const arrival = await service.getModel(reserve.arrival_id, params.transaction);
             arrival.ballance += reserve.quantity;
