@@ -1,8 +1,9 @@
 import Sequelize from 'sequelize';
+import _ from 'lodash';
 import db from '../models';
 import ModelService from './ModelService';
 import GoodService from './GoodService';
-import _ from 'lodash';
+import ArrivalService from './ArrivalService';
 
 const {
     Arrival, Departure, Document, DocumentLine, FutureReserve, Good, Product, Reserve,
@@ -29,9 +30,21 @@ export default class DocumentLineService extends ModelService {
      * @returns {Promise<void>}
      * @private
      */
+    // eslint-disable-next-line class-methods-use-this
     async _checkChildrenQuantity(line) {
+        const { Op } = db.Sequelize;
         const children = line.children ? line.children
-            : await DocumentLine.findAll({ where: { parent_id: line.id} });
+            : await DocumentLine.findAll(
+                {
+                    where:
+                        {
+                            [Op.and]: [
+                                { parent_id: line.id },
+                                { parent_id: { [Op.ne]: null } },
+                            ],
+                        },
+                },
+            );
         if (children.length > 0) {
             const sumQuantity = children.reduce((sum, child) => sum + child.quantity, 0);
             if (line.quantity < sumQuantity) {
@@ -48,7 +61,7 @@ export default class DocumentLineService extends ModelService {
      */
     async _checkParentQuantity(line) {
         if (line.parent_id) {
-            const parent = line.parent ? line.parent : await this.find({ id: line.parent_id });
+            const parent = await this.getModel(line.parent_id);
             const previousQuantity = line.previous('quantity') ? line.previous('quantity') : 0;
             const sumQuantity = parent.children.reduce((sum, child) => sum + child.quantity, 0)
                 - previousQuantity + line.quantity;
@@ -79,9 +92,7 @@ export default class DocumentLineService extends ModelService {
         for (const arrival of arrivals) {
             if (arrival.ballance > needReserve) {
                 arrival.ballance -= needReserve;
-                // eslint-disable-next-line no-await-in-loop
-                await arrival.save({ transaction });
-                // eslint-disable-next-line no-await-in-loop
+                await (new ArrivalService()).update(arrival, transaction);
                 await Reserve.create(
                     {
                         document_line_id: line.id, arrival_id: arrival.id, quantity: needReserve, closed: false,
@@ -100,15 +111,16 @@ export default class DocumentLineService extends ModelService {
                     { transaction },
                 );
                 arrival.ballance = 0;
-                // eslint-disable-next-line no-await-in-loop
-                await arrival.save({ transaction });
+                await (new ArrivalService()).update(arrival, transaction);
             }
         }
+        /*
         if (needReserve !== line.quantity - reserves) {
-            // eslint-disable-next-line no-param-reassign
+            // eslint-disable-next-line require-atomic-updates
             line.good.ballance -= line.quantity - reserves - needReserve;
             await line.good.save({ transaction });
         }
+        */
         return line.quantity - reserves - needReserve;
     }
 
@@ -177,10 +189,11 @@ export default class DocumentLineService extends ModelService {
      * @param {Transaction} transaction
      * @returns {Promise<void>}
      */
+    // eslint-disable-next-line class-methods-use-this
     async createChildren(childDocument, parentLineIds, transaction) {
         const where = { document_id: childDocument.parent_id };
         if (parentLineIds && parentLineIds instanceof Array) {
-            where.id = { [db.Sequelize.Op.in]: parentLineIds }
+            where.id = { [db.Sequelize.Op.in]: parentLineIds };
         }
         const parentLines = await DocumentLine.findAll({
             where,
@@ -188,31 +201,31 @@ export default class DocumentLineService extends ModelService {
             attributes: {
                 include: [
                     [
-                        db.sequelize.literal('COALESCE(' +
-                            '(SELECT sum(a.quantity) FROM document_lines a ' +
-                            'WHERE a.parent_id = `DocumentLine`.`id`), 0)'),
-                        'childrenQuantity'
+                        db.sequelize.literal('COALESCE('
+                            + '(SELECT sum(a.quantity) FROM document_lines a '
+                            + 'WHERE a.parent_id = `DocumentLine`.`id`), 0)'),
+                        'childrenQuantity',
                     ],
                     [
-                        db.sequelize.literal('COALESCE(' +
-                            '(SELECT sum(a.amount_without_vat) FROM document_lines a ' +
-                            'WHERE a.parent_id = `DocumentLine`.`id`), 0)'),
-                        'childrenAmountWithoutVat'
+                        db.sequelize.literal('COALESCE('
+                            + '(SELECT sum(a.amount_without_vat) FROM document_lines a '
+                            + 'WHERE a.parent_id = `DocumentLine`.`id`), 0)'),
+                        'childrenAmountWithoutVat',
                     ],
                     [
-                        db.sequelize.literal('COALESCE(' +
-                            '(SELECT sum(a.amount_with_vat) FROM document_lines a ' +
-                            'WHERE a.parent_id = `DocumentLine`.`id`), 0)'),
-                        'childrenAmountWithVat'
+                        db.sequelize.literal('COALESCE('
+                            + '(SELECT sum(a.amount_with_vat) FROM document_lines a '
+                            + 'WHERE a.parent_id = `DocumentLine`.`id`), 0)'),
+                        'childrenAmountWithVat',
                     ],
-                ]
-            }
+                ],
+            },
         });
         const newLines = parentLines.filter((line) => {
             const values = line.get({ palin: true });
             return values.quantity - values.childrenQuantity > 0;
         })
-            .map(line => {
+            .map((line) => {
                 const values = _.omit(line.get({ plain: true }), ['id', 'createdAt', 'updatedAt']);
                 return Object.assign(values, {
                     parent_id: line.id,
@@ -223,6 +236,32 @@ export default class DocumentLineService extends ModelService {
                 });
             });
         await DocumentLine.bulkCreate(newLines, { transaction });
+    }
+
+    /**
+     * Transfer FutureReserve in resereve if it possible
+     * @param {Good|number} good
+     * @param {Transaction} transaction
+     * @returns {Promise<void>}
+     */
+    // eslint-disable-next-line class-methods-use-this
+    async checkFutureReserveByGood(good, transaction) {
+        const goodInstance = await (new GoodService()).getModel(good, transaction);
+        const futureReserves = await FutureReserve.findAll({
+            include: [
+                {
+                    model: DocumentLine,
+                    as: 'documentLine',
+                    include: [{ model: Good, as: 'good', where: { id: goodInstance.id } }],
+                },
+            ],
+            order: ['createdAt'],
+            transaction,
+        });
+        // eslint-disable-next-line no-unused-vars
+        for (const fr of futureReserves) {
+            await this.reserve(fr.documentLine, { transaction });
+        }
     }
 
     /**
@@ -266,25 +305,18 @@ export default class DocumentLineService extends ModelService {
     async unreserve(line, params) {
         const lineInstance = await this.getModel(line, params.transaction);
         let backToStore = 0;
+        const service = new ArrivalService();
+        if (lineInstance.futureReserve) {
+            await lineInstance.futureReserve.destroy({ transaction: params.transaction });
+        }
         // eslint-disable-next-line no-unused-vars,no-restricted-syntax
         for (const reserve of lineInstance.reserves) {
-            if (reserve.closed) {
-                return Promise.reject(new Error(`${lineInstance.good.product.name} подобран, снять резерв нельзя`));
-            }
             backToStore += reserve.quantity;
-            reserve.arrival.ballance += reserve.quantity;
-            // eslint-disable-next-line no-await-in-loop
-            await reserve.arrival.save({ transaction: params.transaction });
-            // eslint-disable-next-line no-await-in-loop
+            const arrival = await service.getModel(reserve.arrival_id, params.transaction);
+            arrival.ballance += reserve.quantity;
+            await service.update(arrival, params.transaction);
             await reserve.destroy({ transaction: params.transaction });
         }
-        if (line.futureReserve) {
-            await line.futureReserve.destroy({ transaction: params.transaction });
-        }
-        // eslint-disable-next-line no-param-reassign
-        line.good.ballance += backToStore;
-        await line.good.save({ transaction: params.transaction });
-        await (new FutureReserveService()).checkFutureReserveByGood(line.good, params.transaction);
         return backToStore;
     }
 }

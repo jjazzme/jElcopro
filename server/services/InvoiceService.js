@@ -40,11 +40,11 @@ export default class InvoiceService extends DocumentService {
             // eslint-disable-next-line no-restricted-syntax,no-unused-vars
             for (const line of this._instance.documentLines) {
                 // eslint-disable-next-line no-await-in-loop
-                reserved += await service.reserve(line, { transaction, own: params.own });
+                reserved += await service.reserve(line, { transaction, own: params ? params.own : false });
             }
             return reserved;
         } catch (e) {
-            console.error(e);
+            // console.error(e);
             return Promise.reject(e);
         }
     }
@@ -67,7 +67,7 @@ export default class InvoiceService extends DocumentService {
             }
             return unreserved;
         } catch (e) {
-            console.error(e);
+            // console.error(e);
             return Promise.reject(e);
         }
     }

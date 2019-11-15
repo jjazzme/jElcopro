@@ -1,19 +1,19 @@
 import { expect } from 'chai';
+import moxios from 'moxios';
+import fs from 'fs';
 import CompelService from '../services/CompelService';
 import CompanyService from '../services/CompanyService';
-import moxios from "moxios";
-import fs from "fs";
 
 require('../config/config.js');
 
 describe('Compel apiSearchByName:', () => {
-    let compel;
+    let comp;
     before(async () => {
         moxios.install();
-        compel = await fs.readFileSync(__dirname + '/httpAnswers/TDA2003L-TB5-T.json', "utf8");
+        comp = await fs.readFileSync(`${__dirname}/httpAnswers/TDA2003L-TB5-T.json`, 'utf8');
         moxios.stubRequest(global.gConfig.companies.compel.api_url, {
             status: 200,
-            responseText: compel
+            responseText: comp,
         });
     });
     after(async () => {
@@ -31,4 +31,3 @@ describe('Compel apiSearchByName:', () => {
             });
     });
 });
-//

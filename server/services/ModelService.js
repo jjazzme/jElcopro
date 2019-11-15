@@ -79,7 +79,7 @@ export default class ModelService {
             }
             const ret = await this.find({ id: createItem.id }, t);
             if (!transaction) await t.commit();
-            return ret ? ret : createItem;
+            return ret || createItem;
         } catch (e) {
             // console.warn('Problem with create', this._Entity, item, e);
             if (!transaction) await t.rollback();
@@ -95,10 +95,11 @@ export default class ModelService {
      */
     async update(item, transaction) {
         const t = transaction instanceof db.Sequelize.Transaction ? transaction : await db.sequelize.transaction();
-        const updateItem = item instanceof this._Entity ? item
-            : await this._Entity.findOne({ where: { id: item.id }, transaction: t });
+        const updateItem = await this.getModel(item, t);
         if (!(item instanceof this._Entity)) {
             updateItem.set(item);
+        } else {
+            updateItem.set(item.dataValues);
         }
         try {
             if (this.beforeUpdate) {
@@ -132,8 +133,7 @@ export default class ModelService {
      */
     async destroy(item, transaction) {
         const t = transaction instanceof db.Sequelize.Transaction ? transaction : await db.sequelize.transaction();
-        const destroyItem = item instanceof this._Entity
-            ? item : await this._Entity.findOne({ where: { id: item.id }, transaction: t });
+        const destroyItem = await this.getModel(item, transaction);
         try {
             if (this.beforeDestroy) {
                 await this.beforeDestroy(destroyItem, t);
@@ -144,7 +144,7 @@ export default class ModelService {
             }
             if (!transaction) await t.commit();
         } catch (e) {
-            console.warn('Problem with delete', this._Entity, item, e);
+            // console.warn('Problem with delete', this._Entity, item, e);
             if (!transaction) await t.rollback();
             throw e;
         }
@@ -213,11 +213,13 @@ export default class ModelService {
         } else if (typeof instance === 'string' && this.getByAlias) {
             answer = await this.getByAlias(instance);
         } else if (instance instanceof this._Entity) {
-            if (this._includes.reduce((flag, item) => !!(flag && item.as && instance[item.as]), true)) {
+            if (this._includes.reduce((flag, item) => !!(flag && item.as && instance[item.as] !== undefined), true)) {
                 answer = instance;
             } else {
                 answer = await this.find({ id: instance.id }, transaction);
             }
+        } else if (instance && instance.id) {
+            answer = await this.find({ id: instance.id }, transaction);
         }
         return answer;
     }
@@ -257,13 +259,5 @@ export default class ModelService {
         const ret = new this();
         if (instance) await ret.setInstance(instance);
         return ret;
-    }
-
-    /**
-     * Return current Entity
-     * @returns {*}
-     */
-    getEntity() {
-        return this._Entity;
     }
 }

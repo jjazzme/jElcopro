@@ -1,15 +1,13 @@
-'use strict';
-
 import db from '../models/index';
-const Op = db.Sequelize.Op;
 
 import ModelService from './ModelService';
 
-const Producer = require('../models').Producer;
-const Product = require('../models').Product;
+const { Op } = db.Sequelize;
+
+const { Producer } = require('../models');
+const { Product } = require('../models');
 
 export default class ProducerService extends ModelService {
-
     constructor() {
         super(Producer);
         this._includes = [{ model: Producer, as: 'rightProducer' }];
@@ -22,53 +20,54 @@ export default class ProducerService extends ModelService {
      * @param t
      * @returns {Promise<void>}
      */
+    // eslint-disable-next-line class-methods-use-this
     async beforeUpdateOrCreate(producer, t) {
         const changes = producer.changed();
         if (changes && changes.includes('right_producer_id')) {
             if (producer.previous('right_producer_id')) {
                 if (producer.right_producer_id) {
                     await Producer.update(
-                        {right_producer_id: producer.right_producer_id},
+                        { right_producer_id: producer.right_producer_id },
                         {
                             where: {
                                 right_producer_id: producer.previous('right_producer_id'),
-                                id: {[Op.ne]: producer.id}
+                                id: { [Op.ne]: producer.id },
                             },
-                            transaction: t
+                            transaction: t,
                         },
                     );
                     await Product.update(
-                        {producer_id: producer.right_producer_id},
-                        {where: {producer_id: producer.previous('right_producer_id')}, transaction: t},
-                    )
+                        { producer_id: producer.right_producer_id },
+                        { where: { producer_id: producer.previous('right_producer_id') }, transaction: t },
+                    );
                 } else {
                     await Producer.update(
-                        {right_producer_id: producer.id},
+                        { right_producer_id: producer.id },
                         {
                             where: {
                                 [Op.or]: [
                                     {
                                         right_producer_id: producer.previous('right_producer_id'),
-                                        id: {[Op.ne]: producer.id}
+                                        id: { [Op.ne]: producer.id },
                                     },
                                     {
-                                        id: producer.previous('right_producer_id')
-                                    }
-                                ]
+                                        id: producer.previous('right_producer_id'),
+                                    },
+                                ],
                             },
-                            transaction: t
+                            transaction: t,
                         },
                     );
                     await Product.update(
-                        {producer_id: producer.id},
-                        {where: {producer_id: producer.previous('right_producer_id')}, transaction: t},
-                    )
+                        { producer_id: producer.id },
+                        { where: { producer_id: producer.previous('right_producer_id') }, transaction: t },
+                    );
                 }
             } else if (producer.id) {
                 await Product.update(
-                    {producer_id: producer.right_producer_id},
-                    {where: {producer_id: producer.id}, transaction: t},
-                )
+                    { producer_id: producer.right_producer_id },
+                    { where: { producer_id: producer.id }, transaction: t },
+                );
             }
         }
     }

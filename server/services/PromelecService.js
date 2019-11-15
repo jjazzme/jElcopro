@@ -126,7 +126,7 @@ export default class PromelecService  {
                     party_name: this._company.party.name,
                     pack: good.pack,
                     id: 0,
-                    multiple: good.multiply,
+                    multiply: good.multiply,
                     good_id: good.id,
                     currency_id: currency.id,
                     created_at: new Date(),
