@@ -1,7 +1,7 @@
 import DocumentService from './DocumentService';
 import DocumentLineService from './DocumentLineService';
-import {
-    Arrival, DocumentLine, FutureReserve, Good, Invoice, Product, Reserve,
+import db, {
+    Arrival, Departure, DocumentLine, FutureReserve, Good, Invoice, Product, Reserve,
 } from '../models';
 
 export default class InvoiceService extends DocumentService {
@@ -112,6 +112,22 @@ export default class InvoiceService extends DocumentService {
             reserve.closed = true;
             return reserve.save({ transaction });
         }));
+    }
+
+    async createChild(parent, child) {
+        const service = new DocumentLineService();
+        const reserves = await Reserve.findAll({
+            where: { closed: false },
+            include: [
+                { model: DocumentLine, as: 'documentLine', where: { document_id: parent.id } },
+            ],
+        });
+        if (reserves.length === 0) throw new Error('Nothing to do');
+        const t = await db.sequelize.transaction();
+        for (const reserve of reserves) {
+            const line = await service.getModel(reserve.document_line_id, t);
+            // await Departure.create({}, { transaction: t });
+        }
     }
 
     /**

@@ -10,7 +10,7 @@ module.exports.run = async () => {
     const xml = iconv.decode(Buffer.from(response.data), 'win1251');
     parseString(xml, (err, res) => {
         res.ValCurs.Valute.forEach((value) => {
-            console.log(value);
+            // console.log(value);
             Currency.findOrCreate({
                 where: { id: value.$.ID },
                 defaults: {

@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import db from '../models/index';
 
 export default class ModelService {
@@ -98,8 +99,12 @@ export default class ModelService {
         const updateItem = await this.getModel(item, t);
         if (!(item instanceof this._Entity)) {
             updateItem.set(item);
+        } else if (!updateItem) {
+            if (!transaction) await t.rollback();
+            return this.create(item, transaction);
         } else {
-            updateItem.set(item.dataValues);
+            const values = _.omit(item.dataValues, ['id', 'createdAt', 'updatedAt']);
+            updateItem.set(values);
         }
         try {
             if (this.beforeUpdate) {
