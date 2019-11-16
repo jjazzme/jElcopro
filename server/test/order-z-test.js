@@ -16,7 +16,7 @@ describe('Clear test data in documentes', () => {
         const invoiceService = new InvoiceService();
         const orderService = new OrderService();
         const transferOutService = new TransferOutService();
-
+        // TETS
         let invoice = await invoiceService.find({ number: 2, number_prefix: 'TEST' });
         invoiceService.destroy(invoice);
         invoice = await invoiceService.find({ number: 1, number_prefix: 'TEST' });
