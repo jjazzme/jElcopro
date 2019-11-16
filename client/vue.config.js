@@ -1,8 +1,12 @@
 module.exports = {
     devServer:{
-        host: 'localhost',
+        host: '0.0.0.0',
         hot:true,
         port: 8080,
+        overlay: {
+            warnings: false,
+            errors: false
+        },
         //sourceMap: true,
         //sourceMapPathOverrides:{
         //    "webpack:///*": "${webRoot}/*",
