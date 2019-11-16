@@ -75,16 +75,12 @@ export default class InvoiceService extends DocumentService {
 
     // eslint-disable-next-line class-methods-use-this
     async _toWork() {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        console.log('It not toWork');
-        return Promise.reject(new Error('It not toWork'));
+        return true;
     }
 
     // eslint-disable-next-line class-methods-use-this
     async _unWork() {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        console.log('It not unWork');
-        return Promise.reject(new Error('It not unWork'));
+        return true;
     }
 
     // eslint-disable-next-line class-methods-use-this
