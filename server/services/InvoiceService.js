@@ -91,6 +91,25 @@ export default class InvoiceService extends DocumentService {
     }
 
     /**
+     * Create new Number autoincrement in own prefix in current Year
+     * @param {Invoice} invoice
+     * @returns {Promise<void>}
+     */
+    // eslint-disable-next-line class-methods-use-this
+    async beforeCreate(invoice) {
+        const begin = new Date();
+        begin.setMonth(0, 1);
+        begin.setHours(0, 0, 0, 0);
+        const lastInvoice = await Invoice.findOne(
+            {
+                where: { date: { [db.Sequelize.Op.gt]: begin }, number_prefix: invoice.number_prefix },
+                order: ['number'],
+            },
+        );
+        invoice.number = lastInvoice ? lastInvoice.number + 1 : 1;
+    }
+
+    /**
      * First variant close invoice reserves
      * @param {Object|Invoice|number} invoice
      * @param {Transaction} transaction

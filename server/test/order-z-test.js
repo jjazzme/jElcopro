@@ -17,7 +17,9 @@ describe('Clear test data in documentes', () => {
         const orderService = new OrderService();
         const transferOutService = new TransferOutService();
 
-        const invoice = await invoiceService.find({ number: 1, number_prefix: 'TEST' });
+        let invoice = await invoiceService.find({ number: 2, number_prefix: 'TEST' });
+        invoiceService.destroy(invoice);
+        invoice = await invoiceService.find({ number: 1, number_prefix: 'TEST' });
 
         const transferOut = await transferOutService.find({ parent_id: invoice.id });
         await Promise.all(transferOut.documentLines.map((line) => documentLineService.destroy(line)));
