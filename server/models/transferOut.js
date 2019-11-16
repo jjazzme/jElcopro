@@ -3,7 +3,7 @@ module.exports = (sequelize, DataTypes) => {
         date: { type: DataTypes.DATE, defaultValue: new Date() },
         number: DataTypes.INTEGER,
         user_id: DataTypes.INTEGER,
-        document_type_id: { type: DataTypes.STRING, defaultValue: 'transfer-in' },
+        document_type_id: { type: DataTypes.STRING, defaultValue: 'transfer-out' },
         parent_id: DataTypes.INTEGER,
         sellerable_id: DataTypes.INTEGER,
         sellerable_type: {
@@ -26,14 +26,14 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         freezeTableName: true,
         tableName: 'documents',
-        defaultScope: { where: { document_type_id: 'transfer-in' } },
+        defaultScope: { where: { document_type_id: 'transfer-out' } },
     });
     transferOut.prototype.getParentAlias = function () {
         return `${this.Parent.DocumentType.name} №${this.Parent.number}`;
     };
     transferOut.associate = function (models) {
         transferOut.belongsTo(models.DocumentType, { foreignKey: 'document_type_id', as: 'documentType' });
-        transferOut.belongsTo(models.Order, { foreignKey: 'parent_id', as: 'parent' });
+        transferOut.belongsTo(models.Invoice, { foreignKey: 'parent_id', as: 'parent' });
         transferOut.belongsTo(models.Store, { foreignKey: 'foreign_store_id', as: 'foreignStore' });
         transferOut.belongsTo(models.User, { foreignKey: 'user_id', as: 'user' });
         transferOut.belongsTo(models.Store, { foreignKey: 'store_id', as: 'store' });

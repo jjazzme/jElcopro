@@ -49,7 +49,7 @@ module.exports = (sequelize, DataTypes) => {
             as: 'buyerable',
         });
         invoice.hasMany(models.DocumentLine, { foreignKey: 'document_id', as: 'documentLines' });
-        invoice.hasMany(models.Document, { foreignKey: 'parent_id', as: 'children' });
+        invoice.hasMany(models.TransferOut, { foreignKey: 'parent_id', as: 'children' });
     };
     return invoice;
 };
