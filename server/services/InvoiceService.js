@@ -1,7 +1,7 @@
 import DocumentService from './DocumentService';
 import DocumentLineService from './DocumentLineService';
-import {
-    Arrival, DocumentLine, FutureReserve, Good, Invoice, Product, Reserve,
+import db, {
+    Arrival, Departure, DocumentLine, FutureReserve, Good, Invoice, Product, Reserve,
 } from '../models';
 
 export default class InvoiceService extends DocumentService {
@@ -91,5 +91,63 @@ export default class InvoiceService extends DocumentService {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         console.log('It not close');
         return Promise.reject(new Error('It not close'));
+    }
+
+    /**
+     * First variant close invoice reserves
+     * @param {Object|Invoice|number} invoice
+     * @param {Transaction} transaction
+     * @returns {Promise<void>}
+     */
+    // eslint-disable-next-line class-methods-use-this
+    async closeReserves(invoice, transaction) {
+        const reserves = await Reserve.findAll({
+            where: { closed: false },
+            include: [
+                { model: DocumentLine, as: 'documentLine', where: { document_id: invoice.id } },
+            ],
+            transaction,
+        });
+        await Promise.all(reserves.map((reserve) => {
+            reserve.closed = true;
+            return reserve.save({ transaction });
+        }));
+    }
+
+    async createChild(parent, child) {
+        const service = new DocumentLineService();
+        const reserves = await Reserve.findAll({
+            where: { closed: false },
+            include: [
+                { model: DocumentLine, as: 'documentLine', where: { document_id: parent.id } },
+            ],
+        });
+        if (reserves.length === 0) throw new Error('Nothing to do');
+        const t = await db.sequelize.transaction();
+        for (const reserve of reserves) {
+            const line = await service.getModel(reserve.document_line_id, t);
+            // await Departure.create({}, { transaction: t });
+        }
+    }
+
+    /**
+     * First variant open invoice reserves
+     * @param {Object|Invoice|number} invoice
+     * @param {Transaction} transaction
+     * @returns {Promise<void>}
+     */
+    // eslint-disable-next-line class-methods-use-this
+    async openReserves(invoice, transaction) {
+        const reserves = await Reserve.findAll({
+            where: { closed: true },
+            include: [
+                { model: DocumentLine, as: 'documentLine', where: { document_id: invoice.id } },
+            ],
+            transaction,
+        });
+        await Promise.all(reserves.map((reserve) => {
+            reserve.closed = false;
+            return reserve.save({ transaction });
+        }));
     }
 }

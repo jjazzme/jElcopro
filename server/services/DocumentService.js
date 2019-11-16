@@ -2,7 +2,6 @@ import StateMachine from 'javascript-state-machine';
 import _ from 'lodash';
 import ModelService from './ModelService';
 import db from '../models/index';
-import DocumentLineService from './DocumentLineService';
 
 const {
     Company, Party, Store,
@@ -88,31 +87,5 @@ export default class DocumentService extends ModelService {
             await t.rollback();
         }
         return Promise.reject(error);
-    }
-
-    /**
-     * Create child Document with DocumentLines
-     * @param {Order} parent
-     * @param {Object} child
-     * @param {Array|null} parentLines
-     * @returns {Promise<Object>}
-     */
-    async createChild(parent, child, parentLines) {
-        const parentLineIds = parentLines ? parentLines.map((line) => (Number.isNaN(line) ? line.id : line)) : null;
-        const t = await db.sequelize.transaction();
-        let childInsatnce = Object.assign(parent.get({ plain: true }), child);
-        childInsatnce.parent_id = parent.id;
-        delete childInsatnce.id;
-        try {
-            childInsatnce = await this.create(childInsatnce, t);
-            const service = new DocumentLineService();
-            await service.createChildren(childInsatnce, parentLineIds, t);
-            await t.commit();
-            return childInsatnce;
-        } catch (e) {
-            console.error(e);
-            await t.rollback();
-            throw e;
-        }
     }
 }
