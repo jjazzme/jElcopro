@@ -33,6 +33,7 @@
                 footer: new Footer({name: 'priceListFooter', vmodel: null}),
                 rootLoading: false,
                 prevBackOptics: null,
+                //TODO UserLevel (enums)
                 value: new PriceSource({
                     search:'max', quantity:5, fromQuantity:false, onlyDB: true, selectedStores:[1,2],
                     depth:10, pages:1, debounceAmount:1000, minSearchLenSensitivity:4

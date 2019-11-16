@@ -45,12 +45,17 @@
             </div>
 
             <div class="p-l-filter p-l-card">
-                <b-form-checkbox
+                <span
                   class="p-l-checkbox"
-                  size="sm"
                   id="PLCheckbox"
-                  v-model="value.onlyDB"
-                  switch></b-form-checkbox>
+                  v-b-tooltip:hover
+                >
+                    <b-tooltip target="PLCheckbox" triggers="hover">Учитывать только сохранённую информацию</b-tooltip>
+                    <b-form-checkbox
+                      size="sm"
+                      v-model="value.onlyDB"
+                      switch></b-form-checkbox>
+                </span>
                 <div class="p-l-alias">Склады</div>
                 <b-dropdown
                   variant="transparent"
@@ -62,9 +67,7 @@
                       class="checkbox"
                       :options="options"
                       stacked
-                    >
-                    </b-form-checkbox-group>
-                    <b-tooltip target="PLCheckbox" triggers="hover">Учитывать только сохранённую информацию</b-tooltip>
+                    />
                 </b-dropdown>
             </div>
         </div>
@@ -153,6 +156,10 @@
                 .p-l-dropd{
                     right: 0;
                     top:0;
+                    .checkbox{
+                        white-space: nowrap !important;
+                        margin: 10px;
+                    }
                 }
                 .p-l-alias{
                     top: 0;
