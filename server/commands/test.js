@@ -2,14 +2,22 @@ import OrderService from '../services/OrderService';
 import DocumentLineService from '../services/DocumentLineService';
 import InvoiceService from '../services/InvoiceService';
 import TransferInService from '../services/TransferInService';
+import TransferOutService from '../services/TransferOutService';
 
+// eslint-disable-next-line no-unused-vars
 module.exports.run = async (args) => {
     const transferInService = new TransferInService();
     const documentLineService = new DocumentLineService();
     const invoiceService = new InvoiceService();
     const orderService = new OrderService();
+    const transferOutService = new TransferOutService();
 
     const invoice = await invoiceService.find({ number: 1, number_prefix: 'TEST' });
+
+    const transferOut = await transferOutService.find({ parent_id: invoice.id });
+    await Promise.all(transferOut.documentLines.map((line) => documentLineService.destroy(line)));
+    await transferOutService.destroy(transferOut);
+
     await invoiceService.setInstance(invoice);
     await invoiceService.openReserves(invoice);
     await invoiceService.transition('unreserve');

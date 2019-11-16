@@ -3,12 +3,13 @@ import CompanyService from '../services/CompanyService';
 import InvoiceService from '../services/InvoiceService';
 import TransferInService from '../services/TransferInService';
 import {
-    DocumentLine, FutureReserve, Reserve, TransferIn,
+    DocumentLine, FutureReserve, Reserve, TransferIn, TransferOut,
 } from '../models';
 import OrderService from '../services/OrderService';
 import ProducerService from '../services/ProducerService';
 import ProductService from '../services/ProductService';
 import GoodService from '../services/GoodService';
+import TransferOutService from '../services/TransferOutService';
 
 const chai = require('chai');
 chai.use(require('chai-as-promised'));
@@ -80,6 +81,17 @@ describe('Test Invoice 1', () => {
         expect(child, 'Child - formed TransferIn')
             .to.be.an.instanceof(TransferIn).and.deep.include({ status_id: 'formed' });
     });
+    it('Create first transferOut', async () => {
+        await service.closeReserves(invoice);
+        const out = await (new TransferOutService()).createTransferOut({
+            parent_id: invoice.id,
+            number: 1,
+            number_prefix: 'TEST',
+            user_id: 1,
+        });
+        expect(out, 'TranserOut')
+            .to.be.an.instanceof(TransferOut).and.deep.include({ status_id: 'formed' });
+    });
     it('Make second arrival', async () => {
         const transfer = await transferInService.find({ number: 2, number_prefix: 'TEST', parent_id: order.id });
         await transferInService.setInstance(transfer);
@@ -92,8 +104,8 @@ describe('Test Invoice 1', () => {
         const reserves = await Reserve.findAll({
             include: [{ model: DocumentLine, as: 'documentLine', where: { good_id: good.id } }],
         });
-        expect(reserves.length).is.equal(3);
-        expect(reserves.reduce((sum, reserve) => sum + reserve.quantity, 0)).is.equal(5);
+        expect(reserves.length).is.equal(2);
+        expect(reserves.reduce((sum, reserve) => sum + reserve.quantity, 0)).is.equal(3);
         const frs = await FutureReserve.findAll({
             include: [{ model: DocumentLine, as: 'documentLine', where: { good_id: good.id } }],
         });

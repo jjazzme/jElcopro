@@ -11,7 +11,7 @@
     "start": "babel-node ./bin/www --tls-min-v1.0",
     "start_NODEMON": "nodemon --exec babel-node ./bin/www --tls-min-v1.0",
     "test": "mocha --timeout 20000 --require @babel/register --tls-min-v1.0 test/**/*.js",
-    "test_console": "babel-node --tls-min-v1.0 ./bin/console importCompel",
+    "test_console": "babel-node --tls-min-v1.0 ./bin/console test",
     "start_old": "node ./bin/www",
     "build___": "mkdir dist && babel src -s -d dist",
     "dev__": "nodemon --exec npm run babel-node -- ./app.js",

@@ -1,7 +1,8 @@
+import _ from 'lodash';
 import DocumentService from './DocumentService';
 import DocumentLineService from './DocumentLineService';
 import db, {
-    Arrival, Departure, DocumentLine, FutureReserve, Good, Invoice, Product, Reserve,
+    Arrival, DocumentLine, FutureReserve, Good, Invoice, Product, Reserve,
 } from '../models';
 
 export default class InvoiceService extends DocumentService {
@@ -114,19 +115,26 @@ export default class InvoiceService extends DocumentService {
         }));
     }
 
+    /**
+     * Create TransferOut with lines
+     * @param parent
+     * @param child
+     * @returns {Promise<Object>}
+     */
     async createChild(parent, child) {
-        const service = new DocumentLineService();
-        const reserves = await Reserve.findAll({
-            where: { closed: false },
-            include: [
-                { model: DocumentLine, as: 'documentLine', where: { document_id: parent.id } },
-            ],
-        });
-        if (reserves.length === 0) throw new Error('Nothing to do');
+        let childInsatnce = Object.assign(parent.get({ plain: true }), child);
+        childInsatnce.parent_id = parent.id;
+        childInsatnce = _.omit(childInsatnce, ['id', 'createdAt', 'updatedAt']);
         const t = await db.sequelize.transaction();
-        for (const reserve of reserves) {
-            const line = await service.getModel(reserve.document_line_id, t);
-            // await Departure.create({}, { transaction: t });
+        try {
+            childInsatnce = await this.create(childInsatnce, t);
+            const service = new DocumentLineService();
+            await service.createTransferOutLines(childInsatnce, t);
+            await t.commit();
+            return childInsatnce;
+        } catch (e) {
+            t.rollback();
+            throw e;
         }
     }
 

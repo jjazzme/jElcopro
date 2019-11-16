@@ -3,6 +3,7 @@ import _ from 'lodash';
 import db from '../models';
 import ModelService from './ModelService';
 import GoodService from './GoodService';
+// eslint-disable-next-line import/no-cycle
 import ArrivalService from './ArrivalService';
 
 const {
@@ -133,19 +134,21 @@ export default class DocumentLineService extends ModelService {
      */
     // eslint-disable-next-line class-methods-use-this
     _reserveQuantity(line) {
-        return line.reserves.reduce((sum, reserve) => sum + reserve.quantity, 0);
+        return line.reserves.reduce((sum, reserve) => sum + reserve.quantity, 0)
+            + line.children.reduce((sum, child) => sum + child.quantity, 0);
     }
 
     /**
      * Before Create new DocumentLine resolve dependencies on right Good & Store
      * @param {DocumentLine} item
+     * @param {Transaction} transaction
      * @returns {Promise<void>}
      */
     // eslint-disable-next-line class-methods-use-this
-    async beforeCreate(item) {
+    async beforeCreate(item, transaction) {
         if (!item.document_id) throw new Error('Attribute document_id required');
         const document = item.document ? item.document
-            : await Document.findOne({ where: { id: item.document_id } });
+            : await Document.findOne({ where: { id: item.document_id }, transaction });
         if (!document) throw new Error('Attribute document_id wrong');
         const productId = await (item.product_id ? item.product_id
             : (await Good.findOne({ where: { id: item.good_id } })).product_id);
@@ -184,7 +187,30 @@ export default class DocumentLineService extends ModelService {
     }
 
     /**
-     * Create children lines for lines of parent document
+     * Check Try destroy transferOut line
+     * @param line
+     * @param transaction
+     * @returns {Promise<void>}
+     */
+    // eslint-disable-next-line class-methods-use-this
+    async beforeDestroy(line, transaction) {
+        if (line.departure) {
+            if (line.document.closed) throw new Error('Parent TransferOut was closed');
+            await Reserve.create(
+                {
+                    document_line_id: line.parent_id,
+                    arrival_id: line.departure.arrival_id,
+                    quantity: line.quantity,
+                    closed: true,
+                },
+                { transaction },
+            );
+            await line.departure.destroy({ transaction });
+        }
+    }
+
+    /**
+     * Create TransferIn lines
      * @param {Document} childDocument
      * @param {Array|null} parentLineIds
      * @param {Transaction} transaction
@@ -237,6 +263,36 @@ export default class DocumentLineService extends ModelService {
                 });
             });
         await DocumentLine.bulkCreate(newLines, { transaction });
+    }
+
+    /**
+     * Create TransferOut lines
+     * @param {TransferOut} transferOut
+     * @param {Transaction} transaction
+     * @returns {Promise<void>}
+     */
+    async createTransferOutLines(transferOut, transaction) {
+        const reserves = await Reserve.findAll({
+            where: { closed: true },
+            include: [
+                { model: DocumentLine, as: 'documentLine', where: { document_id: transferOut.parent_id } },
+            ],
+            transaction,
+        });
+        if (reserves.length === 0) throw new Error('Nothing to do');
+        // eslint-disable-next-line no-unused-vars
+        for (const reserve of reserves) {
+            const line = await this.getModel(reserve.document_line_id, transaction);
+            let newLine = Object.assign(line.get({ plain: true }), {
+                document_id: transferOut.id,
+                quantity: reserve.quantity,
+                parent_id: line.id,
+            });
+            newLine = _.omit(newLine, ['id', 'createdAt', 'updatedAt']);
+            newLine = await this.create(newLine, transaction);
+            await Departure.create({ document_line_id: newLine.id, arrival_id: reserve.arrival_id }, { transaction });
+            await reserve.destroy({ transaction });
+        }
     }
 
     /**
