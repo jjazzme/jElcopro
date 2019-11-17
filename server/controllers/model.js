@@ -55,12 +55,15 @@ module.exports = {
                 let current = top;
                 _.forEach(val.path.split('.'), (item, ind)=>{
                     current.model = models[item];
+                    current.as = val.as
+                      ? val.as.split('.')[ind]
+                        ? val.as.split('.')[ind]
+                        : _.camelCase(item)
+                      : _.camelCase(item);
                     if (ind!==val.path.split('.').length-1){
                         current.include = [{}];
                         current = current.include[0];
                     } else {
-                        current.as = val.as ? val.as : _.camelCase(_.last(val.path.split('.')));
-
                         let actual = _.cloneDeep(actualFilters[name]);
                         if (actual){
                             if (actual.length>0) {
@@ -140,7 +143,7 @@ module.exports = {
             })
             .catch(err=>{
                 res.status(500);
-                res.json({error: err});
+                res.json({error: err.message});
             });
 
 
