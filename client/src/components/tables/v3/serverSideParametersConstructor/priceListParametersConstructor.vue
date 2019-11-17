@@ -19,11 +19,20 @@
                 </b-form-input>
                 <div class="p-l-alias">Мин. количество</div>
                 <div class="p-l-additional">ед-цы</div>
-                <b-form-checkbox
+                <span
+                  :title="User.skills.interface>=enums.userLevel.Junior ? 'Показать больше или равно количеству и оптимизировать вывод' : ''"
                   class="p-l-checkbox"
-                  size="sm"
-                  v-model="value.fromQuantity"
-                  switch></b-form-checkbox>
+                  id="PLCQua"
+                >
+                   <b-form-checkbox
+                     size="sm"
+                     v-model="value.fromQuantity"
+                     switch></b-form-checkbox>
+                    <b-tooltip
+                      v-if="User.skills.interface<enums.userLevel.Junior"
+                      target="PLCQua"
+                      triggers="hover">Показать больше или равно количеству и оптимизировать вывод</b-tooltip>
+                </span>
             </div>
             <div class="p-l-filter">
                 <b-form-input
@@ -37,25 +46,41 @@
                 </b-form-input>
                 <div class="p-l-alias">Мин.актуальность</div>
                 <div class="p-l-additional">часы</div>
-                <b-form-checkbox
+                <span
+                  :title="User.skills.interface>=enums.userLevel.Junior ? 'Показывать только актуальные для заданного количества часов' : ''"
                   class="p-l-checkbox"
-                  size="sm"
-                  v-model="value.fromRelevance"
-                  switch></b-form-checkbox>
+                  id="PLCAct"
+                >
+                    <b-form-checkbox
+                      size="sm"
+                      v-model="value.fromRelevance"
+                      switch/>
+                    <b-tooltip
+                      v-if="User.skills.interface<enums.userLevel.Junior"
+                      target="PLCAct"
+                      triggers="hover">Показывать только актуальные для заданного количества часов</b-tooltip>
+                </span>
             </div>
 
             <div class="p-l-filter p-l-card">
                 <span
+                  :title="User.skills.interface>=enums.userLevel.Junior ? 'Учитывать только сохранённую в базе данных информацию' : ''"
                   class="p-l-checkbox"
-                  id="PLCheckbox"
-                  v-b-tooltip:hover
+                  id="PLCDBs"
                 >
-                    <b-tooltip target="PLCheckbox" triggers="hover">Учитывать только сохранённую информацию</b-tooltip>
+                    <b-tooltip
+                      v-if="User.skills.interface<enums.userLevel.Junior"
+                      target="PLCDBs"
+                      triggers="hover">Учитывать только сохранённую в базе данных информацию</b-tooltip>
                     <b-form-checkbox
                       size="sm"
                       v-model="value.onlyDB"
                       switch></b-form-checkbox>
                 </span>
+                <store-icons
+                  class="p-l-icons"
+                  v-model="value"
+                ></store-icons>
                 <div class="p-l-alias">Склады</div>
                 <b-dropdown
                   variant="transparent"
@@ -80,11 +105,15 @@
 
 <script>
     import Swal from 'sweetalert2'
+    import Enums from "../../../../modules/enums";
+    import StoreIcons from "../tablesHeader/storeIcons";
     export default {
         name: "priceListParametersConstructor",
+        components: {StoreIcons},
         data(){
             return {
-
+                User: this.$store.getters['AUTH/GET_USER'],
+                enums: new Enums(),
             }
         },
         props:{
@@ -147,6 +176,7 @@
             .p-l-card{
                 border: rgb(206,212,218) solid 1px;
                 border-radius: 4px;
+                width: 140px;
             }
             .p-l-filter{
                 min-width: 120px;
@@ -160,6 +190,11 @@
                         white-space: nowrap !important;
                         margin: 10px;
                     }
+                }
+                .p-l-icons{
+                    top: 10px;
+                    left: 30px;
+                    font-size: 20px;
                 }
                 .p-l-alias{
                     top: 0;

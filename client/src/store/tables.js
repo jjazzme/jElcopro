@@ -220,6 +220,7 @@ let state = {
           initial:{
             id:{show:false, hidden: true, sortable: false},
             date:{editor: 'calendar', show: true, order:1, sortable: true, label: 'Дата',
+              html: raw=>{},
               filters: [{type: 'calendar_fromto', from:'', to:''}]
             },
             number:{editor: 'integer', show: true, order:2, sortable: true, label: 'Номер',
