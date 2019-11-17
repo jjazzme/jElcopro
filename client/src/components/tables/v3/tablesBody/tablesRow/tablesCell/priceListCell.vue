@@ -8,12 +8,9 @@
     <component
       v-bind:is="component"
       v-model="cellHTML"
+      :key="`${cellKeyPrefix}_comp`"
       class="p-l-value"
     ></component>
-    <!--div
-      v-html="cellHTML"
-      class="p-l-value"
-    ></div-->
   </div>
 </template>
 
@@ -30,21 +27,30 @@
       value: null,
       cell: null,
       quantity: null,
+      cellKeyPrefix: null
     },
     computed:{
       cellHTML(){
-        if (this.cell.html) {
-          return this.cell.html(this.value);
-        } else if (this.cell.component) {
-          return this.quantity;
-        } else {
-          return this.value[this.cell.field];
-        }
+        if (this.cell.html) return this.cell.html(this.value);
+        else if (this.cell.component) return this.value;
+        else return this.value[this.cell.field];
       },
     },
     mounted() {
       let component = this.cell.component ? this.cell.component : "priceListStandard";
-      this.component = () => import(`./cellComponents/${component}`)
+      this.component = () => import(`./cellComponents/${component}`);
+
+      //if (this.cell.html) this.$set(this, 'cellHTML', this.cell.html(this.value));
+      //else if (this.cell.component) this.$set(this, 'cellHTML', this.value);
+      //else this.$set(this, 'cellHTML', this.value[this.cell.field]);
+    },
+    watch:{
+      //value(n,o){
+      //  debugger
+      //  if (this.cell.html) this.$set(this, 'cellHTML', this.cell.html(this.value));
+      //  else if (this.cell.component) this.$set(this, 'cellHTML', this.value);
+      //  else this.$set(this, 'cellHTML', this.value[this.cell.field]);
+      //}
     }
   }
 </script>
@@ -64,9 +70,9 @@
     .p-l-alias {
       position: absolute;
       font-size: 12px;
-      line-height: 12px;
+      line-height: 9px;
       opacity: 0.5;
-      top: 0;
+      top: 1px;
       left: 5px;
     }
     .p-l-value {
@@ -75,8 +81,11 @@
       padding-top: 10px;
     }
   }
-  .p-l-c-priceRUR{background-color: #ffcc66;}
-  .p-l-c-priceRUR, .p-l-c-vat, .p-l-c-ballance, .p-l-c-average_days {font-size: 24px; font-weight: bold;}
+  .p-l-c-min, .p-l-c-max, .p-l-c-pack, .p-l-c-multiply {min-width:40px}
+  .p-l-c-online{max-width: 50px; font-size: 16px}
+  .p-l-c-code{max-width: 80px;}
+  .p-l-c-_priceRUR{background-color: #ffcc66; height: 100%}
+  .p-l-c-_priceRUR, .p-l-c-vat, .p-l-c-ballance, .p-l-c-average_days {font-size: 20px; font-weight: bold;}
   .p-l-c-name {font-size: 16px; font-weight: bold; background-color: #ff9999}
-  .p-l-c-online {font-size: 20px;}
+  .p-l-c-vat{max-width: 40px;}
 </style>
