@@ -157,8 +157,8 @@ export default class CompelService {
             // eslint-disable-next-line no-async-promise-executor,no-unused-vars
             items.map((item) => new Promise(async (resolve, reject) => {
                 const { good, parameter, producer } = await this._parseApiItem(item, case_, store);
-                const pmss =[].concat(...item.proposals.map((proposal) => {
-                    const prices = proposal.price_qty.map(async (price) => {
+                const pmss = [].concat(...item.proposals.map((proposal) => {
+                    return proposal.price_qty.map(async (price) => {
                         let id = 0;
                         if (proposal.prognosis_days === 1) {
                             const oldPrice = await Price.findOne({ where: { good_id: good.id, min: price.min_qty } });
@@ -210,7 +210,6 @@ export default class CompelService {
                             vend_proposal_date: proposal.vend_proposal_date,
                         };
                     });
-                    return prices;
                 }));
                 const r = await Promise.all(pmss);
                 resolve(r);

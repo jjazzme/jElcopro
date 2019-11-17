@@ -125,7 +125,6 @@ export default class PromelecService  {
                     company_id: this._company.id,
                     party_name: this._company.party.name,
                     pack: good.pack,
-                    id: 0,
                     multiply: good.multiply,
                     good_id: good.id,
                     currency_id: currency.id,
@@ -149,15 +148,7 @@ export default class PromelecService  {
                         const max = i === 4 ? item.quant : item.pricebreaks[i + 1].quant - 1;
                         const our_price = (item.pricebreaks[i].price) / (item.price_unit);
                         const for_all_price = (item.pricebreaks[i].pureprice) / (item.price_unit);
-                        prices.push(Object.assign({
-                            average_days: days,
-                            ballance: item.quant,
-                            min: min,
-                            max: max,
-                            our_price: our_price,
-                            for_all_price: for_all_price,
-                            online: 1
-                        }, base_price));
+                        let id = 0;
                         if (old_prices.length > 0) {
                             old_prices[i].set(
                                 {
@@ -168,8 +159,9 @@ export default class PromelecService  {
                                 }
                             );
                             await price_service.update(old_prices[i]);
+                            id = old_prices[i].id;
                         } else {
-                            await price_service.create({
+                            const newPrice = await price_service.create({
                                 currency_id: currency.id,
                                 good_id: good.id,
                                 min: min,
@@ -177,7 +169,18 @@ export default class PromelecService  {
                                 our_price: our_price,
                                 for_all_price: for_all_price
                             });
+                            id = newPrice.id;
                         }
+                        prices.push(Object.assign({
+                            id,
+                            average_days: days,
+                            ballance: item.quant,
+                            min: min,
+                            max: max,
+                            our_price: our_price,
+                            for_all_price: for_all_price,
+                            online: 1,
+                        }, base_price));
                     }
                 }
                 if (item.vendors) {
@@ -186,6 +189,7 @@ export default class PromelecService  {
                             let max = vendor.quant;
                             vendor.pricebreaks.reverse().forEach(pricebreak => {
                                 prices.push(Object.assign({
+                                    id: 0,
                                     average_days: days + vendor.delivery,
                                     ballance: vendor.quant,
                                     min: pricebreak.quant,

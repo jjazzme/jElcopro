@@ -14,6 +14,13 @@ export default class CurrencyService extends ModelService {
      */
     async getByAlias(alias) {
         // eslint-disable-next-line no-return-await
-        return (await Cache.remember(`cuurency${alias}`, this.find({ char_code: alias }), 900));
+        const key = `curency${alias}`;
+        try {
+            if (await Cache.hasKey(key)) return await Cache.valueByKey(key);
+            return await Cache.remember(key, await this.find({ char_code: alias }), 900);
+        } catch (e) {
+            console.error(e);
+            throw e;
+        }
     }
 }
