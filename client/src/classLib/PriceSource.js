@@ -46,7 +46,7 @@ export default class PriceSource{
       one2:{
         two21:{
           ballance: {alias: 'кол-во', field:'ballance'},
-          real: {alias: 'закупка', field:'_realCount', _html: row=>row.realCount(row)},
+          real: {alias: 'в счёт', field:'_realCount', component: 'priceListAddToInvoice', _html: row=>row.realCount(row)},
           average: {alias: 'дней', field:'average_days'},
         },
         two22:{

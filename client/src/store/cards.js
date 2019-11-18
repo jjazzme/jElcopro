@@ -9,10 +9,8 @@ let getters = {
   GET_ORDERS: state => state.orders,
 };
 let mutations = {
-  ADD_TO_INVOICE(state, line){
-
-  },
-  SET_INVOICE(state, invoice){state.invoice = invoice}
+  ADD_LINE_TO_INVOICE(state, line){state.invoice.documentLines.push(line);},
+  SET_INVOICE(state, invoice){state.invoice = invoice;}
 };
 let actions = {
   LOAD_CARDS({state}){
@@ -24,6 +22,12 @@ let actions = {
       .then(ans=>{
         commit('SET_INVOICE', ans.data)
       })
+      .catch(err=>console.log(err))
+  },
+  ADD_LINE_TO_INVOICE({state, getters, commit, rootGetters}, priceLine){
+    const user = rootGetters['AUTH/GET_USER'];
+    axios.put(`/api/invoice/line/add/${getters['GET_INVOICE'].id}/${user.id}`, {priceLine: priceLine})
+      .then(ans=>commit('ADD_LINE_TO_INVOICE', ans.data))
       .catch(err=>console.log(err))
   }
 };

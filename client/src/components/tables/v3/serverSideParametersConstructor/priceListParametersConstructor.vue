@@ -176,7 +176,7 @@
             .p-l-card{
                 border: rgb(206,212,218) solid 1px;
                 border-radius: 4px;
-                width: 140px;
+                width: 160px;
             }
             .p-l-filter{
                 min-width: 120px;

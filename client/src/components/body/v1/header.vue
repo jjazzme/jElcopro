@@ -25,10 +25,11 @@
             <div
               v-else
             >
-                <div
-                  class="s-h-close"
-                  @click="closeInvoice()"
-                >x</div>
+                <div class="h-i-close" @click="closeInvoice()">x</div>
+                <div class="h-i-topic">Счёт №{{invoice.number}} от {{Intl.DateTimeFormat('ru-RU').format(new Date(invoice.date))}}</div>
+                <div class="h-i-sum">{{invoice._sum}}₽</div>
+                <div class="h-i-lines">Строк: {{invoice.documentLines.length}} | Товаров: {{invoice._count}}</div>
+                <div class="h-i-buyer" :title="invoice.buyerable.party.name">{{invoice.buyerable.party.name}}</div>
             </div>
         </div>
     </header>
@@ -48,8 +49,17 @@
                 return this.$store.getters['ENV/GET_TITLE'];
             },
             invoice(){
-                return this.$store.getters['CARDS/GET_INVOICE']
+                let invoice = this.$store.getters['CARDS/GET_INVOICE'];
+                if (!invoice) return null;
+                invoice._count = 0;
+                invoice._sum = 0;
+                _.forEach(invoice.documentLines, line=>{
+                    invoice._count += line.quantity;
+                    invoice._sum += line.amount_with_vat;
+                });
+                return invoice
             }
+
         },
         methods:{
             closeInvoice(){
@@ -84,7 +94,7 @@
     header{
         position: relative;
         .s-h-invoice{
-            .s-h-close{
+            .h-i-close{
                 color: red;
                 cursor: pointer;
                 font-weight: 600;
@@ -92,11 +102,34 @@
                 top:0;
                 right: 5px;
             }
+            .h-i-topic{
+                text-align: center;
+                width: 100%;
+                font-size: 13px;
+                font-weight: 600;
+                text-transform: uppercase;
+            }
+            .h-i-sum{
+                font-size: 20px;
+                font-weight: 600;
+                margin-top: 10px;
+            }
+            .h-i-lines{
+                font-size: 12px;
+                margin-top: 10px;
+            }
+            .h-i-buyer{
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                font-size: 12px;
+            }
+
             position: relative;
-            width: 200px;
-            height: 100px;
+            width: 230px;
+            height: 120px;
             background-color: @table-body-bg;
-            top: 70px;
+            top: 55px;
             left: 30px;
             padding: 10px;
             border-radius: 10px;
@@ -109,7 +142,7 @@
             > span:nth-child(2){color: silver; margin: 0 10px;}
             > span:nth-child(3){color: antiquewhite;};
             position: absolute;
-            top: 20px;
+            top: 4px;
             left: 20px;
         }
     }

@@ -2,6 +2,7 @@
 
 import Services from "../services";
 import Invoice from '../services/InvoiceService';
+import DocumentLineService from "../services/DocumentLineService";
 
 const models = require('../models');
 const Auth = require('../services/Auth');
@@ -289,14 +290,41 @@ module.exports = {
     },
 
     getInvoiceWithLine(req, res){
+        const userID = parseInt(req.params.userID);
+        const id = parseInt(req.params.id);
         const invoice = new Invoice();
-        invoice.getModel(parseInt(req.params.id))
+        invoice.getModel(id)
           .then(ans=>{
               res.send(ans);
           })
           .catch(err=>{
               res.status(500).json({error: err.message})
           });
+    },
+
+    addLineToInvoice(req, res) {
+        const userID = parseInt(req.params.userID);
+        const document_id = parseInt(req.params.id);
+        const priceLine = req.body.priceLine;
+
+        const documenLineService = new DocumentLineService();
+        documenLineService.create({
+            document_id: document_id,
+            times: priceLine.average_days,
+            good_id: priceLine.good_id,
+            quantity: priceLine._realCount,
+            vat: priceLine.vat,
+            price_without_vat: priceLine._priceRUR*100/(100+priceLine.vat),
+            price_with_vat: priceLine._priceRUR,
+            amount_without_vat: priceLine._realCount*priceLine._priceRUR*100/(100+priceLine.vat),
+            amount_with_vat: priceLine._realCount*priceLine._priceRUR,
+            store_id: priceLine.store_id,
+            remark: priceLine.remark,
+        })
+          .then(ans=>
+            res.send(ans))
+          .catch(err=>
+            res.status(500).json({error: err.message}));
     }
 };
 

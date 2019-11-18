@@ -7,7 +7,7 @@
     </div>
     <component
       v-bind:is="component"
-      v-model="cellHTML"
+      v-model="cellValue"
       :key="`${cellKeyPrefix}_comp`"
       class="p-l-value"
     ></component>
@@ -30,7 +30,7 @@
       cellKeyPrefix: null
     },
     computed:{
-      cellHTML(){
+      cellValue(){
         if (this.cell.html) return this.cell.html(this.value);
         else if (this.cell.component) return this.value;
         else return this.value[this.cell.field];
