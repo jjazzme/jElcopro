@@ -1,7 +1,8 @@
+import _ from 'lodash';
 import DocumentService from './DocumentService';
 import DocumentLineService from './DocumentLineService';
 import db, {
-    Arrival, Departure, DocumentLine, FutureReserve, Good, Invoice, Product, Reserve,
+    Arrival, DocumentLine, FutureReserve, Good, Invoice, Product, Reserve,
 } from '../models';
 
 export default class InvoiceService extends DocumentService {
@@ -74,16 +75,12 @@ export default class InvoiceService extends DocumentService {
 
     // eslint-disable-next-line class-methods-use-this
     async _toWork() {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        console.log('It not toWork');
-        return Promise.reject(new Error('It not toWork'));
+        return true;
     }
 
     // eslint-disable-next-line class-methods-use-this
     async _unWork() {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        console.log('It not unWork');
-        return Promise.reject(new Error('It not unWork'));
+        return true;
     }
 
     // eslint-disable-next-line class-methods-use-this
@@ -91,6 +88,25 @@ export default class InvoiceService extends DocumentService {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         console.log('It not close');
         return Promise.reject(new Error('It not close'));
+    }
+
+    /**
+     * Create new Number autoincrement in own prefix in current Year
+     * @param {Invoice} invoice
+     * @returns {Promise<void>}
+     */
+    // eslint-disable-next-line class-methods-use-this
+    async beforeCreate(invoice) {
+        const begin = new Date();
+        begin.setMonth(0, 1);
+        begin.setHours(0, 0, 0, 0);
+        const lastInvoice = await Invoice.findOne(
+            {
+                where: { date: { [db.Sequelize.Op.gt]: begin }, number_prefix: invoice.number_prefix },
+                order: ['number'],
+            },
+        );
+        invoice.number = lastInvoice ? lastInvoice.number + 1 : 1;
     }
 
     /**
@@ -114,19 +130,26 @@ export default class InvoiceService extends DocumentService {
         }));
     }
 
+    /**
+     * Create TransferOut with lines
+     * @param parent
+     * @param child
+     * @returns {Promise<Object>}
+     */
     async createChild(parent, child) {
-        const service = new DocumentLineService();
-        const reserves = await Reserve.findAll({
-            where: { closed: false },
-            include: [
-                { model: DocumentLine, as: 'documentLine', where: { document_id: parent.id } },
-            ],
-        });
-        if (reserves.length === 0) throw new Error('Nothing to do');
+        let childInsatnce = Object.assign(parent.get({ plain: true }), child);
+        childInsatnce.parent_id = parent.id;
+        childInsatnce = _.omit(childInsatnce, ['id', 'createdAt', 'updatedAt']);
         const t = await db.sequelize.transaction();
-        for (const reserve of reserves) {
-            const line = await service.getModel(reserve.document_line_id, t);
-            // await Departure.create({}, { transaction: t });
+        try {
+            childInsatnce = await this.create(childInsatnce, t);
+            const service = new DocumentLineService();
+            await service.createTransferOutLines(childInsatnce, t);
+            await t.commit();
+            return childInsatnce;
+        } catch (e) {
+            t.rollback();
+            throw e;
         }
     }
 

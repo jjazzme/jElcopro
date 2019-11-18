@@ -41,7 +41,6 @@ describe('Test Invoice', () => {
         goodDan = await (new GoodService()).find({ product_id: product.id, store_id: danStore.id });
     });
     it('Create Invoice', async () => service.firstOrCreate({
-        number: '1',
         user_id: 1,
         sellerable_id: elcopro.id,
         buyerable_id: promelec.id,
@@ -57,6 +56,26 @@ describe('Test Invoice', () => {
             .to.be.an.instanceof(Invoice)
             .and.deep.include(
                 { sellerable_id: elcopro.id, buyerable_id: promelec.id, number_prefix: 'TEST' },
+            );
+    }));
+    it('Create Second Invoice', async () => service.create({
+        user_id: 1,
+        sellerable_id: elcopro.id,
+        buyerable_id: promelec.id,
+        store_id: elcoproStore.id,
+        foreign_store_id: promelecStore.id,
+        number_prefix: 'TEST',
+    }).then((res) => {
+        expect(
+            res,
+            `Invoice is object with sellerable_id = ${elcopro.id}
+                , buyerable_id = ${promelec.id}, prefix = 'TEST' & number = 2`,
+        )
+            .to.be.an.instanceof(Invoice)
+            .and.deep.include(
+                {
+                    sellerable_id: elcopro.id, buyerable_id: promelec.id, number_prefix: 'TEST', number: 2,
+                },
             );
     }));
     it('Create TEST DocumentLine with TEST Good from Dan Store in TEST Invoice', async () => {

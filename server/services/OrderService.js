@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import DocumentService from './DocumentService';
 import db, {
     Document, DocumentLine, Order, TransferIn,
@@ -44,6 +45,13 @@ export default class OrderService extends DocumentService {
         return true;
     }
 
+    // eslint-disable-next-line class-methods-use-this
+    async _close() {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        console.log('It not close');
+        return Promise.reject(new Error('It not close'));
+    }
+
     /**
      * Create child TransferIn with DocumentLines
      * @param {Order} parent
@@ -56,7 +64,7 @@ export default class OrderService extends DocumentService {
         const t = await db.sequelize.transaction();
         let childInsatnce = Object.assign(parent.get({ plain: true }), child);
         childInsatnce.parent_id = parent.id;
-        delete childInsatnce.id;
+        childInsatnce = _.omit(childInsatnce, ['id', 'createdAt', 'updatedAt']);
         try {
             childInsatnce = await this.create(childInsatnce, t);
             const service = new DocumentLineService();
@@ -64,7 +72,6 @@ export default class OrderService extends DocumentService {
             await t.commit();
             return childInsatnce;
         } catch (e) {
-            console.error(e);
             await t.rollback();
             throw e;
         }

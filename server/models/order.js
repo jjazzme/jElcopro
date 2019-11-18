@@ -1,10 +1,19 @@
 
 module.exports = (sequelize, DataTypes) => {
     const order = sequelize.define('Order', {
+        buyerable_id: DataTypes.INTEGER,
+        buyerable_type: {
+            type: DataTypes.STRING,
+            defaultValue: 'Company',
+            allowNull: false,
+        },
+        closed: { type: DataTypes.BOOLEAN, defaultValue: false },
+        currency_id: { type: DataTypes.STRING, defaultValue: 'R01000' },
         date: { type: DataTypes.DATE, defaultValue: new Date() },
+        document_type_id: { type: DataTypes.STRING, defaultValue: 'invoice' },
+        foreign_store_id: DataTypes.INTEGER,
         number: DataTypes.INTEGER,
-        user_id: DataTypes.INTEGER,
-        document_type_id: { type: DataTypes.STRING, defaultValue: 'order' },
+        number_prefix: DataTypes.STRING,
         parent_id: DataTypes.INTEGER,
         sellerable_id: DataTypes.INTEGER,
         sellerable_type: {
@@ -12,18 +21,15 @@ module.exports = (sequelize, DataTypes) => {
             defaultValue: 'Company',
             allowNull: false,
         },
-        buyerable_id: DataTypes.INTEGER,
-        buyerable_type: {
-            type: DataTypes.STRING,
-            defaultValue: 'Company',
-            allowNull: false,
-        },
-        store_id: DataTypes.INTEGER,
-        foreign_store_id: DataTypes.INTEGER,
-        closed: { type: DataTypes.BOOLEAN, defaultValue: false },
-        currency_id: { type: DataTypes.STRING, defaultValue: 'R01000' },
-        number_prefix: DataTypes.STRING,
         status_id: { type: DataTypes.STRING, defaultValue: 'formed' },
+        store_id: DataTypes.INTEGER,
+        sum: {
+            type: DataTypes.VIRTUAL,
+            get: function () {
+                return '0.00'
+            }
+        },
+        user_id: DataTypes.INTEGER,
     }, {
         freezeTableName: true,
         tableName: 'documents',

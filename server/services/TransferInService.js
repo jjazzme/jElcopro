@@ -76,7 +76,11 @@ export default class TransferInService extends DocumentService {
 
     /**
      * Create child TransferIn for Order
-     * @param optics - TODO need write properties
+     * @param {Object} optics
+     * @param {number} optics.parent_id
+     * @param {number} optics.number
+     * @param {string} optics.number_prefix
+     * @param {number} optics.user_id
      * @returns {Promise<Object>}
      */
     async createTransferIn(optics) {

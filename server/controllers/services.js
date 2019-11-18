@@ -4,6 +4,7 @@ const Auth = require('../services/Auth');
 const enums = require('../modules/enums');
 import PriceService from "../services/PriceService";
 
+
 module.exports = {
 
     // get model by optics

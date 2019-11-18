@@ -22,6 +22,7 @@ router.put('/api/model/get/:model/:userID/:page', modelController.getModelByOpti
 router.put('/api/model/options/:model/:userID', modelController.getSelectors);
 router.post('/api/model/update/:model/:userID', modelController.updateColumn);
 router.put('/api/refdata/get/:name/:userID', modelController.getRefData);
+router.get('/api/invoice/get/:id/:userID', modelController.getInvoiceWithLine);
 
 /* Service router */
 router.put('/api/service/get/:service/:userID', servicesController.getService);
@@ -42,6 +43,7 @@ router.get('/api/user', middlewareController.auth, (req, res) => {
     res.send({ user: user })
      */
 });
+router.get('/api/user/get/:userID/:fromID', authController.getUser)
 
 module.exports = router;
 

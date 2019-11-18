@@ -25,9 +25,16 @@ module.exports = function (sequelize, Sequelize) {
         avatar: {
             type: Sequelize.STRING,
         },
+        skills: {
+            type: Sequelize.JSON,
+            defaultValue: {"interface": 0, "sales": 0, "computer": 0},
+        }
     }, {
         freezeTableName: true,
         tableName: 'users',
+        defaultScope: {
+            attributes: { exclude: ['password'] },
+        }
     });
     user.associate = function (models) {
 
