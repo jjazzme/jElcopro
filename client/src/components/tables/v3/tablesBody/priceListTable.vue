@@ -36,6 +36,7 @@
         computed:{
             showingPrice(){
                 return this.showingPriceMethod();
+
             }
         },
         methods:{
