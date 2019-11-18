@@ -1,7 +1,8 @@
 'use strict';
 
 import Services from "../services";
-import Invoice from '../services/InvoiceService';
+import InvoiceService from '../services/InvoiceService';
+import OrderService from "../services/OrderService";
 import DocumentLineService from "../services/DocumentLineService";
 
 const models = require('../models');
@@ -289,11 +290,23 @@ module.exports = {
 
     },
 
-    getInvoiceWithLine(req, res){
+    getInvoiceWithLines(req, res){
         const userID = parseInt(req.params.userID);
         const id = parseInt(req.params.id);
-        const invoice = new Invoice();
+        const invoice = new InvoiceService();
         invoice.getModel(id)
+          .then(ans=>{
+              res.send(ans);
+          })
+          .catch(err=>{
+              res.status(500).json({error: err.message})
+          });
+    },
+    getOrderWithLines(req, res){
+        const userID = parseInt(req.params.userID);
+        const id = parseInt(req.params.id);
+        const doc = new OrderService();
+        doc.getModel(id)
           .then(ans=>{
               res.send(ans);
           })

@@ -188,9 +188,9 @@
             >
                 <div
                     :style="rowStyle"
-                    v-for="(row, i1) in tableData"
+                    v-for="(row, rowInd) in tableData"
                     class="v-t-data-row"
-                    :key="i1"
+                    :key="rowInd"
                     :data-id="row.id"
                 >
                     <!--ПЕРВАЯ ЯЧЕЙКА СТРОКИ-->
@@ -224,10 +224,10 @@
                                     class="fa fa-pencil-square text-capitalize text-nowrap d-block"
                                 > {{$store.getters['TABLES/GET_SHELL'](table.name).name.one}}: карта документа</b-link>
                                 <b-link
-                                    @click="invoiceToCard(row.id)"
-                                    v-if="table.name === 'Invoice'"
+                                    @click="docToCard(rowInd)"
+                                    v-if="['Invoice','Order'].includes(table.name)"
                                     class="fa fa-pencil-square text-nowrap d-block"
-                                >Счёт в карточку</b-link>
+                                >{{toCard[rowInd].text}}</b-link>
 
                             </b-dropdown-item>
 
@@ -340,6 +340,34 @@
                     return ret;
                 },
             },
+            toCard(){
+                const type = this.table.name;
+                let ret = [];
+                const ids = type==='Invoice' ? [this.$store.getters['CARDS/GET_INVOICE'] ? this.$store.getters['CARDS/GET_INVOICE'].id : null] : _.map(this.$store.getters['CARDS/GET_ORDERS'], row=>row.id);
+                const sellers = type==='Invoice' ? [] : _.map(this.$store.getters['CARDS/GET_ORDERS'], row=>row.sellerable_id);
+
+                _.forEach(this.table.data, row=>{
+                    let action, text;
+                    if (ids.includes(row.id)){
+                        action = 'remove';
+                        text = 'Удалить из карты'
+                    } else if (type==='Invoice' && ids[0] && ids[0] !== row.id){
+                        action = 'change';
+                        text = 'Заменить в карте'
+                    } else if (type==='Invoice' && !ids[0]){
+                        action = 'add';
+                        text = 'Добавить в карту'
+                    } else if (type==='Order' && sellers.includes(row.sellerable_id)){
+                        action = 'change';
+                        text = 'Заменить в картах'
+                    } else if (type==='Order' && !sellers.includes(row.sellerable_id)){
+                        action = 'add';
+                        text = 'Добавить в карты'
+                    }
+                    ret.push({action, text})
+                });
+                return ret;
+            },
             userID(){return this.$store.getters['AUTH/GET_USER']?.id;},
 
             
@@ -387,12 +415,7 @@
         },
         methods:{
             addItem(){
-                Swal.fire({
-                    title: 'Добавление записи',
-                    text:  'Вы действительно хотите добавить запись в таблицу',
-                    type:  'error',
-                    timer: 10000
-                });
+
             },
             basketChange(id){
                 if(this.table.shell.basket.filter(item => {
@@ -451,6 +474,24 @@
             delayedSetOptics: _.debounce(function (n) {
                 this.setOptics(n);
             }, 1000),
+            docToCard(ind){
+                const type = this.table.name;
+                if(type==='Invoice'){
+                    if(this.toCard[ind].action === 'remove'){
+                        this.$store.dispatch('CARDS/INVOICE_REMOVE')
+                    } else {
+                        this.$store.dispatch('CARDS/INVOICE_TO_CARD', this.table.data[ind].id)
+                    }
+                } else if(type==='Order'){
+                    if(this.toCard[ind].action === 'remove'){
+                        this.$store.commit('CARDS/ORDER_REMOVE', this.table.data[ind].id)
+                    } else {
+                        this.$store.dispatch('CARDS/ORDER_TO_CARD', this.table.data[ind].id)
+                    }
+                }
+
+                //this.$store.dispatch('CARDS/INVOICE_TO_CARD', id)
+            },
             dragChangeEnd(){
                 Object.keys(this.table.shell.columns).map((k)=>{
                     if(this.table.shell.columns[k].order===this.drag.from) {this.table.shell.columns[k].order=this.drag.before-1}
@@ -571,9 +612,6 @@
                 }
 
                 return v[type];
-            },
-            invoiceToCard(id){
-                this.$store.dispatch('CARDS/INVOICE_TO_CARD', id)
             },
             mergeDataWithNotSaved(sou){
                 let tar = _.cloneDeep(sou);

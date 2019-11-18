@@ -10,13 +10,28 @@ let getters = {
 };
 let mutations = {
   ADD_LINE_TO_INVOICE(state, line){state.invoice.documentLines.push(line);},
-  SET_INVOICE(state, invoice){state.invoice = invoice;}
+  SET_INVOICE(state, invoice){state.invoice = invoice;},
+  SET_ORDER(state, order){
+    state.orders.splice(_.findIndex(state.orders, item=>order.sellerable_id===item.sellerable_id), 1, order)
+  },
+  ORDER_REMOVE(state, id){
+    state.orders.splice(_.findIndex(state.orders, item=>id===item.id), 1)
+  },
 };
 let actions = {
   LOAD_CARDS({state}){
 
   },
-  INVOICE_TO_CARD({state, getters, commit, rootGetters}, id){
+  ADD_LINE_TO_INVOICE({getters, commit, rootGetters}, priceLine){
+    const user = rootGetters['AUTH/GET_USER'];
+    axios.put(`/api/invoice/line/add/${getters['GET_INVOICE'].id}/${user.id}`, {priceLine: priceLine})
+      .then(ans=>commit('ADD_LINE_TO_INVOICE', ans.data))
+      .catch(err=>console.log(err))
+  },
+  INVOICE_REMOVE({state, commit}){
+    commit('SET_INVOICE', null)
+  },
+  INVOICE_TO_CARD({commit, rootGetters}, id){
     const user = rootGetters['AUTH/GET_USER'];
     axios.get(`/api/invoice/get/${id}/${user.id}`)
       .then(ans=>{
@@ -24,12 +39,19 @@ let actions = {
       })
       .catch(err=>console.log(err))
   },
-  ADD_LINE_TO_INVOICE({state, getters, commit, rootGetters}, priceLine){
+  ORDER_REMOVE({state, commit}, id){
+    commit('ORDER_REMOVE', id)
+  },
+  ORDER_TO_CARD({commit, rootGetters}, id){
     const user = rootGetters['AUTH/GET_USER'];
-    axios.put(`/api/invoice/line/add/${getters['GET_INVOICE'].id}/${user.id}`, {priceLine: priceLine})
-      .then(ans=>commit('ADD_LINE_TO_INVOICE', ans.data))
+    axios.get(`/api/order/get/${id}/${user.id}`)
+      .then(ans=>{
+        commit('SET_ORDER', ans.data)
+      })
       .catch(err=>console.log(err))
-  }
+  },
+
+
 };
 
 export default {

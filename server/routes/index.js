@@ -22,7 +22,8 @@ router.put('/api/model/get/:model/:userID/:page', modelController.getModelByOpti
 router.put('/api/model/options/:model/:userID', modelController.getSelectors);
 router.post('/api/model/update/:model/:userID', modelController.updateColumn);
 router.put('/api/refdata/get/:name/:userID', modelController.getRefData);
-router.get('/api/invoice/get/:id/:userID', modelController.getInvoiceWithLine);
+router.get('/api/invoice/get/:id/:userID', modelController.getInvoiceWithLines);
+router.get('/api/order/get/:id/:userID', modelController.getOrderWithLines);
 router.put('/api/invoice/line/add/:id/:userID', modelController.addLineToInvoice);
 
 /* Service router */

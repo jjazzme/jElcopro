@@ -16,28 +16,24 @@
         </div>
 
         <div class="s-h-invoice">
-            <b-link
-              :to="{name:'tables', params:{table:'Invoice'}}"
-              v-if="!invoice"
-            >
-                Добавить счёт
-            </b-link>
-            <div
-              v-else
-            >
-                <div class="h-i-close" @click="closeInvoice()">x</div>
-                <div class="h-i-topic">Счёт №{{invoice.number}} от {{Intl.DateTimeFormat('ru-RU').format(new Date(invoice.date))}}</div>
-                <div class="h-i-sum">{{invoice._sum}}₽</div>
-                <div class="h-i-lines">Строк: {{invoice.documentLines.length}} | Товаров: {{invoice._count}}</div>
-                <div class="h-i-buyer" :title="invoice.buyerable.party.name">{{invoice.buyerable.party.name}}</div>
-            </div>
+            <order-invoice-card
+              v-model="invoice"
+            />
+        </div>
+        <div class="s-h-orders">
+            <order-invoice-card
+              v-for="(order, ind) in orders"
+              v-model="orders[ind]"
+            />
         </div>
     </header>
 </template>
 
 <script>
+    import OrderInvoiceCard from "./headerComponents/orderInvoiceCard";
     export default {
         name: "headerComponent",
+        components: {OrderInvoiceCard},
         data(){
             return {
                 main: '',
@@ -50,7 +46,8 @@
             },
             invoice(){
                 let invoice = this.$store.getters['CARDS/GET_INVOICE'];
-                if (!invoice) return null;
+                if (!invoice) return {_type: 'invoice'};
+                invoice._type = 'invoice';
                 invoice._count = 0;
                 invoice._sum = 0;
                 _.forEach(invoice.documentLines, line=>{
@@ -58,15 +55,22 @@
                     invoice._sum += line.amount_with_vat;
                 });
                 return invoice
+            },
+            orders(){
+                let orders = this.$store.getters['CARDS/GET_ORDERS'];
+                _.remove(orders, order=>!order.id)
+                orders.push({});
+                _.forEach(orders, order=>{
+                    order._type = 'order';
+                    order._count = 0;
+                    order._sum = 0;
+                    _.forEach(order.documentLines, line=>{
+                        order._count += line.quantity;
+                        order._sum += line.amount_with_vat;
+                    });
+                });
+                return orders;
             }
-
-        },
-        methods:{
-            closeInvoice(){
-                this.$store.commit('CARDS/SET_INVOICE', null)
-            }
-        },
-        created(){
 
         },
         watch:{
@@ -94,45 +98,18 @@
     header{
         position: relative;
         .s-h-invoice{
-            .h-i-close{
-                color: red;
-                cursor: pointer;
-                font-weight: 600;
-                position: absolute;
-                top:0;
-                right: 5px;
-            }
-            .h-i-topic{
-                text-align: center;
-                width: 100%;
-                font-size: 13px;
-                font-weight: 600;
-                text-transform: uppercase;
-            }
-            .h-i-sum{
-                font-size: 20px;
-                font-weight: 600;
-                margin-top: 10px;
-            }
-            .h-i-lines{
-                font-size: 12px;
-                margin-top: 10px;
-            }
-            .h-i-buyer{
-                overflow: hidden;
-                white-space: nowrap;
-                text-overflow: ellipsis;
-                font-size: 12px;
-            }
-
-            position: relative;
-            width: 230px;
-            height: 120px;
-            background-color: @table-body-bg;
+            position: absolute;
             top: 55px;
             left: 30px;
-            padding: 10px;
-            border-radius: 10px;
+        }
+        .s-h-orders{
+            display: flex;
+            position: absolute;
+            top: 55px;
+            left: 330px;
+            max-width: 700px;
+            height: 140px;
+            overflow: auto;
         }
         .s-h-title{
             font-family: 'Montserrat', 'Open Sans', sans-serif;
