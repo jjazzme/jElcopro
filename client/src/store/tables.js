@@ -176,12 +176,12 @@ let state = {
                 {type: 'integer_fromto', from:'', to:''},
                 {type: 'search', _placeholder:'поиск 1'},
               ]},
-            sellerable_id:{show: true, order:3, html: row=>row.sellerable.party.name, sortable: true, label: 'Покупатель',
+            sellerable_id:{show: true, order:3, html: row=>row.sellerable.party.name, sortable: true, label: 'Продавец',
               filters:[
                 {type: 'search', _placeholder:'поиск 1'},
                 {type: 'search', _placeholder:'поиск 2'},
               ]},
-            buyerable_id:{show: true, order:4, html: row=>row.buyerable.party.name, sortable: true, label: 'Продавец',
+            buyerable_id:{show: true, order:4, html: row=>row.buyerable.party.name, sortable: true, label: 'Покупатель',
               filters:[
                 {type: 'search', _placeholder:'поиск 1'},
                 {type: 'search', _placeholder:'поиск 2'},
@@ -241,12 +241,12 @@ let state = {
                 {type: 'integer_fromto', from:'', to:''},
                 {type: 'search', _placeholder:'поиск 1'},
               ]},
-            sellerable_id:{show: true, order:3, html: row=>row.sellerable.party.name, sortable: true, label: 'Покупатель',
+            sellerable_id:{show: true, order:3, html: row=>row.sellerable.party.name, sortable: true, label: 'Продавец',
               filters:[
                 {type: 'search', _placeholder:'поиск 1'},
                 {type: 'search', _placeholder:'поиск 2'},
               ]},
-            buyerable_id:{show: true, order:4, html: row=>row.buyerable.party.name, sortable: true, label: 'Продавец',
+            buyerable_id:{show: true, order:4, html: row=>row.buyerable.party.name, sortable: true, label: 'Покупатель',
               filters:[
                 {type: 'search', _placeholder:'поиск 1'},
                 {type: 'search', _placeholder:'поиск 2'},
