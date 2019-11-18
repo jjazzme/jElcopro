@@ -9,6 +9,7 @@ import ParameterValueService from './ParameterValueService';
 import ParameterService from './ParameterService';
 import GoodService from './GoodService';
 import CompanyService from './CompanyService';
+import { Price } from '../models';
 
 export default class CompelService {
     constructor(company) {
@@ -156,47 +157,62 @@ export default class CompelService {
             // eslint-disable-next-line no-async-promise-executor,no-unused-vars
             items.map((item) => new Promise(async (resolve, reject) => {
                 const { good, parameter, producer } = await this._parseApiItem(item, case_, store);
-                resolve([].concat(...item.proposals.map((proposal) => proposal.price_qty.map((price) => ({
-                    code: item.item_id,
-                    product_id: good.product_id,
-                    picture: good.product.picture,
-                    name: good.product.name,
-                    parameter_id: parameter ? parameter.id : null,
-                    case: parameter ? parameter.parameterValue.name : '',
-                    remark: good.product.remark,
-                    producer_id: producer.id,
-                    producer_name: producer.name,
-                    store_id: good.store.id,
-                    store_name: good.store.name,
-                    company_id: this._company.id,
-                    party_name: this._company.party.name,
-                    pos: item.pos,
-                    pack: item.qty_in_pack,
-                    id: 0,
-                    multiply: proposal.mpq === 0 ? 1 : proposal.mpq,
-                    average_days: days + proposal.prognosis_days - 1,
-                    good_id: good.id,
-                    ballance: this._getQuantity(proposal),
-                    min: price.min_qty,
-                    max: price.max_qty === 0 ? this._getQuantity(proposal) : price.max_qty,
-                    currency_id: currency.id,
-                    our_price: price.price,
-                    for_all_price: 0,
-                    created_at: new Date(),
-                    updated_at: new Date(),
-                    actual: new Date(),
-                    online: proposal.prognosis_days, // ???
-                    with_vat: 1,
-                    vat: good.product.vat,
-                    /*
-                     * то что ниже нужно для оформления заказа с дмс
-                     */
-                    prognosis_days: proposal.prognosis_days,
-                    prognosis_id: proposal.prognosis_id,
-                    prognosis_description: proposal.prognosis_description,
-                    vend_type: proposal.vend_type,
-                    vend_proposal_date: proposal.vend_proposal_date,
-                })))));
+                const pmss = [].concat(...item.proposals.map((proposal) => {
+                    return proposal.price_qty.map(async (price) => {
+                        let id = 0;
+                        if (proposal.prognosis_days === 1) {
+                            const oldPrice = await Price.findOne({ where: { good_id: good.id, min: price.min_qty } });
+                            if (oldPrice) {
+                                oldPrice.our_price = price.price;
+                                await oldPrice.save();
+                                id = oldPrice.id;
+                            }
+                        }
+                        return {
+                            code: item.item_id,
+                            product_id: good.product_id,
+                            picture: good.product.picture,
+                            name: good.product.name,
+                            parameter_id: parameter ? parameter.id : null,
+                            case: parameter ? parameter.parameterValue.name : '',
+                            remark: good.product.remark,
+                            producer_id: producer.id,
+                            producer_name: producer.name,
+                            store_id: good.store.id,
+                            store_name: good.store.name,
+                            company_id: this._company.id,
+                            party_name: this._company.party.name,
+                            pos: item.pos,
+                            pack: item.qty_in_pack,
+                            id,
+                            multiply: proposal.mpq === 0 ? 1 : proposal.mpq,
+                            average_days: days + proposal.prognosis_days - 1,
+                            good_id: good.id,
+                            ballance: this._getQuantity(proposal),
+                            min: price.min_qty,
+                            max: price.max_qty === 0 ? this._getQuantity(proposal) : price.max_qty,
+                            currency_id: currency.id,
+                            our_price: price.price,
+                            for_all_price: 0,
+                            created_at: new Date(),
+                            updated_at: new Date(),
+                            actual: new Date(),
+                            online: proposal.prognosis_days, // ???
+                            with_vat: 1,
+                            vat: good.product.vat,
+                            /*
+                             * то что ниже нужно для оформления заказа с дмс
+                             */
+                            prognosis_days: proposal.prognosis_days,
+                            prognosis_id: proposal.prognosis_id,
+                            prognosis_description: proposal.prognosis_description,
+                            vend_type: proposal.vend_type,
+                            vend_proposal_date: proposal.vend_proposal_date,
+                        };
+                    });
+                }));
+                const r = await Promise.all(pmss);
+                resolve(r);
             })),
         );
         return [].concat(...ret);

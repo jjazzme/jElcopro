@@ -4,21 +4,22 @@ import Cache from './Cache';
 export default class Dadata {
     /**
      * Query DaData and get Object with suggestions array
-     * @param type
-     * @param query
+     * @param {string} type
+     * @param {string} query
      * @returns {Promise<Object>}
      */
     static async query(type, query) {
-        return new Promise((resolve, reject) => {
-            Cache.remember(
-                type + '_' + query,
-                axios.get(global.gConfig.dadata.url + type, {
-                    headers: {Authorization: 'Token ' + global.gConfig.dadata.token},
-                    params: {query: query, count: 5}
-                })
-            )
-                .then(res => resolve(res.data))
-                .catch(err => reject(err))
-        })
+        const key = `${type}_${query}`;
+        try {
+            if (await Cache.hasKey(key)) return await Cache.valueByKey(key);
+            const response = await axios.get(global.gConfig.dadata.url + type, {
+                headers: { Authorization: `Token ${global.gConfig.dadata.token}` },
+                params: { query, count: 5 },
+            });
+            return await Cache.remember(key, response.data, 900);
+        } catch (e) {
+            console.warn(`Some problems with ${key}`);
+            throw e;
+        }
     }
 }

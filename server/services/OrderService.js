@@ -45,6 +45,13 @@ export default class OrderService extends DocumentService {
         return true;
     }
 
+    // eslint-disable-next-line class-methods-use-this
+    async _close() {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        console.log('It not close');
+        return Promise.reject(new Error('It not close'));
+    }
+
     /**
      * Create child TransferIn with DocumentLines
      * @param {Order} parent

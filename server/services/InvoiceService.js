@@ -75,16 +75,12 @@ export default class InvoiceService extends DocumentService {
 
     // eslint-disable-next-line class-methods-use-this
     async _toWork() {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        console.log('It not toWork');
-        return Promise.reject(new Error('It not toWork'));
+        return true;
     }
 
     // eslint-disable-next-line class-methods-use-this
     async _unWork() {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        console.log('It not unWork');
-        return Promise.reject(new Error('It not unWork'));
+        return true;
     }
 
     // eslint-disable-next-line class-methods-use-this
@@ -92,6 +88,25 @@ export default class InvoiceService extends DocumentService {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         console.log('It not close');
         return Promise.reject(new Error('It not close'));
+    }
+
+    /**
+     * Create new Number autoincrement in own prefix in current Year
+     * @param {Invoice} invoice
+     * @returns {Promise<void>}
+     */
+    // eslint-disable-next-line class-methods-use-this
+    async beforeCreate(invoice) {
+        const begin = new Date();
+        begin.setMonth(0, 1);
+        begin.setHours(0, 0, 0, 0);
+        const lastInvoice = await Invoice.findOne(
+            {
+                where: { date: { [db.Sequelize.Op.gt]: begin }, number_prefix: invoice.number_prefix },
+                order: ['number'],
+            },
+        );
+        invoice.number = lastInvoice ? lastInvoice.number + 1 : 1;
     }
 
     /**

@@ -113,12 +113,11 @@
                           if(row.id === 0){
                               this.value.source.push(row);
                           } else{
-                              const ind = _.findIndex(this.value.source, function (item) {
-                                  item.id === row.id
-                              });
+                              const ind = _.findIndex(this.value.source, (item) => item.id === row.id);
                               if (ind<0) {
                                   this.value.source.push(row);
                               } else {
+                                  const item = this.value.source[ind];
                                   if (Date.parse(row.actual)>Date.parse(item.actual)) {
                                       this.value.source.splice(ind, 1, row)
                                   }

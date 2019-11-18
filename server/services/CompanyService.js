@@ -87,16 +87,24 @@ export default class CompanyService extends ModelService {
     async getByAlias(alias) {
         const company = global.gConfig.companies[alias];
         if (!company) {
-            return undefined;
+            return null;
         }
         try {
-            return await Cache.remember(`company_${alias}`, this.updateOrCreateWithStore(
-                company.inn,
-                company.ogrn,
-                company.stores.main.name,
-                { own: company.own, with_vat: company.with_vat },
-                company.stores.main.online,
-            ));
+            const key = `company_${alias}`;
+            if (await Cache.hasKey(key)) {
+                return await Cache.valueByKey(key);
+            }
+            return await Cache.remember(
+                key,
+                await this.updateOrCreateWithStore(
+                    company.inn,
+                    company.ogrn,
+                    company.stores.main.name,
+                    { own: company.own, with_vat: company.with_vat },
+                    company.stores.main.online,
+                ),
+                900,
+            );
         } catch (e) {
             console.warn(e);
             throw new Error(e);
