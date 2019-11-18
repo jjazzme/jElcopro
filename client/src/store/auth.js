@@ -1,5 +1,5 @@
 let state = {
-
+  user:{}
 };
 
 let getters = {
@@ -12,7 +12,9 @@ let mutations = {
 };
 
 let actions = {
+  AUTHENTICATE({state}, {login, password, cookie}){
 
+  }
 };
 
 

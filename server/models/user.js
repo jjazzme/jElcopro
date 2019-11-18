@@ -32,6 +32,9 @@ module.exports = function (sequelize, Sequelize) {
     }, {
         freezeTableName: true,
         tableName: 'users',
+        defaultScope: {
+            attributes: { exclude: ['password'] },
+        }
     });
     user.associate = function (models) {
 

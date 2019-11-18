@@ -1,6 +1,7 @@
 'use strict';
 
 import Services from "../services";
+import Invoice from '../services/InvoiceService';
 
 const models = require('../models');
 const Auth = require('../services/Auth');
@@ -37,12 +38,19 @@ module.exports = {
         const offset = (page-1) * pageSize;
         const limit = offset + pageSize;
 
+        _.forEach(params.filters, (filterSet, field)=>{
+            _.forEach(filterSet, filter=>{
+                if (!optics.filters) optics.filters = {};
+                if (!optics.filters[field]) optics.filters[field] = [];
+                optics.filters[field].push(filter);
+            });
+        });
 
         let actualFilters = {};
         _.forEach(optics.filters, (row, name)=>{
             _.forEach(row, item=>{
                 if (!!item.value) {
-                    if (!actualFilters[name]) actualFilters[name] = []
+                    if (!actualFilters[name]) actualFilters[name] = [];
                     actualFilters[name].push({type: item.type, value: item.value})
                 }
             });
@@ -74,6 +82,11 @@ module.exports = {
                                         whereItem[val.column] = {[Op.like]: `%${filter.value}%`};
                                         arrWhere.push(whereItem)
                                     }
+                                    if (filter.type === '=') {
+                                        let whereItem = {};
+                                        whereItem[val.column] = {[Op.eq]: filter.value};
+                                        arrWhere.push(whereItem)
+                                    }
                                 });
                                 current.where = arrWhere.length > 1 ? [{[Op.and]: arrWhere}] : arrWhere[0] ;
                             }
@@ -93,6 +106,11 @@ module.exports = {
                 if (filter.type === 'search') {
                     let whereItem = {};
                     whereItem[name] = {[Op.like]: `%${filter.value}%`};
+                    arrWhereRoot.push(whereItem)
+                }
+                if (filter.type === '=') {
+                    let whereItem = {};
+                    whereItem[name] = {[Op.eq]: filter.value};
                     arrWhereRoot.push(whereItem)
                 }
             });
@@ -124,9 +142,6 @@ module.exports = {
             limit: pageSize,
             offset: offset,
             where: where,
-
-            //where: [{[Op.and]:[{name: {[Op.like]: '%антен%'}}]}]
-            //where:{name:{[Op.like]: '%кита%'}}
         })
             .then(resp=>{
                 const pages = Math.ceil(parseFloat(resp.count) / pageSize);
@@ -272,6 +287,17 @@ module.exports = {
         }
 
     },
+
+    getInvoiceWithLine(req, res){
+        const invoice = new Invoice();
+        invoice.getModel(parseInt(req.params.id))
+          .then(ans=>{
+              res.send(ans);
+          })
+          .catch(err=>{
+              res.status(500).json({error: err.message})
+          });
+    }
 };
 
 //router.put('/get/:model/:userID/:page', (req, res) => {});

@@ -1,8 +1,6 @@
 'use strict';
 
 import Utils from "@/classLib/Utils";
-import Vue from 'vue';
-import store from '../store/_default';
 import Enums from "../modules/enums";
 import Swal from "sweetalert2";
 

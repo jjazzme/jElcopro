@@ -1,12 +1,11 @@
-// const enums = require('../modules/enums');
 const _ = require('lodash');
-const templates = require('../modules/templates')
+const templates = require('../modules/templates');
+const models = require('../models');
 
 module.exports = {
-    controllerPermissionIsDenied({clientUserID: clientUserID, model: model, id: id, column: column, requiredPermissons:requiredPermissons}){
+     controllerPermissionIsDenied({clientUserID: clientUserID, model: model, id: id, column: column, requiredPermissons:requiredPermissons}){
         // requiredPermissons = ['Read', 'Update'...]
-        const user = this.getUser();
-        if (user.id !== parseInt(clientUserID)) return true;
+        if (this.getUserID !== parseInt(clientUserID)) return true;
 
         const currentPermissions = this.getPermission({model,id,column});
         let ret = null;
@@ -18,8 +17,7 @@ module.exports = {
     },
     getPermission({model: model, id: id, column: column}){
         let permission = _.cloneDeep(templates.permission);
-        const user = this.getUser();
-        if (user.id) {
+        if (this.getUserID) {
             permission.Create = true;
             permission.Read = true;
             permission.Update = true;
@@ -39,11 +37,16 @@ module.exports = {
 
       return ret;
     },
-    getUser() {return {id: 1, name: 'Администратор'} },
     permissionsModelFilter(model, data){
         return data
     },
     permissionsShellFilter(model, shell){
         return shell
     },
-};
+    /**
+     * @param {Number | null} id
+     * @returns {Promise<Model | null> | Promise<Model>}
+     */
+    getUser(id){return models.User.findByPk(id ?? 1)},
+    get getUserID(){return 1}
+}

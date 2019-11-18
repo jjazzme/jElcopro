@@ -219,10 +219,16 @@
                             <b-dropdown-item
                                     v-if="getPermission(enums.permission.Update, row.id)"
                             >
-                                <router-link
-                                        :to="{name:'modelItem', params: {table: table.name, id:row.id}}"
-                                        class="fa fa-pencil-square text-capitalize"
-                                > {{$store.getters['TABLES/GET_SHELL'](table.name).name.one}}: карточка</router-link>
+                                <b-link
+                                    :to="{name:'modelItem', params: {table: table.name, id:row.id}}"
+                                    class="fa fa-pencil-square text-capitalize text-nowrap d-block"
+                                > {{$store.getters['TABLES/GET_SHELL'](table.name).name.one}}: карта документа</b-link>
+                                <b-link
+                                    @click="invoiceToCard(row.id)"
+                                    v-if="table.name === 'Invoice'"
+                                    class="fa fa-pencil-square text-nowrap d-block"
+                                >Счёт в карточку</b-link>
+
                             </b-dropdown-item>
 
                         </b-dropdown>
@@ -565,6 +571,9 @@
                 }
 
                 return v[type];
+            },
+            invoiceToCard(id){
+                this.$store.dispatch('CARDS/INVOICE_TO_CARD', id)
             },
             mergeDataWithNotSaved(sou){
                 let tar = _.cloneDeep(sou);
