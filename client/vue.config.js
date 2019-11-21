@@ -19,6 +19,10 @@ module.exports = {
                 target: 'http://localhost:3000',
                 pathRewrite:{'^/api' : '/api'}
             },
+            '/simg': {
+                target: 'http://localhost:3000',
+                pathRewrite:{'^/simg' : '/img'}
+            },
             //https://cli.vuejs.org/guide/html-and-static-assets.html#disable-index-generation
             /*
             '/*':{ //everything from root

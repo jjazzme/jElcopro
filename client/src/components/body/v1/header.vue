@@ -1,5 +1,11 @@
 <template>
     <header>
+        <div
+          class="s-h-avatar"
+          v-if="user"
+        >
+            <img :src="`/simg/${user.avatar}`" />
+        </div>
         <div class="s-h-title">
             <span
                 data-animated="pageEnter"
@@ -24,6 +30,10 @@
             <order-invoice-card
               v-for="(order, ind) in orders"
               v-model="orders[ind]"
+              :key="ind"
+            />
+            <order-invoice-card
+              :value="{_type:'order'}"
             />
         </div>
     </header>
@@ -38,6 +48,7 @@
             return {
                 main: '',
                 method: '',
+                user: null,
             }
         },
         computed:{
@@ -59,7 +70,7 @@
             orders(){
                 let orders = this.$store.getters['CARDS/GET_ORDERS'];
                 _.remove(orders, order=>!order.id)
-                orders.push({});
+                //orders.push({});
                 _.forEach(orders, order=>{
                     order._type = 'order';
                     order._count = 0;
@@ -72,6 +83,10 @@
                 return orders;
             }
 
+        },
+        created(){
+            this.user = this.$store.getters['AUTH/GET_USER'];
+            this.$store.dispatch('CARDS/LOAD_CARDS');
         },
         watch:{
             title:{
@@ -97,6 +112,18 @@
     @import "~@/less/_variables";
     header{
         position: relative;
+        .s-h-avatar{
+            position: absolute;
+            top:10px;
+            right: 10px;
+            width: 50px;
+            height: 50px;
+            img{
+                width: 100%;
+                height: 100%;
+                border-radius: 50%;
+            }
+        }
         .s-h-invoice{
             position: absolute;
             top: 55px;

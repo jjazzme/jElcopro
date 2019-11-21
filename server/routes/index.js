@@ -45,7 +45,9 @@ router.get('/api/user', middlewareController.auth, (req, res) => {
     res.send({ user: user })
      */
 });
-router.get('/api/user/get/:userID/:fromID', authController.getUser)
+router.get('/api/user/get/:userID/:fromID', authController.getUser);
+router.get('/api/user/get/self', authController.getSelf);
+router.put('/api/user/cards/set/:userID', authController.setCards);
 
 module.exports = router;
 
