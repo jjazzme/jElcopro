@@ -45,7 +45,7 @@ app.use(passport.session()); // persistent login sessions
 
 
 const indexRouter = require('./routes/index');
-//const usersRouter = require('./routes/users');
+//const usersRouter = require('./route/users');
 
 app.use('/', indexRouter);
 //app.use('/users', usersRouter);
