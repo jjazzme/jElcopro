@@ -5,9 +5,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "migrate": "babel-node ./migrate.js",
     "start": "babel-node ./index.js",
     "serve": "babel-node ./serve.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --timeout 20000 --require @babel/register --tls-min-v1.0 test/**/*.js"
   },
   "keywords": [],
   "author": "ElcoPro Ltd",
@@ -28,6 +29,7 @@
     "@babel/preset-env": "^7.7.1",
     "acorn": "^7.1.0",
     "axios": "^0.19.0",
+    "bluebird": "^3.7.1",
     "body-parser": "^1.19.0",
     "cls-hooked": "^4.2.2",
     "cookie-parser": "^1.4.4",
@@ -42,6 +44,7 @@
     "pino": "^5.13.6",
     "pino-pretty": "^3.4.0",
     "pug": "^2.0.4",
+    "redis": "^2.8.0",
     "sequelize": "^5.21.2",
     "uuid": "^3.3.3"
   }

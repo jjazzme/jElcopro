@@ -6,6 +6,9 @@ import EventEmitter from 'events';
 import Container from './Container';
 import config from '../config';
 import ExpressService from './ExpressService';
+import DatabaseConnection from './DatabaseConnection';
+import DatabaseService from './DatabaseService';
+import CacheService from './CacheService';
 
 export default () => {
     const namespace = createNamespace(uuid4());
@@ -19,6 +22,8 @@ export default () => {
     container.register('http', () => http);
     container.register('events', EventEmitter);
     container.register('express', ExpressService, ['namespace', 'logger']);
-
+    container.register('dbConnection', DatabaseConnection, ['config', 'logger', 'namespace']);
+    container.register('db', DatabaseService, ['dbConnection']);
+    container.register('cache', CacheService, ['logger']);
     return container;
 };

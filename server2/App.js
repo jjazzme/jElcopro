@@ -4,9 +4,13 @@ export default class App {
     }
 
     start() {
-        const { express } = this.services;
+        const { db, express } = this.services;
 
         express.set('services', this.services);
+
+        if (!db.models) {
+            db.loadModels(this.services);
+        }
 
         // configure top-level express middleware, e.g. bodyParser, cors etc
 
@@ -17,10 +21,6 @@ export default class App {
 
             // boot any services, e.g. establish database connection,
             // read request headers to initialize the session etc.
-
-            // if (!db.models) {
-            //     db.loadModels(this.services);
-            // }
 
             events.emit('ready', this.services);
 
@@ -74,5 +74,10 @@ export default class App {
         logger.info({}, 'Server start');
 
         return this;
+    }
+
+    async migrate() {
+        const { db } = this.services;
+        await db.sync({ alter: true });
     }
 }
