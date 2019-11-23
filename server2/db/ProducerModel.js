@@ -1,11 +1,15 @@
+import _ from 'lodash';
 import BaseModel from './BaseModel';
 
 export default class Producer extends BaseModel {
-    static async getFirst() {
-        return this.findByPk(1);
-    }
-
-    getPlain() {
-        return this.get({ plain: true });
+    /**
+     * Name is alias
+     * @param alias
+     * @param args
+     * @returns {Promise<*>}
+     */
+    static async getByAlias(alias, ...args) {
+        const scopes = _.flattenDeep(args);
+        return this.scope(scopes).findOne({ where: { name: alias } });
     }
 }

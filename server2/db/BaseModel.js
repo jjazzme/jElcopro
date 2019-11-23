@@ -53,14 +53,17 @@ export default class BaseModel extends Sequelize.Model {
 
     /**
      * Get instance by id, alias or same
-     * @param {BaseModel|Object|number} instance
-     * @param {Array=} scopes
+     * @param {BaseModel|Object|number|string} instance
+     * @param args
      * @returns {Promise<BaseModel|null>}
      */
-    static async getModel(instance, scopes = []) {
+    static async getInstance(instance, ...args) {
         let answer = null;
+        const scopes = _.flattenDeep(args);
         if (typeof instance === 'number') {
             answer = await this.scope(scopes).findByPk(instance);
+        } else if (typeof instance === 'string' && this.getByAlias) {
+            answer = await this.getByAlias(instance, scopes);
         } else if (instance instanceof this) {
             const deep = scopes.reduce((prev, value) => prev && instance.get(value) !== undefined, true);
             if (deep) {
@@ -72,5 +75,13 @@ export default class BaseModel extends Sequelize.Model {
             answer = await this.scope(scopes).findOne({ where: instance });
         }
         return answer;
+    }
+
+    /**
+     * Return Only Values object
+     * @returns {*}
+     */
+    getPlain() {
+        return this.get({ plain: true });
     }
 }

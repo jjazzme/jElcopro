@@ -79,4 +79,22 @@ export default class Cache {
             throw e;
         }
     }
+
+    /**
+     * Get by key or remember function result
+     * @param {string} key
+     * @param {number} minutes
+     * @param {function} callback
+     * @returns {Promise<Object|*>}
+     */
+    async remember(key, minutes, callback) {
+        try {
+            if (await this.has(key)) return await this.get(key);
+            const value = await callback();
+            return await this.put(key, value, minutes);
+        } catch (e) {
+            this.logger.error(e, 'Errr in cache remember');
+            throw e;
+        }
+    }
 }
