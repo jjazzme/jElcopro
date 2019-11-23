@@ -50,4 +50,27 @@ export default class BaseModel extends Sequelize.Model {
     static registerHooks() {
         return this;
     }
+
+    /**
+     * Get instance by id, alias or same
+     * @param {BaseModel|Object|number} instance
+     * @param {Array=} scopes
+     * @returns {Promise<BaseModel|null>}
+     */
+    static async getModel(instance, scopes = []) {
+        let answer = null;
+        if (typeof instance === 'number') {
+            answer = await this.scope(scopes).findByPk(instance);
+        } else if (instance instanceof this) {
+            const deep = scopes.reduce((prev, value) => prev && instance.get(value) !== undefined, true);
+            if (deep) {
+                answer = instance;
+            } else {
+                answer = await this.scope(scopes).findByPk(instance.id);
+            }
+        } else if (_.isPlainObject(instance)) {
+            answer = await this.scope(scopes).findOne({ where: instance });
+        }
+        return answer;
+    }
 }

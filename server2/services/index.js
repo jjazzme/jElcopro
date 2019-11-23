@@ -9,6 +9,7 @@ import ExpressService from './ExpressService';
 import DatabaseConnection from './DatabaseConnection';
 import DatabaseService from './DatabaseService';
 import CacheService from './CacheService';
+import DadataSerice from './DadataSerice';
 
 export default () => {
     const namespace = createNamespace(uuid4());
@@ -25,5 +26,6 @@ export default () => {
     container.register('dbConnection', DatabaseConnection, ['config', 'logger', 'namespace']);
     container.register('db', DatabaseService, ['dbConnection']);
     container.register('cache', CacheService, ['logger']);
+    container.register('dadata', DadataSerice, ['config', 'cache', 'logger']);
     return container;
 };
