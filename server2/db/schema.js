@@ -179,6 +179,79 @@ export default {
         },
     }, document),
 
+    Order: _.defaultsDeep({
+        options: {
+            defaultScope: { where: { document_type_id: 'order' } },
+        },
+        attributes: {
+            document_type_id: { defaultValue: 'order' },
+        },
+    }, document),
+
+    Parameter: {
+        options: { tableName: 'parameters' },
+        attributes: {
+            product_id: { type: DataTypes.INTEGER, unique: 'parameters_product_id_parameter_name_id_unique' },
+            parameter_name_id: { type: DataTypes.INTEGER, unique: 'parameters_product_id_parameter_name_id_unique' },
+            parameter_value_id: DataTypes.INTEGER,
+            unit_id: DataTypes.INTEGER,
+            numeric_value: DataTypes.DECIMAL(24, 12),
+        },
+        relations: {
+            belongsTo: {
+                ParameterName: { foreignKey: 'parameter_name_id', as: 'parameterName' },
+                Product: { foreignKey: 'product_id', as: 'product' },
+                ParameterValue: { foreignKey: 'parameter_value_id', as: 'parameterValue' },
+                Unit: { foreignKey: 'unit_id', as: 'unit' },
+            },
+        },
+    },
+
+    ParameterName: {
+        options: { tableName: 'parameter_names' },
+        attributes: {
+            name: DataTypes.STRING,
+            alias: DataTypes.STRING,
+            type: DataTypes.INTEGER, // 0 - text, 1 - number
+            base_unit_id: DataTypes.INTEGER,
+        },
+        relations: {
+            belongsTo: {
+                Unit: {
+                    foreignKey: 'base_unit_id',
+                    sourceKey: 'id',
+                    constraints: false,
+                    as: 'baseUnit',
+                },
+            },
+        },
+    },
+
+    ParameterValue: {
+        options: { tableName: 'parameter_values' },
+        attributes: {
+            name: { type: DataTypes.STRING, unique: 'parameter_values_name_parameter_name_id_unique' },
+            parameter_name_id: { type: DataTypes.INTEGER, unique: 'parameter_values_name_parameter_name_id_unique' },
+            right_parameter_value_id: DataTypes.INTEGER,
+        },
+        relations: {
+            belongsTo: {
+                ParameterName: {
+                    foreignKey: 'parameter_name_id',
+                    sourceKey: 'id',
+                    constraints: false,
+                    as: 'parameterName',
+                },
+                ParameterValue: {
+                    foreignKey: 'right_parameter_value_id',
+                    sourceKey: 'id',
+                    constraints: false,
+                    as: 'rightParameterValue',
+                },
+            },
+        },
+    },
+
     InterStoreRoute: {
         options: { tableName: 'inter_store_routes' },
         attributes: {
@@ -214,6 +287,24 @@ export default {
     Picture: {
         options: { tableName: 'pictures' },
         attributes: { name: DataTypes.STRING, model_id: DataTypes.INTEGER, model_type: DataTypes.STRING },
+    },
+
+    Price: {
+        options: { tableName: 'prices' },
+        attributes: {
+            good_id: DataTypes.INTEGER,
+            currency_id: DataTypes.STRING,
+            min: DataTypes.INTEGER,
+            max: DataTypes.INTEGER,
+            our_price: DataTypes.DECIMAL(18, 6),
+            for_all_price: DataTypes.DECIMAL(18, 6),
+        },
+        relations: {
+            belongsTo: {
+                Good: { foreignKey: 'good_id', as: 'good' },
+                Currency: { foreignKey: 'currency_id', as: 'currency' },
+            },
+        },
     },
 
     Producer: {
@@ -270,6 +361,7 @@ export default {
                     as: 'rightProduct',
                 },
             },
+            hasMany: { Parameter: { foreignKey: 'product_id', as: 'parameters' } },
         },
     },
 
@@ -312,40 +404,37 @@ export default {
         },
     },
 
-    User: {
-        options: {
-            tableName: 'users',
-        },
+    Unit: {
+        options: { tableName: 'units' },
         attributes: {
-            id: {
-                autoIncrement: true,
-                primaryKey: true,
-                type: DataTypes.INTEGER,
-            },
-            name: {
-                type: DataTypes.STRING,
-                notEmpty: true,
-            },
-            email: {
-                type: DataTypes.STRING,
-                validate: {
-                    isEmail: true,
+            base_unit_id: { type: DataTypes.INTEGER, unique: 'units_base_unit_id_coeff_unique' },
+            name: DataTypes.STRING,
+            alias: DataTypes.STRING,
+            divide: { type: DataTypes.BOOLEAN, defaultValue: true },
+            coeff: { type: DataTypes.INTEGER, defaultValue: 1, unique: 'units_base_unit_id_coeff_unique' },
+        },
+        relations: {
+            belongsTo: {
+                Unit: {
+                    foreignKey: 'base_unit_id',
+                    sourceKey: 'id',
+                    constraints: false,
+                    as: 'baseUnit',
                 },
             },
-            password: {
-                type: DataTypes.STRING,
-                allowNull: false,
-            },
-            options: {
-                type: DataTypes.JSON,
-            },
-            avatar: {
-                type: DataTypes.STRING,
-            },
-            skills: {
-                type: DataTypes.JSON,
-                defaultValue: { interface: 0, sales: 0, computer: 0 },
-            },
+        },
+    },
+
+    User: {
+        options: { tableName: 'users' },
+        attributes: {
+            id: { autoIncrement: true, primaryKey: true, type: DataTypes.INTEGER },
+            name: { type: DataTypes.STRING, notEmpty: true },
+            email: { type: DataTypes.STRING, validate: { isEmail: true } },
+            password: { type: DataTypes.STRING, allowNull: false },
+            options: { type: DataTypes.JSON },
+            avatar: { type: DataTypes.STRING },
+            skills: { type: DataTypes.JSON, defaultValue: { interface: 0, sales: 0, computer: 0 } },
         },
     },
 };

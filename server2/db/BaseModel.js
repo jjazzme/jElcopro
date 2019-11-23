@@ -78,6 +78,19 @@ export default class BaseModel extends Sequelize.Model {
     }
 
     /**
+     * Find right instance
+     * @param {BaseModel|Object|number|string} instance
+     * @param args
+     * @returns {Promise<BaseModel|null>}
+     */
+    static async getRightInstance(instance, ...args) {
+        let rightInstance = await this.getInstance(instance, args);
+        const right = _.find(Object.keys(this.rawAttributes), (o) => o.indexOf('right_') === 0);
+        if (right && rightInstance.get(right)) rightInstance = await this.getInstance(rightInstance.get(right), args);
+        return rightInstance;
+    }
+
+    /**
      * Return Only Values object
      * @returns {*}
      */

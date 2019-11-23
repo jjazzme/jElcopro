@@ -10,6 +10,7 @@ import DatabaseConnection from './DatabaseConnection';
 import DatabaseService from './DatabaseService';
 import CacheService from './CacheService';
 import DadataSerice from './DadataSerice';
+import CompelService from './CompelService';
 
 export default () => {
     const namespace = createNamespace(uuid4());
@@ -27,5 +28,6 @@ export default () => {
     container.register('db', DatabaseService, ['dbConnection']);
     container.register('cache', CacheService, ['logger']);
     container.register('dadata', DadataSerice, ['config', 'cache', 'logger']);
+    container.register('compel', CompelService, ['config', 'db']);
     return container;
 };
