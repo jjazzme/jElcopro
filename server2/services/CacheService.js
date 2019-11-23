@@ -27,6 +27,7 @@ export default class Cache {
                 data = value;
             }
             await this.client.setAsync(key, data, 'EX', minutes * 60);
+            this.logger.debug({ key }, 'CACHE PUT');
             return value;
         } catch (e) {
             this.logger.error(e, 'Error in Cache put');
@@ -62,6 +63,7 @@ export default class Cache {
         } catch (e) {
             ret = data;
         }
+        this.logger.debug({ key }, 'CACHE GET');
         return ret;
     }
 
@@ -73,6 +75,7 @@ export default class Cache {
     async forget(key) {
         try {
             const ret = await this.client.delAsync(key);
+            this.logger.debug({ key }, 'CACHE DEL');
             return !!ret;
         } catch (e) {
             this.logger.error(e, 'Error in Cache forget');

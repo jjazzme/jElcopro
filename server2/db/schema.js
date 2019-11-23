@@ -3,6 +3,9 @@ import { DataTypes } from 'sequelize';
 import ProducerModel from './ProducerModel';
 import ProductModel from './ProductModel';
 import document from './document';
+import PartyModel from './PartyModel';
+import CompanyModel from './CompanyModel';
+import StoreModel from './StoreModel';
 
 export default {
     Address: {
@@ -35,7 +38,12 @@ export default {
     },
 
     Company: {
-        options: { tableName: 'companies' },
+        class: CompanyModel,
+        options: {
+            tableName: 'companies',
+            defaultScope: { include: [{ model: PartyModel, as: 'party' }] },
+            scopes: { withStores: { include: [{ model: StoreModel, as: 'stores' }] } },
+        },
         attributes: {
             party_id: DataTypes.INTEGER,
             fact_address_id: DataTypes.INTEGER,
@@ -193,6 +201,7 @@ export default {
     },
 
     Party: {
+        class: PartyModel,
         options: { tableName: 'parties' },
         attributes: {
             inn: DataTypes.STRING,
@@ -286,6 +295,7 @@ export default {
     },
 
     Store: {
+        class: StoreModel,
         options: { tableName: 'stores' },
         attributes: {
             name: DataTypes.STRING,
