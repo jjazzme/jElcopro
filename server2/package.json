@@ -14,8 +14,10 @@
   "author": "ElcoPro Ltd",
   "license": "ISC",
   "devDependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.7.4",
     "babel-eslint": "^11.0.0-beta.0",
     "chai": "^4.2.0",
+    "chai-string": "^1.5.0",
     "eslint": "^6.6.0",
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-plugin-babel": "^5.3.0",

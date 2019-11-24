@@ -1,10 +1,11 @@
 import _ from 'lodash';
 import axios from 'axios';
+import ExternalPriceService from './ExternalPriceService';
 
-export default class CompelService {
-    constructor(config, db) {
+export default class CompelService extends ExternalPriceService {
+    constructor(config, db, logger, cache) {
+        super(config.companies.compel, logger, cache);
         this.db = db;
-        this.compel = config.companies.compel;
     }
 
     /**
@@ -56,36 +57,26 @@ export default class CompelService {
         const {
             Producer, Product, Parameter, ParameterValue, Good,
         } = this.db.models;
-        let producer = await Producer.getRightInstance({ name: item.item_brend });
-        if (!producer) producer = await Producer.create({ name: item.item_brend });
-        let product = await Product.getRightInstance({ name: item.item_name, producer_id: producer.id });
-        if (!product) product = await Product.create({ name: item.item_name, producer_id: producer.id });
+        const producer = await Producer.getRightInstanceOrCreate({ name: item.item_brend });
+        const product = await Product.getRightInstanceOrCreate(
+            { name: item.item_name, producer_id: producer.id },
+        );
         // eslint-disable-next-line no-underscore-dangle
-        let package_ = await ParameterValue.getRightInstance(
+        const package_ = await ParameterValue.getRightInstanceOrCreate(
             { name: item.package_name, parameter_name_id: case_.id },
         );
-        // eslint-disable-next-line no-const-assign
-        if (!package_) package_ = await ParameterValue.create({ name: item.package_name, parameter_name_id: case_.id });
-        let parameter = await Parameter.getInstance({ parameter_name_id: case_.id, product_id: product.id });
-        if (!parameter) {
-            parameter = await Parameter.create({
-                parameter_name_id: case_.id, product_id: product.id, parameter_value_id: package_.id,
-            });
-        }
+        const parameter = await Parameter.getInstanceOrCreate(
+            { parameter_name_id: case_.id, product_id: product.id }, { parameter_value_id: package_.id },
+        );
         const newItem = item.proposals[0].location_id !== 'CENTRE' ? {}
             : {
                 ballance: this._getQuantity(item.proposals[0]),
                 pack: item.qty_in_pack,
                 multiply: item.proposals[0].mpq === 0 ? 1 : item.proposals[0].mpq,
             };
-        let good = await Good.getInstance({ store_id: store.id, code: item.item_id, product_id: product.id });
-        if (!good) {
-            good = await Good.create({
-                store_id: store.id, code: item.item_id, product_id: product.id, ...newItem,
-            });
-        } else {
-            good.update(newItem);
-        }
+        const good = await Good.updateInstanceOrCreate(
+            { store_id: store.id, code: item.item_id, product_id: product.id }, newItem, 'withProduct',
+        );
         return {
             producer, product, package_, parameter, good,
         };
@@ -100,9 +91,9 @@ export default class CompelService {
     // eslint-disable-next-line class-methods-use-this
     async method(method, params) {
         // eslint-disable-next-line no-param-reassign
-        params.user_hash = this.compel.api_hash;
+        params.user_hash = this.company.api_hash;
         const response = await axios.post(
-            this.compel.api_url,
+            this.company.api_url,
             {
                 id: 1,
                 method,
@@ -144,7 +135,7 @@ export default class CompelService {
         const {
             Currency, ParameterName, Company, Price,
         } = this.db.models;
-        const currency = await Currency.getInstance({ cahr_code: result.currency });
+        const currency = await Currency.getInstance({ char_code: result.currency });
         // eslint-disable-next-line no-underscore-dangle
         const case_ = await ParameterName.getInstance({ alias: 'case' });
         const company = await Company.getByAlias('compel');
@@ -153,7 +144,9 @@ export default class CompelService {
         const ret = await Promise.all(
             // eslint-disable-next-line no-async-promise-executor,no-unused-vars
             items.map((item) => new Promise(async (resolve, reject) => {
-                const { good, parameter, producer } = await this._parseApiItem(item, case_, store);
+                const {
+                    good, package_, parameter, producer,
+                } = await this._parseApiItem(item, case_, store);
                 const pmss = [].concat(...item.proposals.map((proposal) => proposal.price_qty.map(async (price) => {
                     let id = 0;
                     if (proposal.prognosis_days === 1) {
@@ -170,14 +163,14 @@ export default class CompelService {
                         picture: good.product.picture,
                         name: good.product.name,
                         parameter_id: parameter ? parameter.id : null,
-                        case: parameter ? parameter.parameterValue.name : '',
+                        case: parameter ? package_.name : '',
                         remark: good.product.remark,
                         producer_id: producer.id,
                         producer_name: producer.name,
-                        store_id: good.store.id,
-                        store_name: good.store.name,
-                        company_id: this._company.id,
-                        party_name: this._company.party.name,
+                        store_id: store.id,
+                        store_name: store.name,
+                        company_id: company.id,
+                        party_name: company.party.name,
                         pos: item.pos,
                         pack: item.qty_in_pack,
                         id,

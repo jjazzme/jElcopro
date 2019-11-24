@@ -152,7 +152,10 @@ export default {
     },
 
     Good: {
-        options: { tableName: 'goods' },
+        options: {
+            tableName: 'goods',
+            scopes: { withProduct: { include: [{ model: ProductModel, as: 'product' }] } },
+        },
         attributes: {
             store_id: { type: DataTypes.INTEGER, unique: 'goods_store_id_product_id_code_unique' },
             product_id: { type: DataTypes.INTEGER, unique: 'goods_store_id_product_id_code_unique' },
@@ -388,7 +391,14 @@ export default {
 
     Store: {
         class: StoreModel,
-        options: { tableName: 'stores' },
+        options: {
+            tableName: 'stores',
+            scopes: {
+                withCompany: {
+                    include: [{ model: CompanyModel, as: 'company', include: { model: PartyModel, as: 'party' } }],
+                },
+            },
+        },
         attributes: {
             name: DataTypes.STRING,
             phone: DataTypes.STRING,

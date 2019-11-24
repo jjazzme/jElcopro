@@ -19,4 +19,8 @@ export default class Product extends BaseModel {
         });
         return this;
     }
+
+    static makeSearchName(name) {
+        return makeSearchName(name);
+    }
 }

@@ -77,6 +77,31 @@ export default class BaseModel extends Sequelize.Model {
         return answer;
     }
 
+    static async getInstanceOrCreate(instance, ...args) {
+        const scopes = _.flattenDeep(args).filter((v) => _.isString(v));
+        const additional = _.find(args, (o) => _.isPlainObject(o)) || {};
+        let answer = await this.getInstance(instance, scopes);
+        if (!answer) {
+            answer = await this.create(Object.assign(additional, instance));
+            if (!_.empty(scopes)) answer = await this.getInstance(answer, scopes);
+        }
+        return answer;
+    }
+
+    // Тут возможно придется иправлять логику со скопами
+    static async updateInstanceOrCreate(instance, ...args) {
+        const scopes = _.flattenDeep(args).filter((v) => _.isString(v));
+        const additional = _.find(args, (o) => _.isPlainObject(o)) || {};
+        let answer = await this.getInstance(instance, scopes);
+        if (answer) {
+            await answer.update(additional);
+        } else {
+            answer = this.create(Object.assign(additional, instance));
+        }
+        if (!_.isEmpty(scopes)) answer = await this.getInstance(answer, scopes);
+        return answer;
+    }
+
     /**
      * Find right instance
      * @param {BaseModel|Object|number|string} instance
@@ -86,7 +111,20 @@ export default class BaseModel extends Sequelize.Model {
     static async getRightInstance(instance, ...args) {
         let rightInstance = await this.getInstance(instance, args);
         const right = _.find(Object.keys(this.rawAttributes), (o) => o.indexOf('right_') === 0);
-        if (right && rightInstance.get(right)) rightInstance = await this.getInstance(rightInstance.get(right), args);
+        if (right && rightInstance && rightInstance.get(right)) {
+            rightInstance = await this.getInstance(rightInstance.get(right), args);
+        }
+        return rightInstance;
+    }
+
+    static async getRightInstanceOrCreate(instance, ...args) {
+        const scopes = _.flattenDeep(args).filter((v) => _.isString(v));
+        const additional = _.find(args, (o) => _.isPlainObject(o)) || {};
+        let rightInstance = await this.getRightInstance(instance, scopes);
+        if (!rightInstance) {
+            rightInstance = await this.create(Object.assign(additional, instance));
+            if (!_.isEmpty(scopes)) rightInstance = await this.getInstance(rightInstance, scopes);
+        }
         return rightInstance;
     }
 

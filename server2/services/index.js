@@ -11,6 +11,8 @@ import DatabaseService from './DatabaseService';
 import CacheService from './CacheService';
 import DadataSerice from './DadataSerice';
 import CompelService from './CompelService';
+import PromelecService from './PromelecService';
+import PriceService from './PriceService';
 
 export default () => {
     const namespace = createNamespace(uuid4());
@@ -28,6 +30,8 @@ export default () => {
     container.register('db', DatabaseService, ['dbConnection']);
     container.register('cache', CacheService, ['logger']);
     container.register('dadata', DadataSerice, ['config', 'cache', 'logger']);
-    container.register('compel', CompelService, ['config', 'db']);
+    container.register('compel', CompelService, ['config', 'db', 'logger', 'cache']);
+    container.register('promelec', PromelecService, ['config', 'db', 'logger', 'cache']);
+    container.register('prices', PriceService, ['db']);
     return container;
 };
