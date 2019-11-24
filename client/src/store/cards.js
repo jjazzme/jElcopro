@@ -1,33 +1,73 @@
 import axios from 'axios';
 
 let state = {
-  cards: {},
+  cards: {
+    invoice: null,
+    orders:[],
+  },
+  documents:[],
 };
 let getters = {
-  GET_INVOICE: state => state.cards.invoice,
-  GET_ORDERS: state => state.cards.orders,
   GET_CARDS: state => {return state.cards},
+  GET_DOCUMENT_BY_ID: state => id => state.documents.filter(function(doc){return doc.id === id})[0],
+  GET_GOODS_COUNT_FROM_INVOICE: (state, getters) => goodId => {
+    if (!state.cards.invoice) return null;
+    const doc = getters['GET_DOCUMENT_BY_ID'](state.cards.invoice);
+    const lines = doc.documentLines.filter(function(line){return line.good_id === goodId});
+    return _.sumBy(lines, 'quantity');
+  },
+  GET_GOODS_COUNT_FROM_ORDER: state =>goodId => {
+    if (state.cards.orders.length === 0) return null;
+    return null;
+  },
+  GET_INVOICE: state => state.documents.filter(function(doc){return doc.document_type_id === 'invoice'})[0],
+  GET_ORDERS: state =>  state.documents.filter(function(doc){return doc.document_type_id === 'order'}),
+
 };
 let mutations = {
-  ADD_LINE_TO_INVOICE(state, line){state.cards.invoice.documentLines.push(line);},
+  ADD_LINE({state, getters}, line){getters['GET_DOCUMENT_BY_ID'](line.document_id).push(line);},
+  ADD_DOCUMENT(state, doc){state.documents.push(doc)},
+  DOCUMENTS_CLEAR(state){state.documents=[]},
   SET_CARDS(state, cards){state.cards = cards},
-  SET_INVOICE(state, invoice){state.cards.invoice = invoice;},
-  SET_ORDER(state, order){
-    const ind = _.findIndex(state.cards.orders, item=>order.sellerable_id===item.sellerable_id);
-    if (ind<0){
-      state.cards.orders.push(order);
-    } else{
-      state.cards.orders.splice(ind, 1, order);
+  SET_INVOICE(state, invoice){ // null for remove
+    if(!invoice){
+      // remove
+      if(state.cards.invoice){
+        const ind = state.documents.filter(function(doc){return doc.id === state.cards.invoice})[0];
+        state.documents.splice(ind, 1)
+      }
+      state.cards.invoice = null;
+    } else {
+      if(state.cards.invoice){
+        const ind = state.documents.filter(function(doc){return doc.id === state.cards.invoice})[0];
+        state.documents.splice(ind, 1, invoice)
+      } else state.documents.push(invoice);
+      state.cards.invoice = invoice.id;
+
     }
   },
-  ORDER_REMOVE(state, id){state.cards.orders.splice(_.findIndex(state.cards.orders, item=>id===item.id), 1)},
+  SET_ORDER(state, order){
+    const ind = _.findIndex(state.documents, item=>order.sellerable_id===item.sellerable_id);
+    if (ind<0){
+      state.cards.orders.push(order.id);
+      state.documents.push(order)
+    } else{
+      const id = state.documents[ind].id;
+      state.cards.orders.splice(state.cards.orders.indexOf(id), 1, order.id);
+      state.documents.splice(ind, 1, order);
+    }
+  },
+  ORDER_REMOVE(state, id){
+    state.cards.orders.splice(state.cards.orders.indexOf(id), 1);
+    state.documents.splice(_.findIndex(state.documents, item=>id===item.id), 1)
+  },
 };
 let actions = {
 
   ADD_LINE_TO_INVOICE({getters, commit, rootGetters}, priceLine){
     const user = rootGetters['AUTH/GET_USER'];
     axios.put(`/api/invoice/line/add/${getters['GET_INVOICE'].id}/${user.id}`, {priceLine: priceLine})
-      .then(ans=>commit('ADD_LINE_TO_INVOICE', ans.data))
+      .then(ans=>commit('ADD_LINE', ans.data))
       .catch(err=>console.log(err))
   },
   INVOICE_REMOVE({getters, commit, dispatch}){
@@ -44,7 +84,15 @@ let actions = {
       .catch(err=>console.log(err))
   },
   LOAD_CARDS({commit, rootState}){
-    commit('SET_CARDS', rootState.AUTH.user.cards);
+    let cards = rootState.AUTH.user.cards;
+    commit('DOCUMENTS_CLEAR');
+    if (cards.invoice) axios.get(`/api/invoice/get/${cards.invoice}/:userID`)
+      .then(ans=>commit('ADD_DOCUMENT', ans.data));
+    _.forEach(cards.orders, order=>{
+      axios.get(`/api/order/get/${order}/:userID`)
+        .then(ans=>commit('ADD_DOCUMENT', ans.data));
+    });
+    commit('SET_CARDS', cards);
   },
   ORDER_REMOVE({getters, commit, dispatch}, id){
     commit('ORDER_REMOVE', id);

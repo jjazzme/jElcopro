@@ -484,7 +484,7 @@
                     }
                 } else if(type==='Order'){
                     if(this.toCard[ind].action === 'remove'){
-                        this.$store.commit('CARDS/ORDER_REMOVE', this.table.data[ind].id)
+                        this.$store.dispatch('CARDS/ORDER_REMOVE', this.table.data[ind].id)
                     } else {
                         this.$store.dispatch('CARDS/ORDER_TO_CARD', this.table.data[ind].id)
                     }
@@ -848,7 +848,7 @@
                     Vue.set(this.table, 'queryOptics', optics);
 
                     const jOptics = JSON.stringify(optics);
-                    if (this.$route.query.optics!==jOptics) this.$router.push({query: {optics: jOptics}});
+                    if (this.$route.query.optics!==jOptics) this.$router.replace({query: {optics: jOptics}});
                     Vue.set(this, 'loadingStatus', this.enums.loadingStatus.TablePreDisplayed);
                 } else if (n===this.enums.loadingStatus.TablePreDisplayed) {
                     if (!this.table.shell.optics._visualOptimized) {

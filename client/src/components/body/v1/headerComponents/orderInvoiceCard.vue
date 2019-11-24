@@ -42,7 +42,7 @@
         if(this.value._type === 'invoice'){
           this.$store.dispatch('CARDS/INVOICE_REMOVE')
         } else {
-          this.$store.commit('CARDS/ORDER_REMOVE', this.value.id)
+          this.$store.dispatch('CARDS/ORDER_REMOVE', this.value.id)
         }
       }
     },

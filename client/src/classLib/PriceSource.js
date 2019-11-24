@@ -44,12 +44,14 @@ export default class PriceSource{
         },
       },
       one2:{
-        two21:{
-          ballance: {alias: 'кол-во', field:'ballance'},
-          real: {alias: 'в счёт', field:'_realCount', component: 'priceListAddToInvoice', _html: row=>row.realCount(row)},
-          average: {alias: 'дней', field:'average_days'},
+        two21:{ballance: {alias: 'кол-во', field:'ballance'},},
+        two22:{average: {alias: 'дней', field:'average_days'},},
+      },
+      one3:{
+        two31:{
+          real: {alias: 'добавить', field:'_realCount', component: 'priceListAddToCards', _html: row=>row.realCount(row)},
         },
-        two22:{
+        two32:{
           priceRUR: {alias: 'цена ₽', field:'_priceRUR', html: row=>row._priceRUR.toFixed(2), _html: row=>row.convertPrice(row.our_price, row.currency_id).rur.toFixed(2)},
           sumRUR: {alias: 'сумма ₽', field:'_sumRUR', html: row=>row._sumRUR.toFixed(2), _html: row=>row.summPrice(row).rur.toFixed(2)},
           vat: {alias: 'ндс', field:'vat'},
@@ -88,7 +90,9 @@ export default class PriceSource{
     this.updateID = 0;
   }
 
+  get backSensitive() {return {name: this.search, from_store_ids: this.selectedStores, onlyDB: this.onlyDB}}
   get count(){return this.source.length}
+  get frontSensitive() {return {depth: this.depth, fromQuantity: this.fromQuantity, fromRelevance: this.fromRelevance, onlyDB: this.onlyDB, quantity: this.quantity, pages: this.pages, relevance: this.relevance, search: this.search, selectedStores: this.selectedStores}}
   getStoreById(id){return _.find(this.references.stores, store => store.id === id);}
   get isReferenceReceived(){return !_.find(this.references, item=>item === null);}
   get isStores() {return this.references.stores ? this.references.stores.length > 0 : false }

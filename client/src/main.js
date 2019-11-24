@@ -15,14 +15,15 @@ Vue.component('page-environment', pageEnvironment);
 import { library } from '@fortawesome/fontawesome-svg-core';
 import {
   faHome, faInfoCircle, faBarcode, faHammer, faCode, faFileInvoiceDollar, faBars,
-  faSortAlphaDown, faSortAlphaUpAlt, faEllipsisV, faHandHoldingUsd, faSpinner, faTimes
+  faSortAlphaDown, faSortAlphaUpAlt, faEllipsisV, faHandHoldingUsd, faSpinner, faTimes,
 } from '@fortawesome/free-solid-svg-icons';
-import {faCodepen} from '@fortawesome/free-brands-svg-icons';
+import {faCodepen,} from '@fortawesome/free-brands-svg-icons';
+import {faQuestionCircle} from '@fortawesome/free-regular-svg-icons';
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 library.add(
     faHome, faInfoCircle, faBarcode, faHammer, faCode, faCodepen, faFileInvoiceDollar, faBars,
-    faSortAlphaDown, faSortAlphaUpAlt, faEllipsisV, faHandHoldingUsd, faSpinner, faTimes
+    faSortAlphaDown, faSortAlphaUpAlt, faEllipsisV, faHandHoldingUsd, faSpinner, faTimes, faQuestionCircle
 );
 Vue.component('fa-icon', FontAwesomeIcon);
 
