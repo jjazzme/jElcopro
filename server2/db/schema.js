@@ -6,6 +6,7 @@ import document from './document';
 import PartyModel from './PartyModel';
 import CompanyModel from './CompanyModel';
 import StoreModel from './StoreModel';
+import OrderModel from './OrderModel';
 
 export default {
     Address: {
@@ -183,6 +184,7 @@ export default {
     }, document),
 
     Order: _.defaultsDeep({
+        class: OrderModel,
         options: {
             defaultScope: { where: { document_type_id: 'order' } },
         },
