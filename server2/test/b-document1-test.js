@@ -9,6 +9,6 @@ describe('PriceService searchByNameOnStore:', () => {
     it('1', async () => {
         const { Order } = app.services.db.models;
         const order = await Order.getInstance(147);
-        await app.services.transition.applay('toWork', order);
+        await app.services.transition.applay('close', order);
     });
 });
