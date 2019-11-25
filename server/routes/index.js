@@ -24,7 +24,7 @@ router.post('/api/model/update/:model/:userID', modelController.updateColumn);
 router.put('/api/refdata/get/:name/:userID', modelController.getRefData);
 router.get('/api/invoice/get/:id/:userID', modelController.getInvoiceWithLines);
 router.get('/api/order/get/:id/:userID', modelController.getOrderWithLines);
-router.put('/api/invoice/line/add/:id/:userID', modelController.addLineToInvoice);
+router.put('/api/document/line/add/:id/:userID', modelController.addLineToDocument);
 
 /* Service router */
 router.put('/api/service/get/:service/:userID', servicesController.getService);

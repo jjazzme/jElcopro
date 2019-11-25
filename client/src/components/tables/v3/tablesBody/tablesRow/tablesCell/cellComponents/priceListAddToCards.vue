@@ -13,18 +13,36 @@
     <div class="p-l-vectors">
       <div
         @click="toInvoice"
-        :title="`${invoiceCount === null ? 'Добавить счёт' : 'В счёт'}`"
+        :title="`${invoice ? 'В счёт' : 'Добавить счёт'}`"
       >
         <fa-icon class="p-l-doc" icon="file-invoice-dollar"/>
         <fa-icon
           class="p-l-add"
-          v-if="invoiceCount === null"
+          v-if="!invoice"
           :icon="['far', 'question-circle']"
         />
-        <div
-          v-if="invoiceCount>0"
-          class="p-l-count"
-        >{{1000000}}</div>
+      </div>
+
+      <div
+        @click="toOrder"
+        :title="`${order ? 'В заказ' : 'Добавить заказ'}`"
+      >
+        <fa-icon class="p-l-doc" :icon="['fab', 'codepen']"/>
+        <fa-icon
+          class="p-l-add"
+          v-if="!order"
+          :icon="['far', 'question-circle']"
+        />
+      </div>
+
+      <div
+        v-if="order && invoice"
+        @click="toBoth"
+        title="В карты"
+        class="p-l-both"
+      >
+        <fa-icon class="p-l-doc" icon="file-invoice-dollar"/>
+        <fa-icon class="p-l-doc" :icon="['fab', 'codepen']"/>
       </div>
     </div>
   </div>
@@ -33,7 +51,7 @@
 </template>
 
 <script>
-  import router from "../../../../../../../router";
+  //import router from "../../../../../../../router";
 
   export default {
     name: "priceListAddToCards",
@@ -47,19 +65,32 @@
       value: null,
     },
     computed:{
-      invoiceCount(){
-        return this.$store.getters['CARDS/GET_GOODS_COUNT_FROM_INVOICE'](this.value.good_id)
+      invoice(){return this.$store.getters['CARDS/GET_INVOICE'];},
+      order(){
+        const sid = this.value.company_id;
+        const orders = this.$store.getters['CARDS/GET_ORDERS'];
+        const ind = _.findIndex(orders, item=>sid===item.sellerable_id);
+        return ind>=0 ? this.$store.getters['CARDS/GET_ORDERS'] : null;
       },
-      orderCount(){},
     },
     methods:{
+      toBoth(){
+        this.toInvoice();
+        this.toOrder();
+      },
       toInvoice(){
-        if(this.invoiceCount !== null){
-          this.$store.dispatch('CARDS/ADD_LINE_TO_INVOICE', this.value);
+        if(this.invoice){
+          this.$store.dispatch('CARDS/ADD_LINE_TO_DOCUMENT', { priceLine: this.value, type: 'invoice' });
         } else{
-          router.push({ name: 'tables', params:{ table: 'Invoice' } })
+          this.$router.push({ name: 'tables', params:{ table: 'Invoice' } })
         }
-
+      },
+      toOrder(){
+        if(this.order){
+          this.$store.dispatch('CARDS/ADD_LINE_TO_DOCUMENT', { priceLine: this.value, type: 'order' });
+        } else{
+          this.$router.push({ name: 'tables', params:{ table: 'Order' } })
+        }
       },
       intFormatter(val, e){
         let ret = parseInt(val);
@@ -75,6 +106,7 @@
   .component{
     position: relative;
     .p-l-vectors{
+
       position: absolute;
       top: 3px;
       left: 100px;
@@ -89,13 +121,13 @@
           font-size: 20px;
           position: absolute;
           top: 10px;
-          left: 28px;
+          left: 18px;
         }
         .p-l-add{
           font-size: 12px;
           position: absolute;
           top: 3px;
-          left: 37px;
+          left: 30px;
           color: red
         }
         .p-l-count{
@@ -107,6 +139,11 @@
           left: 0;
           color: black;
         }
+      }
+      .p-l-both{
+        svg{font-size: 16px}
+        svg:first-child{left: 17px; top: 12px}
+        svg:last-child{top: 5px; left: 28px}
       }
     }
     .p-l-input{

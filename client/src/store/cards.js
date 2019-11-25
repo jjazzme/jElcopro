@@ -20,12 +20,15 @@ let getters = {
     if (state.cards.orders.length === 0) return null;
     return null;
   },
-  GET_INVOICE: state => state.documents.filter(function(doc){return doc.document_type_id === 'invoice'})[0],
+  GET_INVOICE: state => {return state.cards.invoice ? state.documents.filter(function(doc){return doc.document_type_id === 'invoice'})[0] : null;},
   GET_ORDERS: state =>  state.documents.filter(function(doc){return doc.document_type_id === 'order'}),
 
 };
 let mutations = {
-  ADD_LINE({state, getters}, line){getters['GET_DOCUMENT_BY_ID'](line.document_id).push(line);},
+  ADD_LINE(state, line){
+    const doc = state.documents.filter(function(doc){return doc.id === line.document_id})[0];
+    doc.documentLines.push(line);
+  },
   ADD_DOCUMENT(state, doc){state.documents.push(doc)},
   DOCUMENTS_CLEAR(state){state.documents=[]},
   SET_CARDS(state, cards){state.cards = cards},
@@ -64,9 +67,17 @@ let mutations = {
 };
 let actions = {
 
-  ADD_LINE_TO_INVOICE({getters, commit, rootGetters}, priceLine){
+  ADD_LINE_TO_DOCUMENT({getters, commit, rootGetters}, {priceLine, type}){
     const user = rootGetters['AUTH/GET_USER'];
-    axios.put(`/api/invoice/line/add/${getters['GET_INVOICE'].id}/${user.id}`, {priceLine: priceLine})
+
+    let id = 0;
+    if ( type === 'invoice' ) id = getters['GET_INVOICE'].id
+    else if ( type === 'order' ) {
+      const sid = priceLine.company_id;
+      id = _.find(getters['GET_ORDERS'], order=>order.sellerable_id === sid).id;
+    }
+
+    axios.put(`/api/document/line/add/${id}/${user.id}`, {priceLine: priceLine})
       .then(ans=>commit('ADD_LINE', ans.data))
       .catch(err=>console.log(err))
   },

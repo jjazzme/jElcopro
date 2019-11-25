@@ -11,7 +11,7 @@
     >
       <div class="h-c-close" @click="closeCard()">x</div>
       <div class="h-c-topic">{{alias}} №{{value.number}} от {{Intl.DateTimeFormat('ru-RU').format(new Date(value.date))}}</div>
-      <div class="h-c-sum">{{value._sum}}₽</div>
+      <div class="h-c-sum">{{value._sum.toFixed(2)}}₽</div>
       <div class="h-c-lines">Строк: {{value.documentLines.length}} | Товаров: {{value._count}}</div>
       <div class="h-c-buyer" :title="secondPart">{{secondPart}}</div>
     </div>

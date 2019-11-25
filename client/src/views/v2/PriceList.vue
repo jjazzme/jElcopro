@@ -95,6 +95,8 @@
             refLoader(this.value.refsOrder);
 
             this.footer.vmodel = this.value;
+
+            this.$store.dispatch('ENV/SET_ROUTE', {name: this.$route.name, params: this.$route.params, query: this.$route.query})
         },
         methods:{
             loadPrice(store, optics){
@@ -185,7 +187,10 @@
             },
             frontSensitive: {
                 handler: _.debounce(function(n){
-                    if(n && !_.isEqual(n, JSON.parse(this.$route.query.optics))) this.$router.push({ query: { optics: JSON.stringify(n) } });
+                    if(n && !_.isEqual(n, JSON.parse(this.$route.query.optics ?? "{}"))) {
+                        this.$router.push({ query: { optics: JSON.stringify(n) } });
+                        this.$store.dispatch('ENV/SET_ROUTE', {name: this.$route.name, params: this.$route.params, query: this.$route.query})
+                    }
                 },500)
             }
         }

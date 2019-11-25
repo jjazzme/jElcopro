@@ -315,7 +315,7 @@ module.exports = {
           });
     },
 
-    addLineToInvoice(req, res) {
+    addLineToDocument(req, res) {
         const userID = parseInt(req.params.userID);
         const document_id = parseInt(req.params.id);
         const priceLine = req.body.priceLine;
@@ -338,7 +338,8 @@ module.exports = {
             res.send(ans))
           .catch(err=>
             res.status(500).json({error: err.message}));
-    }
+    },
+
 };
 
 //router.put('/get/:model/:userID/:page', (req, res) => {});
