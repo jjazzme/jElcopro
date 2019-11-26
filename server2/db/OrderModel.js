@@ -1,7 +1,6 @@
-import BaseModel from './BaseModel';
-import CloseTransitionMixin from './mixins/CloseTransitionMixin';
+import Document from './DocumentModel';
 
-export default class Order extends CloseTransitionMixin(BaseModel) {
+export default class Order extends Document {
     transitions = [
         { name: 'toWork', from: 'formed', to: 'in_work' },
         { name: 'unWork', from: 'in_work', to: 'formed' },

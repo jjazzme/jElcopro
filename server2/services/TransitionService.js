@@ -9,13 +9,13 @@ export default class TransitionService {
     /**
      *  Document status transition
      * @param {string} name - transition name
-     * @param {Object} instance
+     * @param {Object} instance - document
      * @param {Object=} params
      * @returns {Promise<*>}
      */
-    async applay(name, instance, params) {
+    async execute(name, instance, params) {
         // eslint-disable-next-line no-unused-vars
-        return this.db.connection.transaction(async (t) => {
+        await this.db.connection.transaction(async () => {
             if (!instance.status_id) throw new Error('Instance have not status_id');
             const obj = { instance };
             StateMachine.apply(obj, {
@@ -31,5 +31,6 @@ export default class TransitionService {
                 throw new Error(`${instance} transition ${name} is impossible for ${instance.status_id} status`);
             }
         });
+        return true; // Заменить на возврат инстанса
     }
 }

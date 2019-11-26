@@ -66,6 +66,26 @@ export default class DocumentLine extends BaseModel {
                 }
             }
         });
+        /**
+         * Check Try destroy transferOut line
+         */
+        this.beforeDestroy(async (line) => {
+            const { Reserve } = this.services.db.models;
+            line.departure = line.departure || await line.getDeparture();
+            if (line.departure) {
+                line.document = line.document || await line.getDocumen();
+                if (line.document.closed) throw new Error('Parent TransferOut was closed');
+                await Reserve.create(
+                    {
+                        document_line_id: line.parent_id,
+                        arrival_id: line.departure.arrival_id,
+                        quantity: line.quantity,
+                        closed: true,
+                    },
+                );
+                await line.departure.destroy();
+            }
+        });
         return this;
     }
 }

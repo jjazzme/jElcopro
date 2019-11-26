@@ -8,6 +8,9 @@ import CompanyModel from './CompanyModel';
 import StoreModel from './StoreModel';
 import OrderModel from './OrderModel';
 import DocumentLineModel from './DocumentLineModel';
+import TransferInModel from './TransferInModel';
+import ArrivalModel from './ArrivalModel';
+import GoodModel from './GoodModel';
 
 export default {
     Address: {
@@ -16,10 +19,15 @@ export default {
     },
 
     Arrival: {
+        class: ArrivalModel,
         options: { tableName: 'arrivals' },
         attributes: { document_line_id: DataTypes.INTEGER, ballance: DataTypes.INTEGER },
         relations: {
-            belongsTo: { DocumentLine: { foreignKey: 'document_line_id', as: 'documentLine' } },
+            belongsTo: {
+                DocumentLine: {
+                    foreignKey: 'document_line_id', as: 'documentLine', include: [{ model: GoodModel, as: 'good' }],
+                },
+            },
             hasMany: {
                 Reserve: { foreignKey: 'arrival_id', as: 'reserves' },
                 Departure: { foreignKey: 'arrival_id', as: 'departures' },
@@ -101,17 +109,17 @@ export default {
         class: DocumentLineModel,
         options: { tableName: 'document_lines' },
         attributes: {
-            document_id: DataTypes.INTEGER,
+            document_id: { type: DataTypes.INTEGER, allowNull: false },
             parent_id: DataTypes.INTEGER,
-            good_id: DataTypes.INTEGER,
-            quantity: DataTypes.INTEGER,
+            good_id: { type: DataTypes.INTEGER, allowNull: false },
+            quantity: { type: DataTypes.INTEGER, allowNull: false, validate: { min: 1 } },
             vat: DataTypes.DECIMAL(8, 2),
             price_without_vat: DataTypes.DECIMAL(18, 6),
             price_with_vat: DataTypes.DECIMAL(18, 6),
             amount_without_vat: DataTypes.DECIMAL(18, 6),
             amount_with_vat: DataTypes.DECIMAL(18, 6),
-            store_id: DataTypes.INTEGER,
-            times: DataTypes.INTEGER,
+            // store_id: DataTypes.INTEGER,
+            times: { type: DataTypes.INTEGER, validate: { min: 1 } },
             state_customs_declaration_id: DataTypes.INTEGER,
             remark: DataTypes.STRING,
             closed: { type: DataTypes.BOOLEAN, defaultValue: false },
@@ -127,7 +135,6 @@ export default {
                     { foreignKey: 'good_id', as: 'good' },
                     { foreignKey: 'from_good_id', as: 'fromGood' },
                 ],
-                Store: { foreignKey: 'store_id', as: 'store' },
                 StateCustomDeclaration: { foreignKey: 'state_customs_declaration_id', as: 'stateCustomsDeclaration' },
             },
             hasOne: {
@@ -151,12 +158,29 @@ export default {
     },
 
     FutureReserve: {
-        options: { tableName: 'future_resreves' },
+        options: {
+            tableName: 'future_resreves',
+            scopes: {
+                withGood(good) {
+                    return {
+                        include: [
+                            {
+                                model: DocumentLineModel,
+                                as: 'documentLine',
+                                include: [{ model: GoodModel, as: 'good', where: { id: good.id } }],
+                            },
+                        ],
+                        order: ['createdAt'],
+                    };
+                },
+            },
+        },
         attributes: { document_line_id: DataTypes.INTEGER, ballance: DataTypes.INTEGER },
         relations: { belongsTo: { DocumentLine: { foreignKey: 'document_line_id', as: 'documentLine' } } },
     },
 
     Good: {
+        class: GoodModel,
         options: {
             tableName: 'goods',
             scopes: { withProduct: { include: [{ model: ProductModel, as: 'product' }] } },
@@ -206,6 +230,14 @@ export default {
         attributes: {
             document_type_id: { defaultValue: 'invoice' },
         },
+        relations: {
+            belongsTo: {
+                Document: { foreignKey: 'parent_id', constraints: false, as: 'parent' },
+            },
+            hasMany: {
+                Document: { foreignKey: 'parent_id', as: 'children' },
+            },
+        },
     }, document),
 
     Order: _.defaultsDeep({
@@ -215,6 +247,14 @@ export default {
         },
         attributes: {
             document_type_id: { defaultValue: 'order' },
+        },
+        relations: {
+            belongsTo: {
+                Document: { foreignKey: 'parent_id', constraints: false, as: 'parent' },
+            },
+            hasMany: {
+                TransferIn: { foreignKey: 'parent_id', as: 'children' },
+            },
         },
     }, document),
 
@@ -420,6 +460,24 @@ export default {
             hasMany: { InterStoreRoute: { as: 'fromRoutes', foreignKey: 'from_store_id' } },
         },
     },
+
+    TransferIn: _.defaultsDeep({
+        class: TransferInModel,
+        options: {
+            defaultScope: { where: { document_type_id: 'transfer-in' } },
+        },
+        attributes: {
+            document_type_id: { defaultValue: 'transfer-in' },
+        },
+        relations: {
+            belongsTo: {
+                Order: { foreignKey: 'parent_id', constraints: false, as: 'parent' },
+            },
+            hasMany: {
+                Document: { foreignKey: 'parent_id', as: 'children' },
+            },
+        },
+    }, document),
 
     Unit: {
         options: { tableName: 'units' },

@@ -12,6 +12,7 @@ describe('TEST Order create with one DocumentLine with TEST Product', () => {
         Company, DocumentLine, Good, Order, Product, Producer,
     } = app.services.db.models;
     before(async () => {
+        await app.services.auth.authorize();
         dan = await Company.getByAlias('dan');
         danStore = _.find(dan.stores, { is_main: true });
         producer = await Producer.getRightInstanceOrCreate({ name: 'TEST' });
@@ -36,13 +37,10 @@ describe('TEST Order create with one DocumentLine with TEST Product', () => {
                 { product_id: product.id, store_id: danStore.id, code: product.id.toString() },
             );
     }));
-    it('Create TEST Order', async () => Order.getInstanceOrCreate({
-        number: '1',
-        user_id: 1,
+    it('Create TEST Order', async () => Order.createFromOptics({
         sellerable_id: dan.id,
         buyerable_id: elcopro.id,
         store_id: elcoproStore.id,
-        foreign_store_id: danStore.id,
         number_prefix: 'TEST',
     }).then((res) => {
         order = res;
@@ -74,7 +72,9 @@ describe('TEST Order create with one DocumentLine with TEST Product', () => {
         'Create TEST DocumentLine with TEST Good in TEST Order',
         async () => {
             const rightGood = await Good.getInstance({ product_id: product.id, store_id: elcoproStore.id });
-            return DocumentLine.getInstanceOrCreate({ document_id: order.id, times: 10 }, {
+            return DocumentLine.create({
+                document_id: order.id,
+                times: 10,
                 good_id: good.id,
                 quantity: 10,
                 vat: 20,
