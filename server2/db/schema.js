@@ -7,6 +7,7 @@ import PartyModel from './PartyModel';
 import CompanyModel from './CompanyModel';
 import StoreModel from './StoreModel';
 import OrderModel from './OrderModel';
+import DocumentLineModel from './DocumentLineModel';
 
 export default {
     Address: {
@@ -97,6 +98,7 @@ export default {
     Document: document,
 
     DocumentLine: {
+        class: DocumentLineModel,
         options: { tableName: 'document_lines' },
         attributes: {
             document_id: DataTypes.INTEGER,
@@ -118,7 +120,9 @@ export default {
         relations: {
             belongsTo: {
                 Document: { foreignKey: 'document_id', as: 'document' },
-                DocumentLine: { foreignKey: 'parent_id', as: 'parent' },
+                DocumentLine: {
+                    foreignKey: 'parent_id', as: 'parent', include: [{ model: DocumentLineModel, as: 'children' }],
+                },
                 Good: [
                     { foreignKey: 'good_id', as: 'good' },
                     { foreignKey: 'from_good_id', as: 'fromGood' },
@@ -170,6 +174,27 @@ export default {
             belongsTo: {
                 Store: { foreignKey: 'store_id', as: 'store' },
                 Product: { foreignKey: 'product_id', as: 'product' },
+            },
+        },
+    },
+
+    InterStoreRoute: {
+        options: { tableName: 'inter_store_routes' },
+        attributes: {
+            from_store_id: { type: DataTypes.INTEGER },
+            to_store_id: { type: DataTypes.INTEGER },
+            name: DataTypes.STRING,
+            minimum_days: { type: DataTypes.INTEGER, defaultValue: 0 },
+            maximum_days: { type: DataTypes.INTEGER, defaultValue: 0 },
+            average_days: { type: DataTypes.INTEGER, defaultValue: 0 },
+            is_active: { type: DataTypes.BOOLEAN, defaultValue: true },
+        },
+        relations: {
+            belongsTo: {
+                Store: [
+                    { foreignKey: 'from_store_id', as: 'fromStore' },
+                    { foreignKey: 'to_store_id', as: 'toStore' },
+                ],
             },
         },
     },
@@ -257,27 +282,6 @@ export default {
         },
     },
 
-    InterStoreRoute: {
-        options: { tableName: 'inter_store_routes' },
-        attributes: {
-            from_store_id: { type: DataTypes.INTEGER },
-            to_store_id: { type: DataTypes.INTEGER },
-            name: DataTypes.STRING,
-            minimum_days: { type: DataTypes.INTEGER, defaultValue: 0 },
-            maximum_days: { type: DataTypes.INTEGER, defaultValue: 0 },
-            average_days: { type: DataTypes.INTEGER, defaultValue: 0 },
-            is_active: { type: DataTypes.BOOLEAN, defaultValue: true },
-        },
-        relations: {
-            belongsTo: {
-                Store: [
-                    { foreignKey: 'from_store_id', as: 'fromStore' },
-                    { foreignKey: 'to_store_id', as: 'toStore' },
-                ],
-            },
-        },
-    },
-
     Party: {
         class: PartyModel,
         options: { tableName: 'parties' },
@@ -344,6 +348,7 @@ export default {
         class: ProductModel,
         options: {
             tableName: 'products',
+            scopes: { withProducer: { include: [{ model: ProducerModel, as: 'producer' }] } },
         },
         attributes: {
             name: { type: DataTypes.STRING, unique: 'product_name_producer_id' },

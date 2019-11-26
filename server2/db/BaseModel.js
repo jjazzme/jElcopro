@@ -83,7 +83,7 @@ export default class BaseModel extends Sequelize.Model {
         let answer = await this.getInstance(instance, scopes);
         if (!answer) {
             answer = await this.create(Object.assign(additional, instance));
-            if (!_.empty(scopes)) answer = await this.getInstance(answer, scopes);
+            if (!_.isEmpty(scopes)) answer = await this.getInstance(answer, scopes);
         }
         return answer;
     }
