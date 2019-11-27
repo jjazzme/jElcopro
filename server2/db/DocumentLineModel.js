@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import BaseModel from './BaseModel';
 
 export default class DocumentLine extends BaseModel {
@@ -36,7 +37,6 @@ export default class DocumentLine extends BaseModel {
           */
         this.beforeCreate(async (line) => {
             const { Good } = this.services.db.models;
-            if (!line.document_id) throw new Error('Attribute document_id required');
             const document = line.document || await line.getDocument();
             if (!document) throw new Error('Attribute document_id wrong');
             const productId = line.product_id || (await Good.getInstance({ id: line.good_id })).product_id;
@@ -49,6 +49,9 @@ export default class DocumentLine extends BaseModel {
             line.store_id = document.store_id;
             line.from_good_id = line.good_id;
             line.good_id = good.id;
+            if (!_.isNumber(line.price_with_vat)) line.price_with_vat = line.price_without_vat * (1 + line.vat / 100);
+            if (!_.isNumber(line.amount_without_vat)) line.amount_without_vat = line.price_without_vat * line.quantity;
+            if (!_.isNumber(line.amount_with_vat)) line.amount_with_vat = line.price_with_vat * line.quantity;
         });
         /**
          * Check quantity and re-sum before update or create;
@@ -87,5 +90,10 @@ export default class DocumentLine extends BaseModel {
             }
         });
         return this;
+    }
+
+    static async createTransferInLines(optics) {
+        const parentLineIds = optics.parentLines
+            ? optics.parentLines.map((line) => (Number.isNaN(line) ? line.id : line)) : null;
     }
 }

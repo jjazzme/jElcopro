@@ -1,7 +1,7 @@
-import BaseModel from './BaseModel';
-import CloseTransitionMixin from './mixins/CloseTransitionMixin';
+import _ from 'lodash';
+import Document from './DocumentModel';
 
-export default class TransferIn extends CloseTransitionMixin(BaseModel) {
+export default class TransferIn extends Document {
     transitions = [
         { name: 'toWork', from: 'formed', to: 'in_work' },
         { name: 'unWork', from: 'in_work', to: 'formed' },
@@ -54,5 +54,17 @@ export default class TransferIn extends CloseTransitionMixin(BaseModel) {
             await parent.update({ closed: false });
         }
         return true;
+    }
+
+    static async createFromOptics(optics) {
+        const { Order } = this.services.db.models;
+        if (!optics.parent_id) throw new Error('Need parent');
+        const parent = await Order.getInstance(optics.parent_id);
+        const newOptics = _.pick(
+            parent.getPlain(),
+            ['sellerable_id', 'buyerable_id', 'store_id', 'foreign_store_id', 'currency_id'],
+        );
+        Object.assign(newOptics, optics);
+        return super.createFromOptics(newOptics);
     }
 }

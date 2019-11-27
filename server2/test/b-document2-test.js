@@ -8,7 +8,7 @@ const { expect } = chai;
 
 describe('TEST Order operations', () => {
     let child; let dan; let danStore; let elcopro; let elcoproStore; let parent;
-    const { Company, Order } = app.services.db.models;
+    const { Company, Order, TransferIn } = app.services.db.models;
     const { transition } = app.services;
     before(async () => {
         dan = await Company.getByAlias('dan');
@@ -33,5 +33,10 @@ describe('TEST Order operations', () => {
         // eslint-disable-next-line no-unused-expressions
         expect(res, 'Is true').to.be.true;
         expect(parent.status_id).to.equal('in_work');
+    });
+    it('Create child TransferIn', async () => {
+        child = await TransferIn.createFromOptics({ parent_id: parent.id, number_prefix: 'TEST' });
+        expect(child, 'Child - formed TransferIn')
+            .to.be.an.instanceof(TransferIn).and.deep.include({ status_id: 'formed' });
     });
 });

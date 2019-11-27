@@ -79,10 +79,6 @@ describe('TEST Order create with one DocumentLine with TEST Product', () => {
                 quantity: 10,
                 vat: 20,
                 price_without_vat: 10,
-                price_with_vat: 12,
-                amount_without_vat: 100,
-                amount_with_vat: 120,
-                store_id: danStore.id,
                 remark: 'TEST',
             }).then((res) => {
                 expect(res, `It DocumentLine where document_id=${order.id}, good_id=${rightGood.id}
