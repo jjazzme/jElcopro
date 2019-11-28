@@ -22,13 +22,11 @@ export default class TransferIn extends Document {
         // eslint-disable-next-line no-unused-vars
         for (const line of this.documentLines) {
             await Arrival.create({ document_line_id: line.id, ballance: line.quantity });
-            line.closed = true;
-            await line.save();
-            const parent = await line.getParent();
+            await line.update({ closed: true });
+            const parent = await line.getParent({ scope: ['withChildren'] });
             const quantity = parent.children.reduce((sum, l) => sum + l.quantity, 0);
             const closed = parent.children.reduce((cls, l) => cls && l.closed, true);
-            parent.closed = closed && parent.quantity === quantity;
-            await parent.save();
+            await parent.update({ closed: closed && parent.quantity === quantity });
         }
         return true;
     }

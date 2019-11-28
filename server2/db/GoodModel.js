@@ -8,7 +8,7 @@ export default class Good extends BaseModel {
     // eslint-disable-next-line class-methods-use-this
     async checkFutureReserve() {
         const { FutureReserve } = this.services.db.models;
-        const futureReserves = await FutureReserve.scope({ method: ['withGood', this.id] }).findAll();
+        const futureReserves = await FutureReserve.scope({ method: ['withGood', this] }).findAll();
         // eslint-disable-next-line no-unused-vars
         for (const fr of futureReserves) {
         //    await this.reserve(fr.documentLine, { transaction });

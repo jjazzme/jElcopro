@@ -25,7 +25,7 @@ export default {
         relations: {
             belongsTo: {
                 DocumentLine: {
-                    foreignKey: 'document_line_id', as: 'documentLine', include: [{ model: GoodModel, as: 'good' }],
+                    foreignKey: 'document_line_id', as: 'documentLine',
                 },
             },
             hasMany: {
@@ -107,7 +107,13 @@ export default {
 
     DocumentLine: {
         class: DocumentLine,
-        options: { tableName: 'document_lines' },
+        options: {
+            tableName: 'document_lines',
+            scopes: {
+                withGood: { include: [{ model: GoodModel, as: 'good' }] },
+                withChildren: { include: [{ model: DocumentLine, as: 'children' }] },
+            },
+        },
         attributes: {
             document_id: { type: DataTypes.INTEGER, allowNull: false },
             parent_id: DataTypes.INTEGER,
@@ -129,7 +135,7 @@ export default {
             belongsTo: {
                 Document: { foreignKey: 'document_id', as: 'document' },
                 DocumentLine: {
-                    foreignKey: 'parent_id', as: 'parent', include: [{ model: DocumentLine, as: 'children' }],
+                    foreignKey: 'parent_id', as: 'parent',
                 },
                 Good: [
                     { foreignKey: 'good_id', as: 'good' },

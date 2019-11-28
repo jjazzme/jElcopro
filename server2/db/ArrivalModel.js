@@ -6,7 +6,8 @@ export default class Arrival extends BaseModel {
          * Increase good ballance & Check FutureReserve after arrival create
          */
         this.afterCreate(async (arrival) => {
-            const lineFrom = await arrival.getDocumentLine();
+            const { DocumentLine } = this.services.db.models;
+            const lineFrom = await DocumentLine.getInstance(arrival.document_line_id, 'withGood');
             lineFrom.good.ballance += arrival.ballance;
             await lineFrom.good.save();
             await lineFrom.good.checkFutureReserve();

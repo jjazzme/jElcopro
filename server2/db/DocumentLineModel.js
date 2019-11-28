@@ -21,8 +21,7 @@ export default class DocumentLine extends BaseModel {
      */
     async checkParentQuantity() {
         if (this.parent_id) {
-            this.parent = this.parent || await this.getParent();
-            this.parent.children = this.parent.children || await this.parent.getChildren();
+            this.parent = this.parent || await this.getParent({ scope: ['withChildren'] });
             const previousQuantity = this.previous('quantity') ? this.previous('quantity') : 0;
             const sumQuantity = this.parent.children.reduce((sum, child) => sum + child.quantity, 0)
                 - previousQuantity + this.quantity;
