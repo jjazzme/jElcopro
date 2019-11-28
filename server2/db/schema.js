@@ -7,7 +7,7 @@ import PartyModel from './PartyModel';
 import CompanyModel from './CompanyModel';
 import StoreModel from './StoreModel';
 import OrderModel from './OrderModel';
-import DocumentLineModel from './DocumentLineModel';
+import DocumentLine from './DocumentLineModel';
 import TransferInModel from './TransferInModel';
 import ArrivalModel from './ArrivalModel';
 import GoodModel from './GoodModel';
@@ -106,7 +106,7 @@ export default {
     Document: document,
 
     DocumentLine: {
-        class: DocumentLineModel,
+        class: DocumentLine,
         options: { tableName: 'document_lines' },
         attributes: {
             document_id: { type: DataTypes.INTEGER, allowNull: false },
@@ -129,7 +129,7 @@ export default {
             belongsTo: {
                 Document: { foreignKey: 'document_id', as: 'document' },
                 DocumentLine: {
-                    foreignKey: 'parent_id', as: 'parent', include: [{ model: DocumentLineModel, as: 'children' }],
+                    foreignKey: 'parent_id', as: 'parent', include: [{ model: DocumentLine, as: 'children' }],
                 },
                 Good: [
                     { foreignKey: 'good_id', as: 'good' },
@@ -165,7 +165,7 @@ export default {
                     return {
                         include: [
                             {
-                                model: DocumentLineModel,
+                                model: DocumentLine,
                                 as: 'documentLine',
                                 include: [{ model: GoodModel, as: 'good', where: { id: good.id } }],
                             },

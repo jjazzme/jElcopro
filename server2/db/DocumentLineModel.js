@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import Sequelize from 'sequelize';
 import BaseModel from './BaseModel';
 
 export default class DocumentLine extends BaseModel {
@@ -21,6 +22,7 @@ export default class DocumentLine extends BaseModel {
     async checkParentQuantity() {
         if (this.parent_id) {
             this.parent = this.parent || await this.getParent();
+            this.parent.children = this.parent.children || await this.parent.getChildren();
             const previousQuantity = this.previous('quantity') ? this.previous('quantity') : 0;
             const sumQuantity = this.parent.children.reduce((sum, child) => sum + child.quantity, 0)
                 - previousQuantity + this.quantity;
@@ -92,8 +94,60 @@ export default class DocumentLine extends BaseModel {
         return this;
     }
 
-    static async createTransferInLines(optics) {
+    /**
+     * Create TrensferIn Lines
+     * @param {TransferIn} child
+     * @param {Object} optics
+     * @param {number} optics.parent_id
+     * @param {number} optics.document_id
+     * @param {DocumentLine[]|number[]=} optics.parentLines
+     * @returns {Promise<void>}
+     */
+    static async createTransferInLines(child, optics) {
+        const { literal } = this.services.db.connection;
         const parentLineIds = optics.parentLines
             ? optics.parentLines.map((line) => (Number.isNaN(line) ? line.id : line)) : null;
+        const where = { document_id: optics.parent_id };
+        if (parentLineIds && parentLineIds instanceof Array) {
+            where.id = { [Sequelize.Op.in]: parentLineIds };
+        }
+        const parentLines = await DocumentLine.findAll({
+            where,
+            attributes: {
+                include: [
+                    [
+                        literal('COALESCE('
+                            + '(SELECT sum(a.quantity) FROM document_lines a '
+                            + 'WHERE a.parent_id = `DocumentLine`.`id`), 0)'),
+                        'childrenQuantity',
+                    ],
+                    [
+                        literal('COALESCE('
+                            + '(SELECT sum(a.amount_without_vat) FROM document_lines a '
+                            + 'WHERE a.parent_id = `DocumentLine`.`id`), 0)'),
+                        'childrenAmountWithoutVat',
+                    ],
+                    [
+                        literal('COALESCE('
+                            + '(SELECT sum(a.amount_with_vat) FROM document_lines a '
+                            + 'WHERE a.parent_id = `DocumentLine`.`id`), 0)'),
+                        'childrenAmountWithVat',
+                    ],
+                ],
+            },
+        });
+        const newLines = parentLines
+            .filter((line) => line.quantity > line.get('childrenQuantity'))
+            .map((line) => {
+                const values = _.omit(line.get({ plain: true }), ['id', 'createdAt', 'updatedAt']);
+                return Object.assign(values, {
+                    parent_id: line.id,
+                    document_id: child.id,
+                    quantity: line.quantity - values.childrenQuantity,
+                    amount_with_vat: line.amount_with_vat - values.childrenAmountWithVat,
+                    amount_without_vat: line.amount_without_vat - values.childrenAmountWithoutVat,
+                });
+            });
+        await this.bulkCreate(newLines, { individualHooks: true });
     }
 }

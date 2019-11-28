@@ -56,15 +56,25 @@ export default class TransferIn extends Document {
         return true;
     }
 
+    /**
+     * Create TransferIn from Order with lines
+     * @param optics
+     * @returns {Promise<BaseModel|null>}
+     */
     static async createFromOptics(optics) {
-        const { Order } = this.services.db.models;
+        let child = null;
+        const { Order, DocumentLine } = this.services.db.models;
         if (!optics.parent_id) throw new Error('Need parent');
-        const parent = await Order.getInstance(optics.parent_id);
-        const newOptics = _.pick(
-            parent.getPlain(),
-            ['sellerable_id', 'buyerable_id', 'store_id', 'foreign_store_id', 'currency_id'],
-        );
-        Object.assign(newOptics, optics);
-        return super.createFromOptics(newOptics);
+        await this.services.db.connection.transaction(async () => {
+            const parent = await Order.getInstance(optics.parent_id);
+            const newOptics = _.pick(
+                parent.getPlain(),
+                ['sellerable_id', 'buyerable_id', 'store_id', 'foreign_store_id', 'currency_id'],
+            );
+            Object.assign(newOptics, optics);
+            child = await super.createFromOptics(newOptics);
+            await DocumentLine.createTransferInLines(child, optics);
+        });
+        return this.getInstance(child, 'withDocumentLines');
     }
 }

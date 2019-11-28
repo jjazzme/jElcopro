@@ -14,12 +14,8 @@ export default class Document extends BaseModel {
     }
 
     static async createFromOptics(optics) {
-        let result = null;
-        await this.services.dbConnection.transaction(async () => {
-            const newInstance = _.pick(optics, _.keys(this.tableAttributes));
-            result = await this.create(newInstance);
-        });
-        return result;
+        const newInstance = _.pick(optics, _.keys(this.tableAttributes));
+        return this.create(newInstance);
     }
 
     static registerHooks() {

@@ -53,7 +53,6 @@ describe('TEST Order operations', async () => {
         });
         expect(child, 'Child - formed TransferIn')
             .to.be.an.instanceof(TransferIn).and.deep.include({ status_id: 'formed' });
-        // await service.transition('unWork'); // need move
     });
     it('Change quantity in Order line  with exeption', async () => {
         const parentLine = _.last(parent.documentLines);
