@@ -11,6 +11,7 @@ import DocumentLine from './DocumentLineModel';
 import TransferInModel from './TransferInModel';
 import ArrivalModel from './ArrivalModel';
 import GoodModel from './GoodModel';
+import Document from './DocumentModel';
 
 export default {
     Address: {
@@ -110,6 +111,7 @@ export default {
         options: {
             tableName: 'document_lines',
             scopes: {
+                withArrival: { include: [{ model: ArrivalModel, as: 'arrival' }] },
                 withGood: { include: [{ model: GoodModel, as: 'good' }] },
                 withChildren: { include: [{ model: DocumentLine, as: 'children' }] },
             },
@@ -471,6 +473,14 @@ export default {
         class: TransferInModel,
         options: {
             defaultScope: { where: { document_type_id: 'transfer-in' } },
+            scopes: {
+                deepDocumentLines: {
+                    include: [
+                        { model: DocumentLine, as: 'documentLines', include: [{ model: ArrivalModel, as: 'arrival' }] },
+                    ],
+                },
+                withParent: { include: [{ model: OrderModel, as: 'parent' }] },
+            },
         },
         attributes: {
             document_type_id: { defaultValue: 'transfer-in' },

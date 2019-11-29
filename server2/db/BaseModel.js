@@ -60,6 +60,7 @@ export default class BaseModel extends Sequelize.Model {
     static async getInstance(instance, ...args) {
         let answer = null;
         const scopes = _.flattenDeep(args);
+        scopes.push('defaultScope');
         if (typeof instance === 'number') {
             answer = await this.scope(scopes).findByPk(instance);
         } else if (typeof instance === 'string' && this.getByAlias) {

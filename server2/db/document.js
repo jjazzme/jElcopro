@@ -1,10 +1,13 @@
 import { DataTypes } from 'sequelize';
 import DocumentLine from './DocumentLineModel';
+import Document from './DocumentModel';
 
 export default {
     options: {
         tableName: 'documents',
-        scopes: { withDocumentLines: { include: [{ model: DocumentLine, as: 'documentLines' }] } },
+        scopes: {
+            withDocumentLines: { include: [{ model: DocumentLine, as: 'documentLines' }] },
+        },
     },
     attributes: {
         date: { type: DataTypes.DATE, defaultValue: new Date() },

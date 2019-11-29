@@ -149,4 +149,101 @@ export default class DocumentLine extends BaseModel {
             });
         await this.bulkCreate(newLines, { individualHooks: true });
     }
+
+    /**
+     * Sum reserve quantity for this line
+     * @param {DocumentLine} line
+     * @returns {number}
+     * @private
+     */
+    async reserveQuantity() {
+        this.reserves = this.reserves || await this.getReserves();
+        this.children = this.children || await this.getChildren();
+        return this.reserves.reduce((sum, reserve) => sum + reserve.quantity, 0)
+            + this.children.reduce((sum, child) => sum + child.quantity, 0);
+    }
+
+    /**
+     * Reserve procedure
+     * @param {DocumentLine} line
+     * @param {Transaction} transaction
+     * @param {number|null} reserved
+     * @returns {Promise<number>}
+     * @private
+     */
+    async makeReserves(reserved) {
+        const reserves = reserved || await this.reserveQuantity();
+        let needReserve = this.quantity - reserves;
+        const { Op } = Sequelize;
+        const { Arrival } = this.services.db.models;
+        const arrivals = await Arrival.findAll({
+            where: { ballance: { [Op.gt]: 0 } },
+            include: { model: DocumentLine, as: 'documentLine', where: { good_id: line.good_id } },
+            transaction,
+        });
+        // eslint-disable-next-line no-restricted-syntax,no-unused-vars
+        for (const arrival of arrivals) {
+            if (arrival.ballance > needReserve) {
+                arrival.ballance -= needReserve;
+                await (new ArrivalService()).update(arrival, transaction);
+                await Reserve.create(
+                    {
+                        document_line_id: line.id, arrival_id: arrival.id, quantity: needReserve, closed: false,
+                    },
+                    { transaction },
+                );
+                needReserve = 0;
+                break;
+            } else {
+                needReserve -= arrival.ballance;
+                // eslint-disable-next-line no-await-in-loop
+                await Reserve.create(
+                    {
+                        document_line_id: line.id, arrival_id: arrival.id, quantity: arrival.ballance, closed: false,
+                    },
+                    { transaction },
+                );
+                arrival.ballance = 0;
+                await (new ArrivalService()).update(arrival, transaction);
+            }
+        }
+        /*
+        if (needReserve !== line.quantity - reserves) {
+            // eslint-disable-next-line require-atomic-updates
+            line.good.ballance -= line.quantity - reserves - needReserve;
+            await line.good.save({ transaction });
+        }
+        */
+        return line.quantity - reserves - needReserve;
+    }
+
+    /**
+     * Make reserves && future reserve for document line
+     * @param {DocumentLine|number} line
+     * @param {Object} params
+     * @param {boolean} params.own - Reserve only goods that was from our store
+     * @param {Transaction} params.transaction
+     * @returns {Promise<number>}
+     */
+    async reserve(params) {
+        const reserveQuantity = await this.reserveQuantity();
+        let reserved = 0;
+        if (reserveQuantity < this.quantity) {
+            if ((this.good_id === this.from_good_id && params.own) || !params.own) {
+                reserved = await this._reserveLines(lineInstance, params.transaction, reserveQuantity);
+            }
+        }
+        if (!lineInstance.futureReserve && (lineInstance.quantity !== reserveQuantity + reserved)) {
+            await FutureReserve.create(
+                { document_line_id: lineInstance.id, ballance: lineInstance.quantity - reserveQuantity - reserved },
+                { transaction: params.transaction },
+            );
+        } else if (line.futureReserve && (lineInstance.quantity !== reserveQuantity + reserved)) {
+            lineInstance.futureReserve.ballance = lineInstance.quantity - reserveQuantity - reserved;
+            await lineInstance.futureReserve.save({ transaction: params.transaction });
+        } else if (lineInstance.futureReserve) {
+            await lineInstance.futureReserve.destroy({ transaction: params.transaction });
+        }
+        return reserved;
+    }
 }
