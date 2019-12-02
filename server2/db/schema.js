@@ -11,7 +11,6 @@ import DocumentLine from './DocumentLineModel';
 import TransferInModel from './TransferInModel';
 import ArrivalModel from './ArrivalModel';
 import GoodModel from './GoodModel';
-import Document from './DocumentModel';
 
 export default {
     Address: {
