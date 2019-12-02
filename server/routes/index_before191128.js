@@ -14,11 +14,11 @@ router.use(middlewareController.routeLog);
 router.get('/api/', function(req, res, next) {res.send('elcopro backend')});
 
 /* Shell router */
-router.get('/api/shell/:type', shellController.getByModel);
-router.put('/api/shell/:type', shellController.setShell);
+router.get('/api/shell/:model/:userID', shellController.getByModel);
+router.put('/api/shell/:model/:userID', shellController.setShell);
 
 /* Model router */
-router.put('/api/model/get/:type', modelController.getModelByOptics);
+router.put('/api/model/get/:model/:userID/:page', modelController.getModelByOptics);
 router.put('/api/model/options/:model/:userID', modelController.getSelectors);
 router.post('/api/model/update/:model/:userID', modelController.updateColumn);
 router.put('/api/refdata/get/:name/:userID', modelController.getRefData);

@@ -105,6 +105,10 @@ let actions = {
     });
     commit('SET_CARDS', cards);
   },
+  LOAD_DOCUMENT({rootState}, {model, id}){
+    let user = rootState.AUTH.user;
+    return axios.get(`/api/${_.lowerCase(model)}/get/${id}/${user.id}`)
+  },
   ORDER_REMOVE({getters, commit, dispatch}, id){
     commit('ORDER_REMOVE', id);
     dispatch('AUTH/SAVE_CARDS', getters['GET_CARDS'], {root: true});

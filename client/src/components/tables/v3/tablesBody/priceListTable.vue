@@ -25,7 +25,6 @@
 <script>
     import PriceListHeader from "../tablesHeader/priceListHeader";
     import PriceListRow from "./tablesRow/priceListRow";
-
     export default {
         name: "priceListTable",
         components:{PriceListRow, PriceListHeader},

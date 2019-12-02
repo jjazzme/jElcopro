@@ -17,7 +17,7 @@
 
 <script>
 
-import navComponent from './components/body/v1/nav';
+import navComponent from './components/body/v2/nav';
 import headerComponent from './components/body/v1/header';
 import footerComponent from './components/body/v1/footer';
 import LoginComponent from "./components/body/v1/login";

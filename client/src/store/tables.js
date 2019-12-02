@@ -116,11 +116,9 @@ let state = {
               producer_id: {path: 'Producer', column: 'name'}
             }
           },
-          //menu: '<span><i class="fas fa-barcode"></i></span> Продукты',
-          //model: 'Product',
           menu: true,
           faIcon: {prefix: "fas", name: "barcode"},
-          name: {one: 'продукт', many: 'продукты'},
+          name: {one: 'продукт', many: 'продукты', cardof: 'продукта',},
         },
         Producer: {
           initial: {
@@ -156,12 +154,12 @@ let state = {
           //model: 'Producer'
           menu: true,
           faIcon: {prefix: "fas", name: "hammer"},
-          name: {one: 'производитель', many: 'производители'},
+          name: {one: 'производитель', many: 'производители', cardof: 'производителя',},
         },
         Order:{
           initial:{
-            id:{show:false, hidden: true, sortable: false},
-            date:{editor: 'calendar', show: true, order:1, sortable: true, label: 'Дата',
+            id:{show:false, hidden: true, sortable: false, card: false},
+            date:{to: {name:'modelItem', params:{table: 'Order', id:'$id'}}, editor: 'calendar', show: true, order:10, sortable: true, label: 'Дата', card: false,
               html: row=>Intl.DateTimeFormat(
                 'ru-RU',
                 {
@@ -171,31 +169,32 @@ let state = {
                 }).format(new Date(row.date)).replace(',',''),
               filters: [{type: 'calendar_fromto', from:'', to:''}]
             },
-            number:{editor: 'integer', show: true, order:2, sortable: true, label: 'Номер',
+            number:{to: {name:'modelItem', params:{table: 'Order', id:'$id'}}, editor: 'integer', show: true, order:20, sortable: true, label: 'Номер', card: false,
               filters: [
                 {type: 'integer_fromto', from:'', to:''},
                 {type: 'search', _placeholder:'поиск 1'},
               ]},
-            sellerable_id:{show: true, order:3, html: row=>row.sellerable.party.name, sortable: true, label: 'Продавец',
+            sellerable_id:{show: true, order:30, html: row=>row.sellerable.party.name, sortable: true, label: 'Продавец',
               filters:[
                 {type: 'search', _placeholder:'поиск 1'},
                 {type: 'search', _placeholder:'поиск 2'},
               ]},
-            buyerable_id:{show: true, order:4, html: row=>row.buyerable.party.name, sortable: true, label: 'Покупатель',
+            buyerable_id:{show: true, order:40, html: row=>row.buyerable.party.name, sortable: true, label: 'Покупатель',
               filters:[
                 {type: 'search', _placeholder:'поиск 1'},
                 {type: 'search', _placeholder:'поиск 2'},
               ]},
-            store_id:{show: true, order:5, html: row=>row.store.name, sortable: true, label: 'Склад',
+            store_id:{show: true, order:50, html: row=>row.store.name, sortable: true, label: 'Склад',
               filters:[
                 {type: 'search', _placeholder:'поиск 1'},
               ]},
-            currency_id:{show: true, order:6, html: row=>row.currency.name, sortable: true, label: 'Валюта',
+            currency_id:{show: true, order:60, html: row=>row.currency.name, sortable: true, label: 'Валюта',
               filters:[
                 {type: 'search', _placeholder:'поиск 1'},
               ]},
-            sum:{show: true, order:7, sortable: true, label: 'Сумма'},
-            user_id:{show: true, order:8, html: row=>row.user.name, sortable: true, label: 'Автор',
+            sum:{show: true, order:70, sortable: true, label: 'Сумма', html: row=>_.sumBy(row.documentLines, line=>line.amount_with_vat).toFixed(2)},
+            status_id:{show: true, order: 75, sortable: true, label: 'Статус', html: row=>{ return {formed: 'Формируется', reserved: 'Резерв', in_work: 'В работе'}[row.status_id] } },
+            user_id:{show: true, order:80, html: row=>row.user.name, sortable: true, label: 'Автор',
               filters:[
                 {type: 'search', _placeholder:'поиск 1'},
               ]},
@@ -207,6 +206,7 @@ let state = {
               store_id: {path: 'Store', column: 'name'},
               currency_id: {path: 'Currency', column: 'name'},
               user_id: {path: 'User', column: 'name'},
+              sum: {path: 'DocumentLine', as: 'documentLines'}
             },
             filters:{
               document_type_id: [{type: '=', value: 'order'}],
@@ -214,7 +214,7 @@ let state = {
           },
           menu: true,
           faIcon: {prefix: "fab", name:"codepen"},
-          name: {one: 'заказ', many: 'заказы'},
+          name: {one: 'заказ', many: 'заказы', cardof: 'заказа',},
         },
         Invoice:{
           directives:{
@@ -225,8 +225,8 @@ let state = {
             self:['document_lines']
           },
           initial:{
-            id:{show:false, hidden: true, sortable: false},
-            date:{editor: 'calendar', show: true, order:1, sortable: true, label: 'Дата',
+            id:{show:false, hidden: true, sortable: false, card: false,},
+            date:{to: {name:'modelItem', params:{table: 'Invoice', id:'$id'}}, editor: 'calendar', show: true, order:10, sortable: true, label: 'Дата', card: false,
               html: row=>Intl.DateTimeFormat(
                 'ru-RU',
                 {
@@ -236,31 +236,32 @@ let state = {
                 }).format(new Date(row.date)).replace(',',''),
               filters: [{type: 'calendar_fromto', from:'', to:''}]
             },
-            number:{editor: 'integer', show: true, order:2, sortable: true, label: 'Номер',
+            number:{to: {name:'modelItem', params:{table: 'Invoice', id:'$id'}}, editor: 'integer', show: true, order:20, sortable: true, label: 'Номер', card: false,
               filters: [
                 {type: 'integer_fromto', from:'', to:''},
                 {type: 'search', _placeholder:'поиск 1'},
               ]},
-            sellerable_id:{show: true, order:3, html: row=>row.sellerable.party.name, sortable: true, label: 'Продавец',
+            sellerable_id:{show: true, order:30, html: row=>row.sellerable.party.name, sortable: true, label: 'Продавец',
               filters:[
                 {type: 'search', _placeholder:'поиск 1'},
                 {type: 'search', _placeholder:'поиск 2'},
               ]},
-            buyerable_id:{show: true, order:4, html: row=>row.buyerable.party.name, sortable: true, label: 'Покупатель',
+            buyerable_id:{show: true, order:40, html: row=>row.buyerable.party.name, sortable: true, label: 'Покупатель',
               filters:[
                 {type: 'search', _placeholder:'поиск 1'},
                 {type: 'search', _placeholder:'поиск 2'},
               ]},
-            store_id:{show: true, order:5, html: row=>row.store.name, sortable: true, label: 'Склад',
+            store_id:{show: true, order:50, html: row=>row.store.name, sortable: true, label: 'Склад',
               filters:[
                 {type: 'search', _placeholder:'поиск 1'},
               ]},
-            currency_id:{show: true, order:6, html: row=>row.currency.name, sortable: true, label: 'Валюта',
+            currency_id:{show: true, order:60, html: row=>row.currency.name, sortable: true, label: 'Валюта',
               filters:[
                 {type: 'search', _placeholder:'поиск 1'},
               ]},
-            sum:{show: true, order:7, sortable: true, label: 'Сумма'},
-            user_id:{show: true, order:8, html: row=>row.user.name, sortable: true, label: 'Автор',
+            sum:{show: true, order:70, sortable: true, label: 'Сумма', html: row=>_.sumBy(row.documentLines, line=>line.amount_with_vat).toFixed(2)},
+            status_id:{show: true, order: 75, sortable: true, label: 'Статус', html: row=>{ return {formed: 'Формируется', reserved: 'Резерв', in_work: 'В работе'}[row.status_id] } },
+            user_id:{show: true, order:80, html: row=>row.user.name, sortable: true, label: 'Автор',
               filters:[
                 {type: 'search', _placeholder:'поиск 1'},
               ]},
@@ -272,17 +273,23 @@ let state = {
               store_id: {path: 'Store', column: 'name'},
               currency_id: {path: 'Currency', column: 'name'},
               user_id: {path: 'User', column: 'name'},
+              sum: {path: 'DocumentLine', as: 'documentLines'}
             },
             filters:{
               document_type_id: [{type: '=', value: 'invoice'}],
             }
           },
           faIcon: {prefix: "fas", name: "file-invoice-dollar"},
-          name: {one: 'счёт', many: 'счета'},
+          name: {one: 'счёт', many: 'счета', cardof: 'счёта',},
           menu: true,
         },
-        document_lines:{
+        documentLinesOI:{
+          initial:{
+            amount_with_vat:{},
+            amount_without_vat:{},
+            closed:{},
 
+          }
         },
         _class: 'таблицы',
     },
@@ -442,6 +449,8 @@ let actions = {
     commit('REMOVE_OLD_CACHED');
     const name = table.name;
     let item = getters['GET_CACHE_ITEM']({type: 'model', name: name ,optics: table.shell.optics});
+    //let item = dispatch('LOADER/getByOptics')
+
     if(item) {
       commit('UPTOTOP_CACHE', item);
     } else {

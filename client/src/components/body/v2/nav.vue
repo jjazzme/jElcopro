@@ -34,13 +34,13 @@
             </li>
 
             <li
-                v-for="(v, k) in this.$store.getters['TABLES/GET_SHELLS']"
+                v-for="(v, k) in shells.template"
                 v-if="v.menu"
                 :key="k"
             >
                 <router-link
                         :to="{ name: 'tables', params: {type: k}}"
-                        :class="$route.name === 'tables' && $route.params.table === k ? 'selected' : ''"
+                        :class="$route.name === 'tables' && $route.params.type === k ? 'selected' : ''"
                 >
                     <span><fa-icon :icon="[v.faIcon.prefix, v.faIcon.name]"/></span>
                     <span v-html="v.name.many"></span>
@@ -51,12 +51,14 @@
 </template>
 
 <script>
+    import {Shells} from "../../../classLib/TableSource";
 
     export default {
         name: "navComponent",
         data(){
             return{
                 Test: false,
+                shells: new Shells(),
             }
         },
         methods:{

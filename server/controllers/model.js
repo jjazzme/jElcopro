@@ -19,12 +19,12 @@ module.exports = {
 
     // get model by optics
     getModelByOptics(req, res){
-        const userID = parseInt(req.params.userID);
-        const model = req.params.model;
+        const userID = 1;
+        const type = req.params.type;
 
         if (Auth.controllerPermissionIsDenied({
             clientUserID: userID,
-            model: model,
+            model: type,
             requiredPermissons: [enums.authType.Read]})
         ) {
             res.status(401).send('Authentication error');
@@ -35,7 +35,7 @@ module.exports = {
         const optics = req.body.optics;
         const params = req.body.params;
 
-        const page = req.params.page;
+        const page = optics.page;
         const pageSize = optics.pageSize ? optics.pageSize : 15;
         const offset = (page-1) * pageSize;
         const limit = offset + pageSize;
@@ -59,7 +59,7 @@ module.exports = {
         });
 
         let includeGen = function(obj){
-            let ret = []
+            let ret = [];
             _.forEach(obj, (val,name)=>{
                 let top = {};
                 let current = top;
@@ -138,7 +138,7 @@ module.exports = {
             if (orderItem.length!==0) order.push(orderItem);
         });
 
-        models[model].findAndCountAll({
+        models[type].findAndCountAll({
             include: include,
             order: order,
             limit: pageSize,
@@ -148,14 +148,14 @@ module.exports = {
             .then(resp=>{
                 const pages = Math.ceil(parseFloat(resp.count) / pageSize);
                 res.send({
-                    rows: Auth.permissionsModelFilter(model, resp.rows),
+                    rows: Auth.permissionsModelFilter(type, resp.rows),
                     count: resp.count,
                     offset: offset,
                     page: page,
                     limit: limit,
                     pageSize: pageSize,
                     pages: pages,
-                    permissions: Auth.getModelPermissions(model, resp.rows)
+                    permissions: Auth.getModelPermissions(type, resp.rows)
                 });
             })
             .catch(err=>{
@@ -291,7 +291,6 @@ module.exports = {
     },
 
     getInvoiceWithLines(req, res){
-        const userID = parseInt(req.params.userID);
         const id = parseInt(req.params.id);
         const invoice = new InvoiceService();
         invoice.getModel(id)
@@ -303,7 +302,6 @@ module.exports = {
           });
     },
     getOrderWithLines(req, res){
-        const userID = parseInt(req.params.userID);
         const id = parseInt(req.params.id);
         const doc = new OrderService();
         doc.getModel(id)
