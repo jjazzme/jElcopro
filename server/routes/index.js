@@ -26,6 +26,7 @@ router.get('/api/invoice/get/:id', modelController.getInvoiceWithLines);
 router.get('/api/order/get/:id', modelController.getOrderWithLines);
 router.get('/api/product/get/:id', modelController.getProduct);
 router.put('/api/document/line/add/:id/:userID', modelController.addLineToDocument);
+router.get('/api/document/line/delete/:docId/:lineId', modelController.deleteLineFromDocument);
 
 /* Service router */
 router.put('/api/service/get/:service/:userID', servicesController.getService);

@@ -1,10 +1,20 @@
 <template>
   <div class="p-l-line">
     <div
-      class="p-l-delete"
-      @click="deleteLine(value.id)"
+      class="p-l-additional"
     >
-      <fa-icon icon="times" />
+      <div class="p-l-check">
+        <b-checkbox
+
+        />
+      </div>
+      <div
+        class="p-l-delete"
+        @click="deleteLine(value.id)"
+      >
+        <fa-icon icon="times" />
+      </div>
+
     </div>
     <div class="p-l-main">
       <div class="p-l-top">
@@ -88,16 +98,27 @@
     border: @card-border;
     border-color: black;
     margin: 5px 0;
-    .p-l-delete{
-      max-width: 100px;
-      min-width: 100px;
-      flex: 1 1 auto;
-      border-right: @card-border;
-      text-align: center;
-      line-height: 80px;
-      color: red;
-      font-size: 20px;
-      cursor: pointer;
+    .p-l-additional{
+      width: 80px;
+      display: flex;
+      flex-direction: column;
+      .p-l-delete, .p-l-check{
+        flex: 1 1 auto;
+        border-right: @card-border;
+        text-align: center;
+
+        height: 50%;
+        color: red;
+        font-size: 20px;
+        cursor: pointer;
+      }
+      .p-l-check{
+        border-bottom: @card-border;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .p-l-delete{line-height: 40px;}
     }
     .p-l-main{
       flex: 1 1 auto;

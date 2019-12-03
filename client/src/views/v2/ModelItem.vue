@@ -29,10 +29,30 @@
                 shell: null,
                 id : null,
                 document: null,
+                statusSwitcher: {
+                    statuses: {
+                        formed: 'Формируется',
+                        reserved: 'В резерве',
+                        in_work: 'В работе',
+                        closed: 'Закрыт'
+                    },
+                    Invoice: [
+                        { name: 'reserve', from: 'formed', to: 'reserved', vector: 1 },
+                        { name: 'unreserve', from: 'reserved', to: 'formed', vector: -1 },
+                        { name: 'toWork', from: 'reserved', to: 'in_work', vector: 1 },
+                        { name: 'unWork', from: 'in_work', to: 'reserved', vector: -1 },
+                        { name: 'close', from: 'in_work', to: 'closed', vector: 1 },
+                    ],
+                    Order: [
+                        { name: 'toWork', from: 'formed', to: 'in_work', vector: 1 },
+                        { name: 'unWork', from: 'in_work', to: 'formed', vector: -1 },
+                        { name: 'close', from: 'in_work', to: 'closed', vector: 1 },
+                    ],
+                },
             }
         },
         computed: {
-            model () { return { document: this.document, shell: this.shell } },
+            model () { return { document: this.document, shell: this.shell, statusSwitcher: this.statusSwitcher } },
             alias () {
                 return _.capitalize(this.shell?.shell?.name?.one || this.type)
             },

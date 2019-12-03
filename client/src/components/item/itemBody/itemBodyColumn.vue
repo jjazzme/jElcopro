@@ -1,13 +1,25 @@
 <template>
   <div>
     <div class="p-l-key">{{value.label}}</div>
-    <div class="p-l-value" v-html="renderValue(ind)"></div>
+    <status-switcher
+      v-if="ind === 'status_id'"
+      v-model="value"
+      :env="env"
+      :ind="ind"
+    />
+    <div
+      v-else
+      class="p-l-value"
+      v-html="renderValue(ind)"
+    ></div>
   </div>
 </template>
 
 <script>
+  import StatusSwitcher from "./statusSwitcher";
   export default {
     name: "itemBodyColumn",
+    components: {StatusSwitcher},
     props: {
       value: null,
       env: null,
@@ -18,6 +30,7 @@
         return this.env.shell.initial[key].html ? this.env.shell.initial[key].html(this.env.document) : this.env.document[key];
       },
     }
+
   }
 </script>
 

@@ -89,10 +89,14 @@ let getters = {
 
 let mutations = {
   removeLineFromDocument(state, { type, documentId, lineId }){
+    axios.get(`/api/document/line/delete/${documentId}/${lineId}`)
+      .then(ans=>{
+        const doc = state.loaders[type].cache.find( item => item[0] === documentId )[2];
+        const ind = _.findIndex(doc.documentLines, item => item.id === lineId );
+        doc.documentLines.splice(ind, 1);
+      })
+      .catch(err=>console.log(err))
     //const ind = _.findIndex(state.loaders[type].cache, item => item[0] === documentId )
-    const doc = state.loaders[type].cache.find( item => item[0] === documentId )[2];
-    const ind = _.findIndex(doc.documentLines, item => item.id === lineId );
-    doc.documentLines.splice(ind, 1);
     //delete doc.documentLines.find( item => item.id === lineId )
 
   },

@@ -349,6 +349,17 @@ module.exports = {
           .catch(err=>
             res.status(500).json({error: err.message}));
     },
+    deleteLineFromDocument(req, res) {
+        const docId = parseInt(req.params.docId);
+        const lineId = parseInt(req.params.lineId);
+
+        const documenLineService = new DocumentLineService();
+        documenLineService.destroy(lineId)
+          .then(ans=>
+            res.send(ans))
+          .catch(err=>
+            res.status(500).json({error: err.message}));
+    }
 
 };
 

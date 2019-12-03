@@ -82,14 +82,14 @@
         if(this.invoice){
           this.$store.dispatch('CARDS/ADD_LINE_TO_DOCUMENT', { priceLine: this.value, type: 'invoice' });
         } else{
-          this.$router.push({ name: 'tables', params:{ table: 'Invoice' } })
+          this.$router.push({ name: 'tables', params:{ type: 'Invoice' } })
         }
       },
       toOrder(){
         if(this.order){
           this.$store.dispatch('CARDS/ADD_LINE_TO_DOCUMENT', { priceLine: this.value, type: 'order' });
         } else{
-          this.$router.push({ name: 'tables', params:{ table: 'Order' } })
+          this.$router.push({ name: 'tables', params:{ type: 'Order' } })
         }
       },
       intFormatter(val, e){
