@@ -3,8 +3,7 @@ import Sequelize from 'sequelize';
 import BaseModel from './BaseModel';
 
 export default class Document extends BaseModel {
-    // eslint-disable-next-line no-unused-vars,class-methods-use-this
-    async _closeTransition(params) {
+    async _closeTransition() {
         this.documentLines = this.documentLines || await this.getDocumentLines();
         if (!this.documentLines.reduce((result, line) => result && line.closed, true)) {
             throw new Error('Some lines for this document is not close!');
@@ -28,14 +27,26 @@ export default class Document extends BaseModel {
             if (!doc.get('from_store_id')) await doc.fillFromStore();
             if (!_.isNumber(doc.number)) doc.number = await this.nextNumber(doc.number_prefix);
         });
+
+        this.beforeUpdate((doc) => {
+            const changes = doc.changed();
+            if (changes && !changes.includes('status_id') && doc.status_id !== 'formed') {
+                throw new Error('Document must be in formed status');
+            }
+        });
+
+        this.beforeDestroy((doc) => {
+            if (doc.status_id !== 'formed') throw new Error('Document must be in formed status');
+        });
     }
 
     async fillStore() {
         const { Company } = this.services.db.models;
         const companyId = ['order', 'transfer-in'].indexOf(this.document_type_id) >= 0
             ? this.buyerable_id : this.sellerable_id;
-        const company = await Company.getInstance(companyId);
-        this.store_id = _.find(company.stores, { is_main: true });
+        const company = await Company.getInstance(companyId, 'withStores');
+        const store = _.find(company.stores, { is_main: true });
+        this.store_id = store.id;
     }
 
     async fillFromStore() {

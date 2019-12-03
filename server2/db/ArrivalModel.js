@@ -15,7 +15,7 @@ export default class Arrival extends BaseModel {
          * Change good ballance;
          */
         this.beforeUpdate(async (arrival) => {
-            const lineFrom = arrival.documentLine || await arrival.getDocumentLine({ scope: ['withGood'] });
+            const lineFrom = await arrival.getDocumentLine({ scope: ['withGood'] });
             lineFrom.good.ballance += arrival.ballance - arrival.previous('ballance');
             await lineFrom.good.save();
             if (arrival.ballance > arrival.previous('ballance')) {
@@ -31,6 +31,7 @@ export default class Arrival extends BaseModel {
             lineFrom.good.ballance -= arrival.ballance;
             if (lineFrom.good.ballance < 0) throw new Error('Impossible minus ballance');
             await lineFrom.good.save();
+            await lineFrom.update({ closed: false });
         });
         return this;
     }

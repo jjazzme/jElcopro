@@ -13,16 +13,16 @@ export default class Invoice extends Document {
      * Transition 'reserve' try to reserve document lines
      * @param {Object} params
      * @param {boolean} params.own - Reserve only goods that was from our store
-     * @param {Transaction} transaction
      * @returns {Promise<unknown>}
      * @private
      */
     async _reserveTransition(params) {
         let reserved = 0;
+        const lines = await this.getDocumentLines({ scope: ['withFutureReserve'] });
         // eslint-disable-next-line no-restricted-syntax,no-unused-vars
-        for (const line of this._instance.documentLines) {
+        for (const line of lines) {
             // eslint-disable-next-line no-await-in-loop
-            reserved += await service.reserve(line, { transaction, own: params ? params.own : false });
+            reserved += await line.reserve(params);
         }
         return reserved;
     }
@@ -30,24 +30,19 @@ export default class Invoice extends Document {
     /**
      * Transition 'unreserve' try to unreserve document lines
      * @param {Object} params
-     * @param {Transaction} transaction
      * @returns {Promise<number>}
      * @private
      */
-    async _unreserve(params, transaction) {
-        const service = new DocumentLineService();
-        try {
-            let unreserved = 0;
-            // eslint-disable-next-line no-restricted-syntax,no-unused-vars
-            for (const line of this._instance.documentLines) {
-                // eslint-disable-next-line no-await-in-loop
-                unreserved += await service.unreserve(line, { transaction });
-            }
-            return unreserved;
-        } catch (e) {
-            // console.error(e);
-            return Promise.reject(e);
+    // eslint-disable-next-line no-unused-vars
+    async _unreserveTransition(params) {
+        let unreserved = 0;
+        const lines = await this.getDocumentLines({ scope: ['withFutureReserve', 'withReserves'] });
+        // eslint-disable-next-line no-restricted-syntax,no-unused-vars
+        for (const line of lines) {
+            // eslint-disable-next-line no-await-in-loop
+            unreserved += await line.unreserve();
         }
+        return unreserved;
     }
 
     // eslint-disable-next-line class-methods-use-this

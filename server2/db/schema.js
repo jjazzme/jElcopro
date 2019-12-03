@@ -11,6 +11,9 @@ import DocumentLine from './DocumentLineModel';
 import TransferInModel from './TransferInModel';
 import ArrivalModel from './ArrivalModel';
 import GoodModel from './GoodModel';
+import ReserveModel from './ReserveModel';
+import FutureReserveModel from './FutureReserveModel';
+import InvoiceModel from './InvoiceModel';
 
 export default {
     Address: {
@@ -111,8 +114,10 @@ export default {
             tableName: 'document_lines',
             scopes: {
                 withArrival: { include: [{ model: ArrivalModel, as: 'arrival' }] },
-                withGood: { include: [{ model: GoodModel, as: 'good' }] },
                 withChildren: { include: [{ model: DocumentLine, as: 'children' }] },
+                withGood: { include: [{ model: GoodModel, as: 'good' }] },
+                withFutureReserve: { include: [{ model: FutureReserveModel, as: 'futureReserve' }] },
+                withReserves: { include: [{ model: ReserveModel, as: 'reserves' }] },
             },
         },
         attributes: {
@@ -165,8 +170,9 @@ export default {
     },
 
     FutureReserve: {
+        class: FutureReserveModel,
         options: {
-            tableName: 'future_resreves',
+            tableName: 'future_reserves',
             scopes: {
                 withGood(good) {
                     return {
@@ -231,6 +237,7 @@ export default {
     },
 
     Invoice: _.defaultsDeep({
+        class: InvoiceModel,
         options: {
             defaultScope: { where: { document_type_id: 'invoice' } },
         },
@@ -423,7 +430,8 @@ export default {
     },
 
     Reserve: {
-        options: { tableName: 'resreves' },
+        class: ReserveModel,
+        options: { tableName: 'reserves' },
         attributes: {
             document_line_id: DataTypes.INTEGER,
             arrival_id: DataTypes.INTEGER,

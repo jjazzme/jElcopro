@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import Sequelize from 'sequelize';
+import Sequelize, { Op } from 'sequelize';
 import BaseModel from './BaseModel';
 
 export default class DocumentLine extends BaseModel {
@@ -7,7 +7,7 @@ export default class DocumentLine extends BaseModel {
      * Parent quantity must more then sum quantity children
      */
     async checkChildrenQuantity() {
-        this.children = this.children || await this.getChildren();
+        this.children = this.children || await this.getChildren({ where: { parent_id: { [Op.ne]: null } } });
         if (this.children.length > 0) {
             const sumQuantity = this.children.reduce((sum, child) => sum + child.quantity, 0);
             if (this.quantity < sumQuantity) {
@@ -58,7 +58,11 @@ export default class DocumentLine extends BaseModel {
          * Check quantity and re-sum before update or create;
          */
         this.beforeSave(async (line) => {
+            const document = line.document || await line.getDocument();
             const changes = line.changed();
+            if (changes && !changes.includes('closed') && document.status_id !== 'formed') {
+                throw new Error('Document must be in formed status');
+            }
             if (changes && changes.includes('quantity')) {
                 await line.checkParentQuantity();
                 await line.checkChildrenQuantity();
@@ -74,10 +78,13 @@ export default class DocumentLine extends BaseModel {
          * Check Try destroy transferOut line
          */
         this.beforeDestroy(async (line) => {
+            const document = line.document || await line.getDocument();
+            if (document.status_id !== 'formed') throw new Error('Document must be in formed status');
             const { Reserve } = this.services.db.models;
+            if (line.closed) throw new Error('Has not closed lines');
             line.departure = line.departure || await line.getDeparture();
             if (line.departure) {
-                line.document = line.document || await line.getDocumen();
+                line.document = line.document || await line.getDocument();
                 if (line.document.closed) throw new Error('Parent TransferOut was closed');
                 await Reserve.create(
                     {
@@ -152,7 +159,6 @@ export default class DocumentLine extends BaseModel {
 
     /**
      * Sum reserve quantity for this line
-     * @param {DocumentLine} line
      * @returns {number}
      * @private
      */
@@ -165,8 +171,6 @@ export default class DocumentLine extends BaseModel {
 
     /**
      * Reserve procedure
-     * @param {DocumentLine} line
-     * @param {Transaction} transaction
      * @param {number|null} reserved
      * @returns {Promise<number>}
      * @private
@@ -174,23 +178,20 @@ export default class DocumentLine extends BaseModel {
     async makeReserves(reserved) {
         const reserves = reserved || await this.reserveQuantity();
         let needReserve = this.quantity - reserves;
-        const { Op } = Sequelize;
-        const { Arrival } = this.services.db.models;
+        const { Arrival, Reserve } = this.services.db.models;
         const arrivals = await Arrival.findAll({
             where: { ballance: { [Op.gt]: 0 } },
-            include: { model: DocumentLine, as: 'documentLine', where: { good_id: line.good_id } },
-            transaction,
+            include: { model: DocumentLine, as: 'documentLine', where: { good_id: this.good_id } },
         });
         // eslint-disable-next-line no-restricted-syntax,no-unused-vars
         for (const arrival of arrivals) {
             if (arrival.ballance > needReserve) {
                 arrival.ballance -= needReserve;
-                await (new ArrivalService()).update(arrival, transaction);
+                await arrival.save();
                 await Reserve.create(
                     {
-                        document_line_id: line.id, arrival_id: arrival.id, quantity: needReserve, closed: false,
+                        document_line_id: this.id, arrival_id: arrival.id, quantity: needReserve, closed: false,
                     },
-                    { transaction },
                 );
                 needReserve = 0;
                 break;
@@ -199,51 +200,68 @@ export default class DocumentLine extends BaseModel {
                 // eslint-disable-next-line no-await-in-loop
                 await Reserve.create(
                     {
-                        document_line_id: line.id, arrival_id: arrival.id, quantity: arrival.ballance, closed: false,
+                        document_line_id: this.id, arrival_id: arrival.id, quantity: arrival.ballance, closed: false,
                     },
-                    { transaction },
                 );
                 arrival.ballance = 0;
-                await (new ArrivalService()).update(arrival, transaction);
+                await arrival.save();
             }
         }
-        /*
-        if (needReserve !== line.quantity - reserves) {
-            // eslint-disable-next-line require-atomic-updates
-            line.good.ballance -= line.quantity - reserves - needReserve;
-            await line.good.save({ transaction });
-        }
-        */
-        return line.quantity - reserves - needReserve;
+        return this.quantity - reserves - needReserve;
     }
 
     /**
      * Make reserves && future reserve for document line
-     * @param {DocumentLine|number} line
      * @param {Object} params
-     * @param {boolean} params.own - Reserve only goods that was from our store
-     * @param {Transaction} params.transaction
+     * @param {boolean} [params.own=false] - Reserve only goods that was from our store
      * @returns {Promise<number>}
      */
-    async reserve(params) {
+    async reserve(params = { own: false }) {
+        const { FutureReserve } = this.services.db.models;
         const reserveQuantity = await this.reserveQuantity();
         let reserved = 0;
         if (reserveQuantity < this.quantity) {
             if ((this.good_id === this.from_good_id && params.own) || !params.own) {
-                reserved = await this._reserveLines(lineInstance, params.transaction, reserveQuantity);
+                reserved = await this.makeReserves(reserveQuantity);
             }
         }
-        if (!lineInstance.futureReserve && (lineInstance.quantity !== reserveQuantity + reserved)) {
+        this.futureReserve = this.futureReserve || await this.getFutureReserve();
+        if (!this.futureReserve && (this.quantity !== reserveQuantity + reserved)) {
             await FutureReserve.create(
-                { document_line_id: lineInstance.id, ballance: lineInstance.quantity - reserveQuantity - reserved },
-                { transaction: params.transaction },
+                { document_line_id: this.id, ballance: this.quantity - reserveQuantity - reserved },
             );
-        } else if (line.futureReserve && (lineInstance.quantity !== reserveQuantity + reserved)) {
-            lineInstance.futureReserve.ballance = lineInstance.quantity - reserveQuantity - reserved;
-            await lineInstance.futureReserve.save({ transaction: params.transaction });
-        } else if (lineInstance.futureReserve) {
-            await lineInstance.futureReserve.destroy({ transaction: params.transaction });
+        } else if (this.futureReserve && (this.quantity !== reserveQuantity + reserved)) {
+            this.futureReserve.ballance = this.quantity - reserveQuantity - reserved;
+            await this.futureReserve.save();
+        } else if (this.futureReserve) {
+            await this.futureReserve.destroy();
         }
         return reserved;
+    }
+
+    /**
+     * Unreserve && destroy future reserve for document line
+     * @returns {Promise<*>}
+     */
+    async unreserve() {
+        let backToStore = 0;
+        this.futureReserve = this.futureReserve || await this.getFutureReserve();
+        if (this.futureReserve) {
+            await this.futureReserve.destroy();
+        }
+        this.reserves = this.reserves || await this.getReserves();
+        // eslint-disable-next-line no-unused-vars,no-restricted-syntax
+        for (const reserve of this.reserves) {
+            if (reserve.closed) {
+                this.good = this.good || await this.getGood({ scope: ['withProduct'] });
+                throw new Error(`${this.good.product.name} подоbран, снять резерв не возможно`);
+            }
+            backToStore += reserve.quantity;
+            const arrival = await reserve.getArrival();
+            arrival.ballance += reserve.quantity;
+            await arrival.save();
+            await reserve.destroy();
+        }
+        return backToStore;
     }
 }

@@ -15,7 +15,8 @@ export default class TransitionService {
      */
     async execute(name, instance, params) {
         // eslint-disable-next-line no-unused-vars
-        await this.db.connection.transaction(async () => {
+        // const transaction = (params && params.transaction) ? params.transaction : this.db.connection.transaction();
+        const operation = async () => {
             if (!instance.status_id) throw new Error('Instance have not status_id');
             const obj = { instance };
             StateMachine.apply(obj, {
@@ -26,11 +27,16 @@ export default class TransitionService {
             if (obj.can(name)) {
                 await obj[name]();
                 instance.status_id = obj.state;
-                instance.save();
+                await instance.save();
             } else {
                 throw new Error(`${instance} transition ${name} is impossible for ${instance.status_id} status`);
             }
-        });
+        };
+        if (params && params.transaction) {
+            await operation();
+        } else {
+            await this.db.connection.transaction(operation);
+        }
         return true; // Заменить на возврат инстанса
     }
 }

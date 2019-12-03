@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import app from '../index';
 
 const chai = require('chai');
@@ -19,16 +18,16 @@ describe('Test Order arrival', () => {
         expect(res, 'Is true').to.be.true;
         expect(transfer.status_id).to.equal('in_work');
     });
-    /* it('Remove first arrival', async () => {
-        const res = await transferService.transition('unWork');
+    it('Remove first arrival', async () => {
+        const res = await await transition.execute('unWork', transfer);
         // eslint-disable-next-line no-unused-expressions
         expect(res, 'Is true').to.be.true;
-        expect(transferService.instance.status_id).to.equal('formed');
+        expect(transfer.status_id).to.equal('formed');
     });
     it('Make first arrival again', async () => {
-        const res = await transferService.transition('toWork');
+        const res = await transition.execute('toWork', transfer);
         // eslint-disable-next-line no-unused-expressions
         expect(res, 'Is true').to.be.true;
-        expect(transferService.instance.status_id).to.equal('in_work');
-    }); */
+        expect(transfer.status_id).to.equal('in_work');
+    });
 });

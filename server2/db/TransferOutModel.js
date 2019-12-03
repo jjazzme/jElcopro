@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import Document from './DocumentModel';
 
-export default class TransferIn extends Document {
+export default class TransferOut extends Document {
     transitions = [
         { name: 'toWork', from: 'formed', to: 'in_work' },
         { name: 'unWork', from: 'in_work', to: 'formed' },

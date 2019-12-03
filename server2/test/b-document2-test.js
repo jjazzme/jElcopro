@@ -40,6 +40,7 @@ describe('TEST Order operations', () => {
             .to.be.an.instanceof(TransferIn).and.deep.include({ status_id: 'formed' });
     });
     it('Change quantity in Order line  with exeption', async () => {
+        await transition.execute('unWork', parent);
         const parentLine = _.last(parent.documentLines);
         parentLine.quantity -= 2;
         const error = `${parentLine.quantity} less than possible ${parentLine.quantity + 2}`;
@@ -64,5 +65,6 @@ describe('TEST Order operations', () => {
         const sum = parentLine.quantity - parentLine.children.reduce((s, c) => s + c.quantity, 0);
         expect(sum, 'Difference between Order qauntity & children TransferIn quantities must be 10')
             .to.equal(10);
+        await transition.execute('toWork', parent);
     });
 });
