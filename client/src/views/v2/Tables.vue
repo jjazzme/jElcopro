@@ -28,6 +28,7 @@
       return {
         value: null,
         previousOptics: null,
+        previousSaveShellPayload: null,
       }
     },
     computed:{
@@ -58,13 +59,32 @@
       next();
     },
     watch:{
-      'value.queryOptics'(n){
+      'value.queryOptics' ( n, o ) {
         if(n) {
           if ( !this.$route.query.optics || !_.isEqual(JSON.parse(this.$route.query.optics), n)) {
             this.$router.push({ query: { optics: JSON.stringify(n) } });
             this.dataLoader();
-          }
+          } else if (!o) this.dataLoader();
         }
+      },
+      'value.saveShellPayload': {
+        handler: //function(n){console.log(n)},
+          _.debounce(function(n){
+            if ( !this.previousSaveShellPayload) {
+              this.value.saveShell(n);
+              this.previousSaveShellPayload = n;
+            } else {
+              const nWoId = _.cloneDeep(n);
+              delete nWoId.id;
+              const oWoId = _.cloneDeep(this.previousSaveShellPayload);
+              delete oWoId.id;
+              if ( !_.isEqual( nWoId, oWoId ) ) {
+                this.value.saveShell(n);
+                this.previousSaveShellPayload = n;
+              }
+            }
+          }, 1000),
+        deep: true
       },
     }
   }

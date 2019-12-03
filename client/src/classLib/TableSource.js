@@ -15,9 +15,11 @@ export default class TableSource{
     this.basket = new Basket();
     this.data = new Data(type);
     this.htmlObject = null;
+    this.htmlHeader = null;
     this.drag = {before:0, column:null, from:0, startObjWidth:0, startX: 0, action: null};
     this.iOptics = { filters: {}, sorters: {} };
     this.dbId = 0;
+    this.tableRenderPoint = null; // время рендеринга
     //this.queryOptics = '';
 
     const checked = JSON.stringify({
@@ -56,6 +58,11 @@ export default class TableSource{
           Vue.set(this.basket, 'value', ans.basket);
           Vue.set(this.shells, 'value', ans.columns);
           Vue.set(this.optics, 'value', ans.optics);
+          _.forEach(this.basket.value, id => {
+            store.dispatch('LOADER/getItem', { type: this.type, payload: { id: id } } )
+              .then(ins=>
+                this.data.basket.push(ins))
+          });
         } else {
           this.reset();
           if(ans && ans.version !== this.version) {
@@ -69,11 +76,25 @@ export default class TableSource{
         this.optics.merge(optics.value);
         this.shells.assembled = Date.now();
 
-        if (this.dbId===0 || isDifferentVersions || !_.isEqual(this.optics.value, opticsBeforeMerge)) this.saveShell();
+        //if (this.dbId===0 || isDifferentVersions || !_.isEqual(this.optics.value, opticsBeforeMerge)) this.saveShell();
 
       })
   }
 
+  basketChange(id){
+    const bas = this.basket.value;
+    const basket = this.data.basket;
+    if( !bas.includes(id) ) {
+      bas.push(id);
+      store.dispatch('LOADER/getItem', { type: this.type, payload: { id: id } } )
+        .then(ins=>
+          basket.push(ins))
+    }
+    else {
+      bas.splice(bas.indexOf(id), 1);
+      basket.splice(_.findIndex(basket, item=>item.id===id), 1);
+    }
+  }
   calculateColumnStyles(offset){
     let temp = {};
     Object.keys(this.shells.value).map((k) => {
@@ -130,7 +151,7 @@ export default class TableSource{
       .then(ans=>{
         Vue.set(this.optics.value, 'items', ans._rows);
         payload.optics.items = ans.rows;
-        this.saveShell(payload);
+        //this.saveShell(payload);
       });
   }
   reset() {
@@ -140,13 +161,16 @@ export default class TableSource{
   setRowWidth(){
     let width = 70;
     Object.keys(this.shells.value).map((k) => {
-      width += this.htmlObject.querySelector(`div[data-column="${k}"]`).offsetWidth;
+      width += this.htmlHeader.querySelector(`div[data-column="${k}"]`).offsetWidth;
     });
     Vue.set(this.shells, 'width', width);
   }
   saveShell(payload){
-    if (!payload) payload = this.saveShellPayload;
-    store.dispatch('LOADER/saveItem', { type: 'Shell', payload: payload })
+      if (!payload) payload = this.saveShellPayload;
+      store.dispatch('LOADER/saveItem', { type: 'Shell', payload: payload })
+        .then(ins=>{
+          if (ins.id !== this.dbId) this.dbId = ins.id;
+        });
   }
   get saveShellPayload () { return _.cloneDeep( { id: this.dbId, type: this.type, version: this.version, basket: this.basket.value, columns: this.shells.value, optics: this.optics.value } ) }
   get style() {
@@ -249,8 +273,6 @@ export class Optics {
 
 export class Shells {
   constructor(type){
-    this.assembled = false;
-    this.headerHeight = 40;
     this.template = {
       //assembled:timestamp
       //version
@@ -466,10 +488,15 @@ export class Shells {
       _class: 'таблицы',
       _version: 'x'
     };
+
+    this.assembled = false;
+    this.headerHeight = 40;
     this.initial = type ? Object.freeze(this.template[type].initial) : null;
     this.loaded = false;
-    this.value = type ? _.cloneDeep(this.template[type].initial) : null;
     this.params = type ? _.cloneDeep(this.template[type].controller) : null;
+    this.shell = type ? Object.freeze(this.template[type]) : null;
+    this.type = type;
+    this.value = type ? _.cloneDeep(this.template[type].initial) : null;
     this.width = 0;
 
     _.forEach(this.value, column=>{

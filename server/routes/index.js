@@ -22,8 +22,9 @@ router.put('/api/model/get/:type', modelController.getModelByOptics);
 router.put('/api/model/options/:model/:userID', modelController.getSelectors);
 router.post('/api/model/update/:model/:userID', modelController.updateColumn);
 router.put('/api/refdata/get/:name/:userID', modelController.getRefData);
-router.get('/api/invoice/get/:id/:userID', modelController.getInvoiceWithLines);
-router.get('/api/order/get/:id/:userID', modelController.getOrderWithLines);
+router.get('/api/invoice/get/:id', modelController.getInvoiceWithLines);
+router.get('/api/order/get/:id', modelController.getOrderWithLines);
+router.get('/api/product/get/:id', modelController.getProduct);
 router.put('/api/document/line/add/:id/:userID', modelController.addLineToDocument);
 
 /* Service router */

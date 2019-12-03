@@ -51,6 +51,10 @@ let state = {
       ttl: 10*60e3,
       cache: []
     },
+    DocumentLine: {
+      key: item=>item.id,
+
+    },
   },
 };
 
@@ -84,6 +88,14 @@ let getters = {
 };
 
 let mutations = {
+  removeLineFromDocument(state, { type, documentId, lineId }){
+    //const ind = _.findIndex(state.loaders[type].cache, item => item[0] === documentId )
+    const doc = state.loaders[type].cache.find( item => item[0] === documentId )[2];
+    const ind = _.findIndex(doc.documentLines, item => item.id === lineId );
+    doc.documentLines.splice(ind, 1);
+    //delete doc.documentLines.find( item => item.id === lineId )
+
+  },
   upsertItemToCache(state, {type, key, data}) {
     const cache = state.loaders[type].cache;
     const item = cache.find(item => _.isEqual(item[0], key));
@@ -105,42 +117,6 @@ let mutations = {
 };
 
 let actions = {
-  getItem({getters, commit}, {type, payload}) {
-    return new Promise((resolve, reject)=>{
-      const key = getters['getLoaderKey'](type, payload);
-      let data = getters['cacheGetItem'](type, key);
-      const ttl = getters['getLoaderTTL'](type);
-      if (data && data[1] + ttl > Date.now()) {
-        resolve(data[2])
-      } else {
-        const loader = getters['executorItemLoader'](type, key);
-          loader
-            .then(ans=>{
-              data = ans.data;
-              commit('upsertItemToCache', {type, key, data});
-              resolve(data);
-            })
-            .catch(err => new Error(err));
-      }
-    });
-  },
-  saveItem({state, getters, commit}, {type, payload}) {
-    const key = getters['getLoaderKey'](type, payload);
-    const current = getters['cacheGetItem'](type, key);
-    if ((!current && payload) || !_.isEqual(current[2], payload)) {
-      const loader = getters['executorItemSave'](type, payload);
-      loader
-        .then(ans => {
-          //payload.id = ans.id;
-          commit('upsertItemToCache', {type: type, key: key, data: ans.data})
-        })
-        .catch(err => new Error(err))
-    }
-    else commit('upsertItemToCache', {type: type, key: key, data: payload})
-    //let data = getters['getItemFromCache'](type, key);
-    //data[2] = payload;
-
-  },
   getByOptics({getters, commit}, {type, payload}) {
     // payload = {optics, params}
     // TODO: make a ROW notes
@@ -187,6 +163,48 @@ let actions = {
       }
     });
   },
+  getItem({getters, commit}, {type, payload}) {
+    return new Promise((resolve, reject)=>{
+      const key = getters['getLoaderKey'](type, payload);
+      let data = getters['cacheGetItem'](type, key);
+      const ttl = getters['getLoaderTTL'](type);
+      if (data && data[1] + ttl > Date.now()) {
+        resolve(data[2])
+      } else {
+        const loader = getters['executorItemLoader'](type, key);
+          loader
+            .then(ans=>{
+              data = ans.data;
+              commit('upsertItemToCache', {type, key, data});
+              resolve(data);
+            })
+            .catch(err => new Error(err));
+      }
+    });
+  },
+  removeLineFromDocument({commit}, { type, documentId, lineId }){
+    commit('removeLineFromDocument', { type, documentId, lineId });
+  },
+  saveItem({state, getters, commit}, {type, payload}) {
+    return new Promise((resolve, reject)=>{
+      const key = getters['getLoaderKey'](type, payload);
+      const current = getters['cacheGetItem'](type, key);
+      if ((!current && payload) || !_.isEqual(current[2], payload)) {
+        const loader = getters['executorItemSave'](type, payload);
+        loader
+          .then(ans => {
+            commit('upsertItemToCache', {type: type, key: key, data: ans.data});
+            resolve(ans.data);
+          })
+          .catch(err => new Error(err))
+      }
+      else {
+        commit('upsertItemToCache', {type: type, key: key, data: payload});
+        resolve(payload);
+      }
+    });
+  },
+
 };
 
 const type = Object.freeze({});

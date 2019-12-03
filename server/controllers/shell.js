@@ -60,17 +60,17 @@ module.exports = {
                     columns: shell.columns,
                     optics: shell.optics
                 })
-                .then(shell => res.send({ data: shell }))
+                .then(shell => res.send( shell ))
                 .catch(err=>{
                     return res.status(500).send(err)
                 })
         } else {
             models.Shells.findByPk(id)
               .then(inst=>{
-                  if(inst.version !== shell.version) inst.version = shell.version;
-                  if (!_.isEqual(inst.basket, shell.basket)) inst.basket = shell.basket;
-                  if (!_.isEqual(inst.columns, shell.columns)) inst.columns = shell.columns;
-                  if (!_.isEqual(inst.optics, shell.optics)) inst.optics = shell.optics;
+                  if ( shell.version && inst.version !== shell.version) inst.version = shell.version;
+                  if ( shell.basket && !_.isEqual(inst.basket, shell.basket)) inst.basket = shell.basket;
+                  if ( shell.columns && !_.isEqual(inst.columns, shell.columns)) inst.columns = shell.columns;
+                  if ( shell.optics && !_.isEqual(inst.optics, shell.optics)) inst.optics = shell.optics;
                   inst.save()
                     .then(() => res.send( inst ))
                     .catch(err=>{

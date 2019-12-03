@@ -4,6 +4,7 @@ import Services from "../services";
 import InvoiceService from '../services/InvoiceService';
 import OrderService from "../services/OrderService";
 import DocumentLineService from "../services/DocumentLineService";
+import ProductService from "../services/ProductService";
 
 const models = require('../models');
 const Auth = require('../services/Auth');
@@ -305,6 +306,17 @@ module.exports = {
         const id = parseInt(req.params.id);
         const doc = new OrderService();
         doc.getModel(id)
+          .then(ans=>{
+              res.send(ans);
+          })
+          .catch(err=>{
+              res.status(500).json({error: err.message})
+          });
+    },
+    getProduct(req, res){
+        const id = parseInt(req.params.id);
+        const prod = new ProductService();
+        prod.getModel(id)
           .then(ans=>{
               res.send(ans);
           })

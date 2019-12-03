@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div ref="body">
     <div
       :style="rowStyle"
       v-for="(row, rowInd) in tableData"
@@ -17,7 +17,7 @@
           size="sm"
           class="d-inline-block pl-4 pr-0"
           :key="`t_ch_${row.id}`"
-          @change="basketChange(row.id)"
+          @change="value.basketChange(row.id)"
           :checked="value.basket.value.includes(row.id)"
         ></b-form-checkbox>
         <b-dropdown
@@ -62,6 +62,11 @@
 <script>
   export default {
     name: "tableBody",
+    data(){
+      return {
+        prevRender: {sou: null, ret: null},
+      }
+    },
     props: {
       value: null,
     },
@@ -74,6 +79,8 @@
             : this.value?.data?.value?.rows
               ? this.value.data.value.rows
               : [];
+          if (_.isEqual(this.prevRender.sou, sou)) return this.prevRender.ret;
+
           let ret = [];
           _.forEach(sou, (souRow)=>{
             let targetRow = {};
@@ -87,6 +94,9 @@
             });
             ret.push(targetRow);
           });
+          if (ret.length>0) this.$set( this.value, 'tableRenderPoint', Date.now() );
+          this.prevRender.sou = sou;
+          this.prevRender.ret = ret;
           return ret;
         },
       },
@@ -120,11 +130,13 @@
       },
     },
     methods:{
+      /*
       basketChange(id){
         const basket = this.value.basket.value;
         if( !basket.includes(id) ) basket.push(id);
         else basket.splice(basket.indexOf(id), 1);
       },
+       */
       clickCell(e){
         const obj = e.target;
         if (!(obj.contentEditable==='true') && $(obj).hasClass('link')){
@@ -153,6 +165,25 @@
       },
       editClick(){},
     },
+    mounted(){
+      this.value.htmlObject = this.$refs.body
+    },
+    watch:{
+      'value.tableRenderPoint'(n){
+        if (n){
+          const wait = () => {
+            _.delay(()=>{
+              if (this.$refs.body) {
+                this.$set( this.value, 'htmlObject',  this.$refs.body );
+                if ( !Object.values(this.value.shells.value)[0].style ) this.value.tableOptimization(40);
+              }
+              else wait();
+            }, 100);
+          };
+          wait();
+        }
+      },
+    }
   }
 </script>
 
@@ -167,9 +198,10 @@
     border-right: solid 1px silver;
     border-bottom: solid 1px silver;
     .v-t-col{
-      flex-basis: 0;
-      flex-grow: 1;
-      max-width: 100%;
+      //flex-basis: 0;
+      //flex-grow: 1;
+      //max-width: 100%;
+      flex: 1 1 auto;
       height: 100%;
       border-right: dotted 1px silver;
       padding: 3px 0 3px 10px;

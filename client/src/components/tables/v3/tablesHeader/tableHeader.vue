@@ -209,15 +209,16 @@ console.log('add')
       dragChangeStart(evt){
         this.value.drag.action = 'toggle';
         this.value.drag.from = parseInt(evt.target.getAttribute('data-index'));
-        this.value.drag.column = this.value.htmlObject.querySelector(`div[data-index-main="${this.value.drag.from}"]`).getAttribute("data-column");
+        this.value.drag.column = this.value.htmlHeader.querySelector(`div[data-index-main="${this.value.drag.from}"]`).getAttribute("data-column");
       },
       dragLeave(evt){
+        if (this.value.drag.action === 'resize') return;
         let dbe = evt.target;
         while (!dbe.getAttribute('data-index')) {
           dbe = dbe.parentElement;
         }
         let dragBefore = parseInt(dbe.getAttribute('data-index'));
-        const mainDragOver = this.value.htmlObject.querySelector(`div[data-index-main="${dragBefore}"]`);
+        const mainDragOver = this.value.htmlHeader.querySelector(`div[data-index-main="${dragBefore}"]`);
         mainDragOver.style.background = '';
       },
       dragOver(evt){
@@ -228,7 +229,7 @@ console.log('add')
         }
 
         this.value.drag.before = parseInt(dbe.getAttribute('data-index'));
-        const mainDragOver = this.value.htmlObject.querySelector(`div[data-index-main="${this.value.drag.before}"]`);
+        const mainDragOver = this.value.htmlHeader.querySelector(`div[data-index-main="${this.value.drag.before}"]`);
         const centerX = mainDragOver.getBoundingClientRect().left + mainDragOver.offsetWidth / 2;
         let add = 0;
         if (centerX<evt.clientX) add = 1;
@@ -275,16 +276,10 @@ console.log('add')
       shellAssembled(n){
         if (n) {
           const wait = () => {
-            const t = this;
-            _.delay(
-              ()=>{
-                if (this.$refs.header){
-                  this.value.htmlObject = this.$refs.header;
-                  wait();
-                }
-              }
-              , 100
-            );
+            _.delay(()=>{
+              if (this.$refs.header) this.$set( this.value, 'htmlHeader', this.$refs.header );
+              else wait();
+            }, 100);
           };
           wait();
         }
@@ -307,8 +302,9 @@ console.log('add')
       border-right: none;
     }
     .v-t-col{
-      >div{
+      .v-t-row{
         padding-left: 10px;
+        .h-c-text {overflow: hidden; white-space: nowrap; text-overflow: ellipsis; display: inline-block; width: 100%}
       }
       height: 100%;
       border-right: dotted 1px white;

@@ -71,7 +71,7 @@ let actions = {
     const user = rootGetters['AUTH/GET_USER'];
 
     let id = 0;
-    if ( type === 'invoice' ) id = getters['GET_INVOICE'].id
+    if ( type === 'invoice' ) id = getters['GET_INVOICE'].id;
     else if ( type === 'order' ) {
       const sid = priceLine.company_id;
       id = _.find(getters['GET_ORDERS'], order=>order.sellerable_id === sid).id;
@@ -87,27 +87,28 @@ let actions = {
   },
   INVOICE_TO_CARD({getters, commit, dispatch, rootGetters}, id){
     const user = rootGetters['AUTH/GET_USER'];
-    axios.get(`/api/invoice/get/${id}/${user.id}`)
-      .then(ans=>{
-        commit('SET_INVOICE', ans.data);
+    dispatch('LOADER/getItem', { type: 'Invoice', payload: { id: id } }, {root: true})
+      .then( ins => {
+        commit('SET_INVOICE', ins);
         dispatch('AUTH/SAVE_CARDS', getters['GET_CARDS'], {root: true});
-      })
-      .catch(err=>console.log(err))
+      });
   },
-  LOAD_CARDS({commit, rootState}){
+  LOAD_CARDS({commit, dispatch, rootState}){
     let cards = rootState.AUTH.user.cards;
     commit('DOCUMENTS_CLEAR');
-    if (cards.invoice) axios.get(`/api/invoice/get/${cards.invoice}/:userID`)
-      .then(ans=>commit('ADD_DOCUMENT', ans.data));
+
+    if (cards.invoice) dispatch('LOADER/getItem', { type: 'Invoice', payload: { id: cards.invoice } }, {root: true} )
+      .then(ins=>commit('ADD_DOCUMENT', ins));
     _.forEach(cards.orders, order=>{
-      axios.get(`/api/order/get/${order}/:userID`)
-        .then(ans=>commit('ADD_DOCUMENT', ans.data));
+      dispatch('LOADER/getItem', { type: 'Order', payload: { id: order } }, {root: true} )
+        .then(ins=>commit('ADD_DOCUMENT', ins));
     });
+
     commit('SET_CARDS', cards);
   },
-  LOAD_DOCUMENT({rootState}, {model, id}){
+  LOAD_DOCUMENT({dispatch, rootState}, {model, id}){
     let user = rootState.AUTH.user;
-    return axios.get(`/api/${_.lowerCase(model)}/get/${id}/${user.id}`)
+    return dispatch('LOADER/getItem', { type: model, payload: { id: id } }, {root: true} )
   },
   ORDER_REMOVE({getters, commit, dispatch}, id){
     commit('ORDER_REMOVE', id);
@@ -115,12 +116,12 @@ let actions = {
   },
   ORDER_TO_CARD({getters, commit, dispatch, rootGetters}, id){
     const user = rootGetters['AUTH/GET_USER'];
-    axios.get(`/api/order/get/${id}/${user.id}`)
-      .then(ans=>{
-        commit('SET_ORDER', ans.data);
+
+    dispatch('LOADER/getItem', { type: 'Order', payload: { id: id } }, {root: true})
+      .then( ins => {
+        commit('SET_ORDER', ins);
         dispatch('AUTH/SAVE_CARDS', getters['GET_CARDS'], {root: true});
-      })
-      .catch(err=>console.log(err))
+      });
   },
 };
 
