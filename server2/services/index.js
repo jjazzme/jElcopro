@@ -19,7 +19,7 @@ import AuthService from './AuthService';
 export default () => {
     const namespace = createNamespace(uuid4());
     const container = new Container(namespace);
-    const level = process.env.JB_DEBUG_FILE ? 'debug' : 'info';
+    const level = process.env.NODE_OPTIONS ? 'debug' : 'info';
     const logger = pino({ level, prettyPrint: true });
     // Register services
     container.register('namespace', () => namespace);

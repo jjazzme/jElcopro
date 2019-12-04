@@ -12,17 +12,14 @@ describe('Test Invoice', () => {
     let good;
     let invoice;
     let order;
-    let promelec;
-    let promelecStore;
     let product;
     let producer;
     const {
-        Company, Good, Invoice, Order, Producer, Product, TransferIn,
+        Company, Good, Invoice, Order, Producer, Product, TransferIn, TransferOut, Reserve, DocumentLine,
+        FutureReserve,
     } = app.services.db.models;
     const { transition } = app.services;
     before(async () => {
-        promelec = await Company.getByAlias('promelec');
-        promelecStore = _.find(promelec.stores, { is_main: true });
         elcopro = await Company.getByAlias('elcopro');
         elcoproStore = _.find(elcopro.stores, { is_main: true });
         order = await Order.getInstance({ number: 1, number_prefix: 'TEST' });
@@ -52,5 +49,46 @@ describe('Test Invoice', () => {
         const child = await TransferIn.createFromOptics({ parent_id: order.id, number_prefix: 'TEST' });
         expect(child, 'Child - formed TransferIn')
             .to.be.an.instanceof(TransferIn).and.deep.include({ status_id: 'formed' });
+    });
+    it('Test invoice closeReserves with exeption',
+        async () => expect(invoice.closeReserves(), 'Счет должен быть в работе')
+            .to.be.rejectedWith(Error, 'Счет должен быть в работе'));
+    it('Create first transferOut', async () => {
+        await transition.execute('toWork', invoice);
+        await invoice.closeReserves();
+        const out = await TransferOut.createFromOptics({ parent_id: invoice.id, number_prefix: 'TEST' });
+        expect(out, 'TranserOut')
+            .to.be.an.instanceof(TransferOut).and.deep.include({ status_id: 'formed' });
+    });
+    it('TransfeOut transition test', async () => {
+        const transferOut = await TransferOut.getInstance({ number_prefix: 'TEST' });
+        await transition.execute('toWork', transferOut);
+        expect(transferOut, 'It is TransferOut')
+            .to.be.an.instanceof(TransferOut).and.deep.include({ status_id: 'in_work' });
+    });
+    it('Make second arrival', async () => {
+        const transferIn = await TransferIn
+            .getInstance({ number: 2, number_prefix: 'TEST', parent_id: order.id });
+        const res = await transition.execute('toWork', transferIn);
+        // eslint-disable-next-line no-unused-expressions
+        expect(res, 'Is true').to.be.true;
+        expect(transferIn.status_id).to.equal('in_work');
+        good = await Good.getInstance(good.id);
+        expect(good.ballance).is.equal(7);
+        const reserves = await Reserve.findAll({
+            include: [{ model: DocumentLine, as: 'documentLine', where: { good_id: good.id } }],
+        });
+        expect(reserves.length).is.equal(2);
+        expect(reserves.reduce((sum, reserve) => sum + reserve.quantity, 0)).is.equal(3);
+        const frs = await FutureReserve.findAll({
+            include: [{ model: DocumentLine, as: 'documentLine', where: { good_id: good.id } }],
+        });
+        expect(frs.length).is.equal(0);
+    });
+    it('Invoice transition "unreserve" with exeption', async () => {
+        const error = 'TEST подоbран, снять резерв не возможно';
+        await invoice.closeReserves(invoice);
+        await transition.execute('unWork', invoice);
+        return expect(transition.execute('unreserve', invoice), error).to.be.rejectedWith(Error, error);
     });
 });

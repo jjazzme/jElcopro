@@ -84,8 +84,6 @@ export default class DocumentLine extends BaseModel {
             if (line.closed) throw new Error('Has not closed lines');
             line.departure = line.departure || await line.getDeparture();
             if (line.departure) {
-                line.document = line.document || await line.getDocument();
-                if (line.document.closed) throw new Error('Parent TransferOut was closed');
                 await Reserve.create(
                     {
                         document_line_id: line.parent_id,
@@ -155,6 +153,34 @@ export default class DocumentLine extends BaseModel {
                 });
             });
         await this.bulkCreate(newLines, { individualHooks: true });
+    }
+
+    /**
+     * Create TransferOut lines
+     * @param {TransferOut} child
+     * @returns {Promise<void>}
+     */
+    static async createTransferOutLines(child) {
+        const { Departure, Reserve } = this.services.db.models;
+        const reserves = await Reserve.findAll({
+            where: { closed: true },
+            include: [
+                { model: DocumentLine, as: 'documentLine', where: { document_id: child.parent_id } },
+            ],
+        });
+        if (reserves.length === 0) throw new Error('Nothing to do');
+        // eslint-disable-next-line no-unused-vars
+        for (const reserve of reserves) {
+            let newLine = Object.assign(reserve.documentLine.get({ plain: true }), {
+                document_id: child.id,
+                quantity: reserve.quantity,
+                parent_id: reserve.documentLine.id,
+            });
+            newLine = _.omit(newLine, ['id', 'createdAt', 'updatedAt']);
+            newLine = await this.create(newLine);
+            await Departure.create({ document_line_id: newLine.id, arrival_id: reserve.arrival_id });
+            await reserve.destroy();
+        }
     }
 
     /**

@@ -14,6 +14,8 @@ import GoodModel from './GoodModel';
 import ReserveModel from './ReserveModel';
 import FutureReserveModel from './FutureReserveModel';
 import InvoiceModel from './InvoiceModel';
+import TransferOutModel from './TransferOutModel';
+import DepartureModel from './DepartureModel';
 
 export default {
     Address: {
@@ -96,6 +98,7 @@ export default {
     },
 
     Departure: {
+        class: DepartureModel,
         options: { tableName: 'departures' },
         attributes: { document_line_id: DataTypes.INTEGER, arrival_id: DataTypes.INTEGER },
         relations: {
@@ -249,7 +252,7 @@ export default {
                 Document: { foreignKey: 'parent_id', constraints: false, as: 'parent' },
             },
             hasMany: {
-                Document: { foreignKey: 'parent_id', as: 'children' },
+                TransferOut: { foreignKey: 'parent_id', as: 'children' },
             },
         },
     }, document),
@@ -431,7 +434,10 @@ export default {
 
     Reserve: {
         class: ReserveModel,
-        options: { tableName: 'reserves' },
+        options: {
+            tableName: 'reserves',
+            scopes: { withDocumentLine: { include: [{ model: DocumentLine, as: 'documentLine' }] } },
+        },
         attributes: {
             document_line_id: DataTypes.INTEGER,
             arrival_id: DataTypes.INTEGER,
@@ -441,7 +447,7 @@ export default {
         relations: {
             belongsTo: {
                 Arrival: { foreignKey: 'arrival_id', as: 'arrival' },
-                DocumentLine: { foreignKey: 'document_line_id', as: 'documentLibe' },
+                DocumentLine: { foreignKey: 'document_line_id', as: 'documentLine' },
             },
         },
     },
@@ -495,6 +501,36 @@ export default {
         relations: {
             belongsTo: {
                 Order: { foreignKey: 'parent_id', constraints: false, as: 'parent' },
+            },
+            hasMany: {
+                Document: { foreignKey: 'parent_id', as: 'children' },
+            },
+        },
+    }, document),
+
+    TransferOut: _.defaultsDeep({
+        class: TransferOutModel,
+        options: {
+            defaultScope: { where: { document_type_id: 'transfer-out' } },
+            scopes: {
+                deepDocumentLines: {
+                    include: [
+                        {
+                            model: DocumentLine,
+                            as: 'documentLines',
+                            include: [{ model: DepartureModel, as: 'departure' }],
+                        },
+                    ],
+                },
+                withParent: { include: [{ model: InvoiceModel, as: 'parent' }] },
+            },
+        },
+        attributes: {
+            document_type_id: { defaultValue: 'transfer-out' },
+        },
+        relations: {
+            belongsTo: {
+                Invoice: { foreignKey: 'parent_id', constraints: false, as: 'parent' },
             },
             hasMany: {
                 Document: { foreignKey: 'parent_id', as: 'children' },
