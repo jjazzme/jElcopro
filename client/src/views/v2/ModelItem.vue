@@ -52,7 +52,10 @@
             }
         },
         computed: {
-            model () { return { document: this.document, shell: this.shell, statusSwitcher: this.statusSwitcher } },
+            selectedItems () {
+                return this.document.documentLines.map( line => { if ( line._selected ) return line.id } ).filter( item => item );
+            },
+            model () { return { document: this.document, shell: this.shell, statusSwitcher: this.statusSwitcher, selectedItems: this.selectedItems } },
             alias () {
                 return _.capitalize(this.shell?.shell?.name?.one || this.type)
             },

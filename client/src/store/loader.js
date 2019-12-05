@@ -186,6 +186,19 @@ let actions = {
       }
     });
   },
+  makeTransfer({}, optics){
+    return axios.post('/api/document/createtransfer', {optics: optics})
+  },
+  makeTransition({},{ type, id, transition, own }){
+    return new Promise((resolve, reject) => {
+      return axios.get(`/api/document/dotransition/${type}/${id}/${transition}/${own}`)
+        .then(ans =>
+          resolve(ans.data))
+        .catch(err => {
+          return reject(err)
+        })
+    });
+  },
   removeLineFromDocument({commit}, { type, documentId, lineId }){
     commit('removeLineFromDocument', { type, documentId, lineId });
   },

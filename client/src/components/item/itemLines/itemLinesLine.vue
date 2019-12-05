@@ -5,7 +5,7 @@
     >
       <div class="p-l-check">
         <b-checkbox
-
+          v-model="value._selected"
         />
       </div>
       <div

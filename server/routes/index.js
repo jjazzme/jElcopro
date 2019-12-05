@@ -1,3 +1,5 @@
+import Document from "../controllers/Document";
+
 var express = require('express');
 var router = express.Router();
 
@@ -6,6 +8,8 @@ const servicesController = require('../controllers/services')
 const shellController = require('../controllers/shell');
 const middlewareController = require('../controllers/middle/main');
 const authController = require('../controllers/auth');
+
+const documentController = new Document();
 
 /* Router middleware */
 router.use(middlewareController.routeLog);
@@ -27,6 +31,10 @@ router.get('/api/order/get/:id', modelController.getOrderWithLines);
 router.get('/api/product/get/:id', modelController.getProduct);
 router.put('/api/document/line/add/:id/:userID', modelController.addLineToDocument);
 router.get('/api/document/line/delete/:docId/:lineId', modelController.deleteLineFromDocument);
+
+// Actions router
+router.get('/api/document/dotransition/:type/:id/:transition/:own', documentController.doTransition);
+router.post('/api/document/createtransfer', documentController.createTransfer);
 
 /* Service router */
 router.put('/api/service/get/:service/:userID', servicesController.getService);
