@@ -24,6 +24,5 @@ export default function ExpressService(namespace, logger) {
     express.use(Express.static(path.join(__dirname, 'public')));
     express.use(bodyParser.urlencoded({ extended: true }));
     express.use(bodyParser.json());
-    // express.use('/test', router(Express));
     return express;
 }
