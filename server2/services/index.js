@@ -27,9 +27,9 @@ export default () => {
     container.register('logger', () => logger);
     container.register('http', () => http);
     container.register('events', EventEmitter);
-    container.register('express', ExpressService, ['namespace', 'logger']);
     container.register('dbConnection', DatabaseConnection, ['config', 'logger', 'namespace']);
     container.register('db', DatabaseService, ['dbConnection']);
+    container.register('express', ExpressService, ['namespace', 'logger']);
     container.register('cache', CacheService, ['logger']);
     container.register('dadata', DadataSerice, ['config', 'cache', 'logger']);
     container.register('compel', CompelService, ['config', 'db', 'logger', 'cache']);

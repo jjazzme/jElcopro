@@ -1,3 +1,7 @@
+import listEndPoints from 'express-list-endpoints';
+import createError from 'http-errors';
+import apiRoutes from './router/apiRoutes';
+
 export default class App {
     constructor(services) {
         this.services = services;
@@ -34,6 +38,26 @@ export default class App {
         });
 
         // register express routes
+        // API
+        express.use('/api', apiRoutes(db));
+
+        // catch 404 and forward to error handler
+        express.use((req, res, next) => {
+            next(createError(404));
+        });
+
+        // error handler
+        // eslint-disable-next-line no-unused-vars
+        express.use((err, req, res, next) => {
+            // set locals, only providing error in development
+            res.locals.message = err.message;
+            res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+            // render the error page
+            res.status(err.status || 500);
+            res.render('error');
+        });
+
         // register error/response handling middleware
 
         process.on('unhandledRejection', (err) => {
@@ -52,6 +76,8 @@ export default class App {
             http,
             logger,
         } = this.services;
+
+        logger.debug(listEndPoints(express), 'Routes');
 
         const port = config.port || 3000;
         const hostname = config.hostname || 'localhost';
