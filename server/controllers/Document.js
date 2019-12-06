@@ -57,10 +57,10 @@ class Document{
         optics.number = !ans ? 1 : ans + 1;
 
         const  method = type === 'out'
-          ? service.createTransferOut
-          : service.createTransferIn;
+          ? service.createTransferOut(optics)
+          : service.createTransferIn(optics);
 
-        method(optics)
+        method
           .then(ins=>res.status(200).send(ins))
           .catch(err=>res.status(500).send({message: err.message}))
       })

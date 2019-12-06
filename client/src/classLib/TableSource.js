@@ -274,14 +274,6 @@ export class Optics {
 export class Shells {
   constructor(type){
     this.template = {
-      //assembled:timestamp
-      //version
-      //updated:timestamp
-      //basket:[],
-      //columns:null,
-      //optics: null,
-      //table: name
-      //controller:{aliases: {_id: {path: '', column: '', as: ''},}},
       Product: {
         initial: {
           id:{show:false, hidden: true, sortable: false},
@@ -476,6 +468,126 @@ export class Shells {
         faIcon: {prefix: "fas", name: "file-invoice-dollar"},
         name: {one: 'счёт', many: 'счета', cardof: 'счёта',},
         menu: true,
+      },
+      TransferIn:{
+        initial:{
+          id:{show:false, hidden: true, sortable: false, card: false},
+          date:{to: {name:'modelItem', params:{table: 'Order', id:'$id'}}, editor: 'calendar', show: true, order:10, sortable: true, label: 'Дата', card: false,
+            html: row=>Intl.DateTimeFormat(
+              'ru-RU',
+              {
+                year: '2-digit', month: 'numeric', day: 'numeric',
+                hour: 'numeric', minute: 'numeric',
+                hour12: false
+              }).format(new Date(row.date)).replace(',',''),
+            filters: [{type: 'calendar_fromto', from:'', to:''}]
+          },
+          number:{to: {name:'modelItem', params:{table: 'Order', id:'$id'}}, editor: 'integer', show: true, order:20, sortable: true, label: 'Номер', card: false,
+            filters: [
+              {type: 'integer_fromto', from:'', to:''},
+              {type: 'search', _placeholder:'поиск 1'},
+            ]},
+          sellerable_id:{show: true, order:30, html: row=>row.sellerable.party.name, sortable: true, label: 'Продавец',
+            filters:[
+              {type: 'search', _placeholder:'поиск 1'},
+              {type: 'search', _placeholder:'поиск 2'},
+            ]},
+          buyerable_id:{show: true, order:40, html: row=>row.buyerable.party.name, sortable: true, label: 'Покупатель',
+            filters:[
+              {type: 'search', _placeholder:'поиск 1'},
+              {type: 'search', _placeholder:'поиск 2'},
+            ]},
+          store_id:{show: true, order:50, html: row=>row.store.name, sortable: true, label: 'Склад',
+            filters:[
+              {type: 'search', _placeholder:'поиск 1'},
+            ]},
+          currency_id:{show: true, order:60, html: row=>row.currency.name, sortable: true, label: 'Валюта',
+            filters:[
+              {type: 'search', _placeholder:'поиск 1'},
+            ]},
+          sum:{show: true, order:70, sortable: true, label: 'Сумма', html: row=>_.sumBy(row.documentLines, line=>line.amount_with_vat).toFixed(2)},
+          status_id:{show: true, order: 75, sortable: true, label: 'Статус', html: row=>{ return {formed: 'Формируется', reserved: 'Резерв', in_work: 'В работе'}[row.status_id] } },
+          user_id:{show: true, order:80, html: row=>row.user.name, sortable: true, label: 'Автор',
+            filters:[
+              {type: 'search', _placeholder:'поиск 1'},
+            ]},
+        },
+        controller:{
+          aliases: {
+            sellerable_id: {path: 'Company.Party', as:'sellerable.party', column: 'name'},
+            buyerable_id: {path:'Company.Party', as:'buyerable', column: 'name'},
+            store_id: {path: 'Store', column: 'name'},
+            currency_id: {path: 'Currency', column: 'name'},
+            user_id: {path: 'User', column: 'name'},
+            sum: {path: 'DocumentLine', as: 'documentLines'}
+          },
+          filters:{
+            document_type_id: [{type: '=', value: 'transfer-in'}],
+          }
+        },
+        menu: true,
+        faIcon: {prefix: "fas", name:"file-import"},
+        name: {one: 'вх. УПД', many: 'вх. УПД', cardof: 'входящего упд',},
+      },
+      TransferOut:{
+        initial:{
+          id:{show:false, hidden: true, sortable: false, card: false},
+          date:{to: {name:'modelItem', params:{table: 'Order', id:'$id'}}, editor: 'calendar', show: true, order:10, sortable: true, label: 'Дата', card: false,
+            html: row=>Intl.DateTimeFormat(
+              'ru-RU',
+              {
+                year: '2-digit', month: 'numeric', day: 'numeric',
+                hour: 'numeric', minute: 'numeric',
+                hour12: false
+              }).format(new Date(row.date)).replace(',',''),
+            filters: [{type: 'calendar_fromto', from:'', to:''}]
+          },
+          number:{to: {name:'modelItem', params:{table: 'Order', id:'$id'}}, editor: 'integer', show: true, order:20, sortable: true, label: 'Номер', card: false,
+            filters: [
+              {type: 'integer_fromto', from:'', to:''},
+              {type: 'search', _placeholder:'поиск 1'},
+            ]},
+          sellerable_id:{show: true, order:30, html: row=>row.sellerable.party.name, sortable: true, label: 'Продавец',
+            filters:[
+              {type: 'search', _placeholder:'поиск 1'},
+              {type: 'search', _placeholder:'поиск 2'},
+            ]},
+          buyerable_id:{show: true, order:40, html: row=>row.buyerable.party.name, sortable: true, label: 'Покупатель',
+            filters:[
+              {type: 'search', _placeholder:'поиск 1'},
+              {type: 'search', _placeholder:'поиск 2'},
+            ]},
+          store_id:{show: true, order:50, html: row=>row.store.name, sortable: true, label: 'Склад',
+            filters:[
+              {type: 'search', _placeholder:'поиск 1'},
+            ]},
+          currency_id:{show: true, order:60, html: row=>row.currency.name, sortable: true, label: 'Валюта',
+            filters:[
+              {type: 'search', _placeholder:'поиск 1'},
+            ]},
+          sum:{show: true, order:70, sortable: true, label: 'Сумма', html: row=>_.sumBy(row.documentLines, line=>line.amount_with_vat).toFixed(2)},
+          status_id:{show: true, order: 75, sortable: true, label: 'Статус', html: row=>{ return {formed: 'Формируется', reserved: 'Резерв', in_work: 'В работе'}[row.status_id] } },
+          user_id:{show: true, order:80, html: row=>row.user.name, sortable: true, label: 'Автор',
+            filters:[
+              {type: 'search', _placeholder:'поиск 1'},
+            ]},
+        },
+        controller:{
+          aliases: {
+            sellerable_id: {path: 'Company.Party', as:'sellerable.party', column: 'name'},
+            buyerable_id: {path:'Company.Party', as:'buyerable', column: 'name'},
+            store_id: {path: 'Store', column: 'name'},
+            currency_id: {path: 'Currency', column: 'name'},
+            user_id: {path: 'User', column: 'name'},
+            sum: {path: 'DocumentLine', as: 'documentLines'}
+          },
+          filters:{
+            document_type_id: [{type: '=', value: 'transfer-out'}],
+          }
+        },
+        menu: true,
+        faIcon: {prefix: "fas", name:"file-export"},
+        name: {one: 'исх. упд', many: 'исх. упд', cardof: 'исходящего упд',},
       },
       documentLinesOI:{
         initial:{

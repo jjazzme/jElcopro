@@ -28,6 +28,8 @@ router.post('/api/model/update/:model/:userID', modelController.updateColumn);
 router.put('/api/refdata/get/:name/:userID', modelController.getRefData);
 router.get('/api/invoice/get/:id', modelController.getInvoiceWithLines);
 router.get('/api/order/get/:id', modelController.getOrderWithLines);
+router.get('/api/transferin/get/:id', modelController.getTransferInWithLines);
+router.get('/api/transferout/get/:id', modelController.getTransferOutWithLines);
 router.get('/api/product/get/:id', modelController.getProduct);
 router.put('/api/document/line/add/:id/:userID', modelController.addLineToDocument);
 router.get('/api/document/line/delete/:docId/:lineId', modelController.deleteLineFromDocument);

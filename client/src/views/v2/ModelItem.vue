@@ -12,6 +12,28 @@
               v-model="model"
             />
 
+            <div>
+                <div> Связанные документы:</div>
+                <div v-if="parent">
+                    Родительский:
+                    <b-button
+                      variant="link"
+                      :to="{name: 'modelItem', params: {type: parent.type, id: parent.id}}"
+                    >{{parent.alias}}</b-button>
+                </div>
+                <div v-if="children.length>0">
+                    <div
+                      v-for="child in children"
+                    >
+                        Дочерний:
+                        <b-button
+                          variant="link"
+                          :to="{name: 'modelItem', params: {type: child.type, id: child.id}}"
+                        >{{child.alias}}</b-button>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </article>
 </template>
@@ -52,6 +74,26 @@
             }
         },
         computed: {
+            parent(){
+                const parent = this.document.parent;
+                if (!parent) return null;;
+                const name = {order: 'Заказ', invoice: 'Счёт', 'transfer-in': 'Входящий УПД', 'transfer-out': 'Исходящий УПД'}[parent.document_type_id];
+                const alias = `${name} № ${parent.number}`
+                const type = {order: 'Order', invoice: 'Invoice', 'transfer-in': 'TransferIn', 'transfer-out': 'TransferOut'}[parent.document_type_id];
+                const id = parent.id;
+                return { alias, type, id }
+            },
+            children(){
+                let ret = []
+                _.forEach(this.document.children, child=>{
+                    const name = {order: 'Заказ', invoice: 'Счёт', 'transfer-in': 'Входящий УПД', 'transfer-out': 'Исходящий УПД'}[child.document_type_id];
+                    const alias = `${name} № ${child.number}`
+                    const type = {order: 'Order', invoice: 'Invoice', 'transfer-in': 'TransferIn', 'transfer-out': 'TransferOut'}[child.document_type_id];
+                    const id = child.id;
+                    ret.push( { alias, type, id } );
+                });
+                return ret;
+            },
             selectedItems () {
                 return this.document.documentLines.map( line => { if ( line._selected ) return line.id } ).filter( item => item );
             },
@@ -61,7 +103,7 @@
             },
             header () {
                 let ret = '';
-                if (['Invoice', 'Order'].includes(this.shell?.type)) ret = `${this.alias} № ${this.document.number} от ${
+                if (['Invoice', 'Order', 'TransferIn', 'TransferOut'].includes(this.shell?.type)) ret = `${this.alias} № ${this.document.number} от ${
                   Intl.DateTimeFormat(
                     'ru-RU',
                     {
@@ -75,7 +117,6 @@
             }
         },
         methods:{
-
             loadItem(route){
                 this.$set(this, 'shell',  new Shells(route.params.type));
                 this.$set(this, 'id', parseInt(route.params.id));

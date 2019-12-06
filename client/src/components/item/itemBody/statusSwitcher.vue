@@ -77,10 +77,13 @@
     },
     methods:{
       makeTransfer(){
-        const optics = { parent_id: this.env.document.id, lines: this.env.selectedItems, type: this.env.shell.type === 'Invoice' ? 'out' : 'in' };
+        let lines = this.env.selectedItems.length === 0 ? null : this.env.selectedItems;
+        const optics = { parent_id: this.env.document.id, lines: lines, type: this.env.shell.type === 'Invoice' ? 'out' : 'in' };
         this.$store.dispatch('LOADER/makeTransfer', optics)
           .then(ans => {
-            console.log(ans);
+            const id = ans.data.id;
+            const type = ans.data.document_type_id === 'transfer-in' ? 'TransferIn' : 'TransferOut';
+            this.$router.push({ name: 'modelItem', params: { type, id } })
           })
           .catch(err => new Error(err));
       },

@@ -62,7 +62,7 @@
       'value.queryOptics' ( n, o ) {
         if(n) {
           if ( !this.$route.query.optics || !_.isEqual(JSON.parse(this.$route.query.optics), n)) {
-            this.$router.push({ query: { optics: JSON.stringify(n) } });
+            this.$router.replace({ query: { optics: JSON.stringify(n) } });
             this.dataLoader();
           } else if (!o) this.dataLoader();
         }

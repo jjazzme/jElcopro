@@ -24,6 +24,26 @@ let state = {
       cache: [], // [[id, updated, {}], [id, updated, {}]]
       cacheSets: [], // [[hash, updated, [ids]], [hash, updated, [ids]]
     },
+    TransferIn: {
+      key: item=>item.id,
+      byOpticsLoader: (payload)=>axios.put(
+        `/api/model/get/TransferIn`,
+        {optics:payload.optics, params:payload.params}),
+      itemLoader: (key)=>axios.get(`/api/transferin/get/${key}`),
+      ttl: 3600e3*24,
+      cache: [],
+      cacheSets: [],
+    },
+    TransferOut: {
+      key: item=>item.id,
+      byOpticsLoader: (payload)=>axios.put(
+        `/api/model/get/TransferOut`,
+        {optics:payload.optics, params:payload.params}),
+      itemLoader: (key)=>axios.get(`/api/transferout/get/${key}`),
+      ttl: 3600e3*24,
+      cache: [],
+      cacheSets: [],
+    },
     Invoice: {
       key: item=>item.id,
       byOpticsLoader: (payload)=>axios.put(
@@ -118,6 +138,7 @@ let mutations = {
     }
     cache.unshift([hash, Date.now(), data])
   },
+  clearCacheSets(state, type) { state.loaders[type].cacheSets = []; },
 };
 
 let actions = {
@@ -186,8 +207,21 @@ let actions = {
       }
     });
   },
-  makeTransfer({}, optics){
-    return axios.post('/api/document/createtransfer', {optics: optics})
+  makeTransfer({commit}, optics){
+    const ret = axios.post('/api/document/createtransfer', {optics: optics});
+    ret
+      .then(ans => {
+        const inst = ans.data
+        if ( optics.type === 'in' ) {
+          commit('upsertItemToCache', {type: 'TransferIn', key: inst.id, data: inst});
+          commit('clearCacheSets', 'TransferIn');
+        }
+        else {
+          commit('upsertItemToCache', {type: 'TransferOut', key: inst.id, data: inst});
+          commit('clearCacheSets', 'TransferOut');
+        }
+      });
+    return ret;
   },
   makeTransition({},{ type, id, transition, own }){
     return new Promise((resolve, reject) => {
