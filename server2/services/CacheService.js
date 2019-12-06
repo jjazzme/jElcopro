@@ -96,7 +96,7 @@ export default class Cache {
             const value = await callback();
             return await this.put(key, value, minutes);
         } catch (e) {
-            this.logger.error(e, 'Errr in cache remember');
+            this.logger.error(e, 'Errоr in cache remember');
             throw e;
         }
     }

@@ -16,8 +16,25 @@ import FutureReserveModel from './FutureReserveModel';
 import InvoiceModel from './InvoiceModel';
 import TransferOutModel from './TransferOutModel';
 import DepartureModel from './DepartureModel';
+import UserModel from './UserModel';
 
 export default {
+    AccessToken: {
+        options: {
+            tableName: 'access_tokens',
+            defaultScope: { include: [{ model: UserModel, as: 'user' }] },
+        },
+        attributes: {
+            id: { type: DataTypes.STRING, primaryKey: true },
+            userId: DataTypes.INTEGER,
+            name: { type: DataTypes.STRING, defaultValue: 'Password Grant Client' },
+            scopes: { type: DataTypes.JSON, defaultValue: [] },
+            revoked: { type: DataTypes.BOOLEAN, defaultValue: false },
+            expiredAt: DataTypes.DATE,
+        },
+        relations: { belongsTo: { User: { foreignKey: 'userId', as: 'user' } } },
+    },
+
     Address: {
         options: { tableName: 'addresses' },
         attributes: { address: DataTypes.STRING, json: DataTypes.JSON },
@@ -560,6 +577,7 @@ export default {
     },
 
     User: {
+        class: UserModel,
         options: {
             tableName: 'users',
             defaultScope: {
