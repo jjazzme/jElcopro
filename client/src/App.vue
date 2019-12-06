@@ -29,9 +29,10 @@ export default {
     headerComponent,
     footerComponent,
   },
+
   computed:{
     user(){
-      return this.$store.getters['AUTH/GET_USER']
+      //return this.$store.getters['AUTH/GET_USER']
     }
   },
   created() {

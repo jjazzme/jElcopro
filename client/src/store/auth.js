@@ -23,9 +23,11 @@ let mutations = {
 
 let actions = {
   //AUTHENTICATE({state}, {login, password, cookie}){},
-  AUTO_LOGIN({commit}){
-    axios.get('/api/user/get/self')
-      .then(ans=>commit('SET_USER', ans.data))
+  AUTO_LOGIN({commit, dispatch}){
+    dispatch('LOADER/getItem', { type: 'User', payload: {id: 0} }, { root: true })
+      .then(ans => console.log(ans))
+    //axios.get('/api/user/get/self')
+    //  .then(ans=>commit('SET_USER', ans.data))
   },
   SAVE_CARDS({getters, commit}, cards){
     const user = getters['GET_USER'];

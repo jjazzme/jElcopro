@@ -4,6 +4,12 @@ import Error from '../classLib/Error'
 
 let state = {
   loaders: {
+    User: {
+      key: item=>item.id,
+      itemLoader: (key)=>axios.get(`/api/user/${key}`),
+      ttl: 3600e3*24,
+      cache: [],
+    },
     Product: {
       key: item=>item.id,
       byOpticsLoader: (payload)=>axios.put(
