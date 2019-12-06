@@ -30,8 +30,8 @@ module.exports = (sequelize, DataTypes) => {
         documentLine.belongsTo(models.Good, { foreignKey: 'from_good_id', as: 'fromGood' });
         documentLine.hasOne(models.Arrival, { foreignKey: 'document_line_id', as: 'arrival' });
         documentLine.hasOne(models.Departure, { foreignKey: 'document_line_id', as: 'departure' });
-        documentLine.hasOne(models.FutureReserve, { foreignKey: 'document_line_id', as: 'futureReserve' });
-        documentLine.hasMany(models.Reserve, { foreignKey: 'document_line_id', as: 'reserves' });
+        documentLine.hasOne(models.FutureReserveModel, { foreignKey: 'document_line_id', as: 'futureReserve' });
+        documentLine.hasMany(models.ReserveModel, { foreignKey: 'document_line_id', as: 'reserves' });
     };
     return documentLine;
 };

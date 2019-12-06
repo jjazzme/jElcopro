@@ -6,7 +6,9 @@
 /client/dist/
 /.idea/workspace.xml
 .idea
-/server/.env
+/server2/.env
+/server2/node_modules/
+/server2/storage/
 .idea/workspace.xml
 .idea/sqldialects.xml
 .idea/
