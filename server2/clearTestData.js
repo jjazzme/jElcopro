@@ -32,7 +32,8 @@ app.services.dbConnection.transaction(async (transaction) => {
             await transition.execute('toWork', invoice, { transaction });
         }
         if (invoice.status_id === 'in_work') {
-            await invoice.openReserves(transaction);
+            await transition.execute('openReserves', invoice, { transaction });
+            // await invoice.openReserves(transaction);
             await transition.execute('unWork', invoice, { transaction });
         }
         if (invoice.status_id === 'reserved') {

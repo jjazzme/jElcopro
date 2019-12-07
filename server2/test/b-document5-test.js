@@ -55,7 +55,7 @@ describe('Test Invoice', () => {
             .to.be.rejectedWith(Error, 'Счет должен быть в работе'));
     it('Create first transferOut', async () => {
         await transition.execute('toWork', invoice);
-        await invoice.closeReserves();
+        await transition.execute('closeReserves', invoice); // invoice.closeReserves();
         const out = await TransferOut.createFromOptics({ parent_id: invoice.id, number_prefix: 'TEST' });
         expect(out, 'TranserOut')
             .to.be.an.instanceof(TransferOut).and.deep.include({ status_id: 'formed' });
@@ -87,7 +87,7 @@ describe('Test Invoice', () => {
     });
     it('Invoice transition "unreserve" with exeption', async () => {
         const error = 'TEST подоbран, снять резерв не возможно';
-        await invoice.closeReserves(invoice);
+        await transition.execute('closeReserves', invoice); // await invoice.closeReserves(invoice);
         await transition.execute('unWork', invoice);
         return expect(transition.execute('unreserve', invoice), error).to.be.rejectedWith(Error, error);
     });
