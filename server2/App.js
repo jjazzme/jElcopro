@@ -8,7 +8,7 @@ export default class App {
     }
 
     start() {
-        const { db, express } = this.services;
+        const { db, express, auth } = this.services;
 
         express.set('services', this.services);
 
@@ -37,9 +37,11 @@ export default class App {
             next();
         });
 
+        auth.init();
+
         // register express routes
         // API
-        express.use('/api', apiRoutes(db));
+        express.use('/api', apiRoutes(db, auth));
 
         // catch 404 and forward to error handler
         express.use((req, res, next) => {

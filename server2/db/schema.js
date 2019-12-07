@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import bcrypt from 'bcrypt';
 import { DataTypes } from 'sequelize';
 import ProducerModel from './ProducerModel';
 import ProductModel from './ProductModel';
@@ -583,7 +584,16 @@ export default {
             id: { autoIncrement: true, primaryKey: true, type: DataTypes.INTEGER },
             name: { type: DataTypes.STRING, notEmpty: true },
             email: { type: DataTypes.STRING, validate: { isEmail: true } },
-            password: { type: DataTypes.STRING, allowNull: false },
+            password: {
+                type: DataTypes.STRING,
+                allowNull: false,
+                set(password) {
+                    const salt = bcrypt.genSaltSync();
+                    this.setDataValue('salt', salt);
+                    this.setDataValue('password', bcrypt.hashSync(password, salt));
+                },
+            },
+            salt: DataTypes.STRING,
             options: { type: DataTypes.JSON },
             avatar: { type: DataTypes.STRING },
             skills: { type: DataTypes.JSON, defaultValue: { interface: 0, sales: 0, computer: 0 } },

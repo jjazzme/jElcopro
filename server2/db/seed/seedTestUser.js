@@ -7,7 +7,7 @@ module.exports.run = async () => {
     const users = [
         {
             email: 'elcopro@gmail.com',
-            password: bcrypt.hashSync('123456', bcrypt.genSaltSync()),
+            password: '123456',
             options: {},
         },
     ];
