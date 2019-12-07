@@ -1,10 +1,158 @@
+import _ from 'lodash';
+import { Op } from 'sequelize';
+
 export default class ModelContoller {
     constructor(Model) {
         this.Model = Model;
     }
 
-    async index(optics) {
-        throw new Error('Not impement');
+    async index(req) {
+        const { optics } = req.body;
+        const { params } = req.body;
+
+        // const userID = req.user.id;
+        const { type } = req.params;
+        const { auth } = this.Model.services;
+
+        /*
+        if (auth.controllerPermissionIsDenied({
+            clientUserID: userID,
+            model: type,
+            requiredPermissons: [this.enums.authType.Read],
+        })
+        ) {
+            res.status(401);
+            return { message: 'Authentication error' };
+        }
+        */
+
+        const { page } = optics;
+        const pageSize = optics.pageSize ? optics.pageSize : 15;
+        const offset = (page - 1) * pageSize;
+        const limit = offset + pageSize;
+
+        _.forEach(params.filters, (filterSet, field) => {
+            _.forEach(filterSet, (filter) => {
+                if (!optics.filters) optics.filters = {};
+                if (!optics.filters[field]) optics.filters[field] = [];
+                optics.filters[field].push(filter);
+            });
+        });
+
+        const actualFilters = {};
+        _.forEach(optics.filters, (row, name) => {
+            _.forEach(row, (item) => {
+                if (item.value) {
+                    if (!actualFilters[name]) actualFilters[name] = [];
+                    actualFilters[name].push({ type: item.type, value: item.value });
+                }
+            });
+        });
+
+        const includeGen = function (obj) {
+            const ret = [];
+            _.forEach(obj, (val, name) => {
+                const top = {};
+                let current = top;
+                _.forEach(val.path.split('.'), (item, ind) => {
+                    current.model = this.Model;
+                    // eslint-disable-next-line no-nested-ternary
+                    current.as = val.as
+                        ? val.as.split('.')[ind]
+                            ? val.as.split('.')[ind]
+                            : _.camelCase(item)
+                        : _.camelCase(item);
+                    if (ind !== val.path.split('.').length - 1) {
+                        current.include = [{}];
+                        // eslint-disable-next-line prefer-destructuring
+                        current = current.include[0];
+                    } else {
+                        const actual = _.cloneDeep(actualFilters[name]);
+                        if (actual) {
+                            if (actual.length > 0) {
+                                const arrWhere = [];
+                                _.forEach(actual, (filter) => {
+                                    if (filter.type === 'search') {
+                                        const whereItem = {};
+                                        whereItem[val.column] = { [Op.like]: `%${filter.value}%` };
+                                        arrWhere.push(whereItem);
+                                    }
+                                    if (filter.type === '=') {
+                                        const whereItem = {};
+                                        whereItem[val.column] = { [Op.eq]: filter.value };
+                                        arrWhere.push(whereItem);
+                                    }
+                                });
+                                current.where = arrWhere.length > 1 ? [{ [Op.and]: arrWhere }] : arrWhere[0];
+                            }
+                            delete actualFilters[name];
+                        }
+                    }
+                });
+                ret.push(top);
+            });
+            return ret;
+        };
+
+        const include = includeGen(params?.aliases);
+
+        const arrWhereRoot = [];
+        _.forEach(actualFilters, (actual, name) => {
+            _.forEach(actual, (filter) => {
+                if (filter.type === 'search') {
+                    const whereItem = {};
+                    whereItem[name] = { [Op.like]: `%${filter.value}%` };
+                    arrWhereRoot.push(whereItem);
+                }
+                if (filter.type === '=') {
+                    const whereItem = {};
+                    whereItem[name] = { [Op.eq]: filter.value };
+                    arrWhereRoot.push(whereItem);
+                }
+            });
+        });
+
+        // eslint-disable-next-line no-nested-ternary
+        const where = arrWhereRoot.length === 0
+            ? null : arrWhereRoot.length > 1 ? [{ [Op.and]: arrWhereRoot }] : arrWhereRoot[0];
+
+        const order = [];
+        let sorters = _.pickBy(optics.sorters, (item) => item.order !== null);
+        sorters = _.map(sorters, (item, key) => ({ order: item.order, column: key, value: item.value }));
+        sorters = _.orderBy(sorters, 'order', 'asc');
+        _.forEach(sorters, (item) => {
+            const orderItem = [];
+            let { column } = item;
+            const aliasesCol = params.aliases[item.column];
+            if (aliasesCol) {
+                column = aliasesCol.column;
+                _.forEach(aliasesCol.path.split('.'), (associated) => {
+                    orderItem.push(associated);
+                });
+            }
+            orderItem.push(column, item.value);
+            if (orderItem.length !== 0) order.push(orderItem);
+        });
+
+        const resp = await this.Model.findAndCountAll({
+            include,
+            order,
+            limit: pageSize,
+            offset,
+            where,
+        });
+        const pages = Math.ceil(parseFloat(resp.count) / pageSize);
+        // eslint-disable-next-line consistent-return
+        return {
+            rows: auth.permissionsModelFilter(type, resp.rows),
+            count: resp.count,
+            offset,
+            page,
+            limit,
+            pageSize,
+            pages,
+            permissions: auth.getModelPermissions(type, resp.rows),
+        };
     }
 
     async get(req) {
@@ -12,11 +160,11 @@ export default class ModelContoller {
         return this.Model.getInstance(parseInt(req.params.id));
     }
 
-    async modify(optics) {
-        throw new Error('Not impement');
+    async modify() {
+        return new Error('Not impement');
     }
 
-    async destroy(id) {
-        throw new Error('Not impement');
+    async destroy() {
+        return new Error('Not impement');
     }
 }

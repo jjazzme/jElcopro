@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import passport from 'passport';
 import { Strategy as BearerStrategy } from 'passport-http-bearer';
 import uuid from 'uuid/v4';
@@ -10,6 +11,22 @@ export default class Auth {
         this.bearer = passport.authenticate('bearer', { session: false });
     }
 
+    // ???
+    templates = {
+        permission: Object.freeze({
+            Create: null, Read: null, Update: null, Delete: null,
+        }),
+        modelRowPermission: Object.freeze({}),
+    };
+
+    // ???
+    enums = {
+        authType: Object.freeze({
+            Create: 'Create', Read: 'Read', Update: 'Update', Delete: 'Delete',
+        }),
+    };
+
+    // not use!!!!
     async authorize() {
         this.user = await this.db.models.User.findByPk(1);
         return true;
@@ -53,5 +70,50 @@ export default class Auth {
             await AccessToken.update({ revoked: true }, { where: { id: token } });
             res.send({ message: 'Logout successfull' });
         });
+    }
+
+    controllerPermissionIsDenied({
+        clientUserID, model, id, column, requiredPermissons,
+    }) {
+        // requiredPermissons = ['Read', 'Update'...]
+        if (this.getUserID !== parseInt(clientUserID, 0)) return true;
+
+        const currentPermissions = this.getPermission({ model, id, column });
+        let ret = null;
+        _.forEach(requiredPermissons, (name) => {
+            if (currentPermissions[name] === false) ret = false;
+            else if (ret !== false && currentPermissions[name] === true) ret = true;
+        });
+        return !ret;
+    }
+
+    getPermission() {
+        const permission = _.cloneDeep(this.templates.permission);
+        if (this.getUserID) {
+            permission.Create = true;
+            permission.Read = true;
+            permission.Update = true;
+            permission.Delete = true;
+        } else {
+            permission.Create = false;
+            permission.Read = false;
+            permission.Update = false;
+            permission.Delete = false;
+        }
+        return permission;
+    }
+
+    getModelPermissions() {
+        return { model: _.cloneDeep(this.templates.permission), rows: [], columns: [] };
+    }
+
+    // eslint-disable-next-line class-methods-use-this
+    permissionsModelFilter(model, data) {
+        return data;
+    }
+
+    // eslint-disable-next-line class-methods-use-this
+    permissionsShellFilter(model, shell) {
+        return shell;
     }
 }
