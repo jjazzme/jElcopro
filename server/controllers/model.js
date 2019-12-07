@@ -1,6 +1,12 @@
 'use strict';
 
 import Services from "../services";
+import InvoiceService from '../services/InvoiceService';
+import OrderService from "../services/OrderService";
+import DocumentLineService from "../services/DocumentLineService";
+import ProductService from "../services/ProductService";
+import TransferInService from "../services/TransferInService";
+import TransferOutService from "../services/TransferOutService";
 
 const models = require('../models');
 const Auth = require('../services/Auth');
@@ -16,12 +22,12 @@ module.exports = {
 
     // get model by optics
     getModelByOptics(req, res){
-        const userID = parseInt(req.params.userID);
-        const model = req.params.model;
+        const userID = 1;
+        const type = req.params.type;
 
         if (Auth.controllerPermissionIsDenied({
             clientUserID: userID,
-            model: model,
+            model: type,
             requiredPermissons: [enums.authType.Read]})
         ) {
             res.status(401).send('Authentication error');
@@ -32,24 +38,31 @@ module.exports = {
         const optics = req.body.optics;
         const params = req.body.params;
 
-        const page = req.params.page;
+        const page = optics.page;
         const pageSize = optics.pageSize ? optics.pageSize : 15;
         const offset = (page-1) * pageSize;
         const limit = offset + pageSize;
 
+        _.forEach(params.filters, (filterSet, field)=>{
+            _.forEach(filterSet, filter=>{
+                if (!optics.filters) optics.filters = {};
+                if (!optics.filters[field]) optics.filters[field] = [];
+                optics.filters[field].push(filter);
+            });
+        });
 
         let actualFilters = {};
         _.forEach(optics.filters, (row, name)=>{
             _.forEach(row, item=>{
                 if (!!item.value) {
-                    if (!actualFilters[name]) actualFilters[name] = []
+                    if (!actualFilters[name]) actualFilters[name] = [];
                     actualFilters[name].push({type: item.type, value: item.value})
                 }
             });
         });
 
         let includeGen = function(obj){
-            let ret = []
+            let ret = [];
             _.forEach(obj, (val,name)=>{
                 let top = {};
                 let current = top;
@@ -74,6 +87,11 @@ module.exports = {
                                         whereItem[val.column] = {[Op.like]: `%${filter.value}%`};
                                         arrWhere.push(whereItem)
                                     }
+                                    if (filter.type === '=') {
+                                        let whereItem = {};
+                                        whereItem[val.column] = {[Op.eq]: filter.value};
+                                        arrWhere.push(whereItem)
+                                    }
                                 });
                                 current.where = arrWhere.length > 1 ? [{[Op.and]: arrWhere}] : arrWhere[0] ;
                             }
@@ -93,6 +111,11 @@ module.exports = {
                 if (filter.type === 'search') {
                     let whereItem = {};
                     whereItem[name] = {[Op.like]: `%${filter.value}%`};
+                    arrWhereRoot.push(whereItem)
+                }
+                if (filter.type === '=') {
+                    let whereItem = {};
+                    whereItem[name] = {[Op.eq]: filter.value};
                     arrWhereRoot.push(whereItem)
                 }
             });
@@ -118,27 +141,24 @@ module.exports = {
             if (orderItem.length!==0) order.push(orderItem);
         });
 
-        models[model].findAndCountAll({
+        models[type].findAndCountAll({
             include: include,
             order: order,
             limit: pageSize,
             offset: offset,
             where: where,
-
-            //where: [{[Op.and]:[{name: {[Op.like]: '%антен%'}}]}]
-            //where:{name:{[Op.like]: '%кита%'}}
         })
             .then(resp=>{
                 const pages = Math.ceil(parseFloat(resp.count) / pageSize);
                 res.send({
-                    rows: Auth.permissionsModelFilter(model, resp.rows),
+                    rows: Auth.permissionsModelFilter(type, resp.rows),
                     count: resp.count,
                     offset: offset,
                     page: page,
                     limit: limit,
                     pageSize: pageSize,
                     pages: pages,
-                    permissions: Auth.getModelPermissions(model, resp.rows)
+                    permissions: Auth.getModelPermissions(type, resp.rows)
                 });
             })
             .catch(err=>{
@@ -272,6 +292,99 @@ module.exports = {
         }
 
     },
+
+    getTransferInWithLines(req, res){
+        const id = parseInt(req.params.id);
+        const doc = new TransferInService();
+        doc.getModel(id)
+          .then(ans=>{
+              res.send(ans);
+          })
+          .catch(err=>{
+              res.status(500).json({error: err.message})
+          });
+    },
+    getTransferOutWithLines(req, res){
+        const id = parseInt(req.params.id);
+        const doc = new TransferOutService();
+        doc.getModel(id)
+          .then(ans=>{
+              res.send(ans);
+          })
+          .catch(err=>{
+              res.status(500).json({error: err.message})
+          });
+    },
+    getInvoiceWithLines(req, res){
+        const id = parseInt(req.params.id);
+        const invoice = new InvoiceService();
+        invoice.getModel(id)
+          .then(ans=>{
+              res.send(ans);
+          })
+          .catch(err=>{
+              res.status(500).json({error: err.message})
+          });
+    },
+    getOrderWithLines(req, res){
+        const id = parseInt(req.params.id);
+        const doc = new OrderService();
+        doc.getModel(id)
+          .then(ans=>{
+              res.send(ans);
+          })
+          .catch(err=>{
+              res.status(500).json({error: err.message})
+          });
+    },
+    getProduct(req, res){
+        const id = parseInt(req.params.id);
+        const prod = new ProductService();
+        prod.getModel(id)
+          .then(ans=>{
+              res.send(ans);
+          })
+          .catch(err=>{
+              res.status(500).json({error: err.message})
+          });
+    },
+
+    addLineToDocument(req, res) {
+        const userID = parseInt(req.params.userID);
+        const document_id = parseInt(req.params.id);
+        const priceLine = req.body.priceLine;
+
+        const documenLineService = new DocumentLineService();
+        documenLineService.create({
+            document_id: document_id,
+            times: priceLine.average_days,
+            good_id: priceLine.good_id,
+            quantity: priceLine._realCount,
+            vat: priceLine.vat,
+            price_without_vat: priceLine._priceRUR*100/(100+priceLine.vat),
+            price_with_vat: priceLine._priceRUR,
+            amount_without_vat: priceLine._realCount*priceLine._priceRUR*100/(100+priceLine.vat),
+            amount_with_vat: priceLine._realCount*priceLine._priceRUR,
+            store_id: priceLine.store_id,
+            remark: priceLine.remark,
+        })
+          .then(ans=>
+            res.send(ans))
+          .catch(err=>
+            res.status(500).json({error: err.message}));
+    },
+    deleteLineFromDocument(req, res) {
+        const docId = parseInt(req.params.docId);
+        const lineId = parseInt(req.params.lineId);
+
+        const documenLineService = new DocumentLineService();
+        documenLineService.destroy(lineId)
+          .then(ans=>
+            res.send(ans))
+          .catch(err=>
+            res.status(500).json({error: err.message}));
+    }
+
 };
 
 //router.put('/get/:model/:userID/:page', (req, res) => {});

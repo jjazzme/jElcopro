@@ -11,6 +11,7 @@ export default class ApiRouter {
         const middlewares = _.isArray(args) ? args : [args];
         middlewares.forEach((middleware) => this.router.use(`/${path}/:id`, middleware));
         const controller = typeof Controller === 'function' ? new Controller(this.db) : Controller;
+
         this.router.get(`/${path}/:id`, async (req, res, next) => {
             try {
                 res.send(await controller.get(req, res));

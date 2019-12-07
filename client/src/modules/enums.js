@@ -2,6 +2,11 @@
 
 export default class Enums {
     constructor(){}
+
+    /**
+     *
+     * @returns {Readonly<{ShellLoaded: number, TableLoading: number, TablePreDisplayed: number, Authenticated: number, TableDisplayed: number, Begin: number, TableLoaded: number, None: number, TableSaved: number}>}
+     */
     get loadingStatus() {
         return Object.freeze({None:-10, Begin:0, Authenticated: 10, ShellLoaded:20, TableLoading:30, TableLoaded:40, TablePreDisplayed:50, TableDisplayed:60, TableSaved: 70});
     }

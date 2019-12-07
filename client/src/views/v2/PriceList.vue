@@ -24,6 +24,7 @@
     import PriceListTable from "../../components/tables/v3/tablesBody/priceListTable";
     import PriceSource from "../../classLib/PriceSource";
     import Swal from "sweetalert2";
+    //import router from "../../router";
 
     export default {
         name: "PriceList",
@@ -41,9 +42,8 @@
             }
         },
         computed:{
-            backSensitive(){
-                return {name: this.value.search, from_store_ids: this.value.selectedStores, onlyDB: this.value.onlyDB}
-            },
+            backSensitive(){ return this.value.backSensitive },
+            frontSensitive(){ return this.value.frontSensitive },
             getSources(){
                 // вынесено сюда для динамического амаунтинга
                 return _.debounce(
@@ -95,6 +95,8 @@
             refLoader(this.value.refsOrder);
 
             this.footer.vmodel = this.value;
+
+            this.$store.dispatch('ENV/SET_ROUTE', {name: this.$route.name, params: this.$route.params, query: this.$route.query})
         },
         methods:{
             loadPrice(store, optics){
@@ -158,8 +160,21 @@
                 return false;
             },
         },
+        mounted(){
+            const val = this.$route.query;
+        },
         watch:{
+            'value.isStores'(n){
+                if (n && this.$route.query.optics) {
+                    //this.value = Object.assign({}, this.value, JSON.parse(this.$route.query.optics));
+                    const optics = JSON.parse(this.$route.query.optics);
+                    _.forEach(optics, (val, key)=>{
+                        this.$set(this.value, key, val)
+                    });
+                }
+            },
             backSensitive(n) {
+                if (!n) return;
                 // прерываем мгновенно уже созданные
                 let isCanceled = false;
                 _.forEach(this.value.references.stores, store=>{
@@ -170,6 +185,14 @@
                 // передаём на дебоунс
                 this.getSources(n, isCanceled)
             },
+            frontSensitive: {
+                handler: _.debounce(function(n){
+                    if(n && !_.isEqual(n, JSON.parse(this.$route.query.optics ?? "{}"))) {
+                        this.$router.push({ query: { optics: JSON.stringify(n) } });
+                        this.$store.dispatch('ENV/SET_ROUTE', {name: this.$route.name, params: this.$route.params, query: this.$route.query})
+                    }
+                },500)
+            }
         }
     }
 </script>

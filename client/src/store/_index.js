@@ -4,6 +4,8 @@ import Vuex from 'vuex';
 import tables from './tables'
 import auth from './auth'
 import env from './env'
+import cards from './cards'
+import loader from "./loader";
 
 Vue.use(Vuex);
 
@@ -16,5 +18,7 @@ export default new Vuex.Store({
     TABLES: tables,
     AUTH: auth,
     ENV: env,
+    CARDS: cards,
+    LOADER: loader,
   }
 });

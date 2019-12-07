@@ -31,10 +31,10 @@ const router = new Router({
       meta: {middleware: env},
     },
     {
-      path:'/tables/:table/:id',
+      path:'/tables/:type/:id',
       name: 'modelItem',
       meta: {middleware: env},
-      component: () => import('./views/v1/ModelItem.vue'),
+      component: () => import('./views/v2/ModelItem.vue'),
     },
     {
       path:'/prices',
@@ -43,10 +43,10 @@ const router = new Router({
       component: () => import('./views/v2/PriceList.vue'),
     },
     {
-      path:'/tables/:table',
+      path:'/tables/:type',
       name: 'tables',
       meta: {middleware: env},
-      component: () => import('./views/v1/Tables.vue'),
+      component: () => import('./views/v2/Tables.vue'),
     },
   ],
 });

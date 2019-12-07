@@ -14,6 +14,9 @@ let state = {
     footer: {
         component: {name:'footerStandard', vmodel: null}
     },
+    routes:{
+
+    }
 };
 
 let getters = {
@@ -25,7 +28,10 @@ let getters = {
         return title;
     },
     GET_TITLE: state => state.title,
-    GET_FOOTER_COMPONENT: state => {return state.footer.component},
+    GET_FOOTER_COMPONENT: state => {
+        return state.footer.component
+    },
+    GET_ROUTE: state => name => state.routes[name],
 };
 
 let mutations = {
@@ -35,10 +41,14 @@ let mutations = {
         state.title.note = note;
     },
     SET_FOOTER_COMPONENT(state, value) { state.footer.component=value },
+    SET_ROUTE(state, {name, params, query}){state.routes[name] = {params, query}}
 };
 
 let actions = {
-
+    SET_ROUTE({commit}, {name, params, query}){
+        commit('SET_ROUTE', {name, params, query})
+        //TODO сохранение в базе
+    }
 };
 
 

@@ -80,6 +80,12 @@
             >div{height: 50%};
         }
         .p-l-one2{
+            width: 7%;
+            min-width: 80px;
+            >div{height: 50%};
+            >div:first-child{border-bottom: @card-border;}
+        }
+        .p-l-one3{
             width: 25%;
             >div{ //lvl2
                 height: 50%;

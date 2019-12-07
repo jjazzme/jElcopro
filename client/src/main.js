@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import App from './App.vue';
 import router from './router';
-import store from './store/_default';
+import store from './store/_index';
 
 import BootstrapVue from 'bootstrap-vue';
 Vue.use(BootstrapVue);
@@ -13,16 +13,19 @@ import pageEnvironment from "@/components/body/v1/pageEnvironment";
 Vue.component('page-environment', pageEnvironment);
 
 import { library } from '@fortawesome/fontawesome-svg-core';
-import {
+import { //fas
   faHome, faInfoCircle, faBarcode, faHammer, faCode, faFileInvoiceDollar, faBars,
-  faSortAlphaDown, faSortAlphaUpAlt, faEllipsisV, faHandHoldingUsd, faSpinner, faTimes
+  faSortAlphaDown, faSortAlphaUpAlt, faEllipsisV, faHandHoldingUsd, faSpinner, faTimes,
+  faStepBackward, faStepForward, faFileExport, faFileImport,
 } from '@fortawesome/free-solid-svg-icons';
-import {faCodepen} from '@fortawesome/free-brands-svg-icons';
+import {faCodepen,} from '@fortawesome/free-brands-svg-icons'; //fab
+import {faQuestionCircle} from '@fortawesome/free-regular-svg-icons'; //far
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 library.add(
-    faHome, faInfoCircle, faBarcode, faHammer, faCode, faCodepen, faFileInvoiceDollar, faBars,
-    faSortAlphaDown, faSortAlphaUpAlt, faEllipsisV, faHandHoldingUsd, faSpinner, faTimes
+  faHome, faInfoCircle, faBarcode, faHammer, faCode, faCodepen, faFileInvoiceDollar, faBars,
+  faSortAlphaDown, faSortAlphaUpAlt, faEllipsisV, faHandHoldingUsd, faSpinner, faTimes, faQuestionCircle,
+  faStepBackward, faStepForward, faFileExport, faFileImport,
 );
 Vue.component('fa-icon', FontAwesomeIcon);
 

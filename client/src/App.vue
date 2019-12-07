@@ -1,8 +1,8 @@
 <template>
   <body>
-    <nav-component />
+    <nav-component v-if="user" />
 
-    <section>
+    <section v-if="user">
       <header-component />
 
       <main>
@@ -11,24 +11,33 @@
 
       <footer-component />
     </section>
+    <login-component v-else />
   </body>
 </template>
 
 <script>
 
-import navComponent from './components/body/v1/nav';
+import navComponent from './components/body/v2/nav';
 import headerComponent from './components/body/v1/header';
 import footerComponent from './components/body/v1/footer';
+import LoginComponent from "./components/body/v1/login";
 export default {
   name: 'app',
   components: {
+    LoginComponent,
     navComponent,
     headerComponent,
     footerComponent,
   },
-  created(){
-    //let t= 12;
+
+  computed:{
+    user(){
+      //return this.$store.getters['AUTH/GET_USER']
+    }
   },
+  created() {
+    this.$store.dispatch('AUTH/AUTO_LOGIN')
+  }
 
 }
 </script>

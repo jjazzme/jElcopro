@@ -25,7 +25,7 @@
             </li>
             <li>
                 <router-link
-                        to="/prices"
+                        :to="{name: 'prices', query: route('prices').query, params: route('prices').params}"
                         :class="$route.name === 'prices' ? 'selected' : ''"
                 >
                     <span><fa-icon icon="hand-holding-usd" /></span>
@@ -39,7 +39,7 @@
                 :key="k"
             >
                 <router-link
-                        :to="{ name: 'tables', params: {table: k}}"
+                        :to="{ name: 'tables', params: {type: k}}"
                         :class="$route.name === 'tables' && $route.params.table === k ? 'selected' : ''"
                 >
                     <span><fa-icon :icon="[v.faIcon.prefix, v.faIcon.name]"/></span>
@@ -51,6 +51,7 @@
 </template>
 
 <script>
+
     export default {
         name: "navComponent",
         data(){
@@ -59,7 +60,11 @@
             }
         },
         methods:{
-            test(){this.Test = true;console.log(this.Test);}
+            test(){this.Test = true;console.log(this.Test);},
+            route(name){
+                const val = this.$store.getters['ENV/GET_ROUTE'](name);
+                return val ?? {params: {}, query: {}};
+            }
         },
         computed: {
 

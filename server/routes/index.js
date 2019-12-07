@@ -1,3 +1,5 @@
+import Document from "../controllers/Document";
+
 var express = require('express');
 var router = express.Router();
 
@@ -7,6 +9,8 @@ const shellController = require('../controllers/shell');
 const middlewareController = require('../controllers/middle/main');
 const authController = require('../controllers/auth');
 
+const documentController = new Document();
+
 /* Router middleware */
 router.use(middlewareController.routeLog);
 
@@ -14,14 +18,25 @@ router.use(middlewareController.routeLog);
 router.get('/api/', function(req, res, next) {res.send('elcopro backend')});
 
 /* Shell router */
-router.get('/api/shell/:model/:userID', shellController.getByModel);
-router.put('/api/shell/:model/:userID', shellController.setShell);
+router.get('/api/shell/:type', shellController.getByModel);
+router.put('/api/shell/:type', shellController.setShell);
 
 /* Model router */
-router.put('/api/model/get/:model/:userID/:page', modelController.getModelByOptics);
+router.put('/api/model/get/:type', modelController.getModelByOptics);
 router.put('/api/model/options/:model/:userID', modelController.getSelectors);
 router.post('/api/model/update/:model/:userID', modelController.updateColumn);
 router.put('/api/refdata/get/:name/:userID', modelController.getRefData);
+router.get('/api/invoice/get/:id', modelController.getInvoiceWithLines);
+router.get('/api/order/get/:id', modelController.getOrderWithLines);
+router.get('/api/transferin/get/:id', modelController.getTransferInWithLines);
+router.get('/api/transferout/get/:id', modelController.getTransferOutWithLines);
+router.get('/api/product/get/:id', modelController.getProduct);
+router.put('/api/document/line/add/:id/:userID', modelController.addLineToDocument);
+router.get('/api/document/line/delete/:docId/:lineId', modelController.deleteLineFromDocument);
+
+// Actions router
+router.get('/api/document/dotransition/:type/:id/:transition/:own', documentController.doTransition);
+router.post('/api/document/createtransfer', documentController.createTransfer);
 
 /* Service router */
 router.put('/api/service/get/:service/:userID', servicesController.getService);
@@ -42,6 +57,9 @@ router.get('/api/user', middlewareController.auth, (req, res) => {
     res.send({ user: user })
      */
 });
+router.get('/api/user/get/:userID/:fromID', authController.getUser);
+router.get('/api/user/get/self', authController.getSelf);
+router.put('/api/user/cards/set/:userID', authController.setCards);
 
 module.exports = router;
 

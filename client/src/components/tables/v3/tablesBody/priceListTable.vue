@@ -25,7 +25,6 @@
 <script>
     import PriceListHeader from "../tablesHeader/priceListHeader";
     import PriceListRow from "./tablesRow/priceListRow";
-
     export default {
         name: "priceListTable",
         components:{PriceListRow, PriceListHeader},
@@ -36,6 +35,7 @@
         computed:{
             showingPrice(){
                 return this.showingPriceMethod();
+
             }
         },
         methods:{
@@ -79,7 +79,7 @@
 
                 this.$set(this.value, 'filteredCount', ret.length)
                 // сортировка и обрезка
-                ret = (this.fromQuantity ? _.sortBy(ret, ['_sumRUR']) : _.sortBy(ret, ['_realCount', '_priceRUR'], ['desc','asc']) )
+                ret = (this.value.fromQuantity ? _.sortBy(ret, ['_sumRUR']) : _.sortBy(ret, ['_realCount', '_priceRUR'], ['desc','asc']) )
                   .slice(offset, limit);
 
                 // валютные суммы

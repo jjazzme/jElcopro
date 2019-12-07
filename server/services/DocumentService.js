@@ -4,7 +4,7 @@ import ModelService from './ModelService';
 import db from '../models/index';
 
 const {
-    Company, Party, Store,
+    Company, Party, Store, Currency, User
 } = db;
 
 export default class DocumentService extends ModelService {
@@ -33,6 +33,18 @@ export default class DocumentService extends ModelService {
                     { model: Store, as: 'stores' },
                     { model: Party, as: 'party' },
                 ],
+            },
+            {
+                model: Store,
+                as: 'store',
+            },
+            {
+                model: Currency,
+                as: 'currency'
+            },
+            {
+                model: User,
+                as: 'user'
             },
         ];
     }

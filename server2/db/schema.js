@@ -579,7 +579,12 @@ export default {
 
     User: {
         class: UserModel,
-        options: { tableName: 'users' },
+        options: {
+            tableName: 'users',
+            defaultScope: {
+                attributes: { exclude: ['password'] },
+            },
+        },
         attributes: {
             id: { autoIncrement: true, primaryKey: true, type: DataTypes.INTEGER },
             name: { type: DataTypes.STRING, notEmpty: true },
