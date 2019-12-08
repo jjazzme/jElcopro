@@ -584,6 +584,7 @@ export default {
             defaultScope: {
                 attributes: { exclude: ['password'] },
             },
+            scopes: { withPassword: {} },
         },
         attributes: {
             id: { autoIncrement: true, primaryKey: true, type: DataTypes.INTEGER },

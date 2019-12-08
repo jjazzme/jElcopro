@@ -51,7 +51,7 @@ export default class Auth {
         }));
         const server = oauth2orize.createServer();
         server.exchange(oauth2orize.exchange.password(async (client, username, password, scope, done) => {
-            const user = await User.getInstance({ email: username });
+            const user = await User.scope('withPassword').findOne({ where: { email: username } });
             if (!user) return done(null, false);
             const isPassEqual = user.comparePassword(password);
             if (!isPassEqual) return done(null, false);
