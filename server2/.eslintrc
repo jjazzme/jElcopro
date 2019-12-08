@@ -21,6 +21,7 @@
     "no-param-reassign": ["error", { "props": false }],
     "no-restricted-syntax": 0,
     "no-await-in-loop": 0,
-    "require-atomic-updates": 0
+    "require-atomic-updates": 0,
+    "no-continue": 0
   }
 }
