@@ -51,8 +51,11 @@ describe('Test Invoice', () => {
             .to.be.an.instanceof(TransferIn).and.deep.include({ status_id: 'formed' });
     });
     it('Test invoice closeReserves with exeption',
-        async () => expect(invoice.closeReserves(), 'Счет должен быть в работе')
-            .to.be.rejectedWith(Error, 'Счет должен быть в работе'));
+        async () => expect(transition.execute('closeReserves', invoice), 'Счет должен быть в работе')
+            .to.be.rejectedWith(
+                Error,
+                '[object SequelizeInstance:Invoice] transition closeReserves is impossible for reserved status',
+            ));
     it('Create first transferOut', async () => {
         await transition.execute('toWork', invoice);
         await transition.execute('closeReserves', invoice); // invoice.closeReserves();

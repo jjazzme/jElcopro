@@ -1,8 +1,8 @@
 export default {
     getXlsxData: (z, worksheet) => {
         let stop = 0;
-        for (let i = 0; i < z.length; i++) {
-            if (!Number.isNaN(z[i])) {
+        for (let i = 0; i < z.length; i += 1) {
+            if (!Number.isNaN(Number.parseInt(z[i], 0))) {
                 stop = i;
                 break;
             }
