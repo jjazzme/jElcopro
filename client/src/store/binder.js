@@ -12,7 +12,10 @@ binder.interceptors.response.use(function (ans) {
   return err.process(err.types.axios);
 });
 
-binder.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
+if (localStorage.getItem('ticket')) {
+  const ticket = JSON.parse(localStorage.getItem('ticket'));
+  if (ticket.token_type === 'Bearer' && ticket.expires_in > Date.now()) binder.defaults.headers.common['Authorization'] = `Bearer ${ticket.access_token}`;
+}
 
 let state = {
   loaders: {
@@ -271,7 +274,11 @@ let actions = {
       }
     });
   },
-
+  setBinderDefaults({rootGetters}, {ticket}){
+    if (!ticket) ticket = rootGetters['Auth/getTicket'];
+    if (ticket && ticket.token_type === 'Bearer' && ticket.expires_in > Date.now()) binder.defaults.headers.common['Authorization'] = `Bearer ${ticket.access_token}`;
+    else delete binder.defaults.headers.common['Authorization'];
+  },
 };
 
 export default {

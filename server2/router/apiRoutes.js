@@ -12,7 +12,7 @@ export default function ApiRoutes(db, auth) {
     };
     apiRouter.resource('product', ProductController, testMiddleware);
     apiRouter.resource('producer', ProducerController);
-    apiRouter.resource('user', UserController); //, auth.bearer
+    apiRouter.resource('user', UserController, auth.bearer); //
 
     apiRouter.resource('party', new ApiController(db.models.Party), auth.bearer);
     return apiRouter.router;

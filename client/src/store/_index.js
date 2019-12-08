@@ -1,11 +1,12 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 
-import binder from "./binder";
+import Auth from './auth'
+import Binder from "./binder";
+import Env from './env'
 
 import tables from './tables'
-import auth from './auth'
-import env from './env'
+
 import cards from './cards'
 //import loader from "./loader";
 
@@ -18,11 +19,12 @@ export default new Vuex.Store({
   actions: {},
   getters : {},
   modules:{
-    Auth: auth,
-    Binder: binder,
+    Auth: Auth,
+    Binder: Binder,
+    Env: Env,
 
     //TABLES: tables,
-    //ENV: env,
+
     //CARDS: cards,
     //LOADER: loader,
   }

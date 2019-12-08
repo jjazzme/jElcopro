@@ -9,7 +9,7 @@ import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 
-import pageEnvironment from "@/components/body/v1/pageEnvironment";
+import pageEnvironment from "@/components/body/v3/pageEnvironment";
 Vue.component('page-environment', pageEnvironment);
 
 import { library } from '@fortawesome/fontawesome-svg-core';
