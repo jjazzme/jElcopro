@@ -112,7 +112,7 @@
         components: {StoreIcons},
         data(){
             return {
-                User: this.$store.getters['AUTH/GET_USER'],
+                User: this.$store.getters['AUTH/getUser'],
                 enums: new Enums(),
             }
         },

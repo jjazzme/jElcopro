@@ -53,7 +53,8 @@ export default class Auth {
         server.exchange(oauth2orize.exchange.password(async (client, username, password, scope, done) => {
             const user = await User.getInstance({ email: username });
             if (!user) return done(null, false);
-            if (!user.comparePassword(password)) return done(null, false);
+            const isPassEqual = user.comparePassword(password);
+            if (!isPassEqual) return done(null, false);
             const token = uuid();
             const now = new Date();
             // await AccessToken.update({ revoked: true }, { userId: user.id });

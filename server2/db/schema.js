@@ -599,9 +599,10 @@ export default {
                 },
             },
             salt: DataTypes.STRING,
-            options: { type: DataTypes.JSON },
-            avatar: { type: DataTypes.STRING },
+            options: { type: DataTypes.JSON, defaultValue: {  } },
+            avatar: { type: DataTypes.STRING, defaultValue: '/default/avatar.svg' },
             skills: { type: DataTypes.JSON, defaultValue: { interface: 0, sales: 0, computer: 0 } },
+            cards: { type: DataTypes.JSON, defaultValue: { invoice: null, orders: [] } },
         },
     },
 };

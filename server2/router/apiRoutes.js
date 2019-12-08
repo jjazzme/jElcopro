@@ -10,10 +10,10 @@ export default function ApiRoutes(db, auth) {
         console.log('MIDDLEWARE');
         next();
     };
-    apiRouter.recource('product', ProductController, testMiddleware);
-    apiRouter.recource('producer', ProducerController);
-    apiRouter.recource('user', UserController);
+    apiRouter.resource('product', ProductController, testMiddleware);
+    apiRouter.resource('producer', ProducerController);
+    apiRouter.resource('user', UserController); //, auth.bearer
 
-    apiRouter.recource('party', new ApiController(db.models.Party), auth.bearer);
+    apiRouter.resource('party', new ApiController(db.models.Party), auth.bearer);
     return apiRouter.router;
 }

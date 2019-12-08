@@ -68,7 +68,7 @@ let mutations = {
 let actions = {
 
   ADD_LINE_TO_DOCUMENT({getters, commit, rootGetters}, {priceLine, type}){
-    const user = rootGetters['AUTH/GET_USER'];
+    const user = rootGetters['AUTH/getUser'];
 
     let id = 0;
     if ( type === 'invoice' ) id = getters['GET_INVOICE'].id;
@@ -83,14 +83,14 @@ let actions = {
   },
   INVOICE_REMOVE({getters, commit, dispatch}){
     commit('SET_INVOICE', null);
-    dispatch('AUTH/SAVE_CARDS', getters['GET_CARDS'], {root: true});
+    dispatch('AUTH/saveCards', getters['GET_CARDS'], {root: true});
   },
   INVOICE_TO_CARD({getters, commit, dispatch, rootGetters}, id){
-    const user = rootGetters['AUTH/GET_USER'];
+    const user = rootGetters['AUTH/getUser'];
     dispatch('LOADER/getItem', { type: 'Invoice', payload: { id: id } }, {root: true})
       .then( ins => {
         commit('SET_INVOICE', ins);
-        dispatch('AUTH/SAVE_CARDS', getters['GET_CARDS'], {root: true});
+        dispatch('AUTH/saveCards', getters['GET_CARDS'], {root: true});
       });
   },
   LOAD_CARDS({commit, dispatch, rootState}){
@@ -112,15 +112,15 @@ let actions = {
   },
   ORDER_REMOVE({getters, commit, dispatch}, id){
     commit('ORDER_REMOVE', id);
-    dispatch('AUTH/SAVE_CARDS', getters['GET_CARDS'], {root: true});
+    dispatch('AUTH/saveCards', getters['GET_CARDS'], {root: true});
   },
   ORDER_TO_CARD({getters, commit, dispatch, rootGetters}, id){
-    const user = rootGetters['AUTH/GET_USER'];
+    const user = rootGetters['AUTH/getUser'];
 
     dispatch('LOADER/getItem', { type: 'Order', payload: { id: id } }, {root: true})
       .then( ins => {
         commit('SET_ORDER', ins);
-        dispatch('AUTH/SAVE_CARDS', getters['GET_CARDS'], {root: true});
+        dispatch('AUTH/saveCards', getters['GET_CARDS'], {root: true});
       });
   },
 };

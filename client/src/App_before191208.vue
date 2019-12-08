@@ -17,10 +17,10 @@
 
 <script>
 
-import navComponent from './components/body/v3/nav';
-import headerComponent from './components/body/v3/header';
-import footerComponent from './components/body/v3/footer';
-import LoginComponent from "./components/body/v3/login";
+import navComponent from './components/body/v2/nav';
+import headerComponent from './components/body/v1/header';
+import footerComponent from './components/body/v1/footer';
+import LoginComponent from "./components/body/v1/login";
 export default {
   name: 'app',
   components: {
@@ -32,11 +32,11 @@ export default {
 
   computed:{
     user(){
-      return this.$store.getters['Auth/getUser']
+      //return this.$store.getters['AUTH/getUser']
     }
   },
   created() {
-    this.$store.dispatch('Auth/autoLogin')
+    //this.$store.dispatch('AUTH/autoLogin')
   }
 
 }

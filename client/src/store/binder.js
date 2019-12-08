@@ -2,11 +2,23 @@ import axios from 'axios';
 import crypto from 'crypto'
 import Error from '../classLib/Error'
 
+const binder = axios.create();
+
+binder.interceptors.response.use(function (ans) {
+  return ans;
+}, function (error) {
+  const type = 'axios';
+  const err = new Error({ error });
+  return err.process(err.types.axios);
+});
+
+binder.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
+
 let state = {
   loaders: {
     User: {
       key: item=>item.id,
-      itemLoader: (key)=>axios.get(`/api/user/${key}`),
+      itemLoader: (key)=>binder.get(`/api/user/${key}`),
       ttl: 3600e3*24,
       cache: [],
     },
@@ -191,7 +203,6 @@ let actions = {
             commit('upsertSetToCache', {type: type, hash: hash, data: cacheItem});
             resolve(ans.data)
           })
-          .catch(err => new Error(err));
       }
     });
   },
@@ -210,7 +221,6 @@ let actions = {
               commit('upsertItemToCache', {type, key, data});
               resolve(data);
             })
-            .catch(err => new Error(err));
       }
     });
   },
@@ -254,7 +264,6 @@ let actions = {
             commit('upsertItemToCache', {type: type, key: key, data: ans.data});
             resolve(ans.data);
           })
-          .catch(err => new Error(err))
       }
       else {
         commit('upsertItemToCache', {type: type, key: key, data: payload});
@@ -264,8 +273,6 @@ let actions = {
   },
 
 };
-
-const type = Object.freeze({});
 
 export default {
   namespaced: true,
@@ -280,19 +287,3 @@ function getHash(payload) {
     .update(JSON.stringify(payload.optics))
     .digest('hex');
 }
-
-/*
-function actualOptics(optics) {
-  let ret = _.cloneDeep(optics);
-  const nfs = _.cloneDeep(ret._notForStore);
-  if (nfs){
-    Object.keys(ret).map(k=>{
-      if (nfs.includes(k)) delete ret[k];
-    });
-  }
-  Object.keys(ret).map(k=>{
-    if (k.charAt(0)==='_') delete ret[k];
-  });
-  return ret;
-}
- */

@@ -368,7 +368,7 @@
                 });
                 return ret;
             },
-            userID(){return this.$store.getters['AUTH/GET_USER']?.id;},
+            userID(){return this.$store.getters['AUTH/getUser']?.id;},
 
             
             // for template

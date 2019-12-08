@@ -85,7 +85,7 @@
 
         },
         created(){
-            this.user = this.$store.getters['AUTH/GET_USER'];
+            this.user = this.$store.getters['AUTH/getUser'];
             this.$store.dispatch('CARDS/LOAD_CARDS');
         },
         watch:{
