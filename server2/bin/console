@@ -1,4 +1,4 @@
-#!/usr/bin/env node --tls-min-v1.0
+np#!/usr/bin/env node --tls-min-v1.0
 
 // eslint-disable-next-line import/no-extraneous-dependencies
 require('@babel/register');

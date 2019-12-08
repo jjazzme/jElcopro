@@ -18,7 +18,7 @@ const router = new Router({
     {
       path: "/login",
       name: "Login",
-      component: () => import('./views/v1/Login.vue'),
+      component: () => import('./views/v3/Login.vue'),
       meta: {middleware: env},
     },
     {
@@ -27,7 +27,7 @@ const router = new Router({
       // route level code-splitting
       // this generates a separate chunk (about.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
-      component: () => import(/* webpackChunkName: "about" */ './views/v1/Help.vue'),
+      component: () => import(/* webpackChunkName: "about" */ './views/v3/Help.vue'),
       meta: {middleware: env},
     },
     {

@@ -5,7 +5,5 @@ export default class User extends BaseModel {
     comparePassword(password) {
         const bcPass = bcrypt.hashSync(password, this.salt);
         return this.password === bcPass;
-
-        // return this.password === bcrypt.hashSync(password, this.salt);
     }
 }

@@ -7,7 +7,7 @@ export default class ApiRouter {
         this.db = db;
     }
 
-    recource(path, Controller, args = []) {
+    resource(path, Controller, args = []) {
         const middlewares = _.isArray(args) ? args : [args];
         middlewares.forEach((middleware) => this.router.use(`/${path}/:id`, middleware));
         const controller = typeof Controller === 'function' ? new Controller(this.db) : Controller;

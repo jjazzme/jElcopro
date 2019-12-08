@@ -393,7 +393,7 @@ let actions = {
   GET_OPTIONS({state, commit, getters, rootGetters}, {model, column, value, text}){
     return new Promise((resolve,reject)=>{
       if (value === undefined) value = null;
-      const user = rootGetters['AUTH/GET_USER'];
+      const user = rootGetters['AUTH/getUser'];
       const sou = state.shells[model].controller?.aliases[column]?.path ? _.last(state.shells[model].controller.aliases[column].path.split('.')) : column;
       const selector = getters.GET_SELECTOR(sou);
       if (
@@ -432,7 +432,7 @@ let actions = {
     let model = getters['GET_REFDATA'](name);
     return new Promise((resolve, reject)=>{
       if (model.data.length === 0 || model.created + state.cacheTTL < Date.now()) {
-        const user = rootGetters['AUTH/GET_USER'];
+        const user = rootGetters['AUTH/getUser'];
         const innerName = model.name ?? name;
         axios.put(`/api/refdata/get/${innerName}/${user.id}`, {includes: model.includes, sorters: model.sorters})
           .then(r=>{
@@ -454,7 +454,7 @@ let actions = {
     if(item) {
       commit('UPTOTOP_CACHE', item);
     } else {
-      const user = rootGetters['AUTH/GET_USER'];
+      const user = rootGetters['AUTH/getUser'];
       const optics = actualOptics(table.shell.optics);
       const page = optics.page;
 
@@ -498,7 +498,7 @@ let actions = {
         commit('UPTOTOP_CACHE', item);
         resolve(item.response);
       } else {
-        const user = rootGetters['AUTH/GET_USER'];
+        const user = rootGetters['AUTH/getUser'];
         let cacheItem = new CacheItem('service', 'Price', optics);
 
         const CancelToken = axios.CancelToken;
@@ -531,7 +531,7 @@ let actions = {
    * @constructor
    */
   SET_SHELL({state, commit, getters, dispatch, rootGetters}, table){
-    const user = rootGetters['AUTH/GET_USER'];
+    const user = rootGetters['AUTH/getUser'];
     if(!getters.GET_SHELL(table.name).assembled) commit('INITIAL_SHELL', table.name);
     let shell = getters.GET_SHELL(table.name);
     const checked = JSON.stringify(shell) + JSON.stringify(state.initialOptics) + JSON.stringify(state.initialSorter);
@@ -605,7 +605,7 @@ let actions = {
   // eslint-disable-next-line no-unused-vars
   UPDATE_SHELL({commit, rootGetters}, shell){
     // update
-    const user = rootGetters['AUTH/GET_USER'];
+    const user = rootGetters['AUTH/getUser'];
     const created = shell.id===0;
     const ret = axios.put(`/api/shell/${shell.table}/${user.id}`, {shell: shell} );
     ret.then( resp=>{
@@ -623,7 +623,7 @@ let actions = {
   // eslint-disable-next-line no-unused-vars
   UPDATE_VALUE({rootGetters}, packet){
     // {table: tab, id: id, column: col, value: val}
-    const user = rootGetters['AUTH/GET_USER'];
+    const user = rootGetters['AUTH/getUser'];
     return axios.post(`/api/model/update/${packet.model}/${user.id}`, {packet: packet})
   },
 };
