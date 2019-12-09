@@ -18,6 +18,7 @@ import InvoiceModel from './InvoiceModel';
 import TransferOutModel from './TransferOutModel';
 import DepartureModel from './DepartureModel';
 import UserModel from './UserModel';
+import TransferOutCorrectiveModel from './TransferOutCorrectiveModel';
 
 export default {
     AccessToken: {
@@ -521,7 +522,7 @@ export default {
                 Order: { foreignKey: 'parent_id', constraints: false, as: 'parent' },
             },
             hasMany: {
-                Document: { foreignKey: 'parent_id', as: 'children' },
+                TransferOutCorrective: { foreignKey: 'parent_id', as: 'children' },
             },
         },
     }, document),
@@ -549,6 +550,39 @@ export default {
         relations: {
             belongsTo: {
                 Invoice: { foreignKey: 'parent_id', constraints: false, as: 'parent' },
+            },
+            hasMany: {
+                Document: { foreignKey: 'parent_id', as: 'children' },
+            },
+        },
+    }, document),
+
+    TransferOutCorrective: _.defaultsDeep({
+        class: TransferOutCorrectiveModel,
+        options: {
+            defaultScope: { where: { document_type_id: 'transfer-out-corrective' } },
+            scopes: {
+                deepDocumentLines: {
+                    include: [
+                        {
+                            model: DocumentLine,
+                            as: 'documentLines',
+                            include: [
+                                { model: DepartureModel, as: 'departure' },
+                                { model: ReserveModel, as: 'reserves' },
+                            ],
+                        },
+                    ],
+                },
+                withParent: { include: [{ model: TransferInModel, as: 'parent' }] },
+            },
+        },
+        attributes: {
+            document_type_id: { defaultValue: 'transfer-out-corrective' },
+        },
+        relations: {
+            belongsTo: {
+                TransferIn: { foreignKey: 'parent_id', constraints: false, as: 'parent' },
             },
             hasMany: {
                 Document: { foreignKey: 'parent_id', as: 'children' },
@@ -600,7 +634,7 @@ export default {
                 },
             },
             salt: DataTypes.STRING,
-            options: { type: DataTypes.JSON, defaultValue: {  } },
+            options: { type: DataTypes.JSON, defaultValue: { } },
             avatar: { type: DataTypes.STRING, defaultValue: '/default/avatar.svg' },
             skills: { type: DataTypes.JSON, defaultValue: { interface: 0, sales: 0, computer: 0 } },
             cards: { type: DataTypes.JSON, defaultValue: { invoice: null, orders: [] } },
