@@ -77,8 +77,6 @@ let actions = {
     let ticket = getters['getTicket']
     axios.get('/api/auth/logout', { headers: {"Authorization" : `Bearer ${ticket.access_token}`} })
       .then(ans => {
-        console.log(ans)
-
         ticket = null;
         commit('setTicket', ticket);
         localStorage.removeItem('ticket');

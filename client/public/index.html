@@ -15,7 +15,7 @@
 
       html{
         min-height: 100vh;
-        width: 100%;
+        min-width: 100%;
         margin: 0;
         padding: 0;
       }
@@ -31,68 +31,14 @@
         margin: 0;
         padding: 0;
       }
-      body>nav {
-        padding: 5px;
-        min-width: 190px;
-      }
-      body>section {
-        display: flex;
-        flex-direction: column;
-        align-content: space-between;
-        border-left: dotted 1px gray;
-        flex: 1 1 auto;
-        max-width: calc(100% - 191px);
-      }
-      body>section>header{
-        flex: 1 1 auto;
-        min-height: 200px;
-        max-height: 200px;
-      }
-      body>section>main{
-        flex: 1 1 auto;
-        min-height: 100ch;
-      }
-      body>section>main>article{
-        margin: 0 20px;
-        padding: 20px;
-        border-radius: 10px;
-        min-height: 100%;
-        max-height: 100%;
-        height: 100%;
-        display: flex;
-        flex-flow: column nowrap;
-      }
-      body>section>footer{
-        flex: 1 1 auto;
-        min-height: 100px;
-        max-height: 100px;
-      }
     </style>
 
     <!--script src="https://kit.fontawesome.com/d89b80b3a0.js" crossorigin="anonymous"></script-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css">
   </head>
   <body id="app">
-    <nav>
-      <a href="/" class="img logo">
-        <img alt="ElcoPRO" src="/img/logo.png">
-      </a>
-    </nav>
-    <section>
-      <header>
-        ...
-      </header>
-      <main>
-        <article>
-          Приложение загружается...
-          <noscript>
-            <strong>We're sorry but client doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
-          </noscript>
-        </article>
-      </main>
-      <footer>
-        ...
-      </footer>
-    </section>
+    <div style="width: 100%; display: flex; justify-content: center; align-items: center;">
+      <img alt="ElcoPRO" src="/img/logo_.png">
+    </div>
   </body>
 </html>

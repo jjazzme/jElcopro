@@ -7,6 +7,11 @@
     >
       <img :src="`/simg/base${user.avatar}`" />
     </div>
+
+    <router-link to="/" class="img s-h-logo">
+      <img alt="Vue logo" src="../../../assets/logo.png">
+    </router-link>
+
     <div class="s-h-title">
             <span
               data-animated="pageEnter"
@@ -43,23 +48,28 @@
       logout() {
         this.$store.dispatch('Auth/logout')
       },
+      setTitle() {
+        const n = this.title;
+        if (!n) return;
+        this.$set(this, 'main', n.main ? n.main : '');
+        this.$set(this, 'method', n.method ? n.method : '');
+
+        $('*[data-animated=pageEnter]').each(function(){
+          $(this).addClass('animated').addClass($(this).attr('data-animate-effect'));
+          $(this).on('animationend', function () {
+            $(this).removeClass('animated').removeClass($(this).attr('data-animate-effect'))
+          });
+        });
+      },
     },
     created(){
       this.user = this.$store.getters['Auth/getUser'];
+      this.setTitle();
     },
     watch:{
       title:{
-        handler: function (n) {
-          if (!n) return;
-          this.$set(this, 'main', n.main ? n.main : '');
-          this.$set(this, 'method', n.method ? n.method : '');
-
-          $('*[data-animated=pageEnter]').each(function(){
-            $(this).addClass('animated').addClass($(this).attr('data-animate-effect'));
-            $(this).on('animationend', function () {
-              $(this).removeClass('animated').removeClass($(this).attr('data-animate-effect'))
-            });
-          });
+        handler: function () {
+          this.setTitle();
         },
         deep: true
       }
@@ -73,11 +83,19 @@
     position: relative;
     .s-h-avatar{
       position: absolute;
-      top:10px;
-      right: 10px;
       width: 50px;
       height: 50px;
       cursor: pointer;
+
+      @media screen and (max-width: @mediaMob){
+        top:40px;
+        right: 10px;
+        transform: scale(0.75);
+      }
+      @media screen and (min-width: calc(@mediaMob + 1px)){
+        top:10px;
+        right: 10px;
+      }
       img{
         width: 100%;
         height: 100%;
@@ -98,16 +116,40 @@
       height: 140px;
       overflow: auto;
     }
+    .s-h-logo{
+      position: absolute;;
+      @media screen and (max-width: @mediaMob){
+        right: 5px;
+        top: 5px;
+        text-align: right;
+        //transform: scale(0.5);
+        img{
+          width: 75%;
+        }
+      }
+      @media screen and (min-width: calc(@mediaMob + 1px)){
+        top: 5px;
+        left: 20px;
+      }
+    }
     .s-h-title{
       font-family: 'Montserrat', 'Open Sans', sans-serif;
-      font-size: 1.75em;
+      position: absolute;
+
+      @media screen and (max-width: @mediaMob){
+        font-size: 1.25em;
+        bottom: 5px;
+        left: 10px;
+      }
+      @media screen and (min-width: calc(@mediaMob + 1px)){
+        font-size: 1.75em;
+        top: 4px;
+        left: 180px;
+      }
       > span{display: inline-block;}
       > span:first-child{color: white;};
       > span:nth-child(2){color: silver; margin: 0 10px;}
       > span:nth-child(3){color: antiquewhite;};
-      position: absolute;
-      top: 4px;
-      left: 20px;
     }
   }
 </style>
