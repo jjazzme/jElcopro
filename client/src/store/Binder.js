@@ -96,6 +96,10 @@ let state = {
       key: item=>item.id,
 
     },
+
+    Store:{
+      byOpticsLoader: ()=>axios.put('/api/store'),
+    },
   },
   token: null,
 };

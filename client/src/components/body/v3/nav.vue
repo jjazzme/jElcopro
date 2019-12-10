@@ -1,12 +1,16 @@
 <template>
   <nav
     @mouseleave="leave"
+    v-if="value"
   >
     <div class="opener">
       <fa-icon
         :class="{pin: true, 'pinOff': value.pinOff}"
         icon="thumbtack"
         @click="pinOnOff()"
+      />
+      <user-component
+        v-if="value.viewport.width <= value.viewport.mobileWidthPoint"
       />
       <fa-icon
         v-if="!value.barsOpen"
@@ -28,6 +32,7 @@
         <router-link
           to="/"
           :class="$route.name === 'home' ? 'selected' : ''"
+          @click.native="navClick()"
         >
           <span>главная</span>
           <span><fa-icon icon="home"/></span>
@@ -37,6 +42,7 @@
         <router-link
           to="/help"
           :class="$route.name === 'help' ? 'selected' : ''"
+          @click.native="navClick()"
         >
           <span>помощь</span>
           <span><fa-icon icon="info-circle" /></span>
@@ -46,6 +52,7 @@
         <router-link
           :to="{name: 'prices', query: route('prices').query, params: route('prices').params}"
           :class="$route.name === 'prices' ? 'selected' : ''"
+          @click.native="navClick()"
         >
           <span>Прайс</span>
           <span><fa-icon icon="hand-holding-usd" /></span>
@@ -60,6 +67,7 @@
         <router-link
           :to="{ name: 'tables', params: {type: k}}"
           :class="$route.name === 'tables' && $route.params.table === k ? 'selected' : ''"
+          @click.native="navClick()"
         >
           <span v-html="v.name.many"></span>
           <span><fa-icon :icon="[v.faIcon.prefix, v.faIcon.name]"/></span>
@@ -71,9 +79,11 @@
 
 <script>
   import {ShellsStructure} from "../../../classLib/TableSource";
+  import UserComponent from "./headerComponents/user";
 
   export default {
     name: "navComponent",
+    components: {UserComponent},
     data(){
       return{
         shells: (new ShellsStructure()).value,
@@ -91,6 +101,10 @@
         if (this.value.barsOpen && this.value.pinOff){
           this.barsOpenClose()
         }
+      },
+      navClick(){
+        this.barsOpenClose();
+        window.scrollTo(0, 0);
       },
       pinOnOff(){
         this.value.pinOff = !this.value.pinOff;
@@ -124,6 +138,7 @@
       &.pinOff{
         opacity: .3;
         left: 15px;
+        font-size: 14px;
       }
     }
     .bars{
@@ -131,7 +146,7 @@
       position: absolute;
       @media screen and (max-width: @mediaMob){
         right: -40px;
-        &.barsOpen{right: 12px}
+        &.barsOpen{left: 12px}
       }
       @media screen and (min-width: calc(@mediaMob + 1px)){
         right: 12px;

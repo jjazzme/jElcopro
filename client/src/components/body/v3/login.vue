@@ -1,11 +1,13 @@
 <template>
  <div class="p-l-body">
-    <img
-      alt="ElcoPRO"
-      src="/img/logo_.png"
-      v-if="disabled"
-    />
     <div :class="{ 'p-l-form': true, 'p-l-transp': disabled}">
+      <div class="p-l-logo">
+        <img
+          alt="ElcoPRO"
+          src="/img/logo_.png"
+        />
+      </div>
+
       <b-form-input
         v-model="username"
         placeholder="Пользователь"
@@ -71,7 +73,7 @@
     mounted() {
       _.delay(()=>{
         this.disabled = false;
-        this.$refs.username.$el.focus();
+        if(this.$refs.username) this.$refs.username.$el.focus();
       }, 1000)
     },
   }
@@ -86,9 +88,14 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    > img{
-      z-index: 200;
-      position: absolute;
+    .p-l-logo{
+      position: relative;
+      text-align: center;
+      >img{
+        position: absolute;
+        top: -100px;
+        left: 0;
+      }
     }
     .p-l-form{
       z-index: 100;

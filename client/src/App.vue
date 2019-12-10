@@ -10,7 +10,9 @@
       v-if="user"
       :class="{ pinOn: !navModel.pinOff}"
     >
-      <header-component />
+      <header-component
+        v-model="headerModel"
+      />
 
       <main>
         <router-view />
@@ -28,6 +30,8 @@ import navComponent from './components/body/v3/nav';
 import headerComponent from './components/body/v3/header';
 import footerComponent from './components/body/v3/footer';
 import LoginComponent from "./components/body/v3/login";
+import DataSource from "./classLib/DataSource";
+
 export default {
   name: 'app',
   components: {
@@ -38,16 +42,49 @@ export default {
   },
   data(){
     return{
-      navModel: { pinOff: true, barsOpen: false }
+      navModel: null,
+      headerModel: null,
+      dataSource: null,
+      viewport: {
+        height: 0,
+        width: 0,
+        screenHeight: 0,
+        screenWidth: 0,
+        mobileWidthPoint: 600,
+        bigWidthPoint: 1600,
+      },
     }
   },
   computed:{
     user(){
       return this.$store.getters['Auth/getUser']
+    },
+
+  },
+  methods:{
+    onWindowResize(){
+      const width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+      const height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+      const screenWidth = window.screen.availWidth;
+      const screenHeight = window.screen.availHeight;
+      this.$set(this.viewport, 'height', height);
+      this.$set(this.viewport, 'width', width);
+      this.$set(this.viewport, 'screenHeight', screenHeight);
+      this.$set(this.viewport, 'screenWidth', screenWidth);
+
+      return true;
     }
   },
   created() {
-    this.$store.dispatch('Auth/autoLogin')
+    this.$store.dispatch('Auth/autoLogin');
+    window.addEventListener("resize", this.onWindowResize);
+    this.onWindowResize();
+    this.$set(this, 'navModel', { pinOff: true, barsOpen: false, viewport: this.viewport });
+    this.$set(this, 'headerModel', { viewport: this.viewport });
+    this.$set(this, 'dataSource', new DataSource(this.$store));
+  },
+  destroyed(){
+    window.removeEventListener("resize", this.onWindowResize);
   }
 
 }
