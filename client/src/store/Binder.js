@@ -120,10 +120,9 @@ let state = {
     CurrencyRateService:{
       key: item=>item.id,
       byOpticsLoader: (payload) => {
-        if (payload.optics.pageSize === -1) payload.optics.filters = { date: [{ type: '=', value: Date.now() }] };
         axios.put(
         '/api/currencyRateService',
-        { optics:payload.optics , params:payload.params }
+        { date: Date.now() }
         )
       }
       ,
