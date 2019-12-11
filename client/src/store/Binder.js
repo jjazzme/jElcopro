@@ -12,7 +12,10 @@ binder.interceptors.response.use(function (ans) {
   return err.process(err.types.axios);
 });
 
-binder.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
+if (localStorage.getItem('ticket')) {
+  const ticket = JSON.parse(localStorage.getItem('ticket'));
+  if (ticket.token_type === 'Bearer' && ticket.expires_in > Date.now()) binder.defaults.headers.common['Authorization'] = `Bearer ${ticket.access_token}`;
+}
 
 let state = {
   loaders: {
@@ -26,7 +29,7 @@ let state = {
       key: item=>item.id,
       byOpticsLoader: (payload)=>axios.put(
         `/api/model/get/Product`,
-        {optics:payload.optics, params:payload.params}),
+        { optics:payload.optics, params:payload.params }),
       itemLoader: (key)=>axios.get(`/api/product/get/${key}`),
       ttl: 3600e3*24,
       cache: [], // [[id, updated, {}], [id, updated, {}]]
@@ -93,8 +96,43 @@ let state = {
       key: item=>item.id,
 
     },
+
+    Store:{
+      key: item=>item.id,
+      byOpticsLoader: (payload)=>axios.put(
+        '/api/store',
+        { optics:payload.optics, params:payload.params }
+      ),
+      ttl: 3600e3*24,
+      cache:[],
+      cacheSets: [],
+    },
+    Currency:{
+      key: item=>item.id,
+      byOpticsLoader: (payload)=>axios.put(
+        '/api/currency',
+        { optics:payload.optics, params:payload.params }
+      ),
+      ttl: 3600e3*24,
+      cache:[],
+      cacheSets: [],
+    },
+    CurrencyRateService:{
+      key: item=>item.id,
+      byOpticsLoader: (payload) => {
+        axios.put(
+        '/api/currencyRateService',
+        { date: Date.now() }
+        )
+      }
+      ,
+      ttl: 3600e3*24,
+      cache:[],
+      cacheSets: [],
+    },
   },
   token: null,
+
 };
 
 let getters = {
@@ -124,6 +162,7 @@ let getters = {
   getLoaderKey: state => (type, payload) => state.loaders[type].key(payload),
   // record ttl
   getLoaderTTL: state => type => state.loaders[type].ttl,
+  getCacheTableByType: state => type => state.loaders[type].cache.map(item => item[2]),
 };
 
 let mutations = {
@@ -271,7 +310,11 @@ let actions = {
       }
     });
   },
-
+  setBinderDefaults({rootGetters}, {ticket}){
+    if (!ticket) ticket = rootGetters['Auth/getTicket'];
+    if (ticket && ticket.token_type === 'Bearer' && ticket.expires_in > Date.now()) binder.defaults.headers.common['Authorization'] = `Bearer ${ticket.access_token}`;
+    else delete binder.defaults.headers.common['Authorization'];
+  },
 };
 
 export default {

@@ -56,8 +56,7 @@ export default class App {
             // res.locals.error = req.app.get('env') === 'development' ? err : {};
 
             // render the error page
-            res.status(err.status || 500);
-            res.send({ name: err.name, message: err.message });
+            res.status(err.status || 500).send({ name: err.name, message: err.message });
             // res.render('error');
         });
 

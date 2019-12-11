@@ -1,5 +1,4 @@
 <template>
-    <!-- eslint-disable vue/no-use-v-if-with-v-for,vue/no-confusing-v-for-v-if -->
     <nav>
         <router-link to="/" class="img logo">
             <img alt="Vue logo" src="../../../assets/logo.png">

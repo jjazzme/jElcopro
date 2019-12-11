@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import Home from './views/v1/Home.vue';
+import Home from './views/v3/Home.vue';
 import env from './middleware/env'
 
 Vue.use(Router);
@@ -34,19 +34,19 @@ const router = new Router({
       path:'/tables/:type/:id',
       name: 'modelItem',
       meta: {middleware: env},
-      component: () => import('./views/v2/ModelItem.vue'),
+      component: () => import('./views/v3/Item.vue'),
     },
     {
       path:'/prices',
       name: 'prices',
       meta: {middleware: env},
-      component: () => import('./views/v2/PriceList.vue'),
+      component: () => import('./views/v3/PriceList.vue'),
     },
     {
       path:'/tables/:type',
       name: 'tables',
       meta: {middleware: env},
-      component: () => import('./views/v2/Tables.vue'),
+      component: () => import('./views/v3/Tables.vue'),
     },
   ],
 });

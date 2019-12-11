@@ -4,11 +4,13 @@ let state = {
   user: null,
   lastUserActivity: null,
   savingCards: false,
-  token: null,
+  // { access_token, expires_in, token_type } token/ticks/Bearer
+  ticket: null,
 };
 
 let getters = {
   getUser: state => state.user,
+  getTicket: state => state.ticket,
 };
 
 let mutations = {
@@ -16,6 +18,9 @@ let mutations = {
     state.lastUserActivity = Date.now();
   },
   setSavingCards(state, status){state.savingCards = !!status},
+  setTicket(state, ticket){
+    state.ticket = ticket;
+  },
   setUser(state, user){
     state.user = user;
     state.lastUserActivity = Date.now();
@@ -25,7 +30,16 @@ let mutations = {
 let actions = {
   autoLogin({ commit, dispatch }){
     dispatch('Binder/getItem', { type: 'User', payload: {id: 0} }, { root: true })
-      .then(ans => console.log(ans))
+      .then(user => {
+        if (user) {
+          commit('setUser', user);
+          commit('setTicket', JSON.parse(localStorage.getItem('ticket')));
+        }
+        else {
+          commit('setUser', null);
+          commit('setTicket', null);
+        }
+      })
   },
   saveCards({ getters, commit }, cards){
     const user = getters['getUser'];
@@ -42,24 +56,32 @@ let actions = {
   logoff({ commit }){
     commit('setUser', null);
   },
-  login({ commit }, { username, password }){
-    debugger
+  login({ commit, dispatch }, { username, password }){
     const grant_type = 'password';
     const ret = axios.post('/api/auth/login', { grant_type: 'password', username: username, password: password });
     ret
       .then(ans => {
-        console.log(ans)
+        const ticket = ans.data;
+        // { access_token, expires_in, token_type } token/ticks/Bearer
+        commit('setTicket', ticket);
+        localStorage.setItem('ticket', JSON.stringify(ticket));
+        dispatch('Binder/setBinderDefaults', { ticket }, { root: true });
+        dispatch('autoLogin');
       })
       .catch(err => {
-        debugger
         console.log(err)
       });
     return ret;
   },
-  logout({ commit }){
-    axios.post('')
+  logout({ getters, commit, dispatch }){
+    let ticket = getters['getTicket']
+    axios.get('/api/auth/logout', { headers: {"Authorization" : `Bearer ${ticket.access_token}`} })
       .then(ans => {
-        console.log(ans)
+        ticket = null;
+        commit('setTicket', ticket);
+        localStorage.removeItem('ticket');
+        dispatch('Binder/setBinderDefaults', { ticket }, { root: true });
+        commit('setUser', null);
       })
       .catch(err => {
         console.log(err)

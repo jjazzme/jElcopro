@@ -20,32 +20,32 @@ let state = {
 };
 
 let getters = {
-    GET_HEAD_TITLE: state => {
+    getHeadTitle: state => {
         let title = state.title.class;
         if (state.title.main) title = `${state.title.main.replace(/^[а-я a-z]/, c => c.toUpperCase())}${state.title.delimeter_one}${title}`;
         if (state.title.method) title = `${state.title.method.replace(/^[а-я a-z]/, c => c.toUpperCase())}${state.title.delimeter_one}${title}`;
         if (state.title.note) title = `${title}${state.title.delimeter_two}${state.title.note}`;
         return title;
     },
-    GET_TITLE: state => state.title,
-    GET_FOOTER_COMPONENT: state => {
+    getTitle: state => state.title,
+    getFooterComponent: state => {
         return state.footer.component
     },
-    GET_ROUTE: state => name => state.routes[name],
+    getRoute: state => name => state.routes[name],
 };
 
 let mutations = {
-    SET_TITLE(state, {main,method,note}) {
+    setTitle(state, {main,method,note}) {
         state.title.main = main;
         state.title.method = method;
         state.title.note = note;
     },
-    SET_FOOTER_COMPONENT(state, value) { state.footer.component=value },
-    SET_ROUTE(state, {name, params, query}){state.routes[name] = {params, query}}
+    setFooterComponent(state, value) { state.footer.component=value },
+    setRoute(state, {name, params, query}){state.routes[name] = {params, query}}
 };
 
 let actions = {
-    SET_ROUTE({commit}, {name, params, query}){
+    setRoute({commit}, {name, params, query}){
         commit('SET_ROUTE', {name, params, query})
         //TODO сохранение в базе
     }
