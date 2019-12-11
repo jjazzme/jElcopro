@@ -1,8 +1,4 @@
-'use strict'
 //import _ from "lodash";
-
-import axios from "axios";
-import Error from "../Error";
 
 export default class Shells{
   constructor(){
@@ -205,7 +201,7 @@ export default class Shells{
       Currency:{
         menu: false,
       },
-      CurrencyRate:{
+      CurrencyRateService:{
         menu: false,
         controller:{
           aliases: {

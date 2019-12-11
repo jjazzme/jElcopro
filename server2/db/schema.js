@@ -19,6 +19,7 @@ import TransferOutModel from './TransferOutModel';
 import DepartureModel from './DepartureModel';
 import UserModel from './UserModel';
 import TransferOutCorrectiveModel from './TransferOutCorrectiveModel';
+import CurrencyModel from './CurrencyModel';
 
 export default {
     AccessToken: {
@@ -96,6 +97,7 @@ export default {
     },
 
     Currency: {
+        class: CurrencyModel,
         options: { tableName: 'currencies' },
         attributes: {
             id: { type: DataTypes.STRING, primaryKey: true },
@@ -107,7 +109,10 @@ export default {
     },
 
     CurrencyRate: {
-        options: { tableName: 'currency_rates' },
+        options: {
+            tableName: 'currency_rates',
+            defaultScope: { include: [{ model: CurrencyModel, as: 'currency' }] },
+        },
         attributes: {
             currency_id: { type: DataTypes.STRING, unique: 'currencyOnDate' },
             date: { type: DataTypes.DATEONLY, unique: 'currencyOnDate' },

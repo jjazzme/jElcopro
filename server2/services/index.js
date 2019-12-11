@@ -15,6 +15,7 @@ import PromelecService from './PromelecService';
 import PriceService from './PriceService';
 import TransitionService from './TransitionService';
 import AuthService from './AuthService';
+import CurrencyRateService from './CurrencyRateService';
 
 export default () => {
     const namespace = createNamespace(uuid4());
@@ -35,6 +36,7 @@ export default () => {
     container.register('compel', CompelService, ['config', 'db', 'logger', 'cache']);
     container.register('promelec', PromelecService, ['config', 'db', 'logger', 'cache']);
     container.register('prices', PriceService, ['db', 'cache']);
+    container.register('currencies', CurrencyRateService, ['db', 'logger']);
     container.register('transition', TransitionService, ['db']);
     container.register('auth', AuthService, ['express', 'db']);
     return container;
