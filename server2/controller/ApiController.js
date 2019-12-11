@@ -27,11 +27,15 @@ export default class ModelContoller {
         */
 
         const { page } = optics;
-        const pageSize = optics.pageSize ? optics.pageSize : 15;
+        const pageSize = optics.pageSize === null
+          ? 15
+          : optics.pageSize < 0
+            ? null
+            : optics.pageSize;
         const offset = (page - 1) * pageSize;
         const limit = offset + pageSize;
 
-        _.forEach(params.filters, (filterSet, field) => {
+        _.forEach(params?.filters, (filterSet, field) => {
             _.forEach(filterSet, (filter) => {
                 if (!optics.filters) optics.filters = {};
                 if (!optics.filters[field]) optics.filters[field] = [];
@@ -49,13 +53,13 @@ export default class ModelContoller {
             });
         });
 
-        const includeGen = function (obj) {
+        const includeGen = (obj) => {
             const ret = [];
             _.forEach(obj, (val, name) => {
                 const top = {};
                 let current = top;
                 _.forEach(val.path.split('.'), (item, ind) => {
-                    current.model = this.Model;
+                    current.model = this.Model.services.db.loadedModels[item];
                     // eslint-disable-next-line no-nested-ternary
                     current.as = val.as
                         ? val.as.split('.')[ind]
@@ -93,7 +97,6 @@ export default class ModelContoller {
             });
             return ret;
         };
-
         const include = includeGen(params?.aliases);
 
         const arrWhereRoot = [];
@@ -123,7 +126,7 @@ export default class ModelContoller {
         _.forEach(sorters, (item) => {
             const orderItem = [];
             let { column } = item;
-            const aliasesCol = params.aliases[item.column];
+            const aliasesCol = params?.aliases[item.column];
             if (aliasesCol) {
                 column = aliasesCol.column;
                 _.forEach(aliasesCol.path.split('.'), (associated) => {

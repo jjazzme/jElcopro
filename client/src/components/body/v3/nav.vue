@@ -13,17 +13,17 @@
         v-if="value.viewport.width <= value.viewport.mobileWidthPoint"
       />
       <fa-icon
-        v-if="!value.barsOpen"
+        v-if="!value.navIsOpen"
         icon="bars"
         class="bars"
-        @click="barsOpenClose(true)"
+        @click="navCollapse(false)"
       />
       <fa-icon
         v-else
         v-show="value.pinOff"
         icon="times"
         class="bars barsOpen"
-        @click="barsOpenClose(false)"
+        @click="navCollapse(true)"
       />
     </div>
 
@@ -78,7 +78,6 @@
 </template>
 
 <script>
-  import {ShellsStructure} from "../../../classLib/TableSource";
   import UserComponent from "./headerComponents/user";
 
   export default {
@@ -86,24 +85,24 @@
     components: {UserComponent},
     data(){
       return{
-        shells: (new ShellsStructure()).value,
+        shells: null,
       }
     },
     props:{
       value: null
     },
     methods:{
-      barsOpenClose(val){
-        if (val === null || val === undefined) this.value.barsOpen = !this.value.barsOpen;
-        else this.value.barsOpen = val;
+      navCollapse(val){
+        if (val === null || val === undefined) this.value.navIsOpen = !this.value.navIsOpen;
+        else this.value.navIsOpen = !val;
       },
       leave(){
-        if (this.value.barsOpen && this.value.pinOff){
-          this.barsOpenClose()
+        if (this.value.navIsOpen && this.value.pinOff){
+          this.navCollapse()
         }
       },
       navClick(){
-        this.barsOpenClose();
+        if(this.value.pinOff && this.value.navIsOpen) this.navCollapse(true);
         window.scrollTo(0, 0);
       },
       pinOnOff(){
@@ -114,9 +113,9 @@
         return val ?? {params: {}, query: {}};
       },
     },
-    create(){
-      document.title = this.$store.getters['Env/getTitle']
-    },
+    created(){
+      this.$set(this, 'shells', this.value.dataSource.shells.value)
+    }
   }
 </script>
 

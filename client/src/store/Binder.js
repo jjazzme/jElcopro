@@ -29,7 +29,7 @@ let state = {
       key: item=>item.id,
       byOpticsLoader: (payload)=>axios.put(
         `/api/model/get/Product`,
-        {optics:payload.optics, params:payload.params}),
+        { optics:payload.optics, params:payload.params }),
       itemLoader: (key)=>axios.get(`/api/product/get/${key}`),
       ttl: 3600e3*24,
       cache: [], // [[id, updated, {}], [id, updated, {}]]
@@ -98,10 +98,42 @@ let state = {
     },
 
     Store:{
-      byOpticsLoader: ()=>axios.put('/api/store'),
+      key: item=>item.id,
+      byOpticsLoader: (payload)=>axios.put(
+        '/api/store',
+        { optics:payload.optics, params:payload.params }
+      ),
+      ttl: 3600e3*24,
+      cache:[],
+      cacheSets: [],
+    },
+    Currency:{
+      key: item=>item.id,
+      byOpticsLoader: (payload)=>axios.put(
+        '/api/currency',
+        { optics:payload.optics, params:payload.params }
+      ),
+      ttl: 3600e3*24,
+      cache:[],
+      cacheSets: [],
+    },
+    CurrencyRateService:{
+      key: item=>item.id,
+      byOpticsLoader: (payload) => {
+        if (payload.optics.pageSize === -1) payload.optics.filters = { date: [{ type: '=', value: Date.now() }] };
+        axios.put(
+        '/api/currencyRateService',
+        { optics:payload.optics , params:payload.params }
+        )
+      }
+      ,
+      ttl: 3600e3*24,
+      cache:[],
+      cacheSets: [],
     },
   },
   token: null,
+
 };
 
 let getters = {
@@ -131,6 +163,7 @@ let getters = {
   getLoaderKey: state => (type, payload) => state.loaders[type].key(payload),
   // record ttl
   getLoaderTTL: state => type => state.loaders[type].ttl,
+  getCacheTableByType: state => type => state.loaders[type].cache.map(item => item[2]),
 };
 
 let mutations = {

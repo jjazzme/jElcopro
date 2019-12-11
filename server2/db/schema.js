@@ -495,7 +495,10 @@ export default {
             icon: DataTypes.STRING(400),
         },
         relations: {
-            belongsTo: { Company: { foreignKey: 'company_id', as: 'company' } },
+            belongsTo: {
+                Company: { foreignKey: 'company_id', as: 'company' },
+                Address: { foreignKey: 'address_id', as: 'address' },
+            },
             hasMany: { InterStoreRoute: { as: 'fromRoutes', foreignKey: 'from_store_id' } },
         },
     },

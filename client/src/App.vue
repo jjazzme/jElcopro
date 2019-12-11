@@ -3,7 +3,7 @@
     <nav-component
       v-if="user"
       v-model="navModel"
-      :class="{ open: navModel.barsOpen, pin: !navModel.pinOff }"
+      :class="{ open: navModel.navIsOpen, pin: !navModel.pinOff }"
     />
 
     <section
@@ -15,7 +15,9 @@
       />
 
       <main>
-        <router-view />
+        <router-view
+          :model="mainModel"
+        />
       </main>
 
       <footer-component />
@@ -42,16 +44,19 @@ export default {
   },
   data(){
     return{
-      navModel: null,
-      headerModel: null,
       dataSource: null,
+      headerModel: null,
+      mainModel: null,
+      navModel: null,
       viewport: {
+        bigWidthPoint: 1600,
         height: 0,
-        width: 0,
+        mainWidth: 0,
+        mainHeight: 0,
+        mobileWidthPoint: 600,
         screenHeight: 0,
         screenWidth: 0,
-        mobileWidthPoint: 600,
-        bigWidthPoint: 1600,
+        width: 0,
       },
     }
   },
@@ -59,18 +64,15 @@ export default {
     user(){
       return this.$store.getters['Auth/getUser']
     },
-
   },
   methods:{
     onWindowResize(){
-      const width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-      const height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-      const screenWidth = window.screen.availWidth;
-      const screenHeight = window.screen.availHeight;
-      this.$set(this.viewport, 'height', height);
-      this.$set(this.viewport, 'width', width);
-      this.$set(this.viewport, 'screenHeight', screenHeight);
-      this.$set(this.viewport, 'screenWidth', screenWidth);
+      this.$set(this.viewport, 'height', Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
+      this.$set(this.viewport, 'width', Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
+      this.$set(this.viewport, 'screenHeight', window.screen.availHeight);
+      this.$set(this.viewport, 'screenWidth', window.screen.availWidth);
+      this.$set(this.viewport, 'mainWidth', $('body > section > main').clientWidth);
+      this.$set(this.viewport, 'mainHeight', $('body > section > main').clientHeight);
 
       return true;
     }
@@ -79,13 +81,20 @@ export default {
     this.$store.dispatch('Auth/autoLogin');
     window.addEventListener("resize", this.onWindowResize);
     this.onWindowResize();
-    this.$set(this, 'navModel', { pinOff: true, barsOpen: false, viewport: this.viewport });
-    this.$set(this, 'headerModel', { viewport: this.viewport });
+
     this.$set(this, 'dataSource', new DataSource(this.$store));
+
+    this.$set(this, 'navModel', { pinOff: true, navIsOpen: false, viewport: this.viewport, dataSource: this.dataSource });
+    this.$set(this, 'headerModel', { viewport: this.viewport, dataSource: this.dataSource });
+
+    this.$set(this, 'mainModel', { viewport: this.viewport, dataSource: this.dataSource })
   },
   destroyed(){
     window.removeEventListener("resize", this.onWindowResize);
-  }
+  },
+  watch:{
+
+  },
 
 }
 </script>

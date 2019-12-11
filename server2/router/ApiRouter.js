@@ -19,8 +19,13 @@ export default class ApiRouter {
                 next(e);
             }
         });
-        this.router.put(`/${path}`, async (req, res) => {
-            res.send(await controller.index(req, res));
+        this.router.put(`/${path}`, async (req, res, next) => {
+            try {
+                res.send(await controller.index(req, res));
+            } catch (e) {
+                //res.status(e.status || 500).send({ name: e.name, message: e.message });
+                next(e);
+            }
         });
         this.router.post(`/${path}/:id?`, async (req, res) => {
             res.send(await controller.modify(req, res));
