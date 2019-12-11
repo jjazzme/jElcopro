@@ -34,7 +34,7 @@ export default () => {
     container.register('dadata', DadataSerice, ['config', 'cache', 'logger']);
     container.register('compel', CompelService, ['config', 'db', 'logger', 'cache']);
     container.register('promelec', PromelecService, ['config', 'db', 'logger', 'cache']);
-    container.register('prices', PriceService, ['db']);
+    container.register('prices', PriceService, ['db', 'cache']);
     container.register('transition', TransitionService, ['db']);
     container.register('auth', AuthService, ['express', 'db']);
     return container;
