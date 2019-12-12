@@ -107,20 +107,27 @@ export default {
     position: relative;
     >nav{
       transition-duration: 0.5s;
-      left: -140px;
-      @media screen and (max-width: @mediaMob){left: -200px;}
-
-      &.open{left: 0}
+      @media @daw {
+        left: -140px;
+        &.open{left: 0}
+        min-width: 200px;
+        max-width: 200px;
+      }
+      @media @mob{
+        right: -90%;
+        &.open{right: 0}
+        min-width: 90%;
+        max-width: 90%;
+      }
 
       position: fixed;
       padding: 5px;
-      min-width: 200px;
-      max-width: 200px;
       background: @nav-bg;
       top: 0;
       z-index: 200;
       height: 100vh;
-      border-right: dotted 1px gray;
+      @media @daw {border-right: dotted 1px gray};
+      @media @mob {border-left: dotted 1px gray}
     }
     >section{
       display: flex;
@@ -129,7 +136,7 @@ export default {
       flex: 1 1 auto;
       max-width: calc(100% - 60px);
       margin-left: 60px;
-      @media screen and (max-width: @mediaMob){
+      @media @mob {
         max-width: 100%;
         margin-left: 0;
       }
@@ -142,14 +149,18 @@ export default {
         flex: 1 1 auto;
         min-height: 200px;
         max-height: 200px;
+        @media @mob {
+          min-height: 100px;
+          max-height: 100px;
+        }
         background: @header-bg;
       }
       >main{
         flex: 1 1 auto;
         min-height: 100ch;
+        max-width: 100%;
+        overflow: auto;
         >article{
-          margin: 0 20px;
-          padding: 20px;
           border-radius: 10px;
           min-height: 100%;
           max-height: 100%;
@@ -157,6 +168,24 @@ export default {
           display: flex;
           flex-flow: column nowrap;
           background: @main-article-bg;
+        }
+        @media @mob {
+          >article{
+            margin: 0 5px;
+            padding: 5px;
+          }
+        }
+        @media @des {
+          >article{
+            margin: 0 10px;
+            padding: 10px;
+          }
+        }
+        @media @wid {
+          >article{
+            margin: 0 20px;
+            padding: 20px;
+          }
         }
       }
       >footer{

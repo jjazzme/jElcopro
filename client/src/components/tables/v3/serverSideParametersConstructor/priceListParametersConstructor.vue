@@ -1,127 +1,121 @@
 <template>
-    <div class="component">
-        <div class="left-part">
+    <div class="component" v-if="model.references.stores && model.references.stores.length>0">
+        <b-form-input
+          type="text"
+          v-model="model.search"
+          placeholder="Строка поиска"
+          class="p-l-search"
+        />
+        <div class="p-l-filter">
             <b-form-input
-                    type="text"
-                    v-model="value.search"
-                    placeholder="Строка поиска"
-                    class="p-l-search"
-            />
-            <div class="p-l-filter">
-                <b-form-input
-                  class="p-l-input"
-                  type="number"
-                  min="1"
-                  v-model="value.quantity"
-                  :formatter="intFormatter"
-                  placeholder="Мин количество"
-                >
-                </b-form-input>
-                <div class="p-l-alias">Мин. количество</div>
-                <div class="p-l-additional">ед-цы</div>
-                <span
-                  :title="User.skills.interface>=enums.userLevel.Junior ? 'Показать больше или равно количеству и оптимизировать вывод' : ''"
-                  class="p-l-checkbox"
-                  id="PLCQua"
-                >
+              class="p-l-input"
+              type="number"
+              min="1"
+              v-model="model.quantity"
+              :formatter="intFormatter"
+              placeholder="Мин количество"
+            >
+            </b-form-input>
+            <div class="p-l-alias">Мин. количество</div>
+            <div class="p-l-additional">ед-цы</div>
+            <span
+              :title="user.skills.interface >= enums.userLevel.Junior ? 'Показать больше или равно количеству и оптимизировать вывод' : ''"
+              class="p-l-checkbox"
+              id="PLCQua"
+            >
                    <b-form-checkbox
                      size="sm"
-                     v-model="value.fromQuantity"
+                     v-model="model.fromQuantity"
                      switch></b-form-checkbox>
                     <b-tooltip
-                      v-if="User.skills.interface<enums.userLevel.Junior"
+                      v-if="user.skills.interface<enums.userLevel.Junior"
                       target="PLCQua"
                       triggers="hover">Показать больше или равно количеству и оптимизировать вывод</b-tooltip>
                 </span>
-            </div>
-            <div class="p-l-filter">
-                <b-form-input
-                  class="p-l-input"
-                  type="number"
-                  min="1"
-                  v-model="value.relevance"
-                  :formatter="intFormatter"
-                  placeholder="Мин актуальность"
-                >
-                </b-form-input>
-                <div class="p-l-alias">Мин.актуальность</div>
-                <div class="p-l-additional">часы</div>
-                <span
-                  :title="User.skills.interface>=enums.userLevel.Junior ? 'Показывать только актуальные для заданного количества часов' : ''"
-                  class="p-l-checkbox"
-                  id="PLCAct"
-                >
+        </div>
+        <div class="p-l-filter">
+            <b-form-input
+              class="p-l-input"
+              type="number"
+              min="1"
+              v-model="model.relevance"
+              :formatter="intFormatter"
+              placeholder="Мин актуальность"
+            >
+            </b-form-input>
+            <div class="p-l-alias">Мин.актуальность</div>
+            <div class="p-l-additional">часы</div>
+            <span
+              :title="user.skills.interface>=enums.userLevel.Junior ? 'Показывать только актуальные для заданного количества часов' : ''"
+              class="p-l-checkbox"
+              id="PLCAct"
+            >
                     <b-form-checkbox
                       size="sm"
-                      v-model="value.fromRelevance"
+                      v-model="model.fromRelevance"
                       switch/>
                     <b-tooltip
-                      v-if="User.skills.interface<enums.userLevel.Junior"
+                      v-if="user.skills.interface<enums.userLevel.Junior"
                       target="PLCAct"
                       triggers="hover">Показывать только актуальные для заданного количества часов</b-tooltip>
                 </span>
-            </div>
+        </div>
 
-            <div class="p-l-filter p-l-card">
+        <div class="p-l-filter p-l-card">
                 <span
-                  :title="User.skills.interface>=enums.userLevel.Junior ? 'Учитывать только сохранённую в базе данных информацию' : ''"
+                  :title="user.skills.interface>=enums.userLevel.Junior ? 'Учитывать только сохранённую в базе данных информацию' : ''"
                   class="p-l-checkbox"
                   id="PLCDBs"
                 >
                     <b-tooltip
-                      v-if="User.skills.interface<enums.userLevel.Junior"
+                      v-if="user.skills.interface<enums.userLevel.Junior"
                       target="PLCDBs"
                       triggers="hover">Учитывать только сохранённую в базе данных информацию</b-tooltip>
                     <b-form-checkbox
                       size="sm"
-                      v-model="value.onlyDB"
+                      v-model="model.onlyDB"
                       switch></b-form-checkbox>
                 </span>
-                <store-icons
-                  class="p-l-icons"
-                  v-model="value"
-                ></store-icons>
-                <div class="p-l-alias">Склады</div>
-                <b-dropdown
-                  variant="transparent"
-                  size="sm"
-                  class="p-l-dropd"
-                >
-                    <b-form-checkbox-group
-                      v-model="value.selectedStores"
-                      class="checkbox"
-                      :options="options"
-                      stacked
-                    />
-                </b-dropdown>
-            </div>
-        </div>
-        <div class="stores">
-
-
+            <store-icons
+              class="p-l-icons"
+              v-model="model"
+            ></store-icons>
+            <div class="p-l-alias">Склады</div>
+            <b-dropdown
+              variant="transparent"
+              size="sm"
+              class="p-l-dropd"
+            >
+                <b-form-checkbox-group
+                  v-model="model.selectedStores"
+                  class="checkbox"
+                  :options="options"
+                  stacked
+                />
+            </b-dropdown>
         </div>
     </div>
 </template>
 
 <script>
-    import Swal from 'sweetalert2'
     import Enums from "../../../../modules/enums";
     import StoreIcons from "../tablesHeader/storeIcons";
     export default {
         name: "priceListParametersConstructor",
         components: {StoreIcons},
-        data(){
-            return {
-                User: this.$store.getters['AUTH/getUser'],
-                enums: new Enums(),
-            }
-        },
         props:{
             value: {type: Object,}
         },
+        data(){
+            return {
+                user: this.$store.getters['Auth/getUser'],
+                enums: new Enums(),
+                model: this.value.dataSource.priceList,
+            }
+        },
         computed: {
             options(){
-                return this.value.references.stores.map((store)=>{return{
+                return this.model.references.stores.map((store)=>{return{
                     value: store.id,
                     html:
 `<div id="Store_${store.id}">
@@ -131,11 +125,6 @@
             },
         },
         methods:{
-            //abort(sid){
-            //    let uid = this.value._forProcessing.promises[sid.toString()];
-            //    let source = this.$store.getters['TABLES/GET_AXIOS_SOURCES'](uid);
-            //    source.cancel('aborted')
-            //},
             intFormatter(val, e){
                 let ret = parseInt(val);
                 if (!ret) ret = 1
@@ -153,94 +142,80 @@
 </script>
 
 <style scoped lang="less">
+    @import "~@/less/_variables";
     .component{
         display: flex;
-        flex: 1 1 1;
-        justify-content: space-between;
-        > div{
-            flex: 1 1 auto;
-            align-self: stretch;
-            margin: 10px;
-            min-width: 400px;
+        flex-flow: row wrap;
+        > *{
+            flex: 0 1 auto;
+            align-self: center;
+            height: 50px;
+            margin: 5px;
         }
-        > div.left-part{
-            display: flex;
-            justify-content: space-between;
-            > *{
-                flex: 1 1 auto;
-                align-self: center;
-                margin: 10px;
-                height: 50px;
+        @media @wid {>*{margin: 10px;}}
+
+        .p-l-search{
+            width: 300px;
+            font-size: 24px
+        }
+        .p-l-card{
+            border: rgb(206,212,218) solid 1px;
+            border-radius: 4px;
+            width: 160px;
+        }
+        .p-l-filter{
+            min-width: 120px;
+            height: 50px;
+            position: relative;
+            >*{position: absolute}
+            .p-l-dropd{
+                right: 0;
+                top:0;
+                .checkbox{
+                    white-space: nowrap !important;
+                    margin: 10px;
+                }
             }
-            .p-l-search{width: 300px; font-size: 24px}
+            .p-l-icons{
+                top: 10px;
+                left: 30px;
+                font-size: 20px;
+            }
+            .p-l-alias{
+                top: 0;
+                left: 10px;
+                font-size: 10px;
+                opacity: 0.5;
+            }
+            .p-l-additional{
+                bottom: 0;
+                left: 30px;
+                font-size: 10px;
+                opacity: 0.5;
+            }
+            .p-l-input{
+                top: 0;
+                left: 0;
+                width: 120px;
+                padding-left: 30px;
+                height: 50px;
+                font-size: 20px;
+            }
+            .p-l-checkbox{
+                top: 15px;
+                left: -5px;
+                max-width: 20px;
+            }
+        }
+        @media @mob {
+            .p-l-search{
+                width: 100%;
+            }
             .p-l-card{
-                border: rgb(206,212,218) solid 1px;
-                border-radius: 4px;
-                width: 160px;
+                width: 50%;
             }
             .p-l-filter{
-                min-width: 120px;
-                height: 50px;
-                position: relative;
-                >*{position: absolute}
-                .p-l-dropd{
-                    right: 0;
-                    top:0;
-                    .checkbox{
-                        white-space: nowrap !important;
-                        margin: 10px;
-                    }
-                }
-                .p-l-icons{
-                    top: 10px;
-                    left: 30px;
-                    font-size: 20px;
-                }
-                .p-l-alias{
-                    top: 0;
-                    left: 10px;
-                    font-size: 10px;
-                    opacity: 0.5;
-                }
-                .p-l-additional{
-                    bottom: 0;
-                    left: 30px;
-                    font-size: 10px;
-                    opacity: 0.5;
-                }
-                .p-l-input{
-                    top: 0;
-                    left: 0;
-                    width: 120px;
-                    padding-left: 30px;
-                    height: 50px;
-                    font-size: 20px;
-                }
-                .p-l-checkbox{
-                    top: 15px;
-                    left: -5px;
-                    max-width: 20px;
-                }
-            }
-        }
-        .stores{
-            .store{
-                height: 30px;
-                display: flex;
-                align-items: center;
-                flex-flow: row nowrap;
-                .checkbox{
-                    margin-right: 10px;
-                }
-                .loading{
-                    cursor: pointer;
-                    position: relative;
-                    display: inline-block;
-                    width: 20px;
-                    height: 20px;
-                    .abort{position: absolute; color: red; width: 12px; height: 12px; top: 4px; left: 4px; opacity: 0.5;}
-                    .spinner{position: absolute; width: 20px; height: 20px}
-                }
+                width: 45%;
             }
         }
     }

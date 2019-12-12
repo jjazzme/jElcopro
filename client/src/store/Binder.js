@@ -119,12 +119,11 @@ let state = {
     },
     CurrencyRateService:{
       key: item=>item.id,
-      byOpticsLoader: (payload) => {
+      byOpticsLoader: (payload) =>
         axios.put(
         '/api/currencyRateService',
         { date: Date.now() }
         )
-      }
       ,
       ttl: 3600e3*24,
       cache:[],

@@ -8,8 +8,8 @@ export default class DataSource{
   constructor(store){
     this.shells = new Shells();
     this.store = store;
-    this.PriceList = new PriceList({
-      search:'max', quantity:5, fromQuantity:false, onlyDB: true, selectedStores:[1,2],
+    this.priceList = new PriceList({
+      search:'max', quantity:5, fromQuantity:false, onlyDB: true,
       depth:10, pages:1, debounceAmount:1000, minSearchLenSensitivity:4
     });
 
@@ -18,17 +18,17 @@ export default class DataSource{
     this.refsOrder = [
       {
         type: 'Store',
-        targets: [(val) => { this.PriceList.references.stores = val }],
+        targets: [(val) => { this.priceList.references.stores = val }],
         errorAddText: 'складов',
         after: [
           {
             type: 'Currency',
-            targets: [(val) => { this.PriceList.references.currencies = val }],
+            targets: [(val) => { this.priceList.references.currencies = val }],
             errorAddText: 'валют',
             after: [
               {
                 type: 'CurrencyRateService',
-                targets: [(val) => { this.PriceList.references.currencyRates = val }],
+                targets: [(val) => { this.priceList.references.currencyRates = val }],
                 errorAddText: 'курсов валют'
               },
             ]},
@@ -39,7 +39,12 @@ export default class DataSource{
         this.loadTableByType(item.type)
           .then(resp=> {
             _.forEach(item.targets, target => {
-              target(this.getTableByType(item.type));
+              const table = this.getTableByType(item.type);
+              target(table);
+              if (item.type === 'Store') {
+                let selectedStores = table.map(store=>{ if(!store.online) return store.id }).filter(id => id);
+                this.priceList.selectedStores = selectedStores;
+              }
             });
           })
           .catch(err=>{
