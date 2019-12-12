@@ -28,10 +28,10 @@ export default class ModelContoller {
 
         const { page } = optics;
         const pageSize = optics.pageSize === null
-          ? 15
-          : optics.pageSize < 0
-            ? null
-            : optics.pageSize;
+            ? 15
+            : optics.pageSize < 0
+                ? null
+                : optics.pageSize;
         const offset = (page - 1) * pageSize;
         const limit = offset + pageSize;
 
@@ -159,8 +159,7 @@ export default class ModelContoller {
     }
 
     async get(req) {
-        // eslint-disable-next-line radix
-        return this.Model.getInstance(parseInt(req.params.id));
+        return this.Model.getInstance(parseInt(req.params.id, 0));
     }
 
     async modify() {

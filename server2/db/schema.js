@@ -20,6 +20,7 @@ import DepartureModel from './DepartureModel';
 import UserModel from './UserModel';
 import TransferOutCorrectiveModel from './TransferOutCorrectiveModel';
 import CurrencyModel from './CurrencyModel';
+import Document from './DocumentModel';
 
 export default {
     AccessToken: {
@@ -133,7 +134,7 @@ export default {
         },
     },
 
-    Document: document,
+    Document: _.defaultsDeep({ class: Document }, document),
 
     DocumentLine: {
         class: DocumentLine,
@@ -207,10 +208,21 @@ export default {
                             {
                                 model: DocumentLine,
                                 as: 'documentLine',
-                                include: [{ model: GoodModel, as: 'good', where: { id: good.id } }],
+                                include: [
+                                    { model: GoodModel, as: 'good', where: { id: good.id } },
+                                    { model: Document, as: 'document' },
+                                ],
                             },
                         ],
-                        order: ['createdAt'],
+                        order: [
+                            [
+                                { model: DocumentLine, as: 'documentLine' },
+                                { model: Document, as: 'document' },
+                                'document_type_id',
+                                'desc',
+                            ],
+                            'createdAt',
+                        ],
                     };
                 },
             },
@@ -624,7 +636,7 @@ export default {
         options: {
             tableName: 'users',
             defaultScope: {
-                attributes: { exclude: ['password'] },
+                attributes: { exclude: ['password', 'salt'] },
             },
             scopes: { withPassword: {} },
         },
