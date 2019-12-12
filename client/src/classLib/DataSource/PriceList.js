@@ -3,7 +3,7 @@
 export default class PriceList{
 
   constructor({
-      search, quantity, fromQuantity, onlyDB, selectedStores, depth, pages, debounceAmount, minSearchLenSensitivity
+      search, quantity, fromQuantity, onlyDB, depth, pages, debounceAmount, minSearchLenSensitivity
   }){
     this.card = {
       one1:{
@@ -77,7 +77,7 @@ export default class PriceList{
       currencyRates: null,
     };
     this.search = search;
-    this.selectedStores = selectedStores;
+    this.selectedStores = [];
     this.updateID = 0;
   }
 

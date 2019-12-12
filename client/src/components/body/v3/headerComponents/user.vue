@@ -36,12 +36,12 @@
     height: 50px;
     cursor: pointer;
 
-    @media screen and (max-width: @mediaMob){
+    @media @mob {
       top:-12px;
-      right: -5px;
+      left: -5px;
       transform: scale(0.5);
     }
-    @media screen and (min-width: calc(@mediaMob + 1px)){
+    @media @daw {
       top:10px;
       right: 10px;
     }

@@ -1,5 +1,5 @@
 <template>
-  <div class="p-l-additional">
+  <div class="p-l-additional" v-if="value">
     <div class="p-l-info">
       <span>Всего: {{value.count}}</span>
       <span>Фильтр: {{value.filteredCount}}</span>
@@ -17,6 +17,9 @@
         @click="value.onePage()"
       > 1 стр</b-button>
     </div>
+  </div>
+  <div v-else>
+    pricelist
   </div>
 </template>
 

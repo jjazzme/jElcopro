@@ -127,7 +127,7 @@
     position: relative;
     font-size: 24px;
     .pin{
-      @media screen and (max-width: @mediaMob){
+      @media @mob {
         display: none;
       }
       cursor: pointer;
@@ -143,11 +143,11 @@
     .bars{
       cursor: pointer;
       position: absolute;
-      @media screen and (max-width: @mediaMob){
-        right: -40px;
-        &.barsOpen{left: 12px}
+      @media @mob {
+        &:not(.barsOpen){left: -40px};
+        &.barsOpen{right: 12px}
       }
-      @media screen and (min-width: calc(@mediaMob + 1px)){
+      @media @daw {
         right: 12px;
       }
       &.barsOpen{opacity: .3}
@@ -159,16 +159,25 @@
     li{
       a{
         font-family: 'Montserrat', 'Open Sans', sans-serif;
-        display: block;
+        display: flex;
         font-size: 18px;
         line-height: 36px;
         border:none;
         color: gray;
         min-height: 36px;
         position: relative;
+        @media @mob {padding-left: 10%};
 
-        span:first-child{text-transform: capitalize; margin-left: 5px; display: inline-block; max-width: 130px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; position: absolute;}
-        span:last-child{width: 30px; display: inline-block; font-size: 24px; color: royalblue; position: absolute; right: 5px};
+        span:first-child{text-transform: capitalize; margin-left: 5px; display: inline-block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
+        span:last-child{width: 30px; display: inline-block; font-size: 24px; color: royalblue;};
+        @media @mob{
+          span:first-child{width: auto; order: 2; padding-left: 10px;}
+          span:last-child{order: 1;}
+        }
+        @media @daw{
+          span:first-child{ max-width: 130px; position: absolute;}
+          span:last-child{ position: absolute; right: 5px; }
+        }
       };
       a:hover{
         color: black;

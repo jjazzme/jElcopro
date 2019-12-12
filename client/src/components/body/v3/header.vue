@@ -93,8 +93,8 @@
     }
     .s-h-logo{
       position: absolute;;
-      @media screen and (max-width: @mediaMob){
-        right: 5px;
+      @media @mob {
+        left: -25px;
         top: 5px;
         text-align: right;
         //transform: scale(0.5);
@@ -102,7 +102,7 @@
           width: 75%;
         }
       }
-      @media screen and (min-width: calc(@mediaMob + 1px)){
+      @media @daw {
         top: 5px;
         left: 20px;
       }
@@ -111,12 +111,12 @@
       font-family: 'Montserrat', 'Open Sans', sans-serif;
       position: absolute;
 
-      @media screen and (max-width: @mediaMob){
+      @media @mob {
         font-size: 1.25em;
         bottom: 5px;
         left: 10px;
       }
-      @media screen and (min-width: calc(@mediaMob + 1px)){
+      @media @daw {
         font-size: 1.75em;
         top: 4px;
         left: 180px;

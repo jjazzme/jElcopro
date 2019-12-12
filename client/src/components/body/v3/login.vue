@@ -100,7 +100,7 @@
     .p-l-form{
       z-index: 100;
       flex: 0 1 auto;
-      @media screen and (min-width: calc(@mediaMob + 1px)){
+      @media @daw {
         border: @card-border;
       }
       border-radius: 20px;
