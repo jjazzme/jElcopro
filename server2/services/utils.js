@@ -28,7 +28,17 @@ export const cacheable = (target, key, descriptor) => {
         const currentKey = key + _.join(modifyArgs);
         if (await currentCache.has(currentKey)) return currentCache.get(currentKey);
         const response = await value.call(this, ...args);
-        currentCache.set(currentKey, response);
+        if (currentCache.set) currentCache.set(currentKey, response);
+        else currentCache.put(currentKey, response, 900);
         return response;
+    };
+};
+
+export const logable = (target, key, descriptor) => {
+    const { value } = descriptor;
+    descriptor.value = async function (...args) {
+        const logger = this.logger || this.services?.logger || console;
+        logger.info(args, `Call ${key} in ${target.constructor.name}`);
+        return value.call(this, ...args);
     };
 };
