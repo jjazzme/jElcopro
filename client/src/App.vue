@@ -23,6 +23,9 @@
       <footer-component />
     </section>
     <login-component v-else />
+    <requests-component
+      v-model="requests"
+    />
   </body>
 </template>
 
@@ -33,10 +36,12 @@ import headerComponent from './components/body/v3/header';
 import footerComponent from './components/body/v3/footer';
 import LoginComponent from "./components/body/v3/login";
 import DataSource from "./classLib/DataSource";
+import RequestsComponent from "./components/body/v3/requests";
 
 export default {
   name: 'app',
   components: {
+    RequestsComponent,
     LoginComponent,
     navComponent,
     headerComponent,
@@ -64,6 +69,7 @@ export default {
     user(){
       return this.$store.getters['Auth/getUser']
     },
+    requests(){ return this.$store.getters['Binder/getRequests'] }
   },
   methods:{
     onWindowResize(){
@@ -78,11 +84,11 @@ export default {
     }
   },
   created() {
-    this.$store.dispatch('Auth/autoLogin');
     window.addEventListener("resize", this.onWindowResize);
     this.onWindowResize();
 
     this.$set(this, 'dataSource', new DataSource(this.$store));
+    this.$store.dispatch('Auth/autoLogin');
 
     this.$set(this, 'navModel', { pinOff: true, navIsOpen: false, viewport: this.viewport, dataSource: this.dataSource });
     this.$set(this, 'headerModel', { viewport: this.viewport, dataSource: this.dataSource });

@@ -2,26 +2,11 @@ import axios from 'axios';
 import crypto from 'crypto'
 import Error from '../classLib/Error'
 
-const binder = axios.create();
-
-binder.interceptors.response.use(function (ans) {
-  return ans;
-}, function (error) {
-  const type = 'axios';
-  const err = new Error({ error });
-  return err.process(err.types.axios);
-});
-
-if (localStorage.getItem('ticket')) {
-  const ticket = JSON.parse(localStorage.getItem('ticket'));
-  if (ticket.token_type === 'Bearer' && ticket.expires_in > Date.now()) binder.defaults.headers.common['Authorization'] = `Bearer ${ticket.access_token}`;
-}
-
 let state = {
   loaders: {
     User: {
       key: item=>item.id,
-      itemLoader: (key)=>binder.get(`/api/user/${key}`),
+      itemLoader: (key)=>axios.get(`/api/user/${key}`),
       ttl: 3600e3*24,
       cache: [],
     },
@@ -131,7 +116,8 @@ let state = {
     },
   },
   token: null,
-
+  requests: [],
+  axiosID: 0
 };
 
 let getters = {
@@ -157,14 +143,21 @@ let getters = {
     keys.forEach(key=>ret.push(state.loaders[type].cache.find(item=>item[0]===key)[2]));
     return ret;
   },
+  //
+  getAxiosID: state => state.axiosID,
   // make key from payload
   getLoaderKey: state => (type, payload) => state.loaders[type].key(payload),
   // record ttl
   getLoaderTTL: state => type => state.loaders[type].ttl,
+  //
+  getRequests: state => state.requests,
+
   getCacheTableByType: state => type => state.loaders[type].cache.map(item => item[2]),
 };
 
 let mutations = {
+  addRequest(state, { uid, source, url, type }) {state.requests.push({ uid, source, url, type })},
+  incAxiosID(state) { state.axiosID++ },
   removeLineFromDocument(state, { type, documentId, lineId }){
     axios.get(`/api/document/line/delete/${documentId}/${lineId}`)
       .then(ans=>{
@@ -176,6 +169,10 @@ let mutations = {
     //const ind = _.findIndex(state.loaders[type].cache, item => item[0] === documentId )
     //delete doc.documentLines.find( item => item.id === lineId )
 
+  },
+  removeRequest(state, uid) {
+    const ind = _.findIndex(state.requests, item => item[0] === uid );
+    state.requests.splice(ind, 1);
   },
   upsertItemToCache(state, {type, key, data}) {
     const cache = state.loaders[type].cache;
@@ -199,7 +196,7 @@ let mutations = {
 };
 
 let actions = {
-  getByOptics({getters, commit}, {type, payload}) {
+  getByOptics({ getters, commit }, { type, payload }) {
     // payload = {optics, params}
     // TODO: make a ROW notes
     const hash = getHash(payload);
@@ -309,11 +306,13 @@ let actions = {
       }
     });
   },
+  /*
   setBinderDefaults({rootGetters}, {ticket}){
     if (!ticket) ticket = rootGetters['Auth/getTicket'];
     if (ticket && ticket.token_type === 'Bearer' && ticket.expires_in > Date.now()) binder.defaults.headers.common['Authorization'] = `Bearer ${ticket.access_token}`;
     else delete binder.defaults.headers.common['Authorization'];
   },
+   */
 };
 
 export default {

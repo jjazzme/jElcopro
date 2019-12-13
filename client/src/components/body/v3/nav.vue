@@ -168,15 +168,15 @@
         position: relative;
         @media @mob {padding-left: 10%};
 
-        span:first-child{text-transform: capitalize; margin-left: 5px; display: inline-block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
+        span:first-child{margin-left: 5px; display: inline-block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
         span:last-child{width: 30px; display: inline-block; font-size: 24px; color: royalblue;};
         @media @mob{
-          span:first-child{width: auto; order: 2; padding-left: 10px;}
+          span:first-child{width: auto; order: 2; padding-left: 10px; text-transform: uppercase;}
           span:last-child{order: 1;}
         }
         @media @daw{
-          span:first-child{ max-width: 130px; position: absolute;}
-          span:last-child{ position: absolute; right: 5px; }
+          span:first-child{max-width: 130px; position: absolute; text-transform: capitalize;}
+          span:last-child{position: absolute; right: 5px;}
         }
       };
       a:hover{

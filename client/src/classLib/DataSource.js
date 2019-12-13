@@ -3,9 +3,48 @@
 import _ from "lodash";
 import Shells from "./DataSource/Shells";
 import PriceList from "./DataSource/PriceList";
+import axios from "axios";
+import Error from "./Error";
 
 export default class DataSource{
   constructor(store){
+    this.axiosID = 0;
+    axios.interceptors.response.use(function (ans) {
+      const uid = ans.config._uid;
+      store.commit('Binder/removeRequest', uid);
+      return ans;
+    }, function (error) {
+      if (error.config){
+        const uid = error.config._uid;
+        store.commit('Binder/removeRequest', uid);
+      }
+      const err = new Error({ error });
+      return err.process(err.types.axios); //return Promise.reject(error);
+    });
+
+    axios.interceptors.request.use(function (config) {
+      const url = config.url;
+      const isLocalRequest = url.startsWith('/api/');
+      const type = config._type;
+
+      const CancelToken = axios.CancelToken;
+      const source = CancelToken.source();
+      config.cancelToken= source.token;
+
+      const ticket = JSON.parse(localStorage.getItem('ticket'));
+      if (isLocalRequest && ticket && ticket.expires_in > Date.now()) config.headers.Authorization = `${ticket.token_type} ${ticket.access_token}`;
+      store.commit('Binder/incAxiosID');
+      const uid = store.getters['Binder/getAxiosID'];  //`f${(+new Date).toString(16)}x${(~~(Math.random()*1e8)).toString(16)}`;
+      config._uid = uid;
+
+      store.commit('Binder/addRequest', { uid, source, url, type });
+      return config;
+    }, function (error) {
+
+      const err = new Error({ error });
+      return err.process(err.types.axios); //return Promise.reject(error);
+    });
+
     this.shells = new Shells();
     this.store = store;
     this.priceList = new PriceList({

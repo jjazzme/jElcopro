@@ -65,7 +65,7 @@ let actions = {
         // { access_token, expires_in, token_type } token/ticks/Bearer
         commit('setTicket', ticket);
         localStorage.setItem('ticket', JSON.stringify(ticket));
-        dispatch('Binder/setBinderDefaults', { ticket }, { root: true });
+        //dispatch('Binder/setBinderDefaults', { ticket }, { root: true });
         dispatch('autoLogin');
       })
       .catch(err => {
@@ -80,7 +80,7 @@ let actions = {
         ticket = null;
         commit('setTicket', ticket);
         localStorage.removeItem('ticket');
-        dispatch('Binder/setBinderDefaults', { ticket }, { root: true });
+        //dispatch('Binder/setBinderDefaults', { ticket }, { root: true });
         commit('setUser', null);
       })
       .catch(err => {

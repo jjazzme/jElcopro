@@ -212,10 +212,10 @@
                 width: 100%;
             }
             .p-l-card{
-                width: 50%;
+                //width: 50%;
             }
             .p-l-filter{
-                width: 45%;
+                //width: 45%;
             }
         }
     }
