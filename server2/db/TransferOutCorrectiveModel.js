@@ -19,6 +19,6 @@ export default class TransferOutCorrective extends Document {
     static async createFromOptics(optics) {
         if (!optics.parentLines) throw new Error('Need select some parent lines');
         const { TransferIn } = this.services.db.models;
-        return this.createFromParent(TransferIn, 'createTransferInLines', optics);
+        return this.createFromParent(TransferIn, 'createTransferOutCorrectiveLines', optics);
     }
 }

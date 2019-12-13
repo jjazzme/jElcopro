@@ -221,7 +221,7 @@ export default {
                                 'document_type_id',
                                 'desc',
                             ],
-                            'createdAt',
+                            ['createdAt', 'desc'],
                         ],
                     };
                 },

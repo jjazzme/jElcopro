@@ -2,12 +2,19 @@
 import app from './index';
 
 const {
-    Invoice, Order, TransferIn, TransferOut,
+    Invoice, Order, TransferIn, TransferOut, TransferOutCorrective,
 } = app.services.db.models;
 const { transition } = app.services;
+let destroys;
 
 app.services.dbConnection.transaction(async (transaction) => {
-    let destroys;
+    const transferOutCorrective = await TransferOutCorrective
+        .scope('defaultScope', 'withDocumentLines')
+        .findOne();
+    if (transferOutCorrective) {
+        await transition.execute('unreserve', transferOutCorrective, { transaction });
+        await transferOutCorrective.documentLines[0].destroy();
+    }
     const transferOuts = await TransferOut
         .scope('defaultScope', 'withDocumentLines')
         .findAll({ where: { number_prefix: 'TEST' } });

@@ -2,6 +2,8 @@ import _ from 'lodash';
 import Sequelize from 'sequelize';
 import BaseModel from './BaseModel';
 
+const { Op } = Sequelize;
+
 export default class Document extends BaseModel {
     /**
      * Transition 'reserve' try to reserve document lines
@@ -29,8 +31,11 @@ export default class Document extends BaseModel {
      */
     // eslint-disable-next-line no-unused-vars
     async _unreserveTransition(params) {
+        const { FutureReserve } = this.services.db.models;
         let unreserved = 0;
         const lines = await this.getDocumentLines({ scope: ['withFutureReserve', 'withReserves'] });
+        const futureReserves = lines.map((line) => (line.futureReserve ? line.futureReserve.id : 0));
+        await FutureReserve.destroy({ where: { id: { [Op.in]: futureReserves } } });
         // eslint-disable-next-line no-restricted-syntax,no-unused-vars
         for (const line of lines) {
             // eslint-disable-next-line no-await-in-loop

@@ -37,8 +37,8 @@ export default class TransferOut extends Document {
      */
     // eslint-disable-next-line no-unused-vars
     async _unWorkTransition(params) {
-        this.parent = this.parnet || await this.getParent();
-        if (this.parent.closed) throw new Error('Open parent Order before');
+        this.parent = this.parent || await this.getParent();
+        if (this.parent.closed) throw new Error('Open parent Invoice before');
         this.documentLines = this.documentLines || await this.getDocumentLines();
         // eslint-disable-next-line no-unused-vars
         for (const line of this.documentLines) {
