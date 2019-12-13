@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import Document from './DocumentModel';
 
 export default class TransferOut extends Document {
@@ -52,23 +51,11 @@ export default class TransferOut extends Document {
 
     /**
      * Create TransferIn from Order with lines
-     * @param optics
+     * @param {Object} optics
      * @returns {Promise<BaseModel|null>}
      */
     static async createFromOptics(optics) {
-        let child = null;
-        const { Invoice, DocumentLine } = this.services.db.models;
-        if (!optics.parent_id) throw new Error('Need parent');
-        await this.services.db.connection.transaction(async () => {
-            const parent = await Invoice.getInstance(optics.parent_id);
-            const newOptics = _.pick(
-                parent.getPlain(),
-                ['sellerable_id', 'buyerable_id', 'store_id', 'foreign_store_id', 'currency_id'],
-            );
-            Object.assign(newOptics, optics);
-            child = await super.createFromOptics(newOptics);
-            await DocumentLine.createTransferOutLines(child, optics);
-        });
-        return this.getInstance(child, 'withDocumentLines');
+        const { Invoice } = this.services.db.models;
+        return this.createFromParent(Invoice, 'createTransferOutLines', optics);
     }
 }
