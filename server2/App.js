@@ -41,7 +41,7 @@ export default class App {
 
         // register express routes
         // API
-        express.use('/api', apiRoutes(db, auth));
+        express.use('/api', apiRoutes(this.services));
 
         // catch 404 and forward to error handler
         express.use((req, res, next) => {
@@ -96,7 +96,7 @@ export default class App {
 
         // eslint-disable-next-line no-unused-vars
         server.on('error', (err) => {
-            // handle your errors
+            logger.error(err);
         });
 
         logger.info({}, 'Server start');

@@ -8,7 +8,7 @@ export default class ApiRouter {
     }
 
     resource(path, Controller, args = []) {
-        const middlewares = _.isArray(args) ? args : [args];
+        const middlewares = _.union(_.isArray(args) ? args : [args], this.middlewares);
         middlewares.forEach((middleware) => this.router.use(`/${path}/:id`, middleware));
         const controller = typeof Controller === 'function' ? new Controller(this.db) : Controller;
 
@@ -23,7 +23,6 @@ export default class ApiRouter {
             try {
                 res.send(await controller.index(req, res));
             } catch (e) {
-                //res.status(e.status || 500).send({ name: e.name, message: e.message });
                 next(e);
             }
         });
@@ -33,5 +32,9 @@ export default class ApiRouter {
         this.router.delete(`/${path}/:id`, async (req, res) => {
             res.send(await controller.destroy(req, res));
         });
+    }
+
+    middleware(...args) {
+        this.middlewares = args;
     }
 }

@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import Sequelize from 'sequelize';
-// import { cacheable } from './utils';
 
 export default class PriceService {
     constructor(db, cache) {
@@ -141,7 +140,6 @@ export default class PriceService {
      * @param {Store|number} optics.from_store - Instance or Id store for searching in
      * @returns {Promise<Array|*>}
      */
-    // @cacheable
     async searchByNameOnStore(optics) {
         const { Store } = this.db.models;
         const { services } = Store;

@@ -205,8 +205,11 @@ export default class DocumentLine extends BaseModel {
         const reserves = reserved || await this.reserveQuantity();
         let needReserve = this.quantity - reserves;
         const { Arrival, Reserve } = this.services.db.models;
+        const parent = this.parent_id ? this.getParent({ scope: ['withArrival'] }) : false;
+        const where = { ballance: { [Op.gt]: 0 } };
+        if (parent) where.id = parent.arrival.id;
         const arrivals = await Arrival.findAll({
-            where: { ballance: { [Op.gt]: 0 } },
+            where,
             include: { model: DocumentLine, as: 'documentLine', where: { good_id: this.good_id } },
         });
         // eslint-disable-next-line no-restricted-syntax,no-unused-vars
