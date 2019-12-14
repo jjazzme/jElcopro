@@ -146,6 +146,7 @@ export default {
                 withGood: { include: [{ model: GoodModel, as: 'good' }] },
                 withFutureReserve: { include: [{ model: FutureReserveModel, as: 'futureReserve' }] },
                 withReserves: { include: [{ model: ReserveModel, as: 'reserves' }] },
+                withDeparture: { include: [{ model: DepartureModel, as: 'departure' }] },
             },
         },
         attributes: {

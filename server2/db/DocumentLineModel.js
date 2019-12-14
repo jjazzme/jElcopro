@@ -81,7 +81,9 @@ export default class DocumentLine extends BaseModel {
             const document = line.document || await line.getDocument();
             if (document.status_id !== 'formed') throw new Error('Document must be in formed status');
             const { Reserve } = this.services.db.models;
-            if (line.closed) throw new Error('Has not closed lines');
+            if (line.closed) {
+                throw new Error('Has not closed lines');
+            }
             line.departure = line.departure || await line.getDeparture();
             if (line.departure) {
                 await Reserve.create(

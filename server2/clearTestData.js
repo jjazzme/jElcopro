@@ -12,7 +12,9 @@ app.services.dbConnection.transaction(async (transaction) => {
         .scope('defaultScope', 'withDocumentLines')
         .findOne();
     if (transferOutCorrective) {
+        await transition.execute('unWork', transferOutCorrective, { transaction });
         await transition.execute('unreserve', transferOutCorrective, { transaction });
+        await transferOutCorrective.reload();
         await transferOutCorrective.documentLines[0].destroy();
     }
     const transferOuts = await TransferOut
