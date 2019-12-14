@@ -9,7 +9,6 @@ export default class TransferOut extends Document {
 
     /**
      * Transition 'toWork' for make TransferOut 'in_work' status
-     * and make arrivals
      * @param {Object} params
      * @returns {Promise<boolean>}
      * @private
@@ -30,15 +29,13 @@ export default class TransferOut extends Document {
 
     /**
      * Transition 'unWork' for make TransferOut 'formed' status
-     * and remove arrivals
      * @param {Object} params
      * @returns {Promise<boolean>}
      * @private
      */
     // eslint-disable-next-line no-unused-vars
     async _unWorkTransition(params) {
-        this.parent = this.parent || await this.getParent();
-        if (this.parent.closed) throw new Error('Open parent Invoice before');
+        await this.parentToBeOpen();
         this.documentLines = this.documentLines || await this.getDocumentLines();
         // eslint-disable-next-line no-unused-vars
         for (const line of this.documentLines) {

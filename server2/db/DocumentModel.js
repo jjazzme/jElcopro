@@ -64,6 +64,7 @@ export default class Document extends BaseModel {
 
     // eslint-disable-next-line no-unused-vars,class-methods-use-this
     async _unWorkTransition(params) {
+        await this.parentToBeOpen();
         return true;
     }
 
@@ -79,6 +80,11 @@ export default class Document extends BaseModel {
         }
         this.closed = true;
         return true;
+    }
+
+    async parentToBeOpen() {
+        this.parent = this.parent || await this.getParent();
+        if (this.parent?.closed) throw new Error('Open parent before');
     }
 
     /**

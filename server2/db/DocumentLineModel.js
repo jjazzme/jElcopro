@@ -157,7 +157,7 @@ export default class DocumentLine extends BaseModel {
         await this.bulkCreate(newLines, { individualHooks: true });
     }
 
-    static async createTransferOutCorrectiveLines(child, optics) {
+    static async createTransferCorrectiveLines(child, optics) {
         const parentLineIds = optics.parentLines
             ? optics.parentLines.map((line) => (_.isNumber(line) ? line : line.id)) : null;
         const parentLines = await DocumentLine.findAll({

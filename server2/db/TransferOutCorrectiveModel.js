@@ -19,7 +19,7 @@ export default class TransferOutCorrective extends Document {
     static async createFromOptics(optics) {
         if (!optics.parentLines) throw new Error('Need select some parent lines');
         const { TransferIn } = this.services.db.models;
-        return this.createFromParent(TransferIn, 'createTransferOutCorrectiveLines', optics);
+        return this.createFromParent(TransferIn, 'createTransferCorrectiveLines', optics);
     }
 
     // eslint-disable-next-line no-unused-vars
@@ -38,6 +38,7 @@ export default class TransferOutCorrective extends Document {
 
     // eslint-disable-next-line no-unused-vars
     async _unWorkTransition(params) {
+        await this.parentToBeOpen();
         const { Departure, Reserve } = this.services.db.models;
         const documentLines = await this.getDocumentLines({ scope: ['withDeparture'] });
         let promises = documentLines.map((line) => line.update({ closed: false }));
