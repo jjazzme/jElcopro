@@ -5,6 +5,7 @@ import ApiController from '../controller/ApiController';
 import UserController from '../controller/UserController';
 import CurrencyRateController from '../controller/CurrencyRateController';
 import PriceController from '../controller/PriceController';
+import InvoiceController from '../controller/InvoiceController';
 
 export default function ApiRoutes(services) {
     const apiRouter = new ApiRouter(services.db);
@@ -17,5 +18,6 @@ export default function ApiRoutes(services) {
     apiRouter.resource('currencyRateService', CurrencyRateController);
     apiRouter.resource('party', new ApiController(services.db.models.Party));
     apiRouter.resource('price', new PriceController(services));
+    apiRouter.resource('invoice', InvoiceController);
     return apiRouter.router;
 }
