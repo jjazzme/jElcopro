@@ -18,9 +18,6 @@
       > 1 стр</b-button>
     </div>
   </div>
-  <div v-else>
-    pricelist
-  </div>
 </template>
 
 <script>

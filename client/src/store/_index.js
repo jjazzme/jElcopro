@@ -1,13 +1,12 @@
 import Vue from     'vue';
 import Vuex from    'vuex';
 
-import Auth from    './Auth'
+import Auth from    './Auth';
 import Binder from  './Binder';
-import Env from     './Env'
+import Env from     './Env';
 
 //import tables from './tables'
-//import cards from './cards'
-//import loader from "./loader";
+//import Cards from './Cards';
 
 
 Vue.use(Vuex);

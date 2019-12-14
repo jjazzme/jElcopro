@@ -4,6 +4,7 @@ import DocumentLine from './DocumentLineModel';
 export default {
     options: {
         tableName: 'documents',
+        defaultScope: {},
         scopes: {
             withDocumentLines: { include: [{ model: DocumentLine, as: 'documentLines' }] },
         },

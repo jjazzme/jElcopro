@@ -3,6 +3,6 @@ Accept: */*
 Content-Type: application/json
 Authorization: Bearer eb8ba0e8-f9f9-47ab-bda4-4d3b8f16043b
 
-{"optics":{"name":"max232cpe", "from_store":1}}
+{"optics":{"name":"max232cpe", "from_store":2}}
 
 ###

@@ -123,8 +123,11 @@
             min-height: 100%;
             max-height: 100%;
             overflow: auto;
-            margin-bottom: 20px;
         }
+        @media @mob { .p-l-data { margin-bottom: 5px } }
+        @media @des { .p-l-data { margin-bottom: 10px } }
+        @media @wid { .p-l-data { margin-bottom: 20px } }
+
         background-color: black;
         display: flex;
         .svg-cover{

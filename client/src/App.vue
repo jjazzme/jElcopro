@@ -58,6 +58,11 @@ export default {
         height: 0,
         mainWidth: 0,
         mainHeight: 0,
+        type: (width) => {
+          if (width < 801) return 'mob';
+          else if (width < 1601) return 'des';
+          else return 'wid'
+        },
         mobileWidthPoint: 600,
         screenHeight: 0,
         screenWidth: 0,
@@ -99,7 +104,9 @@ export default {
     window.removeEventListener("resize", this.onWindowResize);
   },
   watch:{
-
+    user(n){
+      this.$set(this.dataSource, 'user', n);
+    }
   },
 
 }

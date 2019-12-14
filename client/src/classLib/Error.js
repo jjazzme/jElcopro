@@ -16,22 +16,33 @@ export default class Error {
       // db logging ?
     }
     if (type === this.types.axios) {
-      if (this.error.response.status === 401) {
+      if (this.error.message === 'aborted') {
+        console.log('axios aborted');
+      } else if (this.error.response && this.error.response.status === 401) {
         store.dispatch('Auth/logoff');
       } else {
         Swal.fire({
           title: 'Ошибка axios',
-          text:  this.error.responce.data,
+          text:  this.error.response.data,
           type:  'error',
           timer: 15000
         });
       }
       return Promise.reject(this.error)
     }
+
+    else {
+      Swal.fire({
+        title: 'Ошибка',
+        text:  this.error.response.data,
+        type:  'error',
+        timer: 15000
+      });
+    }
   }
   get types() { return { axios: 1 } }
 }
 
-class ErrorTypes {
-  axios = 1;
-}
+//class ErrorTypes {
+//  axios = 1;
+//}

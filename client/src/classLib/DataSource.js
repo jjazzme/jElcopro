@@ -8,6 +8,8 @@ import Error from "./Error";
 
 export default class DataSource{
   constructor(store){
+
+    /// for axios
     this.axiosID = 0;
     axios.interceptors.response.use(function (ans) {
       const uid = ans.config._uid;
@@ -21,7 +23,6 @@ export default class DataSource{
       const err = new Error({ error });
       return err.process(err.types.axios); //return Promise.reject(error);
     });
-
     axios.interceptors.request.use(function (config) {
       const url = config.url;
       const isLocalRequest = url.startsWith('/api/');
@@ -36,14 +37,16 @@ export default class DataSource{
       store.commit('Binder/incAxiosID');
       const uid = store.getters['Binder/getAxiosID'];  //`f${(+new Date).toString(16)}x${(~~(Math.random()*1e8)).toString(16)}`;
       config._uid = uid;
+      const eid = config.headers._eid; //config.data.optics ? config.data.optics._eid : null;
 
-      store.commit('Binder/addRequest', { uid, source, url, type });
+      store.commit('Binder/addRequest', { uid, source, url, type, eid });
       return config;
     }, function (error) {
-
       const err = new Error({ error });
       return err.process(err.types.axios); //return Promise.reject(error);
     });
+
+    this.user = null;
 
     this.shells = new Shells();
     this.store = store;
@@ -51,7 +54,6 @@ export default class DataSource{
       search:'max', quantity:5, fromQuantity:false, onlyDB: true,
       depth:10, pages:1, debounceAmount:1000, minSearchLenSensitivity:4
     });
-
 
     // after all classes
     this.refsOrder = [
@@ -76,7 +78,7 @@ export default class DataSource{
     const refLoader = (refs) => {
       _.forEach(refs, item=>{
         this.loadTableByType(item.type)
-          .then(resp=> {
+          .then(()=> {
             _.forEach(item.targets, target => {
               const table = this.getTableByType(item.type);
               target(table);

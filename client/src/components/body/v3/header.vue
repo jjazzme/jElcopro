@@ -1,7 +1,7 @@
 <template>
   <header v-if="value">
     <user-component
-      v-if="value.viewport.width > value.viewport.mobileWidthPoint"
+      v-if="value.viewport.type > value.viewport.mobileWidthPoint"
     />
     <router-link to="/" class="img s-h-logo">
       <img alt="Vue logo" src="../../../assets/logo.png">
@@ -21,14 +21,36 @@
         data-animate-effect="zoomIn delay-1s"
       >{{method.replace(/^[а-я a-z]/, c => c.toUpperCase())}}</span>
     </div>
+    <div class="s-h-invoice">
+      <order-invoice-card
+        v-model="value"
+        type="Invoice"
+        :id="value.dataSource.user.cards.invoice"
+      />
+    </div>
+    <div class="s-h-orders">
+      <order-invoice-card
+        v-for="id in value.dataSource.user.cards.orders"
+        v-model="value"
+        type="Order"
+        :id="id"
+        :key="id"
+      />
+      <order-invoice-card
+        type="Order"
+        :id="null"
+        v-model="value"
+      />
+    </div>
   </header>
 </template>
 
 <script>
+  import OrderInvoiceCard from "./headerComponents/orderInvoiceCard";
   import UserComponent from "./headerComponents/user";
   export default {
     name: "headerComponent",
-    components: {UserComponent},
+    components: { UserComponent, OrderInvoiceCard },
     data(){
       return {
         main: '',

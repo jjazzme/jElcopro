@@ -10,6 +10,7 @@
         >
             <div
               v-for="(lvl2, name2, ind) in lvl1"
+              :key="name2"
               v-if="!lvl2.alias"
               :class="`p-l-${name2}  p-l-l2`"
             >
@@ -23,6 +24,7 @@
                 />
                 <div
                   v-for="(lvl3, name3) in lvl2"
+                  :key="name3"
                   v-if="!lvl3.alias"
                   :class="`p-l-${name3}  p-l-l3`"
                 >
