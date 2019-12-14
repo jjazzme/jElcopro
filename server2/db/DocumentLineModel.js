@@ -110,7 +110,7 @@ export default class DocumentLine extends BaseModel {
     static async createTransferInLines(child, optics) {
         const { literal } = this.services.db.connection;
         const parentLineIds = optics.parentLines
-            ? optics.parentLines.map((line) => (Number.isNaN(line) ? line.id : line)) : null;
+            ? optics.parentLines.map((line) => (_.isNumber(line) ? line : line.id)) : null;
         const where = { document_id: optics.parent_id };
         if (parentLineIds && parentLineIds instanceof Array) {
             where.id = { [Sequelize.Op.in]: parentLineIds };
@@ -151,6 +151,20 @@ export default class DocumentLine extends BaseModel {
                     amount_with_vat: line.amount_with_vat - values.childrenAmountWithVat,
                     amount_without_vat: line.amount_without_vat - values.childrenAmountWithoutVat,
                 });
+            });
+        await this.bulkCreate(newLines, { individualHooks: true });
+    }
+
+    static async createTransferOutCorrectiveLines(child, optics) {
+        const parentLineIds = optics.parentLines
+            ? optics.parentLines.map((line) => (_.isNumber(line) ? line : line.id)) : null;
+        const parentLines = await DocumentLine.findAll({
+            where: { id: { [Sequelize.Op.in]: parentLineIds } },
+        });
+        const newLines = parentLines
+            .map((line) => {
+                const values = _.omit(line.get({ plain: true }), ['id', 'createdAt', 'updatedAt']);
+                return Object.assign(values, { parent_id: line.id, document_id: child.id });
             });
         await this.bulkCreate(newLines, { individualHooks: true });
     }
@@ -205,9 +219,9 @@ export default class DocumentLine extends BaseModel {
         const reserves = reserved || await this.reserveQuantity();
         let needReserve = this.quantity - reserves;
         const { Arrival, Reserve } = this.services.db.models;
-        const parent = this.parent_id ? this.getParent({ scope: ['withArrival'] }) : false;
+        const parent = this.parent_id ? await this.getParent({ scope: ['withArrival'] }) : false;
         const where = { ballance: { [Op.gt]: 0 } };
-        if (parent) where.id = parent.arrival.id;
+        if (parent) where.id = parent.arrival ? parent.arrival.id : 0;
         const arrivals = await Arrival.findAll({
             where,
             include: { model: DocumentLine, as: 'documentLine', where: { good_id: this.good_id } },
@@ -274,10 +288,6 @@ export default class DocumentLine extends BaseModel {
      */
     async unreserve() {
         let backToStore = 0;
-        this.futureReserve = this.futureReserve || await this.getFutureReserve();
-        if (this.futureReserve) {
-            await this.futureReserve.destroy();
-        }
         this.reserves = this.reserves || await this.getReserves();
         // eslint-disable-next-line no-unused-vars,no-restricted-syntax
         for (const reserve of this.reserves) {

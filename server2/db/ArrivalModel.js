@@ -14,7 +14,7 @@ export default class Arrival extends BaseModel {
         /**
          * Change good ballance;
          */
-        this.beforeUpdate(async (arrival) => {
+        this.afterUpdate(async (arrival) => {
             const lineFrom = await arrival.getDocumentLine({ scope: ['withGood'] });
             lineFrom.good.ballance += arrival.ballance - arrival.previous('ballance');
             await lineFrom.good.save();

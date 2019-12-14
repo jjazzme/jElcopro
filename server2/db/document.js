@@ -1,5 +1,9 @@
 import { DataTypes } from 'sequelize';
 import DocumentLine from './DocumentLineModel';
+import Company from './CompanyModel';
+import Party from './PartyModel';
+import Currency from './CurrencyModel';
+import Store from './StoreModel';
 
 export default {
     options: {
@@ -7,6 +11,13 @@ export default {
         defaultScope: {},
         scopes: {
             withDocumentLines: { include: [{ model: DocumentLine, as: 'documentLines' }] },
+            withBuyerable:
+                { include: [{ model: Company, as: 'buyerable', include: [{ model: Party, as: 'party' }] }] },
+            withSellerable:
+                { include: [{ model: Company, as: 'buyerable', include: [{ model: Party, as: 'party' }] }] },
+            withCurrency: { include: [{ model: Currency, as: 'currency' }] },
+            withStore: { include: [{ model: Store, as: 'store' }] },
+            withForeignStore: { include: [{ model: Store, as: 'foreignStore' }] },
         },
     },
     attributes: {

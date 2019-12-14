@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import Document from './DocumentModel';
 
 export default class TransferOutCorrective extends Document {
@@ -14,24 +13,12 @@ export default class TransferOutCorrective extends Document {
 
     /**
      * Create
-     * @param optics
+     * @param {Object} optics
      * @returns {Promise<BaseModel|null>}
      */
     static async createFromOptics(optics) {
-        let child = null;
-        const { TransferIn, DocumentLine } = this.services.db.models;
-        if (!optics.parent_id) throw new Error('Need parent');
         if (!optics.parentLines) throw new Error('Need select some parent lines');
-        await this.services.db.connection.transaction(async () => {
-            const parent = await TransferIn.getInstance(optics.parent_id);
-            const newOptics = _.pick(
-                parent.getPlain(),
-                ['sellerable_id', 'buyerable_id', 'store_id', 'foreign_store_id', 'currency_id'],
-            );
-            Object.assign(newOptics, optics);
-            child = await super.createFromOptics(newOptics);
-            await DocumentLine.createTransferInLines(child, optics); // Use because the same logic
-        });
-        return this.getInstance(child, 'withDocumentLines');
+        const { TransferIn } = this.services.db.models;
+        return this.createFromParent(TransferIn, 'createTransferOutCorrectiveLines', optics);
     }
 }

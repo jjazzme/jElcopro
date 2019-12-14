@@ -2,6 +2,8 @@ import _ from 'lodash';
 import Sequelize from 'sequelize';
 import BaseModel from './BaseModel';
 
+const { Op } = Sequelize;
+
 export default class Document extends BaseModel {
     /**
      * Transition 'reserve' try to reserve document lines
@@ -29,8 +31,11 @@ export default class Document extends BaseModel {
      */
     // eslint-disable-next-line no-unused-vars
     async _unreserveTransition(params) {
+        const { FutureReserve } = this.services.db.models;
         let unreserved = 0;
         const lines = await this.getDocumentLines({ scope: ['withFutureReserve', 'withReserves'] });
+        const futureReserves = lines.map((line) => (line.futureReserve ? line.futureReserve.id : 0));
+        await FutureReserve.destroy({ where: { id: { [Op.in]: futureReserves } } });
         // eslint-disable-next-line no-restricted-syntax,no-unused-vars
         for (const line of lines) {
             // eslint-disable-next-line no-await-in-loop
@@ -39,6 +44,34 @@ export default class Document extends BaseModel {
         return unreserved;
     }
 
+    /**
+     * Transition 'toWork' for make order 'in_work' status
+     * @param {Object} params
+     * @returns {Promise<boolean>}
+     * @private
+     */
+    // eslint-disable-next-line no-unused-vars,class-methods-use-this
+    async _toWorkTransition(params) {
+        return true;
+    }
+
+    /**
+     * Transition 'unWork' for make order 'formed' status
+     * @param {Object} params
+     * @returns {Promise<boolean>}
+     * @private
+     */
+
+    // eslint-disable-next-line no-unused-vars,class-methods-use-this
+    async _unWorkTransition(params) {
+        return true;
+    }
+
+    /**
+     * Close
+     * @returns {Promise<boolean>}
+     * @private
+     */
     async _closeTransition() {
         this.documentLines = this.documentLines || await this.getDocumentLines();
         if (!this.documentLines.reduce((result, line) => result && line.closed, true)) {
@@ -48,10 +81,41 @@ export default class Document extends BaseModel {
         return true;
     }
 
+    /**
+     * Create single Document
+     * @param {Object} optics
+     * @returns {Promise<Document>}
+     */
     static async createFromOptics(optics) {
         const newInstance = _.pick(optics, _.keys(this.tableAttributes));
         return this.create(newInstance);
     }
+
+    /**
+     * Create Document from Parent with Lines
+     * @param {Document} ParentModel
+     * @param {string} documentLinesMethod
+     * @param {Object} optics
+     * @returns {Promise<BaseModel|null>}
+     */
+    static async createFromParent(ParentModel, documentLinesMethod, optics) {
+        let child = null;
+        const { DocumentLine } = this.services.db.models;
+        if (!optics.parent_id) throw new Error('Need parent');
+        await this.services.db.connection.transaction(async () => {
+            const parent = await ParentModel.getInstance(optics.parent_id);
+            const newOptics = _.pick(
+                parent.getPlain(),
+                ['sellerable_id', 'buyerable_id', 'store_id', 'foreign_store_id', 'currency_id'],
+            );
+            Object.assign(newOptics, optics);
+            const newInstance = _.pick(newOptics, _.keys(this.tableAttributes));
+            child = await this.create(newInstance);
+            await DocumentLine[documentLinesMethod](child, optics);
+        });
+        return this.getInstance(child, 'withDocumentLines');
+    }
+
 
     static registerHooks() {
         /**

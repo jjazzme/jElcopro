@@ -16,7 +16,7 @@ describe('Test Invoice', () => {
     let producer;
     const {
         Company, Good, Invoice, Order, Producer, Product, TransferIn, TransferOut, Reserve, DocumentLine,
-        FutureReserve,
+        FutureReserve, TransferOutCorrective,
     } = app.services.db.models;
     const { transition } = app.services;
     before(async () => {
@@ -69,6 +69,17 @@ describe('Test Invoice', () => {
         expect(transferOut, 'It is TransferOut')
             .to.be.an.instanceof(TransferOut).and.deep.include({ status_id: 'in_work' });
     });
+    it('Make TransferOutCorrective', async () => {
+        const transferIn = await TransferIn
+            .getInstance({ number: 2, number_prefix: 'TEST', parent_id: order.id }, 'withDocumentLines');
+        const transferOutCorrective = await TransferOutCorrective.createFromOptics({
+            parent_id: transferIn.id, number_prefix: 'TEST', parentLines: transferIn.documentLines,
+        });
+        expect(transferOutCorrective, 'It is TransferOutCorrective')
+            .to.be.an.instanceof(TransferOutCorrective).and.deep.include({ status_id: 'formed' });
+        await transferOutCorrective.documentLines[0].update({ quantity: 8 });
+        await transition.execute('reserve', transferOutCorrective);
+    });
     it('Make second arrival', async () => {
         const transferIn = await TransferIn
             .getInstance({ number: 2, number_prefix: 'TEST', parent_id: order.id });
@@ -77,16 +88,16 @@ describe('Test Invoice', () => {
         expect(res, 'Is true').to.be.true;
         expect(transferIn.status_id).to.equal('in_work');
         good = await Good.getInstance(good.id);
-        expect(good.ballance).is.equal(7);
+        expect(good.ballance).is.equal(0);
         const reserves = await Reserve.findAll({
             include: [{ model: DocumentLine, as: 'documentLine', where: { good_id: good.id } }],
         });
-        expect(reserves.length).is.equal(2);
-        expect(reserves.reduce((sum, reserve) => sum + reserve.quantity, 0)).is.equal(3);
+        expect(reserves.length).is.equal(3);
+        expect(reserves.reduce((sum, reserve) => sum + reserve.quantity, 0)).is.equal(10);
         const frs = await FutureReserve.findAll({
             include: [{ model: DocumentLine, as: 'documentLine', where: { good_id: good.id } }],
         });
-        expect(frs.length).is.equal(0);
+        expect(frs.length).is.equal(1);
     });
     it('Invoice transition "unreserve" with exeption', async () => {
         const error = 'TEST подоbран, снять резерв не возможно';
