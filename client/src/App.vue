@@ -147,6 +147,9 @@ export default {
       @media @mob {border-left: dotted 1px gray}
     }
     >section{
+      @media @mob {
+        background-color: @footer-bg;
+      }
       display: flex;
       flex-direction: column;
       align-content: space-between;
@@ -175,11 +178,12 @@ export default {
         background: @header-bg;
       }
       >main{
+        background-color: white;
         flex: 1 1 auto;
         min-height: 300px;
         max-height: calc(100vh - @headerHeightDaw - @footerHeightDaw);
         @media @mob {
-          max-height: calc(100vh - @headerHeightMob - @footerHeightMob);
+          max-height: calc(100vh - @headerHeightMob - @footerHeightMob - 60px);
         }
         max-width: 100%;
         overflow: auto;
