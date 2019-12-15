@@ -54,7 +54,7 @@
     font-family: 'Share Tech Mono', monospace;
     text-align: center;
     position: absolute;
-    padding-top: 10px;
+    padding-top: 0;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);

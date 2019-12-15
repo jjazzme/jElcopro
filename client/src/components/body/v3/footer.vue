@@ -3,6 +3,7 @@
     <component
       v-bind:is="component.import"
       v-model="component.vmodel"
+      :model="value"
     ></component>
     <div class="b-f-bottom">
       <a href="http://electronika.su" class="b-f-copyright">© Elcopro, 2019</a>
@@ -13,6 +14,9 @@
 <script>
   export default {
     name: "footerComponent",
+    props: {
+      value: null,
+    },
     computed: {
       component(){
         let component = this.$store.getters['Env/getFooterComponent'];
@@ -30,9 +34,12 @@
   footer{
     position: relative;
     .b-f-bottom{
+      @media @mob{
+        display: none;
+      }
       position: absolute;
       width: 100%;
-      bottom: 2px;
+      bottom: 0;
       left: 0;
       text-align: right;
     }

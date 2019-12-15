@@ -18,7 +18,7 @@
       </router-link>
       <!--div class="h-c-topic">{{alias}} №{{value.number}} от {{Intl.DateTimeFormat('ru-RU').format(new Date(value.date))}}</div-->
       <div class="h-c-sum">{{ sum.toFixed(2) }}₽</div>
-      <div class="h-c-lines">Строк: {{ value.documentLines.length }} | Товаров: {{ count }}</div>
+      <div class="h-c-lines">Строк: {{ document.documentLines.length }} | Товаров: {{ count }}</div>
       <div class="h-c-buyer" :title="secondPart">{{ secondPart }}</div>
     </div>
   </div>
@@ -43,8 +43,8 @@
     computed:{
       secondPart(){
         return this.value._type === 'invoice'
-          ? document?.buyerable?.party?.name
-          : document?.sellerable?.party?.name;
+          ? this.document?.buyerable?.party?.name
+          : this.document?.sellerable?.party?.name;
       },
     },
     methods:{
@@ -69,6 +69,13 @@
 <style scoped lang="less">
   @import "~@/less/_variables";
   .s-h-card{
+    position: relative;
+    min-width: 230px;
+    background-color: @table-body-bg;
+    border-radius: 10px;
+    margin-right: 20px;
+    padding: 10px;
+    height: 120px;
     .h-c-close{
       color: red;
       cursor: pointer;
@@ -79,10 +86,13 @@
     }
     .h-c-topic{
       text-align: center;
-      width: 100%;
+      display: block;
       font-size: 13px;
       font-weight: 600;
       text-transform: uppercase;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
     }
     .h-c-sum{
       font-size: 20px;
@@ -99,13 +109,31 @@
       text-overflow: ellipsis;
       font-size: 12px;
     }
-
-    position: relative;
-    min-width: 230px;
-    height: 120px;
-    background-color: @table-body-bg;
-    padding: 10px;
-    border-radius: 10px;
-    margin-right: 20px;
+  }
+  @media @mob {
+    .s-h-card{
+      border-radius: 5px;
+      margin-right: 10px;
+      padding: 0 5px;
+      height: auto;
+      min-width: 120px;
+      .h-c-close{
+        display: none;
+      }
+      .h-c-topic{
+      }
+      .h-c-sum{
+        display: none;
+      }
+      .h-c-lines{
+        display: none;
+      }
+      .h-c-buyer{
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        font-size: 13px;
+      }
+    }
   }
 </style>

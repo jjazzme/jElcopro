@@ -20,7 +20,9 @@
         />
       </main>
 
-      <footer-component />
+      <footer-component
+        v-model="footerModel"
+      />
     </section>
     <login-component v-else />
     <requests-component
@@ -50,6 +52,7 @@ export default {
   data(){
     return{
       dataSource: null,
+      footerModel: null,
       headerModel: null,
       mainModel: null,
       navModel: null,
@@ -60,7 +63,7 @@ export default {
         mainHeight: 0,
         type: (width) => {
           if (width < 801) return 'mob';
-          else if (width < 1601) return 'des';
+          else if (width < 1801) return 'des';
           else return 'wid'
         },
         mobileWidthPoint: 600,
@@ -96,6 +99,7 @@ export default {
     this.$store.dispatch('Auth/autoLogin');
 
     this.$set(this, 'navModel', { pinOff: true, navIsOpen: false, viewport: this.viewport, dataSource: this.dataSource });
+    this.$set(this, 'footerModel', { viewport: this.viewport, dataSource: this.dataSource });
     this.$set(this, 'headerModel', { viewport: this.viewport, dataSource: this.dataSource });
 
     this.$set(this, 'mainModel', { viewport: this.viewport, dataSource: this.dataSource })
@@ -149,6 +153,8 @@ export default {
       flex: 1 1 auto;
       max-width: calc(100% - 60px);
       margin-left: 60px;
+      min-height: 600px;
+      max-height: 100vh;
       @media @mob {
         max-width: 100%;
         margin-left: 0;
@@ -160,17 +166,21 @@ export default {
 
       >header{
         flex: 1 1 auto;
-        min-height: 200px;
-        max-height: 200px;
+        min-height: @headerHeightDaw;
+        max-height: @headerHeightDaw;
         @media @mob {
-          min-height: 100px;
-          max-height: 100px;
+          min-height: @headerHeightMob;
+          max-height: @headerHeightMob;
         }
         background: @header-bg;
       }
       >main{
         flex: 1 1 auto;
-        min-height: 100ch;
+        min-height: 300px;
+        max-height: calc(100vh - @headerHeightDaw - @footerHeightDaw);
+        @media @mob {
+          max-height: calc(100vh - @headerHeightMob - @footerHeightMob);
+        }
         max-width: 100%;
         overflow: auto;
         >article{
@@ -203,8 +213,12 @@ export default {
       }
       >footer{
         flex: 1 1 auto;
-        min-height: 100px;
-        max-height: 100px;
+        min-height: @footerHeightDaw;
+        max-height: @footerHeightDaw;
+        @media @mob {
+          min-height: @footerHeightMob;
+          max-height: @footerHeightMob;
+        }
         background: @footer-bg;
         color: @footer-text;
         a{

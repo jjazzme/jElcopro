@@ -21,14 +21,13 @@
         data-animate-effect="zoomIn delay-1s"
       >{{method.replace(/^[а-я a-z]/, c => c.toUpperCase())}}</span>
     </div>
-    <div class="s-h-invoice">
+
+    <div class="s-h-cards">
       <order-invoice-card
         v-model="value"
         type="Invoice"
         :id="value.dataSource.user.cards.invoice"
       />
-    </div>
-    <div class="s-h-orders">
       <order-invoice-card
         v-for="id in value.dataSource.user.cards.orders"
         v-model="value"
@@ -98,55 +97,58 @@
   @import "~@/less/_variables";
   header{
     position: relative;
-
-    .s-h-invoice{
+    .s-h-cards{
       position: absolute;
       top: 55px;
       left: 30px;
-    }
-    .s-h-orders{
       display: flex;
-      position: absolute;
-      top: 55px;
-      left: 330px;
       max-width: 700px;
       height: 140px;
       overflow: auto;
     }
     .s-h-logo{
       position: absolute;;
-      @media @mob {
-        left: -25px;
-        top: 5px;
+      top: 5px;
+      left: 20px;
+    }
+    .s-h-title{
+      font-family: 'Montserrat', 'Open Sans', sans-serif;
+      position: absolute;
+      font-size: 1.75em;
+      top: 4px;
+      left: 180px;
+      height: 30px;
+
+      > span{display: inline-block;}
+      > span:first-child{color: white;};
+      > span:nth-child(2){color: silver; margin: 0 10px;}
+      > span:nth-child(3){color: antiquewhite;};
+    }
+
+    @media @mob{
+      .s-h-cards{
+        height: auto;
+        left: 0;
+        padding-left: 10px;
+        max-width: 100%;
+        overflow: auto;
+      }
+      .s-h-title{
+        font-size: 0.75em;
+        left: 3px;
+        top: 30px;
+        height: 15px;
+      }
+      .s-h-logo{
+        left: -30px;
+        top: 0;
         text-align: right;
         //transform: scale(0.5);
         img{
           width: 75%;
         }
       }
-      @media @daw {
-        top: 5px;
-        left: 20px;
-      }
-    }
-    .s-h-title{
-      font-family: 'Montserrat', 'Open Sans', sans-serif;
-      position: absolute;
-
-      @media @mob {
-        font-size: 1.25em;
-        bottom: 5px;
-        left: 10px;
-      }
-      @media @daw {
-        font-size: 1.75em;
-        top: 4px;
-        left: 180px;
-      }
-      > span{display: inline-block;}
-      > span:first-child{color: white;};
-      > span:nth-child(2){color: silver; margin: 0 10px;}
-      > span:nth-child(3){color: antiquewhite;};
     }
   }
+
 </style>

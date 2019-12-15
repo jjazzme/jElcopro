@@ -1,16 +1,25 @@
 <template>
   <div class="p-l-additional" v-if="value">
     <div class="p-l-info">
-      <span>Всего: {{value.count}}</span>
-      <span>Фильтр: {{value.filteredCount}}</span>
-      <span>Показано: {{showed}}</span>
+      <div>
+        <div>Всего:</div>
+        <div>{{value.count}}</div>
+      </div>
+      <div>
+        <div>Фильтр:</div>
+        <div>{{value.filteredCount}}</div>
+      </div>
+      <div>
+        <div>Показано:</div>
+        <div>{{showed}}</div>
+      </div>
     </div>
     <div class="p-l-buttons">
       <b-button
         class="p-l-page-add"
         v-if="value.count>value.depth"
         @click="value.nextPage()"
-      >Показать еще</b-button>
+      >{{ `${ deviceType ===  'mob' ? 'Ещё' : 'Показать еще' }` }}</b-button>
       <b-button
         class="p-l-page-1"
         v-if="value.count>value.depth && value.pages>1"
@@ -25,8 +34,12 @@
     name: "priceListFooter",
     props: {
       value: null,
+      model: null,
     },
     computed: {
+      deviceType(){
+        return this.model.viewport.type(this.model.viewport.width)
+      },
       showed(){
         const limit = this.value.depth * this.value.pages;
         const fCount = this.value.filteredCount;
@@ -45,7 +58,7 @@
       width: 67%;
       flex: 1 1 auto;
       display: flex;
-      span{
+      div{
         flex: 1 1 auto;
         align-self: center;
         font-family: 'Montserrat', 'Open Sans', sans-serif;
@@ -57,6 +70,7 @@
       span:last-child{border-right: none;}
     }
     .p-l-buttons{
+      padding-left: 10px;
       width: 33%;
       .p-l-page-add{
         flex: 1 1 auto;
@@ -69,6 +83,29 @@
         width: 30%;
         min-width: 60px;
         margin-right: 5%;
+      }
+    }
+  }
+  @media @mob {
+    .p-l-additional{
+      margin-top: 5px;
+      .p-l-info {
+        width: 50%;
+        max-width: 50%;
+        div{ font-size: 12px}
+      }
+      .p-l-buttons{
+        width: 50%;
+        .p-l-page-add{
+          padding: 0 5px;
+          width: calc(50% - 10px);
+          min-width: 50px;
+        }
+        .p-l-page-1{
+          padding: 0 5px;
+          width: calc(50% - 10px);
+          min-width: 50px;
+        }
       }
     }
   }

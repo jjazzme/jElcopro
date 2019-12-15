@@ -22,7 +22,6 @@
           :icon="['far', 'question-circle']"
         />
       </div>
-
       <div
         @click="toOrder"
         :title="`${order ? 'В заказ' : 'Добавить заказ'}`"
@@ -34,7 +33,6 @@
           :icon="['far', 'question-circle']"
         />
       </div>
-
       <div
         v-if="order && invoice"
         @click="toBoth"
@@ -46,8 +44,6 @@
       </div>
     </div>
   </div>
-
-
 </template>
 
 <script>
@@ -104,12 +100,8 @@
 
 <style scoped lang="less">
   .component{
-    position: relative;
+    display: flex;
     .p-l-vectors{
-
-      position: absolute;
-      top: 3px;
-      left: 100px;
       >div{
         cursor: pointer;
         width: 50px;
@@ -147,9 +139,8 @@
       }
     }
     .p-l-input{
-      position: absolute;
       color: navy;
-      height: 22px;
+      height: 35px;
       top: 12px;
       left: 0;
       background-color: transparent;

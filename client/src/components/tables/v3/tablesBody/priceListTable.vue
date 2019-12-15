@@ -106,29 +106,17 @@
 
 <style scoped lang="less">
     @import "~@/less/_variables";
-    @breakpoint: 500px;
-    .v-t-row{
-        display: flex;
-        >div{
-            flex: 1 1 auto;
-            text-align: left;
-            border-right: var(--table-body-text) solid 1px;
-            min-height: 20px;
-        }
-    }
     .priceTable{
         flex: 1 1 auto;
         .p-l-data{
-            height: 100ch;
-            min-height: 100%;
-            max-height: 100%;
+            width: 100%;
+
             overflow: auto;
         }
         @media @mob { .p-l-data { margin-bottom: 5px } }
         @media @des { .p-l-data { margin-bottom: 10px } }
         @media @wid { .p-l-data { margin-bottom: 20px } }
 
-        background-color: black;
         display: flex;
         .svg-cover{
             height: 50%;

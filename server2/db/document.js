@@ -14,7 +14,7 @@ export default {
             withBuyerable:
                 { include: [{ model: Company, as: 'buyerable', include: [{ model: Party, as: 'party' }] }] },
             withSellerable:
-                { include: [{ model: Company, as: 'buyerable', include: [{ model: Party, as: 'party' }] }] },
+                { include: [{ model: Company, as: 'sellerable', include: [{ model: Party, as: 'party' }] }] },
             withCurrency: { include: [{ model: Currency, as: 'currency' }] },
             withStore: { include: [{ model: Store, as: 'store' }] },
             withForeignStore: { include: [{ model: Store, as: 'foreignStore' }] },

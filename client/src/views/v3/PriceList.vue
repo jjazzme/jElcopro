@@ -149,12 +149,6 @@
 
 <style scoped lang="less">
   @import "~@/less/_variables";
-  .p-l-table{
-    background-color: @table-body-bg;
-    color: @table-body-bg;
-    display: flex;
-    flex-flow: column nowrap;
-    transition: 0.5s;
-  }
+
 
 </style>

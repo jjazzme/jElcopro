@@ -3,51 +3,14 @@
             class="v-t-row"
             v-if="value"
     >
-        <div
-                v-for="(lvl1, name1) in card"
-                :class="`p-l-${name1} p-l-l1`"
-                :key="name1"
-        >
-            <div
-              v-for="(lvl2, name2, ind) in lvl1"
-              :key="name2"
-              v-if="!lvl2.alias"
-              :class="`p-l-${name2}  p-l-l2`"
-            >
-                <price-list-cell
-                  v-if="cell.alias"
-                  v-for="(cell, name) in lvl2"
-                  :key="`${rowKeyPrefix}_${cell.field}`"
-                  v-model="value"
-                  :cell-key-prefix="`${rowKeyPrefix}_${cell.field}`"
-                  :cell="cell"
-                />
-                <div
-                  v-for="(lvl3, name3) in lvl2"
-                  :key="name3"
-                  v-if="!lvl3.alias"
-                  :class="`p-l-${name3}  p-l-l3`"
-                >
-                    <price-list-cell
-                      v-if="cell.alias"
-                      v-for="(cell, name) in lvl3"
-                      :key="`${rowKeyPrefix}_${cell.field}`"
-                      v-model="value"
-                      :cell-key-prefix="`${rowKeyPrefix}_${cell.field}`"
-                      :cell="cell"
-                    />
-
-                </div>
-            </div>
-            <price-list-cell
-              v-if="cell.alias"
-              v-for="(cell, name) in lvl1"
-              :key="`${rowKeyPrefix}_${cell.field}`"
-              v-model="value"
-              :cell-key-prefix="`${rowKeyPrefix}_${cell.field}`"
-              :cell="cell"
-            />
-        </div>
+        <price-list-cell
+          v-for="(cell, name) in card"
+          v-if="cell.alias"
+          :key="`${rowKeyPrefix}_${cell.field}`"
+          v-model="value"
+          :cell-key-prefix="`${rowKeyPrefix}_${cell.field}`"
+          :cell="cell"
+        />
     </div>
 </template>
 
@@ -71,55 +34,16 @@
     .v-t-row{
         font-size: 14px;
         display: flex;
+        flex-flow: row wrap;
+        @media @wid {flex-flow: row nowrap;}
         text-align: center;
-        height: 80px;
-        border: @card-border;
+        border-left: @card-border;
+        border-bottom: @card-border;
         margin: 10px 0;
-        background: @table-card-bg;
-
-        .p-l-one1{
-            width: 75%;
-            >div{height: 50%};
-        }
-        .p-l-one2{
-            width: 7%;
-            min-width: 80px;
-            >div{height: 50%};
-            >div:first-child{border-bottom: @card-border;}
-        }
-        .p-l-one3{
-            width: 25%;
-            >div{ //lvl2
-                height: 50%;
-                >div{ //cell
-                    width: 50%;
-                }
-            };
-        }
-
-        >div.p-l-l1 { //lvl1
-            border-right: @card-border;
-            flex: 1 1 auto;
-            display: flex;
-            flex-flow: column nowrap;
-            align-content: space-around;
-            height: 100%;
-
-            > div.p-l-l2 { //lvl2
-                border-bottom: @card-border;
-                flex: 1 1 auto;
-                display: flex;
-                >div.p-l-l3 { //lvl3
-                    border-right: @card-border;
-                    flex: 1 1 auto;
-                    display: flex;
-                }
-                >div:last-child{border-bottom: none}
-            }
-            >div:last-child{border-bottom: none}
-        }
-        >div:last-child{border-right: none}
-
+        @media @mob {margin: 20px 0}
+        //background: @table-card-bg;
     }
+    .v-t-row:nth-child(even){background: @rowEvenBg}
+    .v-t-row:nth-child(odd){background: @rowOddBg}
 
 </style>
