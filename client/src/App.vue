@@ -149,9 +149,6 @@ export default {
       @media @mob {border-left: dotted 1px gray}
     }
     >section{
-      @media @mob {
-        background-color: @footer-bg;
-      }
       display: flex;
       flex-direction: column;
       align-content: space-between;
@@ -185,7 +182,7 @@ export default {
         min-height: 300px;
         max-height: calc(100vh - @headerHeightDaw - @footerHeightDaw);
         @media @mob {
-          max-height: calc(var(--vh) - @headerHeightMob - @footerHeightMob );
+          max-height: calc(var(--vh, 1vh) - @headerHeightMob - @footerHeightMob );
         }
         max-width: 100%;
         overflow: auto;
@@ -234,6 +231,12 @@ export default {
         }
         a:hover{opacity: 1; color: @footer-text;}
       }
+    }
+  }
+  @media @mob {
+    html, body {
+      min-height: var(--vh, 1vh);
+      max-height: var(--vh, 1vh);
     }
   }
   h1 {font-size: 1.75em}
