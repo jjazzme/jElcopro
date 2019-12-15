@@ -166,7 +166,7 @@ export default class DocumentLine extends BaseModel {
         const newLines = parentLines
             .map((line) => {
                 const values = _.omit(line.get({ plain: true }), ['id', 'createdAt', 'updatedAt']);
-                return Object.assign(values, { parent_id: line.id, document_id: child.id });
+                return Object.assign(values, { parent_id: line.id, document_id: child.id, closed: false });
             });
         await this.bulkCreate(newLines, { individualHooks: true });
     }

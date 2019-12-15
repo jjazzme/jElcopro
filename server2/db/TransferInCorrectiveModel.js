@@ -1,6 +1,6 @@
 import Document from './DocumentModel';
 
-export default class TransferIn extends Document {
+export default class TransferInCorrective extends Document {
     transitions = [
         { name: 'toWork', from: 'formed', to: 'in_work' },
         { name: 'unWork', from: 'in_work', to: 'formed' },
@@ -20,9 +20,9 @@ export default class TransferIn extends Document {
     }
 
     // eslint-disable-next-line no-unused-vars
-    async _unWork(params) {
+    async _unWorkTransition(params) {
         await this.parentToBeOpen();
-        const documentLines = await this.getDocumentLines('withArrival');
+        const documentLines = await this.getDocumentLines({ scope: ['withArrival'] });
         return Promise.all(documentLines.map((line) => line.arrival.destroy()));
     }
 

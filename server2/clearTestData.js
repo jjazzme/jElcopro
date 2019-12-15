@@ -2,12 +2,21 @@
 import app from './index';
 
 const {
-    Invoice, Order, TransferIn, TransferOut, TransferOutCorrective,
+    Invoice, Order, TransferIn, TransferOut, TransferOutCorrective, TransferInCorrective,
 } = app.services.db.models;
 const { transition } = app.services;
 let destroys;
 
 app.services.dbConnection.transaction(async (transaction) => {
+    const transferInCorrective = await TransferInCorrective
+        .scope('defaultScope', 'withDocumentLines')
+        .findOne();
+    if (transferInCorrective) {
+        await transition.execute('unWork', transferInCorrective, { transaction });
+        await transferInCorrective.reload();
+        await transferInCorrective.documentLines[0].destroy();
+        await transferInCorrective.destroy();
+    }
     const transferOutCorrective = await TransferOutCorrective
         .scope('defaultScope', 'withDocumentLines')
         .findOne();

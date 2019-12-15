@@ -21,6 +21,7 @@ import UserModel from './UserModel';
 import TransferOutCorrectiveModel from './TransferOutCorrectiveModel';
 import CurrencyModel from './CurrencyModel';
 import Document from './DocumentModel';
+import TransferInCorrectiveModel from './TransferInCorrectiveModel';
 
 export default {
     AccessToken: {
@@ -548,6 +549,39 @@ export default {
         },
     }, document),
 
+    TransferInCorrective: _.defaultsDeep({
+        class: TransferInCorrectiveModel,
+        options: {
+            defaultScope: { where: { document_type_id: 'transfer-in-corrective' } },
+            scopes: {
+                deepDocumentLines: {
+                    include: [
+                        {
+                            model: DocumentLine,
+                            as: 'documentLines',
+                            include: [
+                                { model: DepartureModel, as: 'departure' },
+                                { model: ReserveModel, as: 'reserves' },
+                            ],
+                        },
+                    ],
+                },
+                withParent: { include: [{ model: TransferOutModel, as: 'parent' }] },
+            },
+        },
+        attributes: {
+            document_type_id: { defaultValue: 'transfer-in-corrective' },
+        },
+        relations: {
+            belongsTo: {
+                TransferOut: { foreignKey: 'parent_id', constraints: false, as: 'parent' },
+            },
+            hasMany: {
+                Document: { foreignKey: 'parent_id', as: 'children' },
+            },
+        },
+    }, document),
+
     TransferOut: _.defaultsDeep({
         class: TransferOutModel,
         options: {
@@ -573,7 +607,7 @@ export default {
                 Invoice: { foreignKey: 'parent_id', constraints: false, as: 'parent' },
             },
             hasMany: {
-                Document: { foreignKey: 'parent_id', as: 'children' },
+                TransferInCorrective: { foreignKey: 'parent_id', as: 'children' },
             },
         },
     }, document),
