@@ -81,6 +81,8 @@ export default {
   },
   methods:{
     onWindowResize(){
+      let vh = window.innerHeight;
+      document.documentElement.style.setProperty('--vh', `${vh}px`)
       this.$set(this.viewport, 'height', Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
       this.$set(this.viewport, 'width', Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
       this.$set(this.viewport, 'screenHeight', window.screen.availHeight);
@@ -183,7 +185,7 @@ export default {
         min-height: 300px;
         max-height: calc(100vh - @headerHeightDaw - @footerHeightDaw);
         @media @mob {
-          max-height: calc(100vh - @headerHeightMob - @footerHeightMob - 60px);
+          max-height: calc(var(--vh) - @headerHeightMob - @footerHeightMob );
         }
         max-width: 100%;
         overflow: auto;
