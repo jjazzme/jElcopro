@@ -157,10 +157,7 @@ export default {
       margin-left: 60px;
       min-height: 600px;
       max-height: 100vh;
-      @media @mob {
-        max-width: 100%;
-        margin-left: 0;
-      }
+
       &.pinOn{
         max-width: calc(100% - 200px);
         margin-left: 200px;
@@ -237,6 +234,13 @@ export default {
     html, body {
       min-height: var(--vh, 1vh);
       max-height: var(--vh, 1vh);
+      section{
+        max-width: 100%;
+        margin-left: 0;
+        max-height: var(--vh, 1vh);
+        min-height: var(--vh, 1vh);
+        overflow: hidden;
+      }
     }
   }
   h1 {font-size: 1.75em}
