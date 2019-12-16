@@ -26,6 +26,9 @@ export default class TransferOutCorrective extends Document {
     async _toWorkTransition(params) {
         const { Departure, Reserve } = this.services.db.models;
         const documentLines = await this.getDocumentLines({ scope: ['withReserves'] });
+        const checkReserves = documentLines
+            .reduce((check, line) => check && line.reserves && line.reserves.length === 1, true);
+        if (!checkReserves) throw Error('Every line has one resereve');
         const reserves = _.flatten(documentLines.map((line) => line.reserves));
         let promises = documentLines.map((line) => line.update({ closed: true }));
         promises = _.union(promises, reserves.map((reserve) => Departure.create({

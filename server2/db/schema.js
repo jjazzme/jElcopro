@@ -22,6 +22,7 @@ import TransferOutCorrectiveModel from './TransferOutCorrectiveModel';
 import CurrencyModel from './CurrencyModel';
 import Document from './DocumentModel';
 import TransferInCorrectiveModel from './TransferInCorrectiveModel';
+import Defective from './DefectiveModel';
 
 export default {
     AccessToken: {
@@ -47,7 +48,10 @@ export default {
 
     Arrival: {
         class: ArrivalModel,
-        options: { tableName: 'arrivals' },
+        options: {
+            tableName: 'arrivals',
+            scopes: { withDocumentLine: { include: [{ model: DocumentLine, as: 'documentLine' }] } },
+        },
         attributes: { document_line_id: DataTypes.INTEGER, ballance: DataTypes.INTEGER },
         relations: {
             belongsTo: {
@@ -123,6 +127,16 @@ export default {
         relations: { belongsTo: { Currency: { foreignKey: 'currency_id', as: 'currency' } } },
     },
 
+    Defective: _.defaultsDeep({
+        class: Defective,
+        options: {
+            defaultScope: { where: { document_type_id: 'defective' } },
+        },
+        attributes: {
+            document_type_id: { defaultValue: 'defective' },
+        },
+    }, document),
+
     Departure: {
         class: DepartureModel,
         options: { tableName: 'departures' },
@@ -144,7 +158,21 @@ export default {
             scopes: {
                 withArrival: { include: [{ model: ArrivalModel, as: 'arrival' }] },
                 withChildren: { include: [{ model: DocumentLine, as: 'children' }] },
-                withGood: { include: [{ model: GoodModel, as: 'good' }] },
+                withGood: {
+                    include: [
+                        {
+                            model: GoodModel,
+                            as: 'good',
+                            include: [
+                                {
+                                    model: ProductModel,
+                                    as: 'product',
+                                    include: [{ model: ProducerModel, as: 'producer' }],
+                                },
+                            ],
+                        },
+                    ],
+                },
                 withFutureReserve: { include: [{ model: FutureReserveModel, as: 'futureReserve' }] },
                 withReserves: { include: [{ model: ReserveModel, as: 'reserves' }] },
                 withDeparture: { include: [{ model: DepartureModel, as: 'departure' }] },
