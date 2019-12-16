@@ -174,6 +174,9 @@ export default {
                     ],
                 },
                 withFutureReserve: { include: [{ model: FutureReserveModel, as: 'futureReserve' }] },
+                withParent: {
+                    include: [{ model: DocumentLine, as: 'parent', include: [{ model: Document, as: 'document' }] }],
+                },
                 withReserves: { include: [{ model: ReserveModel, as: 'reserves' }] },
                 withDeparture: { include: [{ model: DepartureModel, as: 'departure' }] },
             },
