@@ -14,7 +14,7 @@ app.services.dbConnection.transaction(async (transaction) => {
     if (defective) {
         await transition.execute('unWork', defective, { transaction });
         await defective.reload();
-        await defective.documentLines[0].destroy();
+        await Promise.all(defective.documentLines.map((line) => line.destroy()));
         await defective.destroy();
     }
     const transferInCorrective = await TransferInCorrective

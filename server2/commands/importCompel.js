@@ -4,9 +4,7 @@ import unzipper from 'unzipper';
 import XLSX from 'xlsx';
 import _ from 'lodash';
 import app from '../index';
-import utils from '../services/utils';
-
-const { getXlsxData } = utils;
+import { getXlsxData } from '../services/utils';
 
 module.exports.run = async () => {
     const { logger, db, config } = app.services;

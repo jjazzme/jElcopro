@@ -75,7 +75,7 @@ export default class Good extends BaseModel {
         if (needToDiscard > 0) {
             const reserves = await Reserve.findAll({
                 where: { closed: false },
-                include: [{ model: DocumentLine, as: 'documentLine', where: { good_is: this.id } }],
+                include: [{ model: DocumentLine, as: 'documentLine', where: { good_id: this.id } }],
                 order: [['quantity', 'desc']],
             });
             // eslint-disable-next-line no-unused-vars
