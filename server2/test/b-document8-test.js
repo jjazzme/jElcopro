@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import app from '../index';
 
 const chai = require('chai');
@@ -14,7 +15,11 @@ describe('Test Corrective', () => {
     let good;
     before(async () => {
         elcopro = await Company.getByAlias('elcopro', 'withStores');
-        good = await Good.findOne({ include: [{ model: Product, as: 'product', where: { name: 'TEST' } }] });
+        const elcoproStore = _.find(elcopro.stores, { is_main: true });
+        good = await Good.findOne({
+            where: { store_id: elcoproStore.id },
+            include: [{ model: Product, as: 'product', where: { name: 'TEST' } }],
+        });
     });
     it('Create Defective', async () => {
         const d = await Defective.createFromOptics({
