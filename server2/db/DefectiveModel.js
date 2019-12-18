@@ -27,11 +27,11 @@ export default class Defective extends Document {
                 await line.update({ closed: true, parent_id: null });
             } else {
                 // Тут кривая логика когда случится ошибка нужно будет менять
-                const reserves = await line.parent.getReserves();
+                const reserves = await line.parent.getReserves({ scope: ['withDocumentLine'] });
                 const reserve = _.find(reserves, (o) => o.quantity >= line.quantity);
                 if (!reserve) throw new Error(`Check resereves for ${line.good.product.name}`);
                 reserve.quantity -= line.quantity;
-                const futureReserve = await reserve.documnetLine.getFutureReserve();
+                const futureReserve = await reserve.documentLine.getFutureReserve();
                 if (futureReserve) {
                     futureReserve.ballance += line.quantity;
                     await futureReserve.save();
@@ -52,6 +52,7 @@ export default class Defective extends Document {
 
     // eslint-disable-next-line no-unused-vars
     async _unWorkTransition(params) {
+        await this.update({ status_id: 'formed' });
         const { FutureReserve, DocumentLine } = this.services.db.models;
         const documentLines = await this.getDocumentLines({ scope: ['withDeparture'] });
         // eslint-disable-next-line no-unused-vars
@@ -61,8 +62,8 @@ export default class Defective extends Document {
             await line.departure.destroy();
             const count = await FutureReserve
                 .count({ include: [{ model: DocumentLine, as: 'documentLine', where: { good_id: line.good_id } }] });
-            if (count > 0) line.destroy();
-            else line.update({ closed: false, parent_id: arrival.document_line_id });
+            await line.update({ closed: false, parent_id: arrival.document_line_id });
+            if (count > 0) await line.destroy();
             await arrival.save();
         }
         return true;

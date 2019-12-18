@@ -8,11 +8,12 @@ const { transition } = app.services;
 let destroys;
 
 app.services.dbConnection.transaction(async (transaction) => {
-    const defective = await Defective
+    const defectives = await Defective
         .scope('defaultScope', 'withDocumentLines')
-        .findOne({ where: { number_prefix: 'TEST' } });
-    if (defective) {
-        await transition.execute('unWork', defective, { transaction });
+        .findAll({ where: { number_prefix: 'TEST' } });
+    // eslint-disable-next-line no-unused-vars
+    for (const defective of defectives) {
+        if (defective.status_id === 'in_work') await transition.execute('unWork', defective, { transaction });
         await defective.reload();
         await Promise.all(defective.documentLines.map((line) => line.destroy()));
         await defective.destroy();

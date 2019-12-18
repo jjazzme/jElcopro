@@ -37,4 +37,25 @@ describe('Test Corrective', () => {
         const arrival = await lines[0].departure.getArrival();
         expect(arrival.ballance, '1').to.be.equal(1);
     });
+    it('Second Defective with exeption', async () => {
+        const d = await Defective.createFromOptics({
+            sellerable_id: elcopro.id,
+            number_prefix: 'TEST',
+        });
+        const error = 'Not need quantity';
+        return expect(good.discard(d, 5), error).to.be.rejectedWith(Error, error);
+    });
+    it('Second defective', async () => {
+        const d = await Defective.getInstance({ number_prefix: 'TEST', number: 2 });
+        let lines = await good.discard(d, 4);
+        expect(lines.length, '3').to.be.equal(3);
+        let res = await transition.execute('toWork', d);
+        // eslint-disable-next-line no-unused-expressions
+        expect(res, 'Is true').to.be.true;
+        res = await transition.execute('unWork', d);
+        // eslint-disable-next-line no-unused-expressions
+        expect(res, 'Is true').to.be.true;
+        lines = await d.getDocumentLines();
+        expect(lines.length, '2').to.be.equal(2);
+    });
 });

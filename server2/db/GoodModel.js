@@ -30,61 +30,32 @@ export default class Good extends BaseModel {
         return numberOfAffectedRows;
     }
 
-    async discard(document, quantity) {
+    /**
+     * Discard good
+     * @param {Document|number} document
+     * @param {number} quantity
+     * @param { Object= } transaction
+     * @returns {Promise<Model<any, any>[]>}
+     */
+    async discard(document, quantity, transaction = null) {
         const {
             Defective, Arrival, DocumentLine, Reserve,
         } = this.services.db.models;
         const defective = await Defective.getInstance(document);
-        if (!defective) throw new Error('Not deffective document');
-        let needToDiscard = quantity;
-        const arrivals = await Arrival.findAll({
-            where: { ballance: { [Op.gt]: 0 } },
-            include: { model: DocumentLine, as: 'documentLine', where: { good_id: this.id } },
-            order: [['ballance', 'desc']],
-        });
-        // eslint-disable-next-line no-restricted-syntax,no-unused-vars
-        for (const arrival of arrivals) {
-            if (arrival.ballance > needToDiscard) {
-                await DocumentLine.create({
-                    document_id: defective.id,
-                    parent_id: arrival.documentLine.id,
-                    good_id: this.id,
-                    quantity: needToDiscard,
-                    vat: arrival.documentLine.vat,
-                    price_without_vat: arrival.documentLine.price_without_vat,
-                    closed: false,
-                    from_good_id: arrival.documentLine.from_good_id,
-                });
-                needToDiscard = 0;
-                break;
-            } else {
-                needToDiscard -= arrival.ballance;
-                // eslint-disable-next-line no-await-in-loop
-                await DocumentLine.create({
-                    document_id: defective.id,
-                    parent_id: arrival.documentLine.id,
-                    good_id: this.id,
-                    quantity: arrival.ballance,
-                    vat: arrival.documentLine.vat,
-                    price_without_vat: arrival.documentLine.price_without_vat,
-                    closed: false,
-                    from_good_id: arrival.documentLine.from_good_id,
-                });
-            }
-        }
-        if (needToDiscard > 0) {
-            const reserves = await Reserve.findAll({
-                where: { closed: false },
-                include: [{ model: DocumentLine, as: 'documentLine', where: { good_id: this.id } }],
-                order: [['quantity', 'desc']],
+        const run = async () => {
+            if (!defective) throw new Error('Not deffective document');
+            let needToDiscard = quantity;
+            const arrivals = await Arrival.findAll({
+                where: { ballance: { [Op.gt]: 0 } },
+                include: { model: DocumentLine, as: 'documentLine', where: { good_id: this.id } },
+                order: [['ballance', 'desc']],
             });
-            // eslint-disable-next-line no-unused-vars
-            for (const reserve of reserves) {
-                if (reserve.quantity > needToDiscard) {
-                    const arrival = reserve.getArrival({ scope: ['withDocumentLine'] });
+            // eslint-disable-next-line no-restricted-syntax,no-unused-vars
+            for (const arrival of arrivals) {
+                if (arrival.ballance > needToDiscard) {
                     await DocumentLine.create({
                         document_id: defective.id,
-                        parent_id: reserve.documentLine.id,
+                        parent_id: arrival.documentLine.id,
                         good_id: this.id,
                         quantity: needToDiscard,
                         vat: arrival.documentLine.vat,
@@ -92,15 +63,16 @@ export default class Good extends BaseModel {
                         closed: false,
                         from_good_id: arrival.documentLine.from_good_id,
                     });
+                    needToDiscard = 0;
                     break;
                 } else {
-                    needToDiscard -= reserve.quantity;
-                    const arrival = reserve.getArrival({ scope: ['withDocumentLine'] });
+                    needToDiscard -= arrival.ballance;
+                    // eslint-disable-next-line no-await-in-loop
                     await DocumentLine.create({
                         document_id: defective.id,
-                        parent_id: reserve.documentLine.id,
+                        parent_id: arrival.documentLine.id,
                         good_id: this.id,
-                        quantity: reserve.quantity,
+                        quantity: arrival.ballance,
                         vat: arrival.documentLine.vat,
                         price_without_vat: arrival.documentLine.price_without_vat,
                         closed: false,
@@ -108,8 +80,47 @@ export default class Good extends BaseModel {
                     });
                 }
             }
-        }
-        if (needToDiscard > 0) throw new Error('Not need quantity');
+            if (needToDiscard > 0) {
+                const reserves = await Reserve.findAll({
+                    where: { closed: false },
+                    include: [{ model: DocumentLine, as: 'documentLine', where: { good_id: this.id } }],
+                    order: [['quantity', 'desc']],
+                });
+                // eslint-disable-next-line no-unused-vars
+                for (const reserve of reserves) {
+                    if (reserve.quantity > needToDiscard) {
+                        const arrival = await reserve.getArrival({ scope: ['withDocumentLine'] });
+                        await DocumentLine.create({
+                            document_id: defective.id,
+                            parent_id: reserve.documentLine.id,
+                            good_id: this.id,
+                            quantity: needToDiscard,
+                            vat: arrival.documentLine.vat,
+                            price_without_vat: arrival.documentLine.price_without_vat,
+                            closed: false,
+                            from_good_id: arrival.documentLine.from_good_id,
+                        });
+                        break;
+                    } else {
+                        needToDiscard -= reserve.quantity;
+                        const arrival = await reserve.getArrival({ scope: ['withDocumentLine'] });
+                        await DocumentLine.create({
+                            document_id: defective.id,
+                            parent_id: reserve.documentLine.id,
+                            good_id: this.id,
+                            quantity: reserve.quantity,
+                            vat: arrival.documentLine.vat,
+                            price_without_vat: arrival.documentLine.price_without_vat,
+                            closed: false,
+                            from_good_id: arrival.documentLine.from_good_id,
+                        });
+                    }
+                }
+            }
+            if (needToDiscard > 0) throw new Error('Not need quantity');
+        };
+        if (transaction) await run();
+        else await this.services.dbConnection.transaction(async () => run());
         return DocumentLine
             .scope('withGood')
             .findAll({ where: { good_id: this.id, document_id: defective.id } });
