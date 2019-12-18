@@ -5,7 +5,7 @@ chai.use(require('chai-as-promised'));
 
 const { expect } = chai;
 
-describe('Test Invoice', () => {
+describe('Test Corrective', () => {
     let tinc;
     const {
         Invoice, TransferOut, TransferInCorrective,

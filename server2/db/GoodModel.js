@@ -39,7 +39,7 @@ export default class Good extends BaseModel {
         let needToDiscard = quantity;
         const arrivals = await Arrival.findAll({
             where: { ballance: { [Op.gt]: 0 } },
-            include: { model: DocumentLine, as: 'documentLine', where: { good_id: this.good_id } },
+            include: { model: DocumentLine, as: 'documentLine', where: { good_id: this.id } },
             order: [['ballance', 'desc']],
         });
         // eslint-disable-next-line no-restricted-syntax,no-unused-vars
@@ -53,7 +53,7 @@ export default class Good extends BaseModel {
                     vat: arrival.documentLine.vat,
                     price_without_vat: arrival.documentLine.price_without_vat,
                     closed: false,
-                    from_good_id: arrival.line.from_good_id,
+                    from_good_id: arrival.documentLine.from_good_id,
                 });
                 needToDiscard = 0;
                 break;
@@ -68,7 +68,7 @@ export default class Good extends BaseModel {
                     vat: arrival.documentLine.vat,
                     price_without_vat: arrival.documentLine.price_without_vat,
                     closed: false,
-                    from_good_id: arrival.line.from_good_id,
+                    from_good_id: arrival.documentLine.from_good_id,
                 });
             }
         }
@@ -90,7 +90,7 @@ export default class Good extends BaseModel {
                         vat: arrival.documentLine.vat,
                         price_without_vat: arrival.documentLine.price_without_vat,
                         closed: false,
-                        from_good_id: arrival.line.from_good_id,
+                        from_good_id: arrival.documentLine.from_good_id,
                     });
                     break;
                 } else {
@@ -104,11 +104,12 @@ export default class Good extends BaseModel {
                         vat: arrival.documentLine.vat,
                         price_without_vat: arrival.documentLine.price_without_vat,
                         closed: false,
-                        from_good_id: arrival.line.from_good_id,
+                        from_good_id: arrival.documentLine.from_good_id,
                     });
                 }
             }
         }
+        if (needToDiscard > 0) throw new Error('Not need quantity');
         return DocumentLine
             .scope('withGood')
             .findAll({ where: { good_id: this.id, document_id: defective.id } });

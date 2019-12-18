@@ -318,7 +318,7 @@ export default {
         },
         relations: {
             belongsTo: {
-                Document: { foreignKey: 'parent_id', constraints: false, as: 'parent' },
+                Document: { foreignKey: 'parent_id', as: 'parent' },
             },
             hasMany: {
                 TransferOut: { foreignKey: 'parent_id', as: 'children' },
@@ -336,7 +336,7 @@ export default {
         },
         relations: {
             belongsTo: {
-                Document: { foreignKey: 'parent_id', constraints: false, as: 'parent' },
+                Document: { foreignKey: 'parent_id', as: 'parent' },
             },
             hasMany: {
                 TransferIn: { foreignKey: 'parent_id', as: 'children' },
@@ -376,7 +376,6 @@ export default {
                 Unit: {
                     foreignKey: 'base_unit_id',
                     sourceKey: 'id',
-                    constraints: false,
                     as: 'baseUnit',
                 },
             },
@@ -395,13 +394,11 @@ export default {
                 ParameterName: {
                     foreignKey: 'parameter_name_id',
                     sourceKey: 'id',
-                    constraints: false,
                     as: 'parameterName',
                 },
                 ParameterValue: {
                     foreignKey: 'right_parameter_value_id',
                     sourceKey: 'id',
-                    constraints: false,
                     as: 'rightParameterValue',
                 },
             },
@@ -463,7 +460,6 @@ export default {
                 Producer: {
                     foreignKey: 'right_producer_id',
                     sourceKey: 'id',
-                    constraints: false,
                     as: 'rightProducer',
                 },
             },
@@ -493,7 +489,6 @@ export default {
                 Product: {
                     foreignKey: 'right_product_id',
                     sourceKey: 'id',
-                    constraints: false,
                     as: 'rightProduct',
                 },
             },
@@ -572,7 +567,7 @@ export default {
         },
         relations: {
             belongsTo: {
-                Order: { foreignKey: 'parent_id', constraints: false, as: 'parent' },
+                Order: { foreignKey: 'parent_id', as: 'parent' },
             },
             hasMany: {
                 TransferOutCorrective: { foreignKey: 'parent_id', as: 'children' },
@@ -605,7 +600,7 @@ export default {
         },
         relations: {
             belongsTo: {
-                TransferOut: { foreignKey: 'parent_id', constraints: false, as: 'parent' },
+                TransferOut: { foreignKey: 'parent_id', as: 'parent' },
             },
             hasMany: {
                 Document: { foreignKey: 'parent_id', as: 'children' },
@@ -635,7 +630,7 @@ export default {
         },
         relations: {
             belongsTo: {
-                Invoice: { foreignKey: 'parent_id', constraints: false, as: 'parent' },
+                Invoice: { foreignKey: 'parent_id', as: 'parent' },
             },
             hasMany: {
                 TransferInCorrective: { foreignKey: 'parent_id', as: 'children' },
@@ -668,7 +663,7 @@ export default {
         },
         relations: {
             belongsTo: {
-                TransferIn: { foreignKey: 'parent_id', constraints: false, as: 'parent' },
+                TransferIn: { foreignKey: 'parent_id', as: 'parent' },
             },
             hasMany: {
                 Document: { foreignKey: 'parent_id', as: 'children' },
@@ -690,7 +685,6 @@ export default {
                 Unit: {
                     foreignKey: 'base_unit_id',
                     sourceKey: 'id',
-                    constraints: false,
                     as: 'baseUnit',
                 },
             },

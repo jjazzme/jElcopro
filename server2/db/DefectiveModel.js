@@ -14,7 +14,9 @@ export default class Defective extends Document {
         const documentLines = await this.getDocumentLines({ scope: ['withParent', 'withGood'] });
         // eslint-disable-next-line no-unused-vars
         for (const line of documentLines) {
-            if (line.parent.document_type_id === 'transfer-in') {
+            const index = ['transfer-in', 'transfer-in-corrective', 'undefective', 'movement-in']
+                .indexOf(line.parent.document.document_type_id);
+            if (index >= 0) {
                 const arrival = await line.parent.getArrival();
                 arrival.ballance -= line.quantity;
                 if (arrival.ballance < 0) {
@@ -60,9 +62,14 @@ export default class Defective extends Document {
             const count = await FutureReserve
                 .count({ include: [{ model: DocumentLine, as: 'documentLine', where: { good_id: line.good_id } }] });
             if (count > 0) line.destroy();
-            else line.update({ close: false, parent_id: arrival.document_line_id });
+            else line.update({ closed: false, parent_id: arrival.document_line_id });
             await arrival.save();
         }
         return true;
+    }
+
+    static async createFromOptics(optics) {
+        optics.buyerable_id = optics.sellerable_id;
+        return super.createFromOptics(optics);
     }
 }

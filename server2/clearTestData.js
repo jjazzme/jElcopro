@@ -2,15 +2,24 @@
 import app from './index';
 
 const {
-    Invoice, Order, TransferIn, TransferOut, TransferOutCorrective, TransferInCorrective,
+    Invoice, Order, TransferIn, TransferOut, TransferOutCorrective, TransferInCorrective, Defective,
 } = app.services.db.models;
 const { transition } = app.services;
 let destroys;
 
 app.services.dbConnection.transaction(async (transaction) => {
+    const defective = await Defective
+        .scope('defaultScope', 'withDocumentLines')
+        .findOne({ where: { number_prefix: 'TEST' } });
+    if (defective) {
+        await transition.execute('unWork', defective, { transaction });
+        await defective.reload();
+        await defective.documentLines[0].destroy();
+        await defective.destroy();
+    }
     const transferInCorrective = await TransferInCorrective
         .scope('defaultScope', 'withDocumentLines')
-        .findOne();
+        .findOne({ where: { number_prefix: 'TEST' } });
     if (transferInCorrective) {
         await transition.execute('unWork', transferInCorrective, { transaction });
         await transferInCorrective.reload();
@@ -19,12 +28,13 @@ app.services.dbConnection.transaction(async (transaction) => {
     }
     const transferOutCorrective = await TransferOutCorrective
         .scope('defaultScope', 'withDocumentLines')
-        .findOne();
+        .findOne({ where: { number_prefix: 'TEST' } });
     if (transferOutCorrective) {
         await transition.execute('unWork', transferOutCorrective, { transaction });
         await transition.execute('unreserve', transferOutCorrective, { transaction });
         await transferOutCorrective.reload();
         await transferOutCorrective.documentLines[0].destroy();
+        await transferOutCorrective.destroy();
     }
     const transferOuts = await TransferOut
         .scope('defaultScope', 'withDocumentLines')
@@ -69,10 +79,6 @@ app.services.dbConnection.transaction(async (transaction) => {
         if (transferIn.status_id === 'in_work') {
             await transition.execute('unWork', transferIn, { transaction });
         }
-        /* destroys = transferIn.documentLines
-            .filter((line) => line.arrival)
-            .map((line) => line.arrival.destroy());
-        await Promise.all(destroys); */
         destroys = transferIn.documentLines.map(async (line) => {
             await line.reload();
             return line.destroy();
