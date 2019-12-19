@@ -18,6 +18,9 @@ app.services.dbConnection.transaction(async (transaction) => {
         await Promise.all(defective.documentLines.map((line) => line.destroy()));
         await defective.destroy();
     }
+    const inv = await Invoice.getInstance({ number_prefix: 'TEST', status_id: 'in_work' });
+    await transition.execute('unWork', inv, { transaction });
+    await transition.execute('unreserve', inv, { transaction });
     const transferInCorrective = await TransferInCorrective
         .scope('defaultScope', 'withDocumentLines')
         .findOne({ where: { number_prefix: 'TEST' } });

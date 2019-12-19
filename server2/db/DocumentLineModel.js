@@ -84,7 +84,7 @@ export default class DocumentLine extends BaseModel {
             if (line.closed) {
                 throw new Error('Has not closed lines');
             }
-            line.departure = line.departure || await line.getDeparture();
+            line.departure = await line.getDeparture();
             if (line.departure) {
                 await Reserve.create(
                     {
