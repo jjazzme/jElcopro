@@ -23,6 +23,7 @@ import CurrencyModel from './CurrencyModel';
 import Document from './DocumentModel';
 import TransferInCorrectiveModel from './TransferInCorrectiveModel';
 import Defective from './DefectiveModel';
+import Undefective from './UndefectiveModel';
 
 export default {
     AccessToken: {
@@ -690,6 +691,17 @@ export default {
             },
         },
     },
+
+    Undefective: _.defaultsDeep({
+        class: Undefective,
+        options: {
+            defaultScope: { where: { document_type_id: 'undefective' } },
+        },
+        attributes: {
+            document_type_id: { defaultValue: 'undefective' },
+        },
+    }, document),
+
 
     User: {
         class: UserModel,
