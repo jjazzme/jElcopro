@@ -125,4 +125,28 @@ export default class Good extends BaseModel {
             .scope('withGood')
             .findAll({ where: { good_id: this.id, document_id: defective.id } });
     }
+
+    async reestablish(document, quantity, transaction = null) {
+        const {
+            Undefective, DocumentLine,
+        } = this.services.db.models;
+        const undefective = await Undefective.getInstance(document);
+        const run = async () => {
+            if (!undefective) throw new Error('Need Undefective document');
+            await DocumentLine.create({
+                document_id: undefective.id,
+                good_id: this.id,
+                quantity,
+                vat: 0,
+                price_without_vat: 0,
+                closed: false,
+                from_good_id: this.id,
+            });
+        };
+        if (transaction) await run();
+        else await this.services.dbConnection.transaction(async () => run());
+        return DocumentLine
+            .scope('withGood')
+            .findAll({ where: { good_id: this.id, document_id: undefective.id } });
+    }
 }
