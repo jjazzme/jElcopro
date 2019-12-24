@@ -170,7 +170,7 @@ export default class Document extends BaseModel {
         begin.setHours(0, 0, 0, 0);
         const last = await this.findOne({
             where: { date: { [Sequelize.Op.gt]: begin }, number_prefix: prefix || null },
-            order: ['number'],
+            order: [['number', 'DESC']],
         });
         return last ? last.number + 1 : 1;
     }

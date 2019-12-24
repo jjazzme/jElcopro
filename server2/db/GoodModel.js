@@ -126,6 +126,13 @@ export default class Good extends BaseModel {
             .findAll({ where: { good_id: this.id, document_id: defective.id } });
     }
 
+    /**
+     * Reestablish
+     * @param {Document|number} document
+     * @param {number} quantity
+     * @param {Object} transaction
+     * @returns {Promise<DocumentLine>}
+     */
     async reestablish(document, quantity, transaction = null) {
         const {
             Undefective, DocumentLine,
@@ -147,6 +154,9 @@ export default class Good extends BaseModel {
         else await this.services.dbConnection.transaction(async () => run());
         return DocumentLine
             .scope('withGood')
-            .findAll({ where: { good_id: this.id, document_id: undefective.id } });
+            .findOne({
+                where: { good_id: this.id, document_id: undefective.id },
+                order: [['id', 'DESC']],
+            });
     }
 }
