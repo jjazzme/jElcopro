@@ -21,7 +21,7 @@ export default class Undefective extends Document {
     // eslint-disable-next-line no-unused-vars
     async _unWorkTransition(params) {
         const lines = await this.getDocumentLines({ scope: ['withArrival'] });
-        const promises = lines.map((line) => line.destroy());
+        const promises = lines.map((line) => line.arrival.destroy());
         return Promise.all(promises);
     }
 

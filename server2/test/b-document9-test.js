@@ -8,7 +8,7 @@ const { expect } = chai;
 
 describe('Test Corrective', () => {
     const {
-        Undefective, Company, Good, Product, DocumentLine,
+        Undefective, Company, Good, Product, DocumentLine, Arrival,
     } = app.services.db.models;
     const { transition } = app.services;
     let elcopro;
@@ -34,5 +34,12 @@ describe('Test Corrective', () => {
                     good_id: good.id, from_good_id: good.id, quantity: 2, closed: false,
                 },
             );
+    });
+    it('Udefectife transitions', async () => {
+        const res = await transition.execute('toWork', undefective);
+        // eslint-disable-next-line no-unused-expressions
+        expect(res, 'Is true').to.be.true;
+        const line = _.first(await undefective.getDocumentLines({ scope: ['withArrival'] }));
+        expect(line.arrival, 'Arrival').to.be.an.instanceof(Arrival).and.deep.include({ ballance: 2 });
     });
 });

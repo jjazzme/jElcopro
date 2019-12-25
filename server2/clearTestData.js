@@ -3,27 +3,37 @@ import app from './index';
 
 const {
     Invoice, Order, TransferIn, TransferOut, TransferOutCorrective, TransferInCorrective, Defective, Good, Arrival,
-    FutureReserve, Reserve,
+    FutureReserve, Reserve, Undefective,
 } = app.services.db.models;
 const { transition } = app.services;
 let destroys;
 
-const getState = async () => {
-    const arrivals = await Arrival.findAll();
-    const futureReserves = await FutureReserve.findAll();
-    const reserves = await Reserve.findAll();
-    return {
-        good: await Good.getInstance(11),
-        arrivalsCount: arrivals.reduce((sum, a) => sum + a.ballance, 0),
-        futureReserevesCount: futureReserves.reduce((sum, f) => sum + f.ballance, 0),
-        reservesCount: reserves.reduce((sum, r) => sum + r.quantity, 0),
-    };
-};
+class State {
+    constructor(goodId) {
+        this.goodId = goodId;
+    }
+
+    async refresh() {
+        const arrivals = await Arrival.findAll();
+        const futureReserves = await FutureReserve.findAll();
+        const reserves = await Reserve.findAll();
+        this.good = await Good.getInstance(11);
+        this.arrivalsCount = arrivals.reduce((sum, a) => sum + a.ballance, 0);
+        this.futureReserevesCount = futureReserves.reduce((sum, f) => sum + f.ballance, 0);
+        this.reservesCount = reserves.reduce((sum, r) => sum + r.quantity, 0);
+    }
+}
+
+const state = new State(11);
 
 
 app.services.dbConnection.transaction(async (transaction) => {
-    // eslint-disable-next-line no-unused-vars
-    let state = await getState();
+    await state.refresh();
+    const undefective = await Undefective.findOne({ where: { number_prefix: 'TEST' } });
+    await transition.execute('unWork', undefective, { transaction });
+    const lines = await undefective.getDocumentLines();
+    await Promise.all(lines.map((line) => line.destroy()));
+    await undefective.destroy();
     const defectives = await Defective
         .scope('defaultScope', 'withDocumentLines')
         .findAll({ where: { number_prefix: 'TEST' } });
@@ -34,12 +44,9 @@ app.services.dbConnection.transaction(async (transaction) => {
         await Promise.all(defective.documentLines.map((line) => line.destroy()));
         await defective.destroy();
     }
-    state = await getState();
     const inv = await Invoice.getInstance({ number_prefix: 'TEST', status_id: 'in_work' });
     await transition.execute('unWork', inv, { transaction });
-    state = await getState();
     await transition.execute('unreserve', inv, { transaction });
-    state = await getState();
     const transferInCorrective = await TransferInCorrective
         .scope('defaultScope', 'withDocumentLines')
         .findOne({ where: { number_prefix: 'TEST' } });
@@ -49,7 +56,6 @@ app.services.dbConnection.transaction(async (transaction) => {
         await transferInCorrective.documentLines[0].destroy();
         await transferInCorrective.destroy();
     }
-    state = await getState();
     const transferOutCorrective = await TransferOutCorrective
         .scope('defaultScope', 'withDocumentLines')
         .findOne({ where: { number_prefix: 'TEST' } });
@@ -60,7 +66,6 @@ app.services.dbConnection.transaction(async (transaction) => {
         await transferOutCorrective.documentLines[0].destroy();
         await transferOutCorrective.destroy();
     }
-    state = await getState();
     const transferOuts = await TransferOut
         .scope('defaultScope', 'withDocumentLines')
         .findAll({ where: { number_prefix: 'TEST' } });
@@ -76,7 +81,6 @@ app.services.dbConnection.transaction(async (transaction) => {
         await Promise.all(destroys);
         await transferOut.destroy();
     }
-    state = await getState();
     const invoices = await Invoice
         .scope('defaultScope', 'withDocumentLines')
         .findAll({ where: { number_prefix: 'TEST' } });
@@ -100,7 +104,6 @@ app.services.dbConnection.transaction(async (transaction) => {
         await Promise.all(destroys);
         await invoice.destroy();
     }
-    state = await getState();
     const transferIns = await TransferIn
         .scope('defaultScope', 'deepDocumentLines', 'withParent')
         .findAll({ where: { number_prefix: 'TEST' } });
