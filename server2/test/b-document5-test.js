@@ -62,6 +62,9 @@ describe('Test Invoice', () => {
         const out = await TransferOut.createFromOptics({ parent_id: invoice.id, number_prefix: 'TEST' });
         expect(out, 'TranserOut')
             .to.be.an.instanceof(TransferOut).and.deep.include({ status_id: 'formed' });
+        const line = _.first(await out.getDocumentLines());
+        expect(line, 'Amount with vat 48')
+            .to.be.an.instanceof(DocumentLine).and.deep.include({ amount_with_vat: 48 });
     });
     it('TransfeOut transition test', async () => {
         const transferOut = await TransferOut.getInstance({ number_prefix: 'TEST' });

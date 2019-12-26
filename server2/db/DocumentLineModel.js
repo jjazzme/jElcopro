@@ -192,7 +192,7 @@ export default class DocumentLine extends BaseModel {
                 quantity: reserve.quantity,
                 parent_id: reserve.documentLine.id,
             });
-            newLine = _.omit(newLine, ['id', 'createdAt', 'updatedAt']);
+            newLine = _.omit(newLine, ['id', 'createdAt', 'updatedAt', 'amount_with_vat', 'amount_without_vat']);
             newLine = await this.create(newLine);
             await Departure.create({ document_line_id: newLine.id, arrival_id: reserve.arrival_id });
             await reserve.destroy();

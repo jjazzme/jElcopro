@@ -1,6 +1,6 @@
 import Document from './DocumentModel';
 
-export default class Invoice extends Document {
+export default class Movement extends Document {
     transitions = [
         { name: 'reserve', from: 'formed', to: 'reserved' },
         { name: 'unreserve', from: 'reserved', to: 'formed' },

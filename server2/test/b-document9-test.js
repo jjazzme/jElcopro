@@ -23,7 +23,7 @@ describe('Test Corrective', () => {
         });
     });
     it('Create undefective', async () => {
-        undefective = await Undefective.createFromOptics({ buyerable_id: elcopro.id, name_prefix: 'TEST' });
+        undefective = await Undefective.createFromOptics({ buyerable_id: elcopro.id, number_prefix: 'TEST' });
         expect(undefective, 'Undefective').to.be.an.instanceof(Undefective).and.deep.include({ status_id: 'formed' });
     });
     it('Create line', async () => {

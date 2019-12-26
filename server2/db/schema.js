@@ -24,6 +24,8 @@ import Document from './DocumentModel';
 import TransferInCorrectiveModel from './TransferInCorrectiveModel';
 import Defective from './DefectiveModel';
 import Undefective from './UndefectiveModel';
+import MovementModel from './MovementModel';
+import MovementOutModel from './MovementOutModel';
 
 export default {
     AccessToken: {
@@ -324,6 +326,42 @@ export default {
             hasMany: {
                 TransferOut: { foreignKey: 'parent_id', as: 'children' },
             },
+        },
+    }, document),
+
+    Movement: _.defaultsDeep({
+        class: MovementModel,
+        options: {
+            defaultScope: { where: { document_type_id: 'movement' } },
+        },
+        attributes: {
+            document_type_id: { defaultValue: 'movement' },
+        },
+        relations: {
+            belongsTo: {
+                Document: { foreignKey: 'parent_id', as: 'parent' },
+            },
+            hasMany: {
+                MovementOut: { foreignKey: 'parent_id', as: 'children' },
+            },
+        },
+    }, document),
+
+    MovementOut: _.defaultsDeep({
+        class: MovementOutModel,
+        options: {
+            defaultScope: { where: { document_type_id: 'movement-out' } },
+        },
+        attributes: {
+            document_type_id: { defaultValue: 'movement-out' },
+        },
+        relations: {
+            belongsTo: {
+                Movement: { foreignKey: 'parent_id', as: 'parent' },
+            },
+            // hasMany: {
+            //     MovementOut: { foreignKey: 'parent_id', as: 'children' },
+            // },
         },
     }, document),
 
