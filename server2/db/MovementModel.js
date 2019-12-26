@@ -10,4 +10,9 @@ export default class Movement extends Document {
         { name: 'openReserves', from: 'in_work', to: 'in_work' },
         { name: 'close', from: 'in_work', to: 'closed' },
     ];
+
+    static async createFromOptics(optics) {
+        if (optics.buyerable_id !== optics.sellerable_id) throw new Error('Different contragents');
+        return super.createFromOptics(optics);
+    }
 }
