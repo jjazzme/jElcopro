@@ -1,24 +1,22 @@
 <template>
   <body>
     <nav-component
-      v-if="user"
+      v-if="storeUser"
       v-model="navModel"
       :class="{ open: navModel.navIsOpen, pin: !navModel.pinOff }"
     />
 
     <section
-      v-if="user"
+      v-if="storeUser"
       :class="{ pinOn: !navModel.pinOff}"
     >
       <header-component
         v-model="headerModel"
       />
 
-      <main>
-        <router-view
-          :model="mainModel"
-        />
-      </main>
+      <router-view
+        :model="mainModel"
+      />
 
       <footer-component
         v-model="footerModel"
@@ -33,12 +31,13 @@
 
 <script>
 
-import navComponent from './components/body/v3/nav';
-import headerComponent from './components/body/v3/header';
-import footerComponent from './components/body/v3/footer';
-import LoginComponent from "./components/body/v3/login";
+import navComponent from './components/body/nav';
+import headerComponent from './components/body/header';
+import footerComponent from './components/body/footer';
+import LoginComponent from "./components/body/login";
 import DataSource from "./classLib/DataSource";
-import RequestsComponent from "./components/body/v3/requests";
+import RequestsComponent from "./components/body/requests";
+import Viewport from "./classLib/Viewport";
 
 export default {
   name: 'app',
@@ -56,63 +55,54 @@ export default {
       headerModel: null,
       mainModel: null,
       navModel: null,
-      viewport: {
-        bigWidthPoint: 1600,
-        height: 0,
-        mainWidth: 0,
-        mainHeight: 0,
-        type: (width) => {
-          if (width < 801) return 'mob';
-          else if (width < 1801) return 'des';
-          else return 'wid'
-        },
-        mobileWidthPoint: 600,
-        screenHeight: 0,
-        screenWidth: 0,
-        width: 0,
-      },
+      //user: null,
+      viewport: new Viewport(800, 1800)
     }
   },
   computed:{
-    user(){
+    storeUser(){
       return this.$store.getters['Auth/getUser']
     },
     requests(){ return this.$store.getters['Binder/getRequests'] }
   },
   methods:{
-    onWindowResize(){
-      let vh = window.innerHeight;
-      document.documentElement.style.setProperty('--vh', `${vh}px`)
-      this.$set(this.viewport, 'height', Math.max(document.documentElement.clientHeight, window.innerHeight || 0));
-      this.$set(this.viewport, 'width', Math.max(document.documentElement.clientWidth, window.innerWidth || 0));
-      this.$set(this.viewport, 'screenHeight', window.screen.availHeight);
-      this.$set(this.viewport, 'screenWidth', window.screen.availWidth);
-      this.$set(this.viewport, 'mainWidth', $('body > section > main').clientWidth);
-      this.$set(this.viewport, 'mainHeight', $('body > section > main').clientHeight);
-
-      return true;
-    }
+    onResize: _.debounce( function(){
+      this.viewport.calculate()
+    }, 500),
   },
   created() {
-    window.addEventListener("resize", this.onWindowResize);
-    this.onWindowResize();
+    window.addEventListener("resize", this.onResize);
+    _.delay(() => { this.viewport.calculate() }, 500);
 
-    this.$set(this, 'dataSource', new DataSource(this.$store));
-    this.$store.dispatch('Auth/autoLogin');
+    if (!this.dataSource) this.$set(this, 'dataSource', new DataSource(this.$store, this.$route.query.optics, 500));
+    this.$store.commit('Binder/setLoaders', this.dataSource.shells.getBinders);
+    this.dataSource.loadReferences();
+
+    this.$store.dispatch('Auth/autoLogin')
+      .then(user => {
+        //this.$set(this, 'user', user);
+        this.$set(this.dataSource, 'user', user);
+      });
 
     this.$set(this, 'navModel', { pinOff: true, navIsOpen: false, viewport: this.viewport, dataSource: this.dataSource });
     this.$set(this, 'footerModel', { viewport: this.viewport, dataSource: this.dataSource });
     this.$set(this, 'headerModel', { viewport: this.viewport, dataSource: this.dataSource });
-
     this.$set(this, 'mainModel', { viewport: this.viewport, dataSource: this.dataSource })
   },
   destroyed(){
-    window.removeEventListener("resize", this.onWindowResize);
+    window.removeEventListener("resize", this.onResize);
   },
   watch:{
-    user(n){
+    storeUser(n){
+      //this.$set(this, 'user', n);
       this.$set(this.dataSource, 'user', n);
-    }
+    },
+    //'$route.query.optics'(n){
+    //  this.dataSource.setOptics = n;
+    //},
+    'navModel.pinOff'(){
+      this.onResize();
+    },
   },
 
 }
@@ -120,6 +110,11 @@ export default {
 
 <style lang="less">
   @import "~@/less/_variables";
+
+  @keyframes spin {
+    from {transform:rotate(0deg);}
+    to {transform:rotate(360deg);}
+  }
   body{
     opacity: 1;
     background: @body-bg;
@@ -176,38 +171,43 @@ export default {
       >main{
         background-color: white;
         flex: 1 1 auto;
-        min-height: 300px;
+        min-height: calc(100vh - @headerHeightDaw - @footerHeightDaw);
         max-height: calc(100vh - @headerHeightDaw - @footerHeightDaw);
         @media @mob {
           max-height: calc(var(--vh, 1vh) - @headerHeightMob - @footerHeightMob );
         }
         max-width: 100%;
-        overflow: auto;
+        overflow: hidden;
+        display: flex;
+        flex-flow: column nowrap;
+
+        >header {
+          padding: 10px;
+          background: @articleHeaderBg;
+        }
         >article{
+          flex: 1 1 auto;
+          overflow: auto;
+          background: #fff0f0;
           border-radius: 10px;
-          min-height: 100%;
-          max-height: 100%;
-          height: 100%;
+          height: auto;
           display: flex;
           flex-flow: column nowrap;
           background: @main-article-bg;
         }
         @media @mob {
           >article{
-            margin: 0 5px;
-            padding: 5px;
+            padding: 5px 10px;
           }
         }
         @media @des {
           >article{
-            margin: 0 10px;
-            padding: 10px;
+            padding: 10px 20px;
           }
         }
         @media @wid {
           >article{
-            margin: 0 20px;
-            padding: 20px;
+            padding: 20px 40px;
           }
         }
       }

@@ -1,9 +1,71 @@
-//import _ from "lodash";
+'use strict';
+
+import axios from "axios";
+import priceListParametersConstructor from "../../components/tables/parametersConstructor/priceListParametersConstructor"
+import priceListFooter from "../../components/body/footerComponents/priceListFooter"
+import PriceLoadProcessor from "./Shells/PriceLoadProcessor";
+import TableLoadProcessor from "./Shells/TableLoadProcessor";
+import tableFooter from "../../components/body/footerComponents/tableFooter"
+import tableParametersConstructor from "../../components/tables/parametersConstructor/tableParametersConstructor"
 
 export default class Shells{
-  constructor(){
-    this.value = {
+  constructor(limit){
+    this.template = {
+      Currency:{
+        binder: {
+          key: item=>item.id,
+          byOpticsLoader: (payload)=>axios.put(
+            '/api/currency',
+            { optics:payload.optics, params:payload.params }
+          ),
+          ttl: 3600e3*24,
+          cache:[],
+          cacheSets: [],
+        },
+        menu: false,
+        optics: { limit: -1, page: 1 }
+      },
+      CurrencyRateService:{
+        binder: {
+          key: item=>item.id,
+          byOpticsLoader: () =>
+            axios.put(
+              '/api/currencyRateService',
+              { date: Date.now() }
+            )
+          ,
+          ttl: 3600e3*24,
+          cache:[],
+          cacheSets: [],
+        },
+        menu: false,
+        controller:{
+          aliases: {
+            currency_id: { path: 'Currency', as: 'currency' },
+          }
+        },
+        optics: { limit: -1, page: 1 }
+      },
+      DocumentLine:{
+        binder: {key: item=>item.id},
+        initial:{
+          amount_with_vat:{},
+          amount_without_vat:{},
+          closed:{},
+
+        },
+      },
       Invoice:{
+        binder:{
+          key: item=>item.id,
+          byOpticsLoader: (payload)=>axios.put(
+            `/api/invoice`,
+            {optics:payload.optics, params:payload.params}),
+          itemLoader: (key)=>axios.get(`/api/invoice/${key}`),
+          ttl: 3600e3*24,
+          cache: [],
+          cacheSets: [],
+        },
         initial:{
           id:{show:false, hidden: true, sortable: false, card: false,},
           date:{to: {name:'modelItem', params:{table: 'Invoice', id:'$id'}}, editor: 'calendar', show: true, order:10, sortable: true, label: 'Дата', card: false,
@@ -47,6 +109,7 @@ export default class Shells{
             ]},
         },
         controller:{
+          scopes:['withSellerable', 'withBuyerable', 'withStore', 'withCurrency', 'withDocumentLines'],
           aliases:{
             sellerable_id: {path: 'Company.Party', as:'sellerable.party', column: 'name'},
             buyerable_id: {path:'Company.Party', as:'buyerable', column: 'name'},
@@ -61,9 +124,21 @@ export default class Shells{
         },
         faIcon: {prefix: "fas", name: "file-invoice-dollar"},
         name: {one: 'счёт', many: 'счета', cardof: 'счёта',},
-        menu: true,
+        menu: 1040,
+        optics: { page: 1, sorters: {}, filters: {}, items: [], limit: limit },
       },
       Order:{
+        binder:{
+          key: item=>item.id,
+          byOpticsLoader: (payload)=>axios.put(
+            `/api/order`,
+            {optics:payload.optics, params:payload.params}),
+          itemLoader: (key)=>axios.get(`/api/order/${key}`),
+          ttl: 3600e3*24,
+          cache: [], // [[id, updated, {}], [id, updated, {}]]
+          cacheSets: [], // [[hash, updated, [ids]], [hash, updated, [ids]]
+        },
+        scopes:['withSellerable', 'withBuyerable', 'withStore', 'withCurrency', 'withDocumentLines'],
         initial:{
           id:{show:false, hidden: true, sortable: false, card: false},
           date:{to: {name:'modelItem', params:{table: 'Order', id:'$id'}}, editor: 'calendar', show: true, order:10, sortable: true, label: 'Дата', card: false,
@@ -119,11 +194,77 @@ export default class Shells{
             document_type_id: [{type: '=', value: 'order'}],
           }
         },
-        menu: true,
+        menu: 1060,
         faIcon: {prefix: "fab", name:"codepen"},
         name: {one: 'заказ', many: 'заказы', cardof: 'заказа',},
+        optics: { page: 1, sorters: {}, filters: {}, items: [], limit: limit },
+      },
+      PriceList:{
+        loadProcessor: new PriceLoadProcessor(),
+        footer: priceListFooter,
+        opticsConstructor: priceListParametersConstructor,
+        optics: { search: 'max', quantity: 5, fromQuantity: false, onlyDB: true, depth: 20, pages: 1, fromRelevance: false, relevance: 24, selectedStores: [] },
+        getBackSensitive: o => { return o.search.length > 3 ? { name: o.search, from_store_ids: o.selectedStores, onlyDB: o.onlyDB } : null },
+        binder:{
+          ttl: -1,
+          byOpticsLoader: (payload)=>axios.put(
+            `/api/price`,
+            { optics: payload.optics },
+            { headers: {_eid: payload.eid } },
+          ),
+        },
+        initial:{
+          online: {label: 'тип', html: row=>{
+              return row.online
+                ? "<svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"globe\" class=\"svg-inline--fa fa-globe fa-w-16\" role=\"img\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 496 512\"><path fill=\"currentColor\" d=\"M336.5 160C322 70.7 287.8 8 248 8s-74 62.7-88.5 152h177zM152 256c0 22.2 1.2 43.5 3.3 64h185.3c2.1-20.5 3.3-41.8 3.3-64s-1.2-43.5-3.3-64H155.3c-2.1 20.5-3.3 41.8-3.3 64zm324.7-96c-28.6-67.9-86.5-120.4-158-141.6 24.4 33.8 41.2 84.7 50 141.6h108zM177.2 18.4C105.8 39.6 47.8 92.1 19.3 160h108c8.7-56.9 25.5-107.8 49.9-141.6zM487.4 192H372.7c2.1 21 3.3 42.5 3.3 64s-1.2 43-3.3 64h114.6c5.5-20.5 8.6-41.8 8.6-64s-3.1-43.5-8.5-64zM120 256c0-21.5 1.2-43 3.3-64H8.6C3.2 212.5 0 233.8 0 256s3.2 43.5 8.6 64h114.6c-2-21-3.2-42.5-3.2-64zm39.5 96c14.5 89.3 48.7 152 88.5 152s74-62.7 88.5-152h-177zm159.3 141.6c71.4-21.2 129.4-73.7 158-141.6h-108c-8.8 56.9-25.6 107.8-50 141.6zM19.3 352c28.6 67.9 86.5 120.4 158 141.6-24.4-33.8-41.2-84.7-50-141.6h-108z\"></path></svg>"
+                : "<svg aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"database\" class=\"svg-inline--fa fa-database fa-w-14\" role=\"img\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 448 512\"><path fill=\"currentColor\" d=\"M448 73.143v45.714C448 159.143 347.667 192 224 192S0 159.143 0 118.857V73.143C0 32.857 100.333 0 224 0s224 32.857 224 73.143zM448 176v102.857C448 319.143 347.667 352 224 352S0 319.143 0 278.857V176c48.125 33.143 136.208 48.572 224 48.572S399.874 209.143 448 176zm0 160v102.857C448 479.143 347.667 512 224 512S0 479.143 0 438.857V336c48.125 33.143 136.208 48.572 224 48.572S399.874 369.143 448 336z\"></path></svg>"
+
+
+            }},
+          name: { label:'название', to: item=> { return { name:'goods', params:{ id:item.good_id } } } },
+          code: { label: 'код' },
+          producer_name: { label: 'произв.', to: item=> { return { name:'producer', params:{ id:item.producer_id } } } },
+          case: { label: 'корпус', to: item=> { return { name:'case', params:{ id:item.parameter_id } } } },
+          remark: { label: 'примечание' },
+          ballance: { label: 'кол-во' },
+          real: { label: 'добавить', component: 'priceListAddToCards' },
+          actual: { label: 'дата', html: row=>`<span ${Math.abs(Date.now() -new Date(row.actual)) / 36e5 >= row._relevance ? 'class="text-danger"' : ''}>${Intl.DateTimeFormat(
+              'ru-RU',
+              {
+                year: 'numeric', month: 'numeric', day: 'numeric',
+                hour: 'numeric', minute: 'numeric', second: 'numeric',
+                hour12: false
+              }).format(new Date(row.actual))}</span>` },
+          min:{ label: 'мин.' },
+          max:{ label: 'макс.' },
+          pack: { label: 'упак.' },
+          multiply: { label: 'кратно' },
+          priceUSD: { label: 'цена $', html: row=>row._priceUSD.toFixed(2) },
+          sumUSD: { label: 'сумма $', html: row=>row._sumUSD.toFixed(2) },
+          average_days: { label: 'дней' },
+          priceRUR: { label: 'цена ₽', html: row=>row._priceRUR.toFixed(2)},
+          sumRUR: { label: 'сумма ₽', html: row=>row._sumRUR.toFixed(2) },
+          vat: { label: 'ндс', field:'vat'},
+          party_name: { label: 'поставщик', to: item=> { return { name:'company', params:{ id:item.company_id } } } },
+          store_name: { label: 'склад', to: item=> { return { name:'store', params:{ id:item.store_id } } } },
+        },
+        menu: 1010,
+        faIcon: {prefix: "fas", name:"hand-holding-usd"},
+        name: {one: 'прайс', many: 'прайсы', cardof: 'прайса',},
       },
       Product: {
+        binder: {
+          key: item=>item.id,
+          byOpticsLoader: (payload)=>axios.put(
+            `/api/product`,
+            { optics: payload.optics, params: payload.params },
+            { headers: {_eid: payload.eid } },
+            ),
+          itemLoader: (key)=>axios.get(`/api/product/${key}`),
+          ttl: 3600e3*24,
+          cache: [],
+          cacheSets: [],
+        },
         initial: {
           id:{show:false, hidden: true, sortable: false},
           name:{to:{name:'modelItem', params:{table: 'Product', id:'$id'}}, editor:'string' ,show: true, order:1, sortable: true, label: 'Название',
@@ -146,16 +287,28 @@ export default class Shells{
               : `<img src="/image/small/${item.picture}" class="rounded-circle">`},
         },
         controller:{
+          scopes:['withSellerable', 'withBuyerable', 'withStore', 'withCurrency', 'withDocumentLines'],
           aliases: {
             category_id: {path: 'Category', column: 'name'},
             producer_id: {path: 'Producer', column: 'name'}
           }
         },
-        menu: true,
+        menu: 1020,
         faIcon: {prefix: "fas", name: "barcode"},
         name: {one: 'продукт', many: 'продукты', cardof: 'продукта',},
+        optics: { page: 1, sorters: {}, filters: {}, items: [], limit: limit },
       },
       Producer: {
+        binder: {
+          key: item=>item.id,
+          byOpticsLoader: (payload)=>axios.put(
+            `/api/producer`,
+            {optics:payload.optics, params:payload.params}),
+          itemLoader: (key)=>axios.get(`/api/producer/get/${key}`),
+          ttl: 3600e3*24,
+          cache: [],
+          cacheSets: [],
+        },
         initial: {
           id:{show:false, hidden: true, sortable: false},
           name:{editor:'string' ,show: true, order:1, sortable: true, label: 'Название',
@@ -185,11 +338,31 @@ export default class Shells{
             right_producer: {path: 'Producer', column: 'name', as: 'rightProducer'}
           }
         },
-        menu: true,
+        menu: 1030,
         faIcon: {prefix: "fas", name: "hammer"},
         name: {one: 'производитель', many: 'производители', cardof: 'производителя',},
+        optics: { page: 1, sorters: {}, filters: {}, items: [], limit: limit },
+      },
+      Shell: {
+        binder: {
+          key: payload => { return { type: payload.type, version: payload.version } },
+          itemLoader: ({type}) => axios.get(`/api/shell/${type}`),
+          itemSave: ({id, type, version, basket, columns, optics}) => axios.put(`/api/shell/${type}`, {shell: {id, version, basket, columns, optics}}),
+          ttl: 10*60e3,
+          cache: []
+        },
       },
       Store:{
+        binder: {
+          key: item=>item.id,
+          byOpticsLoader: (payload)=>axios.put(
+            '/api/store',
+            { optics:payload.optics, params:payload.params }
+          ),
+          ttl: 3600e3*24,
+          cache:[],
+          cacheSets: [],
+        },
         menu: false,
         controller:{
           aliases: {
@@ -197,19 +370,19 @@ export default class Shells{
             address_id: { path: 'Address', as: 'address' }
           }
         },
-      },
-      Currency:{
-        menu: false,
-      },
-      CurrencyRateService:{
-        menu: false,
-        controller:{
-          aliases: {
-            currency_id: { path: 'Currency', as: 'currency' },
-          }
-        },
+        optics: { limit: -1, page: 1 }
       },
       TransferIn:{
+        binder: {
+          key: item=>item.id,
+          byOpticsLoader: (payload)=>axios.put(
+            `/api/transferIn`,
+            {optics:payload.optics, params:payload.params}),
+          itemLoader: (key)=>axios.get(`/api/transferin/get/${key}`),
+          ttl: 3600e3*24,
+          cache: [],
+          cacheSets: [],
+        },
         initial:{
           id:{show:false, hidden: true, sortable: false, card: false},
           date:{to: {name:'modelItem', params:{table: 'Order', id:'$id'}}, editor: 'calendar', show: true, order:10, sortable: true, label: 'Дата', card: false,
@@ -265,11 +438,22 @@ export default class Shells{
             document_type_id: [{type: '=', value: 'transfer-in'}],
           }
         },
-        menu: true,
+        menu: 1070,
         faIcon: {prefix: "fas", name:"file-import"},
         name: {one: 'вх. УПД', many: 'вх. УПД', cardof: 'входящего упд',},
+        optics: { page: 1, sorters: {}, filters: {}, items: [], limit: limit },
       },
       TransferOut:{
+        binder: {
+          key: item=>item.id,
+          byOpticsLoader: (payload)=>axios.put(
+            `/api/transferOut`,
+            {optics:payload.optics, params:payload.params}),
+          itemLoader: (key)=>axios.get(`/api/transferout/get/${key}`),
+          ttl: 3600e3*24,
+          cache: [],
+          cacheSets: [],
+        },
         initial:{
           id:{show:false, hidden: true, sortable: false, card: false},
           date:{to: {name:'modelItem', params:{table: 'Order', id:'$id'}}, editor: 'calendar', show: true, order:10, sortable: true, label: 'Дата', card: false,
@@ -325,20 +509,160 @@ export default class Shells{
             document_type_id: [{type: '=', value: 'transfer-out'}],
           }
         },
-        menu: true,
+        menu: 1050,
         faIcon: {prefix: "fas", name:"file-export"},
         name: {one: 'исх. упд', many: 'исх. упд', cardof: 'исходящего упд',},
+        optics: { page: 1, sorters: {}, filters: {}, items: [], limit: limit },
       },
-
-      documentLinesOI:{
-        initial:{
-          amount_with_vat:{},
-          amount_without_vat:{},
-          closed:{},
-
-        }
+      User: {
+        binder: {
+          key: item=>item.id,
+          itemLoader: (key)=>axios.get(`/api/user/${key}`),
+          ttl: 3600e3*24,
+          cache: [],
+        },
       },
     };
+    _.forEach(this.template, (item, name) => {
+      if (!item.loadProcessor && item.menu) item.loadProcessor = new TableLoadProcessor(name);
+      if (!item.footer) item.footer = tableFooter;
+      if (!item.opticsConstructor) item.opticsConstructor = tableParametersConstructor;
+    })
+  }
+
+  get getBinders(){
+    const ret = {};
+    Object.keys(this.template).forEach(key => {
+      ret[key] = this.template[key].binder
+    });
+    return ret;
+  }
+
+  getShell(type){
+
   }
 
 }
+
+/*
+  loaders: {
+    DocumentLine: {
+      key: item=>item.id,
+
+    },
+    Invoice: {
+      key: item=>item.id,
+      byOpticsLoader: (payload)=>axios.put(
+        `/api/invoice`,
+        {optics:payload.optics, params:payload.params}),
+      itemLoader: (key)=>axios.get(`/api/invoice/${key}`),
+      ttl: 3600e3*24,
+      cache: [], // [[id, updated, {}], [id, updated, {}]]
+      cacheSets: [], // [[hash, updated, [ids]], [hash, updated, [ids]]
+    },
+    Order: {
+      key: item=>item.id,
+      byOpticsLoader: (payload)=>axios.put(
+        `/api/order`,
+        {optics:payload.optics, params:payload.params}),
+      itemLoader: (key)=>axios.get(`/api/order/${key}`),
+      ttl: 3600e3*24,
+      cache: [], // [[id, updated, {}], [id, updated, {}]]
+      cacheSets: [], // [[hash, updated, [ids]], [hash, updated, [ids]]
+    },
+    Price: {
+      ttl: -1,
+      byOpticsLoader: (payload)=>axios.put(
+        `/api/price`,
+        { optics: payload.optics },
+        { headers: {_eid: payload.eid } },
+        ),
+    },
+    Product: {
+      key: item=>item.id,
+      byOpticsLoader: (payload)=>axios.put(
+        `/api/model/get/Product`,
+        { optics:payload.optics, params:payload.params }),
+      itemLoader: (key)=>axios.get(`/api/product/get/${key}`),
+      ttl: 3600e3*24,
+      cache: [], // [[id, updated, {}], [id, updated, {}]]
+      cacheSets: [], // [[hash, updated, [ids]], [hash, updated, [ids]]
+    },
+    Producer: {
+      key: item=>item.id,
+      byOpticsLoader: (payload)=>axios.put(
+        `/api/model/get/Producer`,
+        {optics:payload.optics, params:payload.params}),
+      itemLoader: (key)=>axios.get(`/api/producer/get/${key}`),
+      ttl: 3600e3*24,
+      cache: [], // [[id, updated, {}], [id, updated, {}]]
+      cacheSets: [], // [[hash, updated, [ids]], [hash, updated, [ids]]
+    },
+    Shell: {
+      key: payload => { return { type: payload.type, version: payload.version } },
+      itemLoader: ({type}) => axios.get(`/api/shell/${type}`),
+      itemSave: ({id, type, version, basket, columns, optics}) => axios.put(`/api/shell/${type}`, {shell: {id, version, basket, columns, optics}}),
+      ttl: 10*60e3,
+      cache: []
+    },
+    TransferIn: {
+      key: item=>item.id,
+      byOpticsLoader: (payload)=>axios.put(
+        `/api/model/get/TransferIn`,
+        {optics:payload.optics, params:payload.params}),
+      itemLoader: (key)=>axios.get(`/api/transferin/get/${key}`),
+      ttl: 3600e3*24,
+      cache: [],
+      cacheSets: [],
+    },
+    TransferOut: {
+      key: item=>item.id,
+      byOpticsLoader: (payload)=>axios.put(
+        `/api/model/get/TransferOut`,
+        {optics:payload.optics, params:payload.params}),
+      itemLoader: (key)=>axios.get(`/api/transferout/get/${key}`),
+      ttl: 3600e3*24,
+      cache: [],
+      cacheSets: [],
+    },
+    User: {
+      key: item=>item.id,
+      itemLoader: (key)=>axios.get(`/api/user/${key}`),
+      ttl: 3600e3*24,
+      cache: [],
+    },
+
+    Store:{
+      key: item=>item.id,
+      byOpticsLoader: (payload)=>axios.put(
+        '/api/store',
+        { optics:payload.optics, params:payload.params }
+      ),
+      ttl: 3600e3*24,
+      cache:[],
+      cacheSets: [],
+    },
+    Currency:{
+      key: item=>item.id,
+      byOpticsLoader: (payload)=>axios.put(
+        '/api/currency',
+        { optics:payload.optics, params:payload.params }
+      ),
+      ttl: 3600e3*24,
+      cache:[],
+      cacheSets: [],
+    },
+    CurrencyRateService:{
+      key: item=>item.id,
+      byOpticsLoader: () =>
+        axios.put(
+        '/api/currencyRateService',
+        { date: Date.now() }
+        )
+      ,
+      ttl: 3600e3*24,
+      cache:[],
+      cacheSets: [],
+    },
+  },
+ */

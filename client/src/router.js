@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import Home from './views/v3/Home.vue';
+import Home from './views/Home.vue';
 import env from './middleware/env'
 
 Vue.use(Router);
@@ -18,7 +18,7 @@ const router = new Router({
     {
       path: "/login",
       name: "Login",
-      component: () => import('./views/v3/Login.vue'),
+      component: () => import('./views/Login.vue'),
       meta: {middleware: env},
     },
     {
@@ -27,26 +27,21 @@ const router = new Router({
       // route level code-splitting
       // this generates a separate chunk (about.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
-      component: () => import(/* webpackChunkName: "about" */ './views/v3/Help.vue'),
+      component: () => import(/* webpackChunkName: "about" */ './views/Help.vue'),
       meta: {middleware: env},
     },
     {
       path:'/tables/:type/:id',
       name: 'modelItem',
       meta: {middleware: env},
-      component: () => import('./views/v3/Item.vue'),
+      component: () => import('./views/Item.vue'),
     },
-    {
-      path:'/prices',
-      name: 'prices',
-      meta: {middleware: env},
-      component: () => import('./views/v3/PriceList.vue'),
-    },
+
     {
       path:'/tables/:type',
       name: 'tables',
       meta: {middleware: env},
-      component: () => import('./views/v3/Tables.vue'),
+      component: () => import('./views/Tables.vue'),
     },
   ],
 });

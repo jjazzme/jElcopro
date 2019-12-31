@@ -10,14 +10,12 @@ export default {
         tableName: 'documents',
         defaultScope: {},
         scopes: {
-            withDocumentLines: { include: [{ model: DocumentLine, as: 'documentLines' }] },
-            withBuyerable:
-                { include: [{ model: Company, as: 'buyerable', include: [{ model: Party, as: 'party' }] }] },
-            withSellerable:
-                { include: [{ model: Company, as: 'sellerable', include: [{ model: Party, as: 'party' }] }] },
+            withBuyerable: { include: [{ model: Company, as: 'buyerable', include: [{ model: Party, as: 'party' }] }] },
             withCurrency: { include: [{ model: Currency, as: 'currency' }] },
-            withStore: { include: [{ model: Store, as: 'store' }] },
+            withDocumentLines: { include: [{ model: DocumentLine, as: 'documentLines' }] },
             withForeignStore: { include: [{ model: Store, as: 'foreignStore' }] },
+            withSellerable: { include: [{ model: Company, as: 'sellerable', include: [{ model: Party, as: 'party' }] }] },
+            withStore: { include: [{ model: Store, as: 'store' }] },
         },
     },
     attributes: {

@@ -46,7 +46,7 @@ let mutations = {
 
 let actions = {
     setRoute({commit}, {name, params, query}){
-        commit('SET_ROUTE', {name, params, query})
+        commit('setRoute', {name, params, query})
         //TODO сохранение в базе
     }
 };

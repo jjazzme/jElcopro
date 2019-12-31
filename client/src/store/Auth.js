@@ -29,7 +29,8 @@ let mutations = {
 
 let actions = {
   autoLogin({ commit, dispatch }){
-    dispatch('Binder/getItem', { type: 'User', payload: {id: 0} }, { root: true })
+    const ret = dispatch('Binder/getItem', { type: 'User', payload: {id: 0} }, { root: true });
+    ret
       .then(user => {
         if (user) {
           commit('setUser', user);
@@ -40,6 +41,7 @@ let actions = {
           commit('setTicket', null);
         }
       })
+    return ret;
   },
   saveCards({ getters, commit }, cards){
     const user = getters['getUser'];

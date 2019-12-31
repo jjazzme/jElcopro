@@ -7,11 +7,11 @@ export default class ModelContoller {
     }
 
     async index(req) {
-        const { optics } = req.body;
-        const { params } = req.body;
+        const { optics, params } = req.body;
+        //const type = req.body.type || req.params.type;
 
+        //const { params } = req.body;
         // const userID = req.user.id;
-        const { type } = req.params;
         const { auth } = this.Model.services;
 
         /*
@@ -27,13 +27,13 @@ export default class ModelContoller {
         */
 
         const { page } = optics;
-        const pageSize = optics.pageSize === null
+        const limit = optics.limit === null
             ? 15
-            : optics.pageSize < 0
+            : optics.limit < 0
                 ? null
-                : optics.pageSize;
-        const offset = (page - 1) * pageSize;
-        const limit = offset + pageSize;
+                : optics.limit;
+        const offset = (page - 1) * limit;
+        //const limit = offset + limit;
 
         _.forEach(params?.filters, (filterSet, field) => {
             _.forEach(filterSet, (filter) => {
@@ -140,21 +140,20 @@ export default class ModelContoller {
         const resp = await this.Model.findAndCountAll({
             include,
             order,
-            limit: pageSize,
+            limit: limit,
             offset,
             where,
         });
-        const pages = Math.ceil(parseFloat(resp.count) / pageSize);
+        const pages = Math.ceil(parseFloat(resp.count) / limit);
         // eslint-disable-next-line consistent-return
         return {
-            rows: auth.permissionsModelFilter(type, resp.rows),
+            rows: resp.rows,
             count: resp.count,
             offset,
             page,
             limit,
-            pageSize,
             pages,
-            permissions: auth.getModelPermissions(type, resp.rows),
+            permissions: {}, //auth.getModelPermissions(type, resp.rows),
         };
     }
 

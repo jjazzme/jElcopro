@@ -2,12 +2,41 @@
 
 import _ from "lodash";
 import Shells from "./DataSource/Shells";
-import PriceList from "./DataSource/PriceList";
+//import PriceList from "./DataSource/PriceList";
+//import Tables from "./DataSource/Tables";
 import axios from "axios";
 import Error from "./Error";
+import {Basket} from "./DataSource/Basket";
+import {Optics} from "./DataSource/Optics";
 
 export default class DataSource{
-  constructor(store){
+  refsOrder = [
+    {
+      type: 'Store',
+      //targets: [(val) => { this.priceList.references.stores = val }],
+      errorAddText: 'складов',
+      after: [
+        {
+          type: 'Currency',
+          //targets: [(val) => { this.priceList.references.currencies = val }],
+          errorAddText: 'валют',
+          after: [
+            {
+              type: 'CurrencyRateService',
+              //targets: [(val) => { this.priceList.references.currencyRates = val }],
+              errorAddText: 'курсов валют'
+            },
+          ]},
+      ]},
+  ];
+  constructor(store, optics, classSourceActualTTL, debounceAmount){
+    this.type = null;
+    this.store = store;
+    this.debounceAmount = debounceAmount ?? 1000;
+    this.tables = {};
+    this.initialOptics = this.getOpticsObject(optics);
+
+    this.classSourceActualTTL = classSourceActualTTL;
 
     /// for axios
     this.axiosID = 0;
@@ -48,37 +77,85 @@ export default class DataSource{
 
     this.user = null;
 
-    this.shells = new Shells();
-    this.store = store;
-    this.priceList = new PriceList({
-      search:'max', quantity:5, fromQuantity:false, onlyDB: true,
-      depth:10, pages:1, debounceAmount:1000, minSearchLenSensitivity:4
+    this.shells = new Shells(20);
+    _.forEach(this.shells.template, (val, type) => {
+      this.tables[type] = { basket: new Basket(), optics: new Optics(val.optics || {}), loadProcessor: val.loadProcessor };
     });
+    //this.tables.PriceList.loadProcessor.getStoreById = this.getStoreById;
+  }
 
-    // after all classes
-    this.refsOrder = [
-      {
-        type: 'Store',
-        targets: [(val) => { this.priceList.references.stores = val }],
-        errorAddText: 'складов',
-        after: [
-          {
-            type: 'Currency',
-            targets: [(val) => { this.priceList.references.currencies = val }],
-            errorAddText: 'валют',
-            after: [
-              {
-                type: 'CurrencyRateService',
-                targets: [(val) => { this.priceList.references.currencyRates = val }],
-                errorAddText: 'курсов валют'
-              },
-            ]},
-        ]},
-    ];
+  cancelAxiosByEid(eid) {
+    // eid = null - maim from eid
+    // else - additional fom [] eids
+    const _eid = eid || this.getTable.loadProcessor.eid;
+    const request = this.store.getters['Binder/getRequestByEid'](_eid);
+    request.source.cancel('aborted');
+    if (eid) this.getTable.loadProcessor.eid = null;
+    else this.getTable.loadProcessor.eids.slice( _.findIndex(this.getTable.loadProcessor.eids, store => store.eid === _eid) , 1);
+    this.store.commit('Binder/removeRequest', request.uid);
+  }
+  cancelAxiosByStoreID(id){
+
+  }
+  get getBackSensitiveOptics(){
+    const getBS = this.getShell.getBackSensitive;
+    return getBS ? getBS(this.getTable.optics.value) : this.getTable.optics.value;
+  }
+  getQueryOpticsByType(type){
+    return this.tables[type] ? JSON.stringify(this.tables[type].optics.value) : null;
+  }
+  getOpticsObject(val){
+    if (typeof val === "object") {
+      return val;
+    }
+    try {
+      const ret = JSON.parse(val);
+      return ret;
+    } catch (error) {
+      return null;
+    }
+  }
+  getSourceByOptics({ type, optics }){
+    if (optics) this.tables[type].optics.value = optics;
+    if (!optics) optics = this.tables[type].optics.value;
+    const params = this.shells.template[type].controller;
+    const ret = this.store.dispatch('Binder/getByOptics', { type, payload: { optics, params, type } });
+    ret
+      .then(ans => {
+        if (Array.isArray(ans)) this.tables[type].data = ans;
+        else this.tables[type].data = ans.rows;
+      });
+    return ret;
+  }
+  get getShell(){
+    return this.shells.template[this.type];
+  }
+  get getTable(){
+    return this.tables[this.type];
+  }
+  get isStoresLoaded(){
+    return this.tables?.Store?.data ? this.tables.Store.data.length > 0 : false;
+  }
+  loadReferences(){
     const refLoader = (refs) => {
       _.forEach(refs, item=>{
-        this.loadTableByType(item.type)
-          .then(()=> {
+        this.getSourceByOptics({ type: item.type })
+          .then((ans)=> {
+            if (item.type === 'Store') {
+              this.tables.PriceList.optics.value.selectedStores = ans.rows.map(store=>{ if(!store.online) return store.id }).filter(id => id);
+              this.tables.PriceList.loadProcessor.stores = ans.rows;
+            } else if (item.type === 'Currency') {
+              this.tables.PriceList.loadProcessor.currency = ans.rows;
+            } else if (item.type === 'CurrencyRateService') {
+              this.tables.PriceList.loadProcessor.currencyRates = ans;
+            }
+          })
+          .finally(()=>{
+            // последовательность
+            if(item.after) refLoader(item.after)
+          });
+        /*
+                  .then(()=> {
             _.forEach(item.targets, target => {
               const table = this.getTableByType(item.type);
               target(table);
@@ -91,25 +168,11 @@ export default class DataSource{
           .catch(err=>{
             console.log(err);
           })
-          .finally(()=>{
-            // последовательность
-            if(item.after) refLoader(item.after)
-          });
+         */
       });
     };
     refLoader(this.refsOrder);
   }
 
-  getSourceByOptics({ type, optics }){
-    const params = this.shells.value[type].controller;
-    return this.store.dispatch('Binder/getByOptics', { type, payload: { optics, params } })
-  }
-  getTableByType(type){
-    return this.store.getters['Binder/getCacheTableByType'](type);
-  }
-  loadTableByType(type){
-    const optics = { pageSize: -1, page: 1 }
-    return this.getSourceByOptics({ type, optics })
-  }
 }
 

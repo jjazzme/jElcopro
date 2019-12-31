@@ -1,133 +1,14 @@
 import axios from 'axios';
 import crypto from 'crypto'
+import Shells from "../classLib/DataSource/Shells";
 //import Error from '../classLib/Error'
 
 let state = {
-  loaders: {
-    DocumentLine: {
-      key: item=>item.id,
-
-    },
-    Invoice: {
-      key: item=>item.id,
-      byOpticsLoader: (payload)=>axios.put(
-        `/api/invoice`,
-        {optics:payload.optics, params:payload.params}),
-      itemLoader: (key)=>axios.get(`/api/invoice/${key}`),
-      ttl: 3600e3*24,
-      cache: [], // [[id, updated, {}], [id, updated, {}]]
-      cacheSets: [], // [[hash, updated, [ids]], [hash, updated, [ids]]
-    },
-    Order: {
-      key: item=>item.id,
-      byOpticsLoader: (payload)=>axios.put(
-        `/api/order`,
-        {optics:payload.optics, params:payload.params}),
-      itemLoader: (key)=>axios.get(`/api/order/${key}`),
-      ttl: 3600e3*24,
-      cache: [], // [[id, updated, {}], [id, updated, {}]]
-      cacheSets: [], // [[hash, updated, [ids]], [hash, updated, [ids]]
-    },
-    Price: {
-      ttl: -1,
-      byOpticsLoader: (payload)=>axios.put(
-        `/api/price`,
-        { optics: payload.optics },
-        { headers: {_eid: payload.eid } },
-        ),
-    },
-    Product: {
-      key: item=>item.id,
-      byOpticsLoader: (payload)=>axios.put(
-        `/api/model/get/Product`,
-        { optics:payload.optics, params:payload.params }),
-      itemLoader: (key)=>axios.get(`/api/product/get/${key}`),
-      ttl: 3600e3*24,
-      cache: [], // [[id, updated, {}], [id, updated, {}]]
-      cacheSets: [], // [[hash, updated, [ids]], [hash, updated, [ids]]
-    },
-    Producer: {
-      key: item=>item.id,
-      byOpticsLoader: (payload)=>axios.put(
-        `/api/model/get/Producer`,
-        {optics:payload.optics, params:payload.params}),
-      itemLoader: (key)=>axios.get(`/api/producer/get/${key}`),
-      ttl: 3600e3*24,
-      cache: [], // [[id, updated, {}], [id, updated, {}]]
-      cacheSets: [], // [[hash, updated, [ids]], [hash, updated, [ids]]
-    },
-    Shell: {
-      key: payload => { return { type: payload.type, version: payload.version } },
-      itemLoader: ({type}) => axios.get(`/api/shell/${type}`),
-      itemSave: ({id, type, version, basket, columns, optics}) => axios.put(`/api/shell/${type}`, {shell: {id, version, basket, columns, optics}}),
-      ttl: 10*60e3,
-      cache: []
-    },
-    TransferIn: {
-      key: item=>item.id,
-      byOpticsLoader: (payload)=>axios.put(
-        `/api/model/get/TransferIn`,
-        {optics:payload.optics, params:payload.params}),
-      itemLoader: (key)=>axios.get(`/api/transferin/get/${key}`),
-      ttl: 3600e3*24,
-      cache: [],
-      cacheSets: [],
-    },
-    TransferOut: {
-      key: item=>item.id,
-      byOpticsLoader: (payload)=>axios.put(
-        `/api/model/get/TransferOut`,
-        {optics:payload.optics, params:payload.params}),
-      itemLoader: (key)=>axios.get(`/api/transferout/get/${key}`),
-      ttl: 3600e3*24,
-      cache: [],
-      cacheSets: [],
-    },
-    User: {
-      key: item=>item.id,
-      itemLoader: (key)=>axios.get(`/api/user/${key}`),
-      ttl: 3600e3*24,
-      cache: [],
-    },
-
-    Store:{
-      key: item=>item.id,
-      byOpticsLoader: (payload)=>axios.put(
-        '/api/store',
-        { optics:payload.optics, params:payload.params }
-      ),
-      ttl: 3600e3*24,
-      cache:[],
-      cacheSets: [],
-    },
-    Currency:{
-      key: item=>item.id,
-      byOpticsLoader: (payload)=>axios.put(
-        '/api/currency',
-        { optics:payload.optics, params:payload.params }
-      ),
-      ttl: 3600e3*24,
-      cache:[],
-      cacheSets: [],
-    },
-    CurrencyRateService:{
-      key: item=>item.id,
-      byOpticsLoader: () =>
-        axios.put(
-        '/api/currencyRateService',
-        { date: Date.now() }
-        )
-      ,
-      ttl: 3600e3*24,
-      cache:[],
-      cacheSets: [],
-    },
-  },
+  loaders: null,
   token: null,
   requests: [],
   axiosID: 0
 };
-
 let getters = {
   // get by key
   cacheGetItem: state => (type, key) => {
@@ -163,7 +44,6 @@ let getters = {
 
   getCacheTableByType: state => type => state.loaders[type].cache.map(item => item[2]),
 };
-
 let mutations = {
   addRequest(state, { uid, source, url, type, eid }) {state.requests.push({ uid, source, url, type, eid })},
   incAxiosID(state) { state.axiosID++ },
@@ -183,6 +63,7 @@ let mutations = {
     const ind = _.findIndex(state.requests, item => item[0] === uid );
     state.requests.splice(ind, 1);
   },
+  setLoaders(state, val) { state.loaders = val },
   upsertItemToCache(state, {type, key, data}) {
     const cache = state.loaders[type].cache;
     const item = cache.find(item => _.isEqual(item[0], key));
@@ -203,7 +84,6 @@ let mutations = {
   },
   clearCacheSets(state, type) { state.loaders[type].cacheSets = []; },
 };
-
 let actions = {
   getByOptics({ getters, commit }, { type, payload }) {
     // payload = {optics, params, eid}
@@ -333,7 +213,6 @@ export default {
   mutations,
   actions
 }
-
 function getHash(payload) {
   return crypto.createHash('md5')
     .update(JSON.stringify(payload.optics))
