@@ -13,7 +13,7 @@ describe('Test Corrective', () => {
     const { transition } = app.services;
     let elcopro;
     let good;
-    let magazinGood;
+    // let magazinGood;
     let elcoproMainStore;
     let elcoproMagazin;
     let movement;
@@ -30,13 +30,34 @@ describe('Test Corrective', () => {
             ['id', 'ballance', 'createdAt', 'updatedAt'],
         );
         newGood.store_id = elcoproMagazin.id;
-        magazinGood = await Good.findOrCreate({ where: newGood });
+        // magazinGood = await Good.findOrCreate({ where: newGood });
     });
-    it('Create moovement', async () => {
+    it('Create movement', async () => {
         movement = await Movement.createFromOptics({
             buyerable_id: elcopro.id,
             sellerable_id: elcopro.id,
+            number_prefix: 'TEST',
+            store_id: elcoproMainStore.id,
+            foreighn_store_id: elcoproMagazin.id,
         });
-        expect();
+        expect(movement, 'Its Movement').to.be.an.instanceof(Movement).and.deep.include({ status_id: 'formed' });
+    });
+    it('Create Movement Lines', async () => {
+        const line = await good.toMovementDocumentLine(movement, 3);
+        expect(line, 'Its DocumentLine').to.be.an.instanceof(DocumentLine).and.deep.include({ closed: false });
+    });
+    it('Resreve Movement', async () => {
+        let res = await transition.execute('reserve', movement);
+        // eslint-disable-next-line no-unused-expressions
+        expect(res, 'Is true').to.be.true;
+        res = await transition.execute('toWork', movement);
+        // eslint-disable-next-line no-unused-expressions
+        expect(res, 'Is true').to.be.true;
+        res = await transition.execute('closeReserves', movement);
+        // eslint-disable-next-line no-unused-expressions
+        expect(res, 'Is true').to.be.true;
+    });
+    it('Create MovementOut', async () => {
+
     });
 });

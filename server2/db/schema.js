@@ -539,7 +539,17 @@ export default {
         class: ReserveModel,
         options: {
             tableName: 'reserves',
-            scopes: { withDocumentLine: { include: [{ model: DocumentLine, as: 'documentLine' }] } },
+            scopes: {
+                withDocumentLine: { include: [{ model: DocumentLine, as: 'documentLine' }] },
+                closed(documentId) {
+                    return {
+                        where: { closed: true },
+                        include: [
+                            { model: DocumentLine, as: 'documentLine', where: { document_id: documentId } },
+                        ],
+                    };
+                },
+            },
         },
         attributes: {
             document_line_id: DataTypes.INTEGER,

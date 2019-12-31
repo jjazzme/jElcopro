@@ -3,7 +3,7 @@ import app from './index';
 
 const {
     Invoice, Order, TransferIn, TransferOut, TransferOutCorrective, TransferInCorrective, Defective, Good, Arrival,
-    FutureReserve, Reserve, Undefective,
+    FutureReserve, Reserve, Undefective, Movement,
 } = app.services.db.models;
 const { transition } = app.services;
 let destroys;
@@ -29,11 +29,22 @@ const state = new State(11);
 
 app.services.dbConnection.transaction(async (transaction) => {
     await state.refresh();
+    const movement = await Movement.findOne({ where: { number_prefix: 'TEST' } });
+    if (movement) {
+        await transition.execute('openReserves', movement, { transaction });
+        await transition.execute('unWork', movement, { transaction });
+        await transition.execute('unreserve', movement, { transaction });
+        const lines = await movement.getDocumentLines();
+        await Promise.all(lines.map((line) => line.destroy()));
+        await movement.destroy();
+    }
     const undefective = await Undefective.findOne({ where: { number_prefix: 'TEST' } });
-    await transition.execute('unWork', undefective, { transaction });
-    const lines = await undefective.getDocumentLines();
-    await Promise.all(lines.map((line) => line.destroy()));
-    await undefective.destroy();
+    if (undefective) {
+        await transition.execute('unWork', undefective, { transaction });
+        const lines = await undefective.getDocumentLines();
+        await Promise.all(lines.map((line) => line.destroy()));
+        await undefective.destroy();
+    }
     const defectives = await Defective
         .scope('defaultScope', 'withDocumentLines')
         .findAll({ where: { number_prefix: 'TEST' } });

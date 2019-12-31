@@ -159,4 +159,22 @@ export default class Good extends BaseModel {
                 order: [['id', 'DESC']],
             });
     }
+
+    /**
+     * Create Movement DocumentLine
+     * @param {Movement} movement
+     * @param {number} quantity
+     * @returns {Promise<DocumentLine>}
+     */
+    async toMovementDocumentLine(movement, quantity) {
+        const { DocumentLine } = this.services.db.models;
+        if (quantity > this.ballance) throw new Error('Not enough quantity');
+        return DocumentLine.create({
+            document_id: movement.id,
+            good_id: this.id,
+            quantity,
+            vat: 0,
+            price_without_vat: 0,
+        });
+    }
 }

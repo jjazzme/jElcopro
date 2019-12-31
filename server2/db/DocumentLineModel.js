@@ -173,17 +173,12 @@ export default class DocumentLine extends BaseModel {
 
     /**
      * Create TransferOut lines
-     * @param {TransferOut} child
+     * @param {TransferOut|MovementOut} child
      * @returns {Promise<void>}
      */
     static async createTransferOutLines(child) {
         const { Departure, Reserve } = this.services.db.models;
-        const reserves = await Reserve.findAll({
-            where: { closed: true },
-            include: [
-                { model: DocumentLine, as: 'documentLine', where: { document_id: child.parent_id } },
-            ],
-        });
+        const reserves = await Reserve.scope({ method: ['closed', child.parent_id] }).findAll();
         if (reserves.length === 0) throw new Error('Nothing to do');
         // eslint-disable-next-line no-unused-vars
         for (const reserve of reserves) {
@@ -192,6 +187,12 @@ export default class DocumentLine extends BaseModel {
                 quantity: reserve.quantity,
                 parent_id: reserve.documentLine.id,
             });
+            if (child.document_type_id === 'movement-out') {
+                const arrival = await reserve.getArrival({ scope: ['withDocumentLine'] });
+                newLine.vat = arrival.documentLine.vat;
+                newLine.price_with_vat = arrival.documentLine.price_with_vat;
+                newLine.price_without_vat = arrival.documentLine.price_without_vat;
+            }
             newLine = _.omit(newLine, ['id', 'createdAt', 'updatedAt', 'amount_with_vat', 'amount_without_vat']);
             newLine = await this.create(newLine);
             await Departure.create({ document_line_id: newLine.id, arrival_id: reserve.arrival_id });
@@ -230,7 +231,7 @@ export default class DocumentLine extends BaseModel {
         });
         // eslint-disable-next-line no-restricted-syntax,no-unused-vars
         for (const arrival of arrivals) {
-            if (arrival.ballance > needReserve) {
+            if (arrival.ballance >= needReserve) {
                 arrival.ballance -= needReserve;
                 await arrival.save();
                 await Reserve.create(
