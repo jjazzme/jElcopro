@@ -29,7 +29,8 @@ let mutations = {
 
 let actions = {
   autoLogin({ commit, dispatch }){
-    dispatch('Binder/getItem', { type: 'User', payload: {id: 0} }, { root: true })
+    const ret = dispatch('Binder/getItem', { type: 'User', payload: {id: 0} }, { root: true });
+    ret
       .then(user => {
         if (user) {
           commit('setUser', user);
@@ -40,6 +41,7 @@ let actions = {
           commit('setTicket', null);
         }
       })
+    return ret;
   },
   saveCards({ getters, commit }, cards){
     const user = getters['getUser'];
@@ -65,7 +67,7 @@ let actions = {
         // { access_token, expires_in, token_type } token/ticks/Bearer
         commit('setTicket', ticket);
         localStorage.setItem('ticket', JSON.stringify(ticket));
-        dispatch('Binder/setBinderDefaults', { ticket }, { root: true });
+        //dispatch('Binder/setBinderDefaults', { ticket }, { root: true });
         dispatch('autoLogin');
       })
       .catch(err => {
@@ -80,7 +82,7 @@ let actions = {
         ticket = null;
         commit('setTicket', ticket);
         localStorage.removeItem('ticket');
-        dispatch('Binder/setBinderDefaults', { ticket }, { root: true });
+        //dispatch('Binder/setBinderDefaults', { ticket }, { root: true });
         commit('setUser', null);
       })
       .catch(err => {

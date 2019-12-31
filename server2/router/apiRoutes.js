@@ -5,19 +5,26 @@ import ApiController from '../controller/ApiController';
 import UserController from '../controller/UserController';
 import CurrencyRateController from '../controller/CurrencyRateController';
 import PriceController from '../controller/PriceController';
-import InvoiceController from '../controller/InvoiceController';
+import InvoiceController from "../controller/InvoiceController";
+import ShellController from "../controller/ShellController";
 
 export default function ApiRoutes(services) {
     const apiRouter = new ApiRouter(services.db);
-    apiRouter.middleware(services.auth.bearer);
-    apiRouter.resource('product', ProductController);
-    apiRouter.resource('producer', ProducerController);
-    apiRouter.resource('user', UserController); //
-    apiRouter.resource('store', new ApiController(services.db.models.Store));
+
+    apiRouter.middleware(services.auth.bearer); // before without
+
     apiRouter.resource('currency', new ApiController(services.db.models.Currency));
     apiRouter.resource('currencyRateService', CurrencyRateController);
+    apiRouter.resource('invoice', InvoiceController);
+    apiRouter.resource('order', new ApiController(services.db.models.Order));
     apiRouter.resource('party', new ApiController(services.db.models.Party));
     apiRouter.resource('price', new PriceController(services));
-    apiRouter.resource('invoice', InvoiceController);
+    apiRouter.resource('producer', ProducerController);
+    apiRouter.resource('product',  new ApiController(services.db.models.Product));
+    apiRouter.resource('shell', ShellController);
+    apiRouter.resource('store', new ApiController(services.db.models.Store));
+    apiRouter.resource('transferIn', new ApiController(services.db.models.TransferIn));
+    apiRouter.resource('transferOut', new ApiController(services.db.models.TransferOut));
+    apiRouter.resource('user', UserController); //
     return apiRouter.router;
 }

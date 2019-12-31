@@ -1,8 +1,8 @@
 'use strict'
 
 export default class Footer{
-  constructor({name, vmodel}){
-    this.name = name;
+  constructor({component, vmodel}){
+    this.component = component;
     this.vmodel = vmodel;
   }
 }

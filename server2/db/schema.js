@@ -26,6 +26,7 @@ import Defective from './DefectiveModel';
 import Undefective from './UndefectiveModel';
 import MovementModel from './MovementModel';
 import MovementOutModel from './MovementOutModel';
+import ShellModel from "./ShellModel";
 
 export default {
     AccessToken: {
@@ -562,6 +563,26 @@ export default {
                 Arrival: { foreignKey: 'arrival_id', as: 'arrival' },
                 DocumentLine: { foreignKey: 'document_line_id', as: 'documentLine' },
             },
+        },
+    },
+
+    Shell: {
+        class: ShellModel,
+        options: {
+            tableName: 'shells',
+            uniqueKeys: {
+                cu_user_table: {
+                    fields: ['user_id', 'table']
+                }
+            }
+        },
+        attributes: {
+            user_id: { type: DataTypes.INTEGER, unique: 'cu_user_table' },
+            table: { type: DataTypes.STRING, unique: 'cu_user_table'},
+            version: DataTypes.STRING,
+            basket: DataTypes.JSON,
+            columns: DataTypes.JSON,
+            optics: DataTypes.JSON
         },
     },
 

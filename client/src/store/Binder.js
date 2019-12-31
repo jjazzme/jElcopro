@@ -1,139 +1,14 @@
 import axios from 'axios';
 import crypto from 'crypto'
-import Error from '../classLib/Error'
-
-const binder = axios.create();
-
-binder.interceptors.response.use(function (ans) {
-  return ans;
-}, function (error) {
-  const type = 'axios';
-  const err = new Error({ error });
-  return err.process(err.types.axios);
-});
-
-if (localStorage.getItem('ticket')) {
-  const ticket = JSON.parse(localStorage.getItem('ticket'));
-  if (ticket.token_type === 'Bearer' && ticket.expires_in > Date.now()) binder.defaults.headers.common['Authorization'] = `Bearer ${ticket.access_token}`;
-}
+import Shells from "../classLib/DataSource/Shells";
+//import Error from '../classLib/Error'
 
 let state = {
-  loaders: {
-    User: {
-      key: item=>item.id,
-      itemLoader: (key)=>binder.get(`/api/user/${key}`),
-      ttl: 3600e3*24,
-      cache: [],
-    },
-    Product: {
-      key: item=>item.id,
-      byOpticsLoader: (payload)=>axios.put(
-        `/api/model/get/Product`,
-        { optics:payload.optics, params:payload.params }),
-      itemLoader: (key)=>axios.get(`/api/product/get/${key}`),
-      ttl: 3600e3*24,
-      cache: [], // [[id, updated, {}], [id, updated, {}]]
-      cacheSets: [], // [[hash, updated, [ids]], [hash, updated, [ids]]
-    },
-    Producer: {
-      key: item=>item.id,
-      byOpticsLoader: (payload)=>axios.put(
-        `/api/model/get/Producer`,
-        {optics:payload.optics, params:payload.params}),
-      itemLoader: (key)=>axios.get(`/api/producer/get/${key}`),
-      ttl: 3600e3*24,
-      cache: [], // [[id, updated, {}], [id, updated, {}]]
-      cacheSets: [], // [[hash, updated, [ids]], [hash, updated, [ids]]
-    },
-    TransferIn: {
-      key: item=>item.id,
-      byOpticsLoader: (payload)=>axios.put(
-        `/api/model/get/TransferIn`,
-        {optics:payload.optics, params:payload.params}),
-      itemLoader: (key)=>axios.get(`/api/transferin/get/${key}`),
-      ttl: 3600e3*24,
-      cache: [],
-      cacheSets: [],
-    },
-    TransferOut: {
-      key: item=>item.id,
-      byOpticsLoader: (payload)=>axios.put(
-        `/api/model/get/TransferOut`,
-        {optics:payload.optics, params:payload.params}),
-      itemLoader: (key)=>axios.get(`/api/transferout/get/${key}`),
-      ttl: 3600e3*24,
-      cache: [],
-      cacheSets: [],
-    },
-    Invoice: {
-      key: item=>item.id,
-      byOpticsLoader: (payload)=>axios.put(
-        `/api/model/get/Invoice`,
-        {optics:payload.optics, params:payload.params}),
-      itemLoader: (key)=>axios.get(`/api/invoice/get/${key}`),
-      ttl: 3600e3*24,
-      cache: [], // [[id, updated, {}], [id, updated, {}]]
-      cacheSets: [], // [[hash, updated, [ids]], [hash, updated, [ids]]
-    },
-    Order: {
-      key: item=>item.id,
-      byOpticsLoader: (payload)=>axios.put(
-        `/api/model/get/Order`,
-        {optics:payload.optics, params:payload.params}),
-      itemLoader: (key)=>axios.get(`/api/order/get/${key}`),
-      ttl: 3600e3*24,
-      cache: [], // [[id, updated, {}], [id, updated, {}]]
-      cacheSets: [], // [[hash, updated, [ids]], [hash, updated, [ids]]
-    },
-    Shell: {
-      key: payload => { return { type: payload.type, version: payload.version } },
-      itemLoader: ({type}) => axios.get(`/api/shell/${type}`),
-      itemSave: ({id, type, version, basket, columns, optics}) => axios.put(`/api/shell/${type}`, {shell: {id, version, basket, columns, optics}}),
-      ttl: 10*60e3,
-      cache: []
-    },
-    DocumentLine: {
-      key: item=>item.id,
-
-    },
-
-    Store:{
-      key: item=>item.id,
-      byOpticsLoader: (payload)=>axios.put(
-        '/api/store',
-        { optics:payload.optics, params:payload.params }
-      ),
-      ttl: 3600e3*24,
-      cache:[],
-      cacheSets: [],
-    },
-    Currency:{
-      key: item=>item.id,
-      byOpticsLoader: (payload)=>axios.put(
-        '/api/currency',
-        { optics:payload.optics, params:payload.params }
-      ),
-      ttl: 3600e3*24,
-      cache:[],
-      cacheSets: [],
-    },
-    CurrencyRateService:{
-      key: item=>item.id,
-      byOpticsLoader: (payload) =>
-        axios.put(
-        '/api/currencyRateService',
-        { date: Date.now() }
-        )
-      ,
-      ttl: 3600e3*24,
-      cache:[],
-      cacheSets: [],
-    },
-  },
+  loaders: null,
   token: null,
-
+  requests: [],
+  axiosID: 0
 };
-
 let getters = {
   // get by key
   cacheGetItem: state => (type, key) => {
@@ -141,7 +16,7 @@ let getters = {
   },
 
   // get payload from gash
-  cacheGetSetsByHash: state => (type, hash) => state.loaders[type].cacheSets.find(item=>item[0]===hash),
+  cacheGetSetsByHash: state => (type, hash) => state.loaders[type].cacheSets?.find(item=>item[0]===hash),
   // execute by optics payload
   executorByOpticsLoader: state => (type, payload) => {
     //payload.optics = actualOptics(payload.optics);
@@ -157,17 +32,24 @@ let getters = {
     keys.forEach(key=>ret.push(state.loaders[type].cache.find(item=>item[0]===key)[2]));
     return ret;
   },
+  //
+  getAxiosID: state => state.axiosID,
   // make key from payload
   getLoaderKey: state => (type, payload) => state.loaders[type].key(payload),
   // record ttl
   getLoaderTTL: state => type => state.loaders[type].ttl,
+  //
+  getRequests: state => state.requests,
+  getRequestByEid: state => eid => _.find(state.requests, item => item.eid === eid),
+
   getCacheTableByType: state => type => state.loaders[type].cache.map(item => item[2]),
 };
-
 let mutations = {
+  addRequest(state, { uid, source, url, type, eid }) {state.requests.push({ uid, source, url, type, eid })},
+  incAxiosID(state) { state.axiosID++ },
   removeLineFromDocument(state, { type, documentId, lineId }){
     axios.get(`/api/document/line/delete/${documentId}/${lineId}`)
-      .then(ans=>{
+      .then(()=>{
         const doc = state.loaders[type].cache.find( item => item[0] === documentId )[2];
         const ind = _.findIndex(doc.documentLines, item => item.id === lineId );
         doc.documentLines.splice(ind, 1);
@@ -177,6 +59,11 @@ let mutations = {
     //delete doc.documentLines.find( item => item.id === lineId )
 
   },
+  removeRequest(state, uid) {
+    const ind = _.findIndex(state.requests, item => item[0] === uid );
+    state.requests.splice(ind, 1);
+  },
+  setLoaders(state, val) { state.loaders = val },
   upsertItemToCache(state, {type, key, data}) {
     const cache = state.loaders[type].cache;
     const item = cache.find(item => _.isEqual(item[0], key));
@@ -197,13 +84,12 @@ let mutations = {
   },
   clearCacheSets(state, type) { state.loaders[type].cacheSets = []; },
 };
-
 let actions = {
-  getByOptics({getters, commit}, {type, payload}) {
-    // payload = {optics, params}
+  getByOptics({ getters, commit }, { type, payload }) {
+    // payload = {optics, params, eid}
     // TODO: make a ROW notes
     const hash = getHash(payload);
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const cached = getters['cacheGetSetsByHash'](type, hash);
       const ttl = getters['getLoaderTTL'](type);
       let cacheItem = null;
@@ -222,30 +108,32 @@ let actions = {
         const loader = getters['executorByOpticsLoader'](type, payload);
         loader
           .then(ans=>{
-            if (Array.isArray(ans.data)) {
-              dataset = ans.data;
-              cacheItem = _.map(dataset, item=>getters['getLoaderKey'](type, item));
-            } else {
-              dataset = ans.data.rows;
-              cacheItem = _.cloneDeep(ans.data);
-              cacheItem._rows = _.map(dataset, item=>getters['getLoaderKey'](type, item))
-              ans.data._rows = cacheItem._rows;
-              delete cacheItem.rows;
+            if (ttl >= 0){
+              if (Array.isArray(ans.data)) {
+                dataset = ans.data;
+                cacheItem = _.map(dataset, item=>getters['getLoaderKey'](type, item));
+              } else {
+                dataset = ans.data.rows;
+                cacheItem = _.cloneDeep(ans.data);
+                cacheItem._rows = _.map(dataset, item=>getters['getLoaderKey'](type, item))
+                ans.data._rows = cacheItem._rows;
+                delete cacheItem.rows;
+              }
+              dataset.forEach(data=>{
+                const key = getters['getLoaderKey'](type, data);
+                //keys.push(key);
+                commit('upsertItemToCache', {type, key, data})
+              });
+              commit('upsertSetToCache', {type: type, hash: hash, data: cacheItem});
+              resolve(ans.data)
             }
-
-            dataset.forEach(data=>{
-              const key = getters['getLoaderKey'](type, data);
-              //keys.push(key);
-              commit('upsertItemToCache', {type, key, data})
-            });
-            commit('upsertSetToCache', {type: type, hash: hash, data: cacheItem});
-            resolve(ans.data)
+            else resolve(ans)
           })
       }
     });
   },
   getItem({getters, commit}, {type, payload}) {
-    return new Promise((resolve, reject)=>{
+    return new Promise((resolve)=>{
       const key = getters['getLoaderKey'](type, payload);
       let data = getters['cacheGetItem'](type, key);
       const ttl = getters['getLoaderTTL'](type);
@@ -291,8 +179,8 @@ let actions = {
   removeLineFromDocument({commit}, { type, documentId, lineId }){
     commit('removeLineFromDocument', { type, documentId, lineId });
   },
-  saveItem({state, getters, commit}, {type, payload}) {
-    return new Promise((resolve, reject)=>{
+  saveItem({getters, commit}, {type, payload}) {
+    return new Promise((resolve)=>{
       const key = getters['getLoaderKey'](type, payload);
       const current = getters['cacheGetItem'](type, key);
       if ((!current && payload) || !_.isEqual(current[2], payload)) {
@@ -309,11 +197,13 @@ let actions = {
       }
     });
   },
+  /*
   setBinderDefaults({rootGetters}, {ticket}){
     if (!ticket) ticket = rootGetters['Auth/getTicket'];
     if (ticket && ticket.token_type === 'Bearer' && ticket.expires_in > Date.now()) binder.defaults.headers.common['Authorization'] = `Bearer ${ticket.access_token}`;
     else delete binder.defaults.headers.common['Authorization'];
   },
+   */
 };
 
 export default {
@@ -323,7 +213,6 @@ export default {
   mutations,
   actions
 }
-
 function getHash(payload) {
   return crypto.createHash('md5')
     .update(JSON.stringify(payload.optics))
