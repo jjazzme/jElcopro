@@ -3,7 +3,7 @@ import app from './index';
 
 const {
     Invoice, Order, TransferIn, TransferOut, TransferOutCorrective, TransferInCorrective, Defective, Good, Arrival,
-    FutureReserve, Reserve, Undefective, Movement,
+    FutureReserve, Reserve, Undefective, Movement, MovementOut,
 } = app.services.db.models;
 const { transition } = app.services;
 let destroys;
@@ -29,6 +29,12 @@ const state = new State(11);
 
 app.services.dbConnection.transaction(async (transaction) => {
     await state.refresh();
+    const movementOut = await MovementOut.findOne({ where: { number_prefix: 'TEST' } });
+    if (movementOut) {
+        const lines = await movementOut.getDocumentLines();
+        await Promise.all(lines.map((line) => line.destroy()));
+        await movementOut.destroy();
+    }
     const movement = await Movement.findOne({ where: { number_prefix: 'TEST' } });
     if (movement) {
         await transition.execute('openReserves', movement, { transaction });
@@ -56,8 +62,10 @@ app.services.dbConnection.transaction(async (transaction) => {
         await defective.destroy();
     }
     const inv = await Invoice.getInstance({ number_prefix: 'TEST', status_id: 'in_work' });
-    await transition.execute('unWork', inv, { transaction });
-    await transition.execute('unreserve', inv, { transaction });
+    if (inv) {
+        await transition.execute('unWork', inv, { transaction });
+        await transition.execute('unreserve', inv, { transaction });
+    }
     const transferInCorrective = await TransferInCorrective
         .scope('defaultScope', 'withDocumentLines')
         .findOne({ where: { number_prefix: 'TEST' } });
@@ -131,8 +139,10 @@ app.services.dbConnection.transaction(async (transaction) => {
         await transferIn.destroy();
     }
     const order = await Order.getInstance({ number_prefix: 'TEST' });
-    await transition.execute('unWork', order, { transaction });
-    destroys = (await order.getDocumentLines()).map((line) => line.destroy());
-    await Promise.all(destroys);
-    await order.destroy();
-}).then(() => console.log('Data Clear'));
+    if (order) {
+        await transition.execute('unWork', order, { transaction });
+        destroys = (await order.getDocumentLines()).map((line) => line.destroy());
+        await Promise.all(destroys);
+        await order.destroy();
+    }
+}).then(() => app.services.logger.info({}, 'Data Clear'));

@@ -8,7 +8,7 @@ const { expect } = chai;
 
 describe('Test Corrective', () => {
     const {
-        Company, Good, Product, DocumentLine, Movement,
+        Company, Good, Product, DocumentLine, Movement, MovementOut,
     } = app.services.db.models;
     const { transition } = app.services;
     let elcopro;
@@ -58,6 +58,11 @@ describe('Test Corrective', () => {
         expect(res, 'Is true').to.be.true;
     });
     it('Create MovementOut', async () => {
-
+        const out = await MovementOut.createFromOptics({ parent_id: movement.id, number_prefix: 'TEST' });
+        expect(out, 'MovementOut')
+            .to.be.an.instanceof(MovementOut).and.deep.include({ status_id: 'formed' });
+        const line = _.first(await out.getDocumentLines());
+        expect(line, 'Amount with vat 24')
+            .to.be.an.instanceof(DocumentLine).and.deep.include({ amount_with_vat: 24 });
     });
 });
