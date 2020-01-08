@@ -17,29 +17,31 @@ export default class PriceLoadProcessor{
   }
 
   getSource(optics) {
+    return new Promise(resolve => {
+      if (_.isEqual(this.previousOptics, optics)) {
+        resolve();
+        return
+      }
 
-    if (_.isEqual(this.previousOptics, optics)) return;
+      this.data = { count: 0, filteredCount: 0, rows: [] };
+      let count = optics.onlyDB ? 1 : 1 + optics.from_store_ids;
 
-    this.data = { count: 0, filteredCount: 0, rows: [] };
-    this.loadPrice(0, optics)
-      .then(ans => {
+      this.loadPrice(0, optics)
+        .finally(() => { if (--count === 0) resolve() });
 
-      });
+      if(!optics.onlyDB)
+      {
+        _.forEach(optics.from_store_ids, storeID=>{
+          if(_.find(this.stores,store => store.id === storeID).online){
+            let StoreOptics = {name: optics.name, from_store:storeID};
+            this.loadPrice(storeID, StoreOptics)
+              .finally(() => { if (--count === 0) resolve() });
+          }
+        });
+      }
 
-    if(!optics.onlyDB)
-    {
-      _.forEach(optics.from_store_ids, storeID=>{
-        if(_.find(this.stores,store => store.id === storeID).online){
-          let StoreOptics = {name: optics.name, from_store:storeID};
-          this.loadPrice(storeID, StoreOptics)
-            .then(ans => {
-
-            });
-        }
-      });
-    }
-
-    this.previousOptics = _.cloneDeep(optics);
+      this.previousOptics = _.cloneDeep(optics);
+    });
   }
 
   loadPrice(store, optics){

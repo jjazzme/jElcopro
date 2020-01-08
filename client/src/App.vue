@@ -1,15 +1,13 @@
 <template>
-  <body
-    v-if="dataSource.userFormed"
-  >
+  <body>
     <nav-component
-      v-if="storeUser"
+      v-if="dataSource.userFormed"
       v-model="navModel"
       :class="{ open: navModel.navIsOpen, pin: !navModel.pinOff }"
     />
 
     <section
-      v-if="storeUser"
+      v-if="dataSource.userFormed"
       :class="{ pinOn: !navModel.pinOff}"
     >
       <header-component
@@ -25,6 +23,7 @@
       />
     </section>
     <login-component v-else />
+
     <requests-component
       v-model="requests"
     />
@@ -80,14 +79,6 @@ export default {
     this.$store.commit('Binder/setLoaders', this.dataSource.shells.getBinders);
     this.dataSource.loadReferences();
     this.dataSource.loadUser().finally(()=> this.$set(this.dataSource, 'userFormed', true));
-    /*
-    this.$store.dispatch('Auth/autoLogin')
-      .then(user => {
-        //this.$set(this, 'user', user);
-        this.$set(this.dataSource, 'user', user);
-
-      });
-     */
 
     this.$set(this, 'navModel', { pinOff: true, navIsOpen: false, viewport: this.viewport, dataSource: this.dataSource });
     this.$set(this, 'footerModel', { viewport: this.viewport, dataSource: this.dataSource });
@@ -99,7 +90,13 @@ export default {
   },
   watch:{
     storeUser(n){
-      //this.$set(this, 'user', n);
+      if (n) {
+        this.dataSource.loadUser().finally(()=> this.$set(this.dataSource, 'userFormed', true));
+      } else {
+        this.$store.commit('Binder/cachesClear');
+        this.$set(this.dataSource, 'userFormed', false)
+      }
+
       this.$set(this.dataSource, 'user', n);
     },
     //'$route.query.optics'(n){

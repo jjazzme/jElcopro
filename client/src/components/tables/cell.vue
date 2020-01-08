@@ -40,6 +40,7 @@
       font-size: 10px;
     }
     .t-value{
+      &::v-deep svg{height: 20px}
       text-align: center;
     }
   }

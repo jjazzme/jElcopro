@@ -10,15 +10,18 @@ export default class TableLoadProcessor{
     this.data = null;
   }
 
-  getSource(optics) {
-    const eid = `f${(+new Date).toString(16)}x${(~~(Math.random()*1e8)).toString(16)}`;
-    this.eid = eid;
-    $store.dispatch('Binder/getByOptics', { type: this.type, payload: { optics, eid } })
-      .then(ans => { this.data = ans })
-      .finally(() => {
-        this.eid = null;
-      });
-    this.previousOptics = optics;
+  getSource(optics, params) {
+    return new Promise(resolve => {
+      const eid = `f${(+new Date).toString(16)}x${(~~(Math.random()*1e8)).toString(16)}`;
+      this.eid = eid;
+      $store.dispatch('Binder/getByOptics', { type: this.type, payload: { optics, eid, params } })
+        .then(ans => { this.data = ans })
+        .finally(() => {
+          this.eid = null;
+          resolve();
+        });
+      this.previousOptics = optics;
+    });
   }
 
   displayedSelection(optics){
