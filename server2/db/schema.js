@@ -27,6 +27,7 @@ import Undefective from './UndefectiveModel';
 import MovementModel from './MovementModel';
 import MovementOutModel from './MovementOutModel';
 import ShellModel from './ShellModel';
+import MovementInModel from './MovementInModel';
 
 export default {
     AccessToken: {
@@ -348,6 +349,24 @@ export default {
         },
     }, document),
 
+    MovementIn: _.defaultsDeep({
+        class: MovementInModel,
+        options: {
+            defaultScope: { where: { document_type_id: 'movement-in' } },
+        },
+        attributes: {
+            document_type_id: { defaultValue: 'movement-in' },
+        },
+        relations: {
+            belongsTo: {
+                MovementOut: { foreignKey: 'parent_id', as: 'parent' },
+            },
+            hasMany: {
+                Document: { foreignKey: 'parent_id', as: 'children' },
+            },
+        },
+    }, document),
+
     MovementOut: _.defaultsDeep({
         class: MovementOutModel,
         options: {
@@ -360,9 +379,9 @@ export default {
             belongsTo: {
                 Movement: { foreignKey: 'parent_id', as: 'parent' },
             },
-            // hasMany: {
-            //     MovementOut: { foreignKey: 'parent_id', as: 'children' },
-            // },
+            hasMany: {
+                MovementIn: { foreignKey: 'parent_id', as: 'children' },
+            },
         },
     }, document),
 

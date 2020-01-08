@@ -171,6 +171,15 @@ export default class DocumentLine extends BaseModel {
         await this.bulkCreate(newLines, { individualHooks: true });
     }
 
+    static async createMovementInLines(child, optics) {
+        const newLines = optics.parent.documentLines
+            .map((line) => {
+                const values = _.omit(line.get({ plain: true }), ['id', 'createdAt', 'updatedAt']);
+                return Object.assign(values, { parent_id: line.id, document_id: child.id, closed: false });
+            });
+        await this.bulkCreate(newLines, { individualHooks: true });
+    }
+
     /**
      * Create TransferOut lines
      * @param {TransferOut|MovementOut} child
