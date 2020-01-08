@@ -20,4 +20,8 @@ export default class TableLoadProcessor{
       });
     this.previousOptics = optics;
   }
+
+  displayedSelection(optics){
+    return this.data ? this.data.rows : [];
+  }
 }

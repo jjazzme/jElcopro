@@ -17,13 +17,13 @@
     <div class="p-l-buttons">
       <b-button
         class="p-l-page-add"
-        v-if="value.count>value.depth"
-        @click="value.nextPage()"
-      >{{ `${ deviceType ===  'mob' ? 'Ещё' : 'Показать еще' }` }}</b-button>
+        v-if="value.loadProcessor.data.count > value.optics.value.depth"
+        @click="nextPage()"
+      >{{ `${ model.viewport.type ===  'mob' ? 'Ещё' : 'Показать еще' }` }}</b-button>
       <b-button
         class="p-l-page-1"
-        v-if="value.count>value.depth && value.pages>1"
-        @click="value.onePage()"
+        v-if="value.loadProcessor.data.count > value.optics.value.depth && value.optics.value.pages > 1"
+        @click="onePage()"
       > 1 стр</b-button>
     </div>
   </div>
@@ -36,13 +36,18 @@
       value: null,
       model: null,
     },
-    computed: {
-      deviceType(){
-        return this.model.viewport.type(this.model.viewport.width)
+    methods: {
+      nextPage(){
+        this.$set(this.value.optics.value, 'pages', this.value.optics.value.pages + 1);
       },
+      onePage(){
+        this.$set(this.value.optics.value, 'pages', 1);
+      },
+    },
+    computed: {
       showed(){
-        const limit = this.value.depth * this.value.pages;
-        const fCount = this.value.filteredCount;
+        const limit = this.value.optics.value.depth * this.value.optics.value.pages;
+        const fCount = this.value.loadProcessor.data.filteredCount;
         return limit > fCount ? fCount : limit;
       }
     }

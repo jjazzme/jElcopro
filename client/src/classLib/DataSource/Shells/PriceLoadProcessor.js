@@ -28,9 +28,9 @@ export default class PriceLoadProcessor{
 
     if(!optics.onlyDB)
     {
-      _.forEach(optics.selectedStores, storeID=>{
+      _.forEach(optics.from_store_ids, storeID=>{
         if(_.find(this.stores,store => store.id === storeID).online){
-          let StoreOptics = {name: optics.search, from_store:storeID};
+          let StoreOptics = {name: optics.name, from_store:storeID};
           this.loadPrice(storeID, StoreOptics)
             .then(ans => {
 
@@ -55,6 +55,7 @@ export default class PriceLoadProcessor{
     const ret = $store.dispatch('Binder/getByOptics', { type: this.type, payload: { optics, eid } });
     ret
       .then(response=> {
+        if (!response) return;
         // агрегируем
         _.forEach(response.data, row => {
           if (row.id === 0) {
@@ -78,7 +79,10 @@ export default class PriceLoadProcessor{
       })
       .finally(() => {
         if (store === 0) this.eid = null;
-        else this.eids.slice( _.findIndex(this.eids, item => item.eid === eid) , 1);;
+        else {
+          const ind = _.findIndex(this.eids, item => item.eid === eid);
+          this.eids.splice( ind , 1);
+        }
       });
     return ret;
   }
@@ -156,7 +160,7 @@ export default class PriceLoadProcessor{
       const _eid = _.findLast(this.eids, store => store.id === id);
       if (!_eid) return;
       eid = _eid.eid;
-      this.eids.slice( _.findIndex(this.eids, item => item.eid === eid) , 1);
+      this.eids.splice( _.findIndex(this.eids, item => item.eid === eid) , 1);
     }
     const request = $store.getters['Binder/getRequestByEid'](eid);
     request.source.cancel('aborted');

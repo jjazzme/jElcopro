@@ -13,13 +13,21 @@
     </div>
   </aside>
   <article v-else>
-    {{ table }}
+    <row
+      v-for="(row, ind) in table"
+      v-model="value"
+      :row="row"
+      :ind="ind"
+      :key="ind"
+    />
   </article>
 </template>
 
 <script>
+  import Row from "./row";
   export default {
-    name: "tableBody",
+    name: "Body",
+    components: {Row},
     props: {
       value: null,
     },
@@ -28,7 +36,10 @@
       table(){
         const table = this.value.dataSource.getTable;
         return table.loadProcessor.displayedSelection(table.optics.value);
-      }
+      },
+      invoice(){
+        return this.value.dataSource.getInvoice;
+      },
     },
     methods:{
       cancel(){

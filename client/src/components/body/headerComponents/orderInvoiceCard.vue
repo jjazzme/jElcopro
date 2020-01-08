@@ -6,12 +6,13 @@
     >
       Добавить {{alias}}
     </b-link>
+
     <div
       v-if="document"
     >
       <div class="h-c-close" @click="closeCard()">x</div>
       <router-link
-        :to="{name:'modelItem', params:{ type, id }}"
+        :to="{name:'item', params:{ type, id }}"
         class="h-c-topic"
       >
         {{alias}} №{{ document.number }} от {{ Intl.DateTimeFormat('ru-RU').format(new Date(document.date)) }}
@@ -42,7 +43,7 @@
     },
     computed:{
       secondPart(){
-        return this.value._type === 'invoice'
+        return this.type === 'Invoice'
           ? this.document?.buyerable?.party?.name
           : this.document?.sellerable?.party?.name;
       },
@@ -57,10 +58,11 @@
       }
     },
     created() {
-      if (this.type === 'invoice') this.alias = 'счёт';
-      else if (this.value._type === 'order') this.alias = 'заказ';
+      if (this.type === 'Invoice') this.alias = 'счёт';
+      else if (this.type === 'Order') this.alias = 'заказ';
 
-      if (this.id) this.$store.dispatch('Binder/getItem', { type: this.type, payload: { id: this.id } })
+      if (this.id) this.value.dataSource.getSourceById({ type: this.type, id: this.id })
+        //this.$store.dispatch('Binder/getItem', { type: this.type, payload: { id: this.id } })
         .then(doc => this.document=doc)
     },
   }

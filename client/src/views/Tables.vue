@@ -1,15 +1,15 @@
 <template>
   <main>
     <component
-      v-bind:is="model.dataSource.getShell.opticsConstructor"
-      v-model="model"
+      v-bind:is="value.dataSource.getShell.opticsConstructor"
+      v-model="value"
     />
-    <table-body
-      v-model="model"
+    <Body
+      v-model="value"
     />
     <page-environment
-      :head = "{ title: { main: 'таблицы', method: model.dataSource.getShell.name.many } }"
-      :foot = "{ component: model.dataSource.getShell.footer, vmodel: model.dataSource.getTable }"
+      :head = "{ title: { main: 'таблицы', method: value.dataSource.getShell.name.many } }"
+      :foot = "{ component: value.dataSource.getShell.footer, vmodel: value.dataSource.getTable }"
     />
   </main>
 
@@ -17,27 +17,24 @@
 
 <script>
   import Footer from "../classLib/Footer";
-  import tableBody from "../components/tables/tableBody";
+  import Body from "../components/tables/body";
 
   export default {
     name: "Tables",
-    components: {tableBody},
+    components: {Body},
     props:{
-      model: null
+      value: null
     },
     data(){
       return {
-        value: null,
-        //previousOptics: null,
-        //previousSaveShellPayload: null,
       }
     },
     computed:{
       footer(){
-        return new Footer({ component: this.model.dataSource.getShell.footer });
+        return new Footer({ component: this.value.dataSource.getShell.footer });
       },
       optics(){
-        return this.model.dataSource.getTable ? JSON.stringify(this.model.dataSource.getTable.optics.value) : null;
+        return this.value.dataSource.getTable ? JSON.stringify(this.value.dataSource.getTable.optics.value) : null;
       },
       type(){
         return this.$route.params.type;
@@ -45,12 +42,12 @@
       getSource() {
         return _.debounce(
           () => {
-            const optics = this.model.dataSource.getBackSensitiveOptics;
+            const optics = this.value.dataSource.getBackSensitiveOptics;
             if (!optics) return;
 
-            this.model.dataSource.getTable.loadProcessor.getSource(optics, this.$store);
+            this.value.dataSource.getTable.loadProcessor.getSource(optics, this.$store);
 
-          }, this.model.dataSource.debounceAmount
+          }, this.value.dataSource.debounceAmount
         );
       },
     },
@@ -58,9 +55,9 @@
 
     },
     created() {
-      this.model.dataSource.type = this.type;
-      const queryOptics = this.model.dataSource.getOpticsObject(this.$route.query.optics);
-      if (queryOptics) this.$set(this.model.dataSource.getTable.optics, 'value', queryOptics);
+      this.value.dataSource.type = this.type;
+      const queryOptics = this.value.dataSource.getOpticsObject(this.$route.query.optics);
+      if (queryOptics) this.$set(this.value.dataSource.getTable.optics, 'value', queryOptics);
       this.getSource();
     },
 
@@ -70,11 +67,11 @@
         this.getSource();
       },
       type(n){
-        this.model.dataSource.type = n;
-        let queryOptics = this.model.dataSource.getOpticsObject(this.$route.query.optics);
-        if (queryOptics) this.$set(this.model.dataSource.getTable.optics, 'value', queryOptics);
+        this.value.dataSource.type = n;
+        let queryOptics = this.value.dataSource.getOpticsObject(this.$route.query.optics);
+        if (queryOptics) this.$set(this.value.dataSource.getTable.optics, 'value', queryOptics);
         else {
-          queryOptics =JSON.stringify(this.model.dataSource.getTable.optics.value);
+          queryOptics =JSON.stringify(this.value.dataSource.getTable.optics.value);
           if(queryOptics !== this.$route.query.optics) this.$router.replace({ query: { optics: queryOptics } });
         }
         this.getSource();

@@ -1,5 +1,7 @@
 <template>
-  <body>
+  <body
+    v-if="dataSource.userFormed"
+  >
     <nav-component
       v-if="storeUser"
       v-model="navModel"
@@ -15,7 +17,7 @@
       />
 
       <router-view
-        :model="mainModel"
+        :value="mainModel"
       />
 
       <footer-component
@@ -63,7 +65,7 @@ export default {
     storeUser(){
       return this.$store.getters['Auth/getUser']
     },
-    requests(){ return this.$store.getters['Binder/getRequests'] }
+    requests(){ return this.$store.getters['Binder/getRequests'] },
   },
   methods:{
     onResize: _.debounce( function(){
@@ -77,12 +79,15 @@ export default {
     if (!this.dataSource) this.$set(this, 'dataSource', new DataSource(this.$store, this.$route.query.optics, 500));
     this.$store.commit('Binder/setLoaders', this.dataSource.shells.getBinders);
     this.dataSource.loadReferences();
-
+    this.dataSource.loadUser().finally(()=> this.$set(this.dataSource, 'userFormed', true));
+    /*
     this.$store.dispatch('Auth/autoLogin')
       .then(user => {
         //this.$set(this, 'user', user);
         this.$set(this.dataSource, 'user', user);
+
       });
+     */
 
     this.$set(this, 'navModel', { pinOff: true, navIsOpen: false, viewport: this.viewport, dataSource: this.dataSource });
     this.$set(this, 'footerModel', { viewport: this.viewport, dataSource: this.dataSource });

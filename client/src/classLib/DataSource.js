@@ -76,6 +76,7 @@ export default class DataSource{
     });
 
     this.user = null;
+    this.userFormed = false;
 
     this.shells = new Shells(20);
     _.forEach(this.shells.template, (val, type) => {
@@ -101,6 +102,17 @@ export default class DataSource{
     const getBS = this.getShell.getBackSensitive;
     return getBS ? getBS(this.getTable.optics.value) : this.getTable.optics.value;
   }
+  get getInvoice(){
+    return this.user.cards.invoice ? this.getSourceById({ type: 'Invoice', id: this.user.cards.invoice }) : null;
+  }
+  get getOrders(){
+    return this.user.cards.orders.map(id => {
+      return this.getSourceById({ type: 'Order', id })
+    })
+  }
+  get initialCards(){
+    this.user.cards.invoice
+  }
   getQueryOpticsByType(type){
     return this.tables[type] ? JSON.stringify(this.tables[type].optics.value) : null;
   }
@@ -114,6 +126,9 @@ export default class DataSource{
     } catch (error) {
       return null;
     }
+  }
+  getSourceById({ type, id }){
+    return this.store.dispatch('Binder/getItem', { type, payload: { id } })
   }
   getSourceByOptics({ type, optics }){
     if (optics) this.tables[type].optics.value = optics;
@@ -172,6 +187,42 @@ export default class DataSource{
       });
     };
     refLoader(this.refsOrder);
+  }
+  loadOrders(){
+    _.forEach(this.user.cards.orders, id=>{
+      this.getSourceById({ type: 'Order', id })
+        .finally(()=>{
+          if(id === _.last(this.user.cards.orders)) this.user.cardsLoaded = true;
+        })
+    })
+  }
+  loadUser(){
+    return new Promise(resolve=>{
+      const loadOrders = () => {
+        _.forEach(this.user.cards.orders, id => {
+          this.getSourceById({type: 'Order', id})
+            .finally(() => {
+              if (id === _.last(this.user.cards.orders)) resolve();
+            })
+        });
+      }
+
+      this.store.dispatch('Auth/autoLogin')
+        .then(user => {
+          this.user = user;
+          if (user.cards.invoice){
+            this.getSourceById({ type: 'Invoice', id: user.cards.invoice })
+              .finally(()=>{
+                if (user.cards.orders && user.cards.orders.length>0) loadOrders();
+                else resolve();
+              })
+          } else {
+            if (user.cards.orders && user.cards.orders.length>0) loadOrders();
+            else resolve();
+          }
+        });
+
+    });
   }
 
 }
