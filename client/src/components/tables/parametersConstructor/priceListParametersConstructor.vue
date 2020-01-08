@@ -120,10 +120,13 @@
                 return this.value.dataSource.tables.Store.data;
             },
             iconsModel(){
+                _.forEach(this.stores, store => {
+                    this.$set(store, '_loading',  this.value.dataSource.getTable.loadProcessor.eids.map(item => { return item.id} ).includes(store.id));
+                });
                 return { optics: this.optics, stores: this.stores }
             },
             optics(){
-                return this.value.dataSource.tables[this.value.dataSource.type].optics.value
+                return this.value.dataSource.getTable.optics.value
             },
             options(){
                 return this.stores.map((store)=>{return{

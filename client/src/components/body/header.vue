@@ -102,7 +102,7 @@
       top: 55px;
       left: 30px;
       display: flex;
-      max-width: 700px;
+      max-width: calc(100% - 100px);
       height: 140px;
       overflow: auto;
     }

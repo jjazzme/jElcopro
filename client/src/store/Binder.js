@@ -89,7 +89,7 @@ let actions = {
     // payload = {optics, params, eid}
     // TODO: make a ROW notes
     const hash = getHash(payload);
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const cached = getters['cacheGetSetsByHash'](type, hash);
       const ttl = getters['getLoaderTTL'](type);
       let cacheItem = null;
@@ -129,9 +129,11 @@ let actions = {
             }
             else resolve(ans)
           })
+          .catch(err => resolve(null));
       }
     });
   },
+  getCardsInvoice() {},
   getItem({getters, commit}, {type, payload}) {
     return new Promise((resolve)=>{
       const key = getters['getLoaderKey'](type, payload);
