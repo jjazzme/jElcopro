@@ -177,4 +177,48 @@ export default class Good extends BaseModel {
             price_without_vat: 0,
         });
     }
+
+    /**
+     * Check integrity
+     * @returns {Promise<boolean>}
+     */
+    async arrivalsCheck() {
+        const { Arrival, DocumentLine } = this.services.db.models;
+        const arrivalsBallance = await Arrival.sum(
+            'ballance',
+            {
+                where: { ballance: { [Op.gt]: 0 } },
+                include: [{ model: DocumentLine, as: 'documentLine', where: { good_id: this.id } }],
+            },
+        );
+        return arrivalsBallance === this.ballance;
+    }
+
+    /**
+     * Reserves quantity
+     * @returns {Promise<number>}
+     */
+    async reservesQuantity() {
+        const { Reserve, DocumentLine } = this.services.db.models;
+        return Reserve.sum(
+            'Reserve.quantity',
+            {
+                include: [{ model: DocumentLine, as: 'documentLine', where: { good_id: this.id } }],
+            },
+        );
+    }
+
+    /**
+     * FutureReserves quantity
+     * @returns {Promise<number>}
+     */
+    async futureReservesBallance() {
+        const { FutureReserve, DocumentLine } = this.services.db.models;
+        return FutureReserve.sum(
+            'ballance',
+            {
+                include: [{ model: DocumentLine, as: 'documentLine', where: { good_id: this.id } }],
+            },
+        );
+    }
 }

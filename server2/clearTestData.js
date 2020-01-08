@@ -5,7 +5,7 @@ const {
     Invoice, Order, TransferIn, TransferOut, TransferOutCorrective, TransferInCorrective, Defective, Good, Arrival,
     FutureReserve, Reserve, Undefective, Movement, MovementOut,
 } = app.services.db.models;
-const { transition } = app.services;
+const { transition, logger } = app.services;
 let destroys;
 
 class State {
@@ -17,20 +17,32 @@ class State {
         const arrivals = await Arrival.findAll();
         const futureReserves = await FutureReserve.findAll();
         const reserves = await Reserve.findAll();
-        this.good = await Good.getInstance(11);
+        this.good = await Good.getInstance(this.goodId);
         this.arrivalsCount = arrivals.reduce((sum, a) => sum + a.ballance, 0);
         this.futureReserevesCount = futureReserves.reduce((sum, f) => sum + f.ballance, 0);
         this.reservesCount = reserves.reduce((sum, r) => sum + r.quantity, 0);
     }
 }
 
-const state = new State(11);
-
+const state = new State(60164);
 
 app.services.dbConnection.transaction(async (transaction) => {
     await state.refresh();
+    const good = await Good.getInstance(60164, 'withProduct');
+    logger.info(
+        {
+            good_id: good.id,
+            product_name: good.product.name,
+            ballance: good.ballance,
+            integrity: await good.arrivalsCheck(),
+            reserves: await good.reservesQuantity(),
+            future_reserves: await good.futureReservesBallance(),
+        },
+        'GoodInfo',
+    );
     const movementOut = await MovementOut.findOne({ where: { number_prefix: 'TEST' } });
     if (movementOut) {
+        await transition.execute('unWork', movementOut, { transaction });
         const lines = await movementOut.getDocumentLines();
         await Promise.all(lines.map((line) => line.destroy()));
         await movementOut.destroy();
@@ -145,4 +157,4 @@ app.services.dbConnection.transaction(async (transaction) => {
         await Promise.all(destroys);
         await order.destroy();
     }
-}).then(() => app.services.logger.info({}, 'Data Clear'));
+}).then(() => logger.info({}, 'Data Clear'));

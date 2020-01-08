@@ -17,6 +17,7 @@ describe('Test Corrective', () => {
     let elcoproMainStore;
     let elcoproMagazin;
     let movement;
+    let out;
     before(async () => {
         elcopro = await Company.getByAlias('elcopro', 'withStores');
         elcoproMainStore = _.find(elcopro.stores, { is_main: true });
@@ -58,11 +59,16 @@ describe('Test Corrective', () => {
         expect(res, 'Is true').to.be.true;
     });
     it('Create MovementOut', async () => {
-        const out = await MovementOut.createFromOptics({ parent_id: movement.id, number_prefix: 'TEST' });
+        out = await MovementOut.createFromOptics({ parent_id: movement.id, number_prefix: 'TEST' });
         expect(out, 'MovementOut')
             .to.be.an.instanceof(MovementOut).and.deep.include({ status_id: 'formed' });
         const line = _.first(await out.getDocumentLines());
         expect(line, 'Amount with vat 24')
             .to.be.an.instanceof(DocumentLine).and.deep.include({ amount_with_vat: 24 });
+    });
+    it('Close MovementOut', async () => {
+        await transition.execute('toWork', out);
+        expect(out, 'It is MovementOut in Work')
+            .to.be.an.instanceof(MovementOut).and.deep.include({ status_id: 'in_work' });
     });
 });
