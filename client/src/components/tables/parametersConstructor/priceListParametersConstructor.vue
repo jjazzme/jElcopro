@@ -11,6 +11,7 @@
               class="p-l-input"
               type="number"
               min="1"
+              max="9999999"
               v-model="optics.quantity"
               :formatter="intFormatter"
               :number="true"
@@ -210,7 +211,7 @@
             .p-l-input{
                 top: 0;
                 left: 0;
-                width: 120px;
+                min-width: 120px;
                 padding-left: 30px;
                 height: 50px;
                 font-size: 20px;

@@ -14,7 +14,6 @@ let getters = {
   cacheGetItem: state => (type, key) => {
     return state.loaders[type].cache.find(item=>_.isEqual(item[0], key));
   },
-
   // get payload from gash
   cacheGetSetsByHash: state => (type, hash) => state.loaders[type].cacheSets?.find(item=>item[0]===hash),
   // execute by optics payload
@@ -46,6 +45,7 @@ let getters = {
 };
 let mutations = {
   addRequest(state, { uid, source, url, type, eid }) {state.requests.push({ uid, source, url, type, eid })},
+  cachesClear(state) { _.forEach(state.loaders, loader => loader.cache = []) },
   incAxiosID(state) { state.axiosID++ },
   removeLineFromDocument(state, { type, documentId, lineId }){
     axios.get(`/api/document/line/delete/${documentId}/${lineId}`)

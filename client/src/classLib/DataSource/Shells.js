@@ -276,8 +276,8 @@ export default class Shells{
           },
           vat:{editor:'selector', source:'vat' ,show: true, order:2, sortable: true, label: 'НДС %',
             html: item => parseFloat(item.vat)===0?'Без НДС':`${parseFloat(item.vat)}%`},
-          category_id:{editor:'selector', show: true, order:3, html: item=>item.Category ? item.Category.name : '-//-', sortable: true, label: 'Категория'},
-          producer_id:{editor:'selector', show: true, order:4, html: item=>item.Producer ? item.Producer.name : '-//-', sortable: true, label: 'Производитель',
+          category_id:{editor:'selector', show: true, order:3, html: item=>item.category ? item.category.name : '-//-', sortable: true, label: 'Категория'},
+          producer_id:{editor:'selector', show: true, order:4, html: item=>item.producer ? item.producer.name : '-//-', sortable: true, label: 'Производитель',
             filters:[
               {type: 'search', _placeholder:'поиск 1'},
               {type: 'search', _placeholder:'поиск 2'},

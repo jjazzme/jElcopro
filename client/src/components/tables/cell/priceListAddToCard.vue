@@ -10,14 +10,14 @@
       :formatter="intFormatter"
       placeholder="Мин количество"
     />
-    <div class="p-l-vectors">
+    <div class="t-vectors">
       <div
         @click="toInvoice"
         :title="`${invoice ? 'В счёт' : 'Добавить счёт'}`"
       >
-        <fa-icon class="p-l-doc" icon="file-invoice-dollar"/>
+        <fa-icon class="t-doc" icon="file-invoice-dollar"/>
         <fa-icon
-          class="p-l-add"
+          class="t-add"
           v-if="!invoice"
           :icon="['far', 'question-circle']"
         />
@@ -26,9 +26,9 @@
         @click="toOrder"
         :title="`${order ? 'В заказ' : 'Добавить заказ'}`"
       >
-        <fa-icon class="p-l-doc" :icon="['fab', 'codepen']"/>
+        <fa-icon class="t-doc" :icon="['fab', 'codepen']"/>
         <fa-icon
-          class="p-l-add"
+          class="t-add"
           v-if="!order"
           :icon="['far', 'question-circle']"
         />
@@ -37,10 +37,10 @@
         v-if="order && invoice"
         @click="toBoth"
         title="В карты"
-        class="p-l-both"
+        class="t-both"
       >
-        <fa-icon class="p-l-doc" icon="file-invoice-dollar"/>
-        <fa-icon class="p-l-doc" :icon="['fab', 'codepen']"/>
+        <fa-icon class="t-doc" icon="file-invoice-dollar"/>
+        <fa-icon class="t-doc" :icon="['fab', 'codepen']"/>
       </div>
     </div>
   </div>
@@ -101,6 +101,62 @@
   }
 </script>
 
-<style scoped>
-
+<style scoped lang="less">
+  .t-cell{
+    display: flex;
+    flex-flow: row nowrap;
+    .t-input{
+      color: navy;
+      height: 35px;
+      left: 0;
+      background-color: transparent;
+      width: 100px;
+      padding: 0 1px;
+      margin: -6px 0 0 0;
+      font-size: 1.3em;
+      text-align: center;
+      border: none;
+      font-weight: 600;
+      display: inline-block;
+    }
+    .t-vectors{
+      display: flex;
+      flex-flow: row nowrap;
+      >div{
+        cursor: pointer;
+        width: 50px;
+        height: 30px;
+        position: relative;
+        display: inline-block;
+        .t-doc{
+          color: gray;
+          font-size: 20px;
+          position: absolute;
+          top: 4px;
+          left: 18px;
+        }
+        .t-add{
+          font-size: 12px;
+          position: absolute;
+          top: -3px;
+          left: 30px;
+          color: red
+        }
+        .t-count{
+          font-size: 6px;
+          line-height: 8px;
+          height: 8px;
+          position: absolute;
+          top: -4px;
+          left: 0;
+          color: black;
+        }
+      }
+      .t-both{
+        svg{font-size: 16px}
+        svg:first-child{left: 17px; top: 12px}
+        svg:last-child{top: 5px; left: 28px}
+      }
+    }
+  }
 </style>

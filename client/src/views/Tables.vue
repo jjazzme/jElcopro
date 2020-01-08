@@ -6,6 +6,7 @@
     />
     <Body
       v-model="value"
+      ref="table"
     />
     <page-environment
       :head = "{ title: { main: 'таблицы', method: value.dataSource.getShell.name.many } }"
@@ -45,14 +46,39 @@
             const optics = this.value.dataSource.getBackSensitiveOptics;
             if (!optics) return;
 
-            this.value.dataSource.getTable.loadProcessor.getSource(optics, this.$store);
-
+            this.value.dataSource.getTable.loadProcessor.getSource(optics, this.value.dataSource.getShell.controller)
+            .finally(()=>{
+              this.calculateTable()
+            })
           }, this.value.dataSource.debounceAmount
         );
       },
     },
     methods:{
+      calculateTable(){
 
+        let waitTable = () => {
+          _.delay(()=>{
+            const metrics = [];
+            const table = this.$refs.table.$el;
+            if (table.tagName !== 'ARTICLE') waitTable()
+            else {
+              _.forEach(table.querySelectorAll('div.t-row'), row => {
+                _.forEach(row.querySelectorAll('div.t-cell'), (cell, ind) => {
+                  if (metrics[ind]) {
+                    if (metrics[ind] < cell.offsetWidth) metrics[ind] = cell.offsetWidth
+                  } else {
+                    metrics.push(cell.offsetWidth)
+                  }
+                })
+              });
+              console.log(metrics);
+            }
+          }, 100)
+        };
+
+        waitTable();
+      },
     },
     created() {
       this.value.dataSource.type = this.type;

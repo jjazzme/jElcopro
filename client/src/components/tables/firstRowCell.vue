@@ -73,7 +73,7 @@
         console.log('BC', id)
       },
       includes(id){
-        console.log('INC', id)
+
       },
     },
   }
