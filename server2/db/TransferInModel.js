@@ -45,7 +45,6 @@ export default class TransferIn extends Document {
         for (const line of this.documentLines) {
             const arrival = await line.getArrival();
             await arrival.destroy();
-            // Если на тестах не посыпется то удалить await line.update({ closed: false });
             const parent = await line.getParent();
             await parent.update({ closed: false });
         }

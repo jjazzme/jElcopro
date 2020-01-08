@@ -3,7 +3,7 @@ import app from './index';
 
 const {
     Invoice, Order, TransferIn, TransferOut, TransferOutCorrective, TransferInCorrective, Defective, Good, Arrival,
-    FutureReserve, Reserve, Undefective, Movement, MovementOut,
+    FutureReserve, Reserve, Undefective, Movement, MovementOut, MovementIn,
 } = app.services.db.models;
 const { transition, logger } = app.services;
 let destroys;
@@ -40,6 +40,12 @@ app.services.dbConnection.transaction(async (transaction) => {
         },
         'GoodInfo',
     );
+    const movementIn = await MovementIn.findOne({ where: { number_prefix: 'TEST' } });
+    if (movementIn) {
+        const lines = await movementIn.getDocumentLines();
+        await Promise.all(lines.map((line) => line.destroy()));
+        await movementIn.destroy();
+    }
     const movementOut = await MovementOut.findOne({ where: { number_prefix: 'TEST' } });
     if (movementOut) {
         await transition.execute('unWork', movementOut, { transaction });

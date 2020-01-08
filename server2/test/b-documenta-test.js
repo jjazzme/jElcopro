@@ -39,9 +39,10 @@ describe('Test Corrective', () => {
             sellerable_id: elcopro.id,
             number_prefix: 'TEST',
             store_id: elcoproMainStore.id,
-            foreighn_store_id: elcoproMagazin.id,
+            foreign_store_id: elcoproMagazin.id,
         });
-        expect(movement, 'Its Movement').to.be.an.instanceof(Movement).and.deep.include({ status_id: 'formed' });
+        expect(movement, 'Its Movement').to.be.an.instanceof(Movement)
+            .and.deep.include({ status_id: 'formed', foreign_store_id: elcoproMagazin.id });
     });
     it('Create Movement Lines', async () => {
         const line = await good.toMovementDocumentLine(movement, 3);

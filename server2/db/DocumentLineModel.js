@@ -172,12 +172,16 @@ export default class DocumentLine extends BaseModel {
     }
 
     static async createMovementInLines(child, optics) {
-        const newLines = optics.parent.documentLines
+        const lines = optics.parent.documentLines
             .map((line) => {
                 const values = _.omit(line.get({ plain: true }), ['id', 'createdAt', 'updatedAt']);
-                return Object.assign(values, { parent_id: line.id, document_id: child.id, closed: false });
+                Object.assign(values, { parent_id: line.id, document_id: child.id, closed: false });
+                return values;
             });
-        await this.bulkCreate(newLines, { individualHooks: true });
+        // eslint-disable-next-line no-unused-vars
+        for (const line of lines) {
+            await this.create(line);
+        }
     }
 
     /**

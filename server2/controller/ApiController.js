@@ -8,9 +8,9 @@ export default class ModelContoller {
 
     async index(req) {
         const { optics, params } = req.body;
-        //const type = req.body.type || req.params.type;
+        // const type = req.body.type || req.params.type;
 
-        //const { params } = req.body;
+        // const { params } = req.body;
         // const userID = req.user.id;
         const { auth } = this.Model.services;
 
@@ -26,6 +26,7 @@ export default class ModelContoller {
         }
         */
 
+        // Криво нужно переделать если не передан limit и page
         const { page } = optics;
         const limit = optics.limit === null
             ? 15

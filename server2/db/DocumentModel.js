@@ -162,7 +162,7 @@ export default class Document extends BaseModel {
         this.beforeCreate(async (doc) => {
             doc.set({ user_id: this.services.auth.user.id });
             if (!doc.store_id) await doc.fillStore();
-            if (!doc.get('from_store_id')) await doc.fillFromStore();
+            if (!doc.get('foreign_store_id')) await doc.fillFromStore();
             if (!_.isNumber(doc.number)) doc.number = await this.nextNumber(doc.number_prefix);
         });
 
