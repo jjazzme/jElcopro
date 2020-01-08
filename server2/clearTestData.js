@@ -42,6 +42,7 @@ app.services.dbConnection.transaction(async (transaction) => {
     );
     const movementIn = await MovementIn.findOne({ where: { number_prefix: 'TEST' } });
     if (movementIn) {
+        await transition.execute('unWork', movementIn, { transaction });
         const lines = await movementIn.getDocumentLines();
         await Promise.all(lines.map((line) => line.destroy()));
         await movementIn.destroy();
