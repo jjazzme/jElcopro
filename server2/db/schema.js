@@ -605,6 +605,50 @@ export default {
         },
     },
 
+    Shipment: {
+        options: { tableName: 'shipments' },
+        attributes: {
+            number: { type: DataTypes.STRING, unique: 'shipment_company_number', allowNull: false },
+            company_id: { type: DataTypes.INTEGER, unique: 'shipment_company_number', allowNull: false },
+            date: { type: DataTypes.DATE, allowNull: false },
+            arrival_date: { type: DataTypes.DATE, allowNull: false },
+            from_store_id: { type: DataTypes.INTEGER, allowNull: false },
+            to_store_id: { type: DataTypes.INTEGER, allowNull: false },
+            status_id: { type: DataTypes.STRING, defaultValue: 'formed' },
+        },
+        relations: {
+            belongsTo: {
+                Company: { foreignKey: 'company_id', as: 'company', onDelete: 'RESTRICT' },
+                Store: [
+                    { foreignKey: 'from_store_id', as: 'fromStore', onDelete: 'RESTRICT' },
+                    { foreignKey: 'to_store_id', as: 'toStore', onDelete: 'RESTRICT' },
+                ],
+            },
+            belongsToMany: {
+                Document: {
+                    through: 'shipment_document',
+                    as: 'documents',
+                    foreignKey: 'shipment_id',
+                    otherKey: 'document_id',
+                },
+            },
+        },
+    },
+
+    ShipmentDocument: {
+        options: { tableName: 'shipment_document' },
+        attributes: {
+            shipment_id: DataTypes.INTEGER,
+            document_id: DataTypes.INTEGER,
+        },
+        relations: {
+            belongsTo: {
+                Shipment: { foreignKey: 'shipment_id', as: 'shipment', onDelete: 'RESTRICT' },
+                Document: { foreignKey: 'document_id', as: 'document', onDelete: 'RESTRICT' },
+            },
+        },
+    },
+
     StateCustomDeclaration: {
         options: { tableName: 'state_custom_declarations' },
         attributes: { number: DataTypes.STRING, country_code: DataTypes.STRING, country_short_name: DataTypes.STRING },
