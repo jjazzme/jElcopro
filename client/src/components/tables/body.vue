@@ -12,7 +12,9 @@
       </b-button>
     </div>
   </aside>
-  <article v-else>
+  <article
+    v-else
+  >
     <row
       v-for="(row, ind) in table"
       v-model="value"
@@ -55,6 +57,10 @@
 
 <style scoped lang="less">
   @import "~@/less/_variables";
+
+  article.t-linear{
+    padding-top: 2px;
+  }
 
   aside {
     flex: 1 1 auto;

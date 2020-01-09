@@ -1,5 +1,5 @@
 <template>
-  <div class="t-row">
+  <div :class="{'t-row': true, 't-linear': value.viewport.tableRowIsLinear}">
     <first-row-cell
       v-if="!value.dataSource.getShell.noFirstRowCell"
       v-model="value"
@@ -15,6 +15,8 @@
       :cell="cell"
       :row="row"
       :optics="value.dataSource.getTable.optics.value"
+      :width="value.viewport.tableRow[name] ? value.viewport.tableRow[name].width : null"
+      :bodyWidth="value.viewport.width"
     />
 
   </div>
@@ -33,12 +35,17 @@
       value: null,
     },
     computed:{
+      cellWidth(){}
     },
   }
 </script>
 
 <style scoped lang="less">
   @import "~@/less/_variables";
+
+  .t-linear{
+    &::v-deep .t-cell .t-label {display: none}
+  }
 
   .t-row {
     display: flex;
@@ -52,7 +59,7 @@
   .t-cell{
     padding: 2px 5px;
     margin: 3px;
-    flex: 1 1 auto;
+    //flex: 1 1 auto;
     align-self: stretch;
     //border: silver 1px solid;
     background-color: #f6f6f6;

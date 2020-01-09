@@ -8,6 +8,8 @@ export default class Viewport{
     this.mobileWidthPoint = mobileWidthPoint;
     this.calculate();
     this.types = { mobile: 'mob', desktop: 'des', wide: 'wid' };
+    this.tableRow = {};
+    this.tableRowIsLinear = false;
   }
 
   calculate(){

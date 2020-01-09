@@ -1,5 +1,5 @@
 <template>
-  <div class="t-fr-cell t-cell">
+  <div class="t-fr-cell t-cell" data-field="_firstRow">
     <b-form-checkbox
       size="sm"
       class="d-inline-block pl-4 pr-0"

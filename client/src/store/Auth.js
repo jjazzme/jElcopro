@@ -9,7 +9,11 @@ let state = {
 };
 
 let getters = {
-  getUser: state => state.user,
+  getUser: state => {
+    const user = state.user;
+    if (user && _.isEmpty(user.cards)) user.cards = { orders: [], invoice: null };
+    return user;
+  },
   getTicket: state => state.ticket,
 };
 
