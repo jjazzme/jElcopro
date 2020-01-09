@@ -1,5 +1,9 @@
 <template>
-  <div class="t-cell">
+  <div
+    class="t-cell"
+    :style="calculatedStyle"
+    :data-field="name"
+  >
     <div
       v-html="cell.label"
       class="t-label"
@@ -30,6 +34,18 @@
       name: null,
       row: null,
       optics: null,
+      width: null,
+      bodyWidth: null,
+    },
+    computed:{
+      calculatedStyle(){
+        const width = this.width
+          ? this.width > (this.bodyWidth - 100)/2
+            ? `${(this.bodyWidth - 100)/2}px`
+            : `${this.width}px`
+          : 'auto';
+        return this.width === null ? '' : `flex: 1 1 auto; width: ${width}`;
+      },
     },
   }
 </script>
@@ -38,6 +54,7 @@
   .t-cell{
     .t-label{
       font-size: 10px;
+      white-space: nowrap;
     }
     .t-value{
       &::v-deep svg{height: 20px}
