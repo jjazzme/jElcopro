@@ -18,7 +18,7 @@ export default class MovementIn extends TransferIn {
         let child = null;
         if (!optics.parent_id) throw new Error('Need parent');
         await this.services.db.connection.transaction(async () => {
-            optics.parent = await MovementOut.getInstance(optics.parent_id, 'withDocumentLines');
+            optics.parent = await MovementOut.getInstance(optics.parent_id);
             const newMovementIn = _.pick(
                 optics.parent.getPlain(),
                 ['sellerable_id', 'buyerable_id', 'currency_id'],

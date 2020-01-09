@@ -160,10 +160,14 @@ export default class DocumentLine extends BaseModel {
     static async createTransferCorrectiveLines(child, optics) {
         const parentLineIds = optics.parentLines
             ? optics.parentLines.map((line) => (_.isNumber(line) ? line : line.id)) : null;
-        const parentLines = await DocumentLine.findAll({
+        const parentLines = await DocumentLine.scope('withChildren').findAll({
             where: { id: { [Sequelize.Op.in]: parentLineIds } },
         });
         const newLines = parentLines
+            .filter((line) => {
+                const quantity = line.children.reduce((sum, c) => sum + c.quantity, 0);
+                return quantity !== line.quantity;
+            })
             .map((line) => {
                 const values = _.omit(line.get({ plain: true }), ['id', 'createdAt', 'updatedAt']);
                 return Object.assign(values, { parent_id: line.id, document_id: child.id, closed: false });
@@ -172,7 +176,11 @@ export default class DocumentLine extends BaseModel {
     }
 
     static async createMovementInLines(child, optics) {
-        const lines = optics.parent.documentLines
+        const lines = (await optics.parent.getDocumentLines({ scope: ['withChildren'] }))
+            .filter((line) => {
+                const quantity = line.children.reduce((sum, c) => sum + c.quantity, 0);
+                return quantity !== line.quantity;
+            })
             .map((line) => {
                 const values = _.omit(line.get({ plain: true }), ['id', 'createdAt', 'updatedAt']);
                 Object.assign(values, { parent_id: line.id, document_id: child.id, closed: false });
