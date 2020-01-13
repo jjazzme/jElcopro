@@ -1,6 +1,6 @@
-import ApiController from './ApiController';
+import DocumentController from './DocumentController';
 
-export default class GoodController extends ApiController {
+export default class GoodController extends DocumentController {
     constructor(db) {
         super(db.models.Good);
     }
