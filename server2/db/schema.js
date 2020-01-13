@@ -28,6 +28,7 @@ import MovementModel from './MovementModel';
 import MovementOutModel from './MovementOutModel';
 import ShellModel from './ShellModel';
 import MovementInModel from './MovementInModel';
+import ShipmentModel from './ShipmentModel';
 
 export default {
     AccessToken: {
@@ -67,6 +68,32 @@ export default {
             hasMany: {
                 Reserve: { foreignKey: 'arrival_id', as: 'reserves' },
                 Departure: { foreignKey: 'arrival_id', as: 'departures' },
+            },
+        },
+    },
+
+    Bank: {
+        options: { tableName: 'banks' },
+        attributes: {
+            bik: { type: DataTypes.STRING, unique: true, allowNull: false },
+            name: { type: DataTypes.STRING, allowNull: false },
+            json: DataTypes.JSON,
+        },
+    },
+
+    BankAccount: {
+        options: { tableName: 'bank_accounts' },
+        attributes: {
+            account: { type: DataTypes.STRING, allowNull: false, unique: 'bank_account' },
+            bank_id: { type: DataTypes.INTEGER, allowNull: false, unique: 'bank_account' },
+            company_id: { type: DataTypes.INTEGER, allowNull: false },
+            currency_id: { type: DataTypes.STRING, allowNull: false },
+        },
+        relations: {
+            belongsTo: {
+                Bank: { foreignKey: 'bank_id', as: 'bank' },
+                Company: { foreignKey: 'company_id', as: 'company' },
+                Currency: { foreignKey: 'currency_id', as: 'currency' },
             },
         },
     },
@@ -475,6 +502,26 @@ export default {
         },
     },
 
+    Payment: {
+        options: { tableName: 'payments' },
+        attributes: {
+            bank_account_from_id: { type: DataTypes.INTEGER, allowNull: false },
+            bank_account_to_id: { type: DataTypes.INTEGER, allowNull: false },
+            number: { type: DataTypes.STRING, allowNull: false },
+            date: { type: DataTypes.DATE, allowNull: false },
+            purpose: { type: DataTypes.STRING, allowNull: false },
+            amount: { type: DataTypes.DECIMAL(18, 6) },
+        },
+        relations: {
+            belongsTo: {
+                BankAccount: [
+                    { foreignKey: 'bank_account_from_id', a: 'bankAccountFrom' },
+                    { foreignKey: 'bank_account_to_id', a: 'bankAccountTo' },
+                ],
+            },
+        },
+    },
+
     Picture: {
         options: { tableName: 'pictures' },
         attributes: { name: DataTypes.STRING, model_id: DataTypes.INTEGER, model_type: DataTypes.STRING },
@@ -606,6 +653,7 @@ export default {
     },
 
     Shipment: {
+        class: ShipmentModel,
         options: { tableName: 'shipments' },
         attributes: {
             number: { type: DataTypes.STRING, unique: 'shipment_company_number', allowNull: false },
