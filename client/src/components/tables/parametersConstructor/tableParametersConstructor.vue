@@ -1,27 +1,34 @@
 <template>
   <header
-    v-if="value.viewport.tableRowIsLinear"
+    v-if="enabled"
   >
     <div class="t-row">
       <div>first</div>
 
       <div
         v-for="(cell, name) in value.dataSource.getShell.initial"
-        v-if="cell.label"
+        v-if="cell.show !== false && !cell.hidden"
         :key="name"
         v-html="cell.label"
-        :style="`width: ${value.viewport.tableRow[name].width}px`"
+        :style="`width: ${value.viewport.tableRow[name].width}px; order: ${ cell.order }`"
       />
     </div>
   </header>
 </template>
 
 <script>
+  //import _ from 'lodash';
+
   export default {
     name: "tableParametersConstructor",
     props: {
       value: null,
     },
+    computed:{
+      enabled(){ return this.value.viewport.tableRowIsLinear && !_.isEmpty(this.value.viewport.tableRow) }
+    },
+    created(){
+    }
   }
 </script>
 

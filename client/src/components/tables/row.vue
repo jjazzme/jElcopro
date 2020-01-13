@@ -9,7 +9,7 @@
 
     <cell
       v-for="(cell, name) in value.dataSource.getShell.initial"
-      v-if="cell.label"
+      v-if="cell.show !== false && !cell.hidden"
       :key="name"
       :name="name"
       :cell="cell"

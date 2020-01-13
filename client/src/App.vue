@@ -171,6 +171,7 @@ export default {
         background: @header-bg;
       }
       >main{
+        h1{margin: 10px; text-align: center;}
         background-color: white;
         flex: 1 1 auto;
         min-height: calc(100vh - @headerHeightDaw - @footerHeightDaw);

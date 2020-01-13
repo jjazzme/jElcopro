@@ -80,7 +80,10 @@
 </script>
 
 <style scoped lang="less">
+  @import "~@/less/_variables";
+
   .t-fr-cell {
-    min-width: 70px; max-width: 70px; order:-1000000;
+    width: 70px; max-width: 70px;
+    order:-1000000;
   }
 </style>

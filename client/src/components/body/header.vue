@@ -111,13 +111,17 @@
       top: 5px;
       left: 20px;
     }
+
     .s-h-title{
       font-family: 'Montserrat', 'Open Sans', sans-serif;
       position: absolute;
       font-size: 1.75em;
       top: 4px;
       left: 180px;
-      height: 30px;
+      height: 40px;
+      white-space: nowrap;
+      max-width: calc(100% - 300px);
+      overflow: hidden;
 
       > span{display: inline-block;}
       > span:first-child{color: white;};
