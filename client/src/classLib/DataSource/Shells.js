@@ -11,6 +11,7 @@ import tableParametersConstructor from "../../components/tables/parametersConstr
 export default class Shells{
   constructor(limit){
     this.template = {
+      // образец не включённой в меню сущности
       Currency:{
         binder: {
           key: item=>item.id,
@@ -22,8 +23,8 @@ export default class Shells{
           cache:[],
           cacheSets: [],
         },
-        menu: false,
-        optics: { limit: -1, page: 1 }
+        // menu: false, - можно не писать, так как тут false = undefined
+        optics: { limit: -1, page: 1 } // для возврата через put всей таблицы
       },
       CurrencyRateService:{
         binder: {
@@ -127,6 +128,35 @@ export default class Shells{
         menu: 1040,
         optics: { page: 1, sorters: {}, filters: {}, items: [], limit: limit },
       },
+      Good:{
+        binder: {
+          key: item => item.id,
+          byOpticsLoader: (payload) => axios.put(
+            `/api/good`,
+            {optics: payload.optics, params: payload.params}),
+          itemLoader: (key) => axios.get(`/api/good/${key}`),
+          ttl: 3600e3 * 24,
+          cache: [], // [[id, updated, {}], [id, updated, {}]]
+          cacheSets: [], // [[hash, updated, [ids]], [hash, updated, [ids]]
+        },
+        initial: {
+          id: {show: false, hidden: true, sortable: false, card: false},
+          store_id: {
+            show: true, order: 10, html: row => row.store.name, sortable: true, label: 'Склад',
+            filters: [
+              {type: 'search', _placeholder: 'поиск 1'},
+            ]
+          },
+          product_id: {show: true, order: 20, html: row => row.product.name, sortable: true, label: 'Продукт',},
+          filters: [
+            {type: 'search', _placeholder: 'поиск 1'},
+          ]
+        },
+        ballance: {},
+        code: {},
+        pack: {},
+        multiply: {}
+      },
       Order:{
         binder:{
           key: item=>item.id,
@@ -199,8 +229,10 @@ export default class Shells{
         name: {one: 'заказ', many: 'заказы', cardof: 'заказа',},
         optics: { page: 1, sorters: {}, filters: {}, items: [], limit: limit },
       },
+
+      ///// образец
       PriceList:{
-        loadProcessor: new PriceLoadProcessor(),
+        loadProcessor: new PriceLoadProcessor(), // класс, обрабатывающий загрузку TODO: () => import('./Shells/PriceLoadProcessor')
         footer: priceListFooter,
         opticsConstructor: priceListParametersConstructor,
         optics: { search: 'max', quantity: 5, fromQuantity: false, onlyDB: true, depth: 20, pages: 1, fromRelevance: false, relevance: 24, selectedStores: [] },
@@ -215,39 +247,63 @@ export default class Shells{
           ),
         },
         initial:{
-          online: {label: 'тип', html: row=>{
+          online: {label: 'тип', order: 10,
+            html: row=>{
               return row.online
                 ? "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 496 512\"><path fill=\"currentColor\" d=\"M336.5 160C322 70.7 287.8 8 248 8s-74 62.7-88.5 152h177zM152 256c0 22.2 1.2 43.5 3.3 64h185.3c2.1-20.5 3.3-41.8 3.3-64s-1.2-43.5-3.3-64H155.3c-2.1 20.5-3.3 41.8-3.3 64zm324.7-96c-28.6-67.9-86.5-120.4-158-141.6 24.4 33.8 41.2 84.7 50 141.6h108zM177.2 18.4C105.8 39.6 47.8 92.1 19.3 160h108c8.7-56.9 25.5-107.8 49.9-141.6zM487.4 192H372.7c2.1 21 3.3 42.5 3.3 64s-1.2 43-3.3 64h114.6c5.5-20.5 8.6-41.8 8.6-64s-3.1-43.5-8.5-64zM120 256c0-21.5 1.2-43 3.3-64H8.6C3.2 212.5 0 233.8 0 256s3.2 43.5 8.6 64h114.6c-2-21-3.2-42.5-3.2-64zm39.5 96c14.5 89.3 48.7 152 88.5 152s74-62.7 88.5-152h-177zm159.3 141.6c71.4-21.2 129.4-73.7 158-141.6h-108c-8.8 56.9-25.6 107.8-50 141.6zM19.3 352c28.6 67.9 86.5 120.4 158 141.6-24.4-33.8-41.2-84.7-50-141.6h-108z\"></path></svg>"
                 : "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 448 512\"><path fill=\"currentColor\" d=\"M448 73.143v45.714C448 159.143 347.667 192 224 192S0 159.143 0 118.857V73.143C0 32.857 100.333 0 224 0s224 32.857 224 73.143zM448 176v102.857C448 319.143 347.667 352 224 352S0 319.143 0 278.857V176c48.125 33.143 136.208 48.572 224 48.572S399.874 209.143 448 176zm0 160v102.857C448 479.143 347.667 512 224 512S0 479.143 0 438.857V336c48.125 33.143 136.208 48.572 224 48.572S399.874 369.143 448 336z\"></path></svg>"
 
 
-            }},
-          name: { label:'название', to: item=> { return { name:'goods', params:{ id:item.good_id } } } },
-          code: { label: 'код' },
-          producer_name: { label: 'произв.', to: item=> { return { name:'producer', params:{ id:item.producer_id } } } },
-          case: { label: 'корпус', to: item=> { return { name:'case', params:{ id:item.parameter_id } } } },
-          remark: { label: 'примечание' },
-          ballance: { label: 'кол-во' },
-          real: { label: 'добавить', component: () => import('../../components/tables/cell/priceListAddToCard') },
-          actual: { label: 'дата', html: row=>`<span ${Math.abs(Date.now() -new Date(row.actual)) / 36e5 >= row._relevance ? 'class="text-danger"' : ''}>${Intl.DateTimeFormat(
+            }
+            },
+          name: { label:'название',  order: 20,
+            to: item=> { return { name:'item', params:{ id:item.good_id, type: 'Good' } } }
+            },
+          code: { label: 'код',  order: 30 },
+          producer_name: { label: 'произв.',  order: 40,
+            to: item=> { return { name:'item', params:{ id:item.producer_id, type: 'Producer' } } }
+            },
+          case: { label: 'корпус',  order: 50,
+            to: item=> { return { name:'item', params:{ id:item.parameter_id, type: 'Parameter' } } }
+            },
+          remark: { label: 'примечание', order: 60 },
+          ballance: { label: 'кол-во', order: 70 },
+          real: { label: 'добавить', order: 80,
+            component: () => import('../../components/tables/cell/priceListAddToCard')
+          },
+          actual: { label: 'дата', order: 90,
+            html: row=>`<span ${Math.abs(Date.now() -new Date(row.actual)) / 36e5 >= row._relevance ? 'class="text-danger"' : ''}>${Intl.DateTimeFormat(
               'ru-RU',
               {
                 year: 'numeric', month: 'numeric', day: 'numeric',
                 hour: 'numeric', minute: 'numeric', second: 'numeric',
                 hour12: false
-              }).format(new Date(row.actual))}</span>` },
-          min:{ label: 'мин.' },
-          max:{ label: 'макс.' },
-          pack: { label: 'упак.' },
-          multiply: { label: 'кратно' },
-          priceUSD: { label: 'цена $', html: row=>row._priceUSD.toFixed(2) },
-          sumUSD: { label: 'сумма $', html: row=>row._sumUSD.toFixed(2) },
-          average_days: { label: 'дней' },
-          priceRUR: { label: 'цена ₽', html: row=>row._priceRUR.toFixed(2)},
-          sumRUR: { label: 'сумма ₽', html: row=>row._sumRUR.toFixed(2) },
-          vat: { label: 'ндс', field:'vat'},
-          party_name: { label: 'поставщик', to: item=> { return { name:'company', params:{ id:item.company_id } } } },
-          store_name: { label: 'склад', to: item=> { return { name:'store', params:{ id:item.store_id } } } },
+              }).format(new Date(row.actual))}</span>`
+          },
+          min:{ label: 'мин.', order: 100},
+          max:{ label: 'макс.', order: 110 },
+          pack: { label: 'упак.', order: 120 },
+          multiply: { label: 'кратно', order: 130 },
+          priceUSD: { label: 'цена $', order: 140,
+            html: row=>row._priceUSD.toFixed(2)
+          },
+          sumUSD: { label: 'сумма $', order: 150,
+            html: row=>row._sumUSD.toFixed(2)
+          },
+          average_days: { label: 'дней',  order: 160 },
+          priceRUR: { label: 'цена ₽',  order: 170,
+            html: row=>row._priceRUR.toFixed(2)
+          },
+          sumRUR: { label: 'сумма ₽', order: 180,
+            html: row=>row._sumRUR.toFixed(2)
+          },
+          vat: { label: 'ндс', field:'vat', order: 190 },
+          party_name: { label: 'поставщик', order: 200,
+            to: item=> { return { name:'item', params:{ id:item.company_id, type: 'Company' } } }
+            },
+          store_name: { label: 'склад', order: 210,
+            to: item=> { return { name:'item', params:{ id:item.store_id, type: 'Store' } } }
+            },
         },
         menu: 1010,
         faIcon: {prefix: "fas", name:"hand-holding-usd"},
@@ -267,25 +323,36 @@ export default class Shells{
           cacheSets: [],
         },
         initial: {
-          id:{show:false, hidden: true, sortable: false},
-          name:{to:{name:'modelItem', params:{table: 'Product', id:'$id'}}, editor:'string' ,show: true, order:1, sortable: true, label: 'Название',
+          id:{ show:false, hidden: true, sortable: false, label: 'id' },
+          name:{
+            to: row => { return { name:'item', params:{table: 'Product', id: row.id } } },
+            editor:'string', show: true, order:10, sortable: true, label: 'Название',
             filters:[
               {type: 'search', _placeholder:'поиск 1'}, // value=''
               {type: 'search', _placeholder:'поиск 2'},
             ]
           },
-          vat:{editor:'selector', source:'vat' ,show: true, order:2, sortable: true, label: 'НДС %',
-            html: item => parseFloat(item.vat)===0?'Без НДС':`${parseFloat(item.vat)}%`},
-          category_id:{editor:'selector', show: true, order:3, html: item=>item.category ? item.category.name : '-//-', sortable: true, label: 'Категория'},
-          producer_id:{editor:'selector', show: true, order:4, html: item=>item.producer ? item.producer.name : '-//-', sortable: true, label: 'Производитель',
+          vat:{
+            editor:'selector', source:'vat' ,show: true, order:20, sortable: true, label: 'НДС %',
+            html: row => parseFloat(row.vat)===0?'Без НДС':`${parseFloat(row.vat)}%`
+          },
+          category_id:{
+            editor:'selector', show: true, order:30, sortable: true, label: 'Категория',
+            html: row => row.category ? row.category.name : '-//-'
+          },
+          producer_id:{
+            editor:'selector', show: true, order:40,
+            html: item=>item.producer ? item.producer.name : '-//-', sortable: true, label: 'Производитель',
             filters:[
               {type: 'search', _placeholder:'поиск 1'},
               {type: 'search', _placeholder:'поиск 2'},
             ]},
-          picture:{show: true, order: 5, parentClass:"avatar avatar-sm", sortable: true, label: 'Фото',
+          picture:{
+            show: true, order: 50, parentClass:"avatar avatar-sm", sortable: true, label: 'Фото',
             html:item => item.picture===null
               ? ""
-              : `<img src="/image/small/${item.picture}" class="rounded-circle">`},
+              : `<img src="/image/small/${item.picture}" class="rounded-circle">`
+          },
         },
         controller:{
           scopes:['withSellerable', 'withBuyerable', 'withStore', 'withCurrency', 'withDocumentLines'],

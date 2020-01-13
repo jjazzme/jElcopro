@@ -8,21 +8,25 @@
       v-html="cell.label"
       class="t-label"
     />
-    <div
-      class="t-value"
-      v-if="cell.html"
-      v-html="cell.html(row)"
-    />
     <component
-      v-else-if="cell.component"
+      v-if="cell.component"
       v-bind:is="cell.component"
       v-model="row"
       :optics="optics"
+      :class="cell.class ? cell.class : ''"
+    />
+    <router-link
+      v-else-if="cell.to"
+      :to="cell.to(row)"
+      :class="`t-value ${cell.class ? cell.class : ''}`"
+      v-html="cell.html ? cell.html(row) : row[name]"
     />
     <div
       v-else
-      v-html="row[name]"
+      :class="`t-value ${cell.class ? cell.class : ''}`"
+      v-html="cell.html ? cell.html(row) : row[name]"
     />
+
   </div>
 </template>
 
@@ -44,7 +48,7 @@
             ? `${(this.bodyWidth - 100)/2}px`
             : `${this.width}px`
           : 'auto';
-        return this.width === null ? '' : `flex: 1 1 auto; width: ${width}`;
+        return this.width === null ? '' : `flex: 1 1 auto; width: ${width}; order: ${ this.cell.order }`;
       },
     },
   }
@@ -52,13 +56,19 @@
 
 <style scoped lang="less">
   .t-cell{
+    a{
+      border: none;
+      text-decoration: underline;
+      color: navy;
+    }
     .t-label{
       font-size: 10px;
       white-space: nowrap;
+      display: block;
     }
     .t-value{
       &::v-deep svg{height: 20px}
-      text-align: center;
+      text-align: left;
     }
   }
 </style>
