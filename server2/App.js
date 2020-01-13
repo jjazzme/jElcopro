@@ -2,13 +2,13 @@ import listEndPoints from 'express-list-endpoints';
 import createError from 'http-errors';
 import apiRoutes from './router/apiRoutes';
 
-const https = require('https');
-const fs = require('fs');
+// const https = require('https');
+// const fs = require('fs');
 
-const options = {
+/* const options = {
     key: fs.readFileSync('key.pem'),
     cert: fs.readFileSync('cert.pem'),
-};
+}; */
 
 export default class App {
     constructor(services) {
@@ -104,9 +104,9 @@ export default class App {
             host: hostname,
         });
 
-        const server2 = https.createServer(options, express);
+        // const server2 = https.createServer(options, express);
 
-        server2.listen(443);
+        // server2.listen(443);
 
         // eslint-disable-next-line no-unused-vars
         server.on('error', (err) => {
