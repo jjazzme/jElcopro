@@ -1,5 +1,5 @@
 import ApiRouter from './ApiRouter';
-import ProductController from '../controller/ProductController';
+// import ProductController from '../controller/ProductController';
 import ProducerController from '../controller/ProducerController';
 import ApiController from '../controller/ApiController';
 import UserController from '../controller/UserController';
@@ -18,9 +18,6 @@ export default function ApiRoutes(services) {
     apiRouter.resource('currency', new ApiController(services.db.models.Currency));
     apiRouter.resource('currencyRateService', CurrencyRateController);
     apiRouter.resource('good', GoodController);
-    // new ApiController(services.db.models.Good) !!!
-    // TODO: динамический импорт или статический типа () => import()?
-    // TODO: не может применить дефолтные скопы тут: {"name":"SequelizeScopeError","message":"Invalid scope withBuyerable called."}
     apiRouter.resource('invoice', InvoiceController); // InvoiceController
     apiRouter.resource('order', OrderController); // OrderController new ApiController(services.db.models.Order)
     apiRouter.resource('party', new ApiController(services.db.models.Party));

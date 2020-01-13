@@ -300,7 +300,16 @@ export default {
         class: GoodModel,
         options: {
             tableName: 'goods',
-            scopes: { withProduct: { include: [{ model: ProductModel, as: 'product' }] } },
+            scopes: {
+                withProduct: { include: [{ model: ProductModel, as: 'product' }] },
+                withStore: {
+                    include: [{
+                        model: StoreModel,
+                        as: 'store',
+                        include: [{ model: CompanyModel, as: 'company', include: [{ PartyModel, as: 'party' }] }],
+                    }],
+                },
+            },
         },
         attributes: {
             store_id: { type: DataTypes.INTEGER, unique: 'goods_store_id_product_id_code_unique' },

@@ -341,6 +341,7 @@ export default class Shells{
             html: row => row.category ? row.category.name : '-//-'
           },
           producer_id:{
+            to: row => { return { name:'item', params:{table: 'Producer', id: row.producer_id } } },
             editor:'selector', show: true, order:40,
             html: item=>item.producer ? item.producer.name : '-//-', sortable: true, label: 'Производитель',
             filters:[
