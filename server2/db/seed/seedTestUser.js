@@ -1,4 +1,3 @@
-import bcrypt from 'bcrypt';
 import app from '../../index';
 
 const { User } = app.services.db.models;

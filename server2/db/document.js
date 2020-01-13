@@ -14,7 +14,9 @@ export default {
             withCurrency: { include: [{ model: Currency, as: 'currency' }] },
             withDocumentLines: { include: [{ model: DocumentLine, as: 'documentLines' }] },
             withForeignStore: { include: [{ model: Store, as: 'foreignStore' }] },
-            withSellerable: { include: [{ model: Company, as: 'sellerable', include: [{ model: Party, as: 'party' }] }] },
+            withSellerable: {
+                include: [{ model: Company, as: 'sellerable', include: [{ model: Party, as: 'party' }] }],
+            },
             withStore: { include: [{ model: Store, as: 'store' }] },
         },
     },
@@ -48,6 +50,14 @@ export default {
                 { foreignKey: 'foreign_store_id', as: 'foreignStore' },
             ],
             Currency: { foreignKey: 'currency_id', as: 'currency' },
+        },
+        belongsToMany: {
+            Shipment: {
+                through: 'shipment_document',
+                as: 'shipments',
+                foreignKey: 'document_id',
+                otherKey: 'shipment_id',
+            },
         },
         hasMany: {
             DocumentLine: { foreignKey: 'document_id', as: 'documentLines' },

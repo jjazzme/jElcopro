@@ -64,6 +64,39 @@ export default class Document extends BaseModel {
 
     // eslint-disable-next-line no-unused-vars,class-methods-use-this
     async _unWorkTransition(params) {
+        await this.parentToBeOpen();
+        return true;
+    }
+
+    /**
+     * First variant close invoice reserves
+     * @returns {Promise<void>}
+     */
+    async _closeReservesTransition() {
+        const { DocumentLine, Reserve } = this.services.db.models;
+        const reserves = await Reserve.findAll({
+            where: { closed: false },
+            include: [
+                { model: DocumentLine, as: 'documentLine', where: { document_id: this.id } },
+            ],
+        });
+        await Promise.all(reserves.map((reserve) => reserve.update({ closed: true })));
+        return true;
+    }
+
+    /**
+     * First variant open invoice reserves
+     * @returns {Promise<void>}
+     */
+    async _openReservesTransition() {
+        const { DocumentLine, Reserve } = this.services.db.models;
+        const reserves = await Reserve.findAll({
+            where: { closed: true },
+            include: [
+                { model: DocumentLine, as: 'documentLine', where: { document_id: this.id } },
+            ],
+        });
+        await Promise.all(reserves.map((reserve) => reserve.update({ closed: false })));
         return true;
     }
 
@@ -79,6 +112,11 @@ export default class Document extends BaseModel {
         }
         this.closed = true;
         return true;
+    }
+
+    async parentToBeOpen() {
+        this.parent = this.parent || await this.getParent();
+        if (this.parent?.closed) throw new Error('Open parent before');
     }
 
     /**
@@ -124,7 +162,7 @@ export default class Document extends BaseModel {
         this.beforeCreate(async (doc) => {
             doc.set({ user_id: this.services.auth.user.id });
             if (!doc.store_id) await doc.fillStore();
-            if (!doc.get('from_store_id')) await doc.fillFromStore();
+            if (!doc.get('foreign_store_id')) await doc.fillFromStore();
             if (!_.isNumber(doc.number)) doc.number = await this.nextNumber(doc.number_prefix);
         });
 
@@ -164,7 +202,7 @@ export default class Document extends BaseModel {
         begin.setHours(0, 0, 0, 0);
         const last = await this.findOne({
             where: { date: { [Sequelize.Op.gt]: begin }, number_prefix: prefix || null },
-            order: ['number'],
+            order: [['number', 'DESC']],
         });
         return last ? last.number + 1 : 1;
     }

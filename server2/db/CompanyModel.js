@@ -25,10 +25,10 @@ export default class Company extends BaseModel {
                     const company = await this.getFromDadata(inn, ogrn, { own, with_vat }, scopes);
                     if (company.stores.length === 0) {
                         const { Store } = db.models;
-                        const { online } = configCompany.stores.main;
+                        const { online, name } = configCompany.stores.main;
                         const [store] = await Store.findOrCreate({
                             where: { company_id: company.id, address_id: company.fact_address_id },
-                            defaults: { is_main: true, online },
+                            defaults: { is_main: true, online, name },
                         });
                         company.stores.push(store);
                     }

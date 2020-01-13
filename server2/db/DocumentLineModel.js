@@ -81,8 +81,10 @@ export default class DocumentLine extends BaseModel {
             const document = line.document || await line.getDocument();
             if (document.status_id !== 'formed') throw new Error('Document must be in formed status');
             const { Reserve } = this.services.db.models;
-            if (line.closed) throw new Error('Has not closed lines');
-            line.departure = line.departure || await line.getDeparture();
+            if (line.closed) {
+                throw new Error('Has not closed lines');
+            }
+            line.departure = await line.getDeparture();
             if (line.departure) {
                 await Reserve.create(
                     {
@@ -155,33 +157,49 @@ export default class DocumentLine extends BaseModel {
         await this.bulkCreate(newLines, { individualHooks: true });
     }
 
-    static async createTransferOutCorrectiveLines(child, optics) {
+    static async createTransferCorrectiveLines(child, optics) {
         const parentLineIds = optics.parentLines
             ? optics.parentLines.map((line) => (_.isNumber(line) ? line : line.id)) : null;
-        const parentLines = await DocumentLine.findAll({
+        const parentLines = await DocumentLine.scope('withChildren').findAll({
             where: { id: { [Sequelize.Op.in]: parentLineIds } },
         });
         const newLines = parentLines
+            .filter((line) => {
+                const quantity = line.children.reduce((sum, c) => sum + c.quantity, 0);
+                return quantity !== line.quantity;
+            })
             .map((line) => {
                 const values = _.omit(line.get({ plain: true }), ['id', 'createdAt', 'updatedAt']);
-                return Object.assign(values, { parent_id: line.id, document_id: child.id });
+                return Object.assign(values, { parent_id: line.id, document_id: child.id, closed: false });
             });
         await this.bulkCreate(newLines, { individualHooks: true });
     }
 
+    static async createMovementInLines(child, optics) {
+        const lines = (await optics.parent.getDocumentLines({ scope: ['withChildren'] }))
+            .filter((line) => {
+                const quantity = line.children.reduce((sum, c) => sum + c.quantity, 0);
+                return quantity !== line.quantity;
+            })
+            .map((line) => {
+                const values = _.omit(line.get({ plain: true }), ['id', 'createdAt', 'updatedAt']);
+                Object.assign(values, { parent_id: line.id, document_id: child.id, closed: false });
+                return values;
+            });
+        // eslint-disable-next-line no-unused-vars
+        for (const line of lines) {
+            await this.create(line);
+        }
+    }
+
     /**
      * Create TransferOut lines
-     * @param {TransferOut} child
+     * @param {TransferOut|MovementOut} child
      * @returns {Promise<void>}
      */
     static async createTransferOutLines(child) {
         const { Departure, Reserve } = this.services.db.models;
-        const reserves = await Reserve.findAll({
-            where: { closed: true },
-            include: [
-                { model: DocumentLine, as: 'documentLine', where: { document_id: child.parent_id } },
-            ],
-        });
+        const reserves = await Reserve.scope({ method: ['closed', child.parent_id] }).findAll();
         if (reserves.length === 0) throw new Error('Nothing to do');
         // eslint-disable-next-line no-unused-vars
         for (const reserve of reserves) {
@@ -190,7 +208,13 @@ export default class DocumentLine extends BaseModel {
                 quantity: reserve.quantity,
                 parent_id: reserve.documentLine.id,
             });
-            newLine = _.omit(newLine, ['id', 'createdAt', 'updatedAt']);
+            if (child.document_type_id === 'movement-out') {
+                const arrival = await reserve.getArrival({ scope: ['withDocumentLine'] });
+                newLine.vat = arrival.documentLine.vat;
+                newLine.price_with_vat = arrival.documentLine.price_with_vat;
+                newLine.price_without_vat = arrival.documentLine.price_without_vat;
+            }
+            newLine = _.omit(newLine, ['id', 'createdAt', 'updatedAt', 'amount_with_vat', 'amount_without_vat']);
             newLine = await this.create(newLine);
             await Departure.create({ document_line_id: newLine.id, arrival_id: reserve.arrival_id });
             await reserve.destroy();
@@ -228,7 +252,7 @@ export default class DocumentLine extends BaseModel {
         });
         // eslint-disable-next-line no-restricted-syntax,no-unused-vars
         for (const arrival of arrivals) {
-            if (arrival.ballance > needReserve) {
+            if (arrival.ballance >= needReserve) {
                 arrival.ballance -= needReserve;
                 await arrival.save();
                 await Reserve.create(

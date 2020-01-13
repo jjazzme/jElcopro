@@ -1,7 +1,7 @@
 import app from '../../index';
 
 // const { companies } = app.services.config;
-const { Company, InterStoreRoute } = app.services.db.models;
+const { Company, InterStoreRoute, Store } = app.services.db.models;
 
 module.exports.run = async () => {
     // const promises = Object.keys(companies).map((alias) => Company.getByAlias(alias));
@@ -9,6 +9,15 @@ module.exports.run = async () => {
     const compel = await Company.getByAlias('compel');
     const dan = await Company.getByAlias('dan');
     const elcopro = await Company.getByAlias('elcopro');
+    await Store.findOrCreate({
+        where: { name: 'МАГАЗИН' },
+        defaults: {
+            company_id: elcopro.id,
+            address_id: elcopro.fact_address_id,
+            online: true,
+            is_main: false,
+        },
+    });
     const promelec = await Company.getByAlias('promelec');
     await InterStoreRoute.findOrCreate({
         where: { name: 'CENTER - 1905' },

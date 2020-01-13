@@ -2,6 +2,14 @@ import listEndPoints from 'express-list-endpoints';
 import createError from 'http-errors';
 import apiRoutes from './router/apiRoutes';
 
+const https = require('https');
+const fs = require('fs');
+
+const options = {
+    key: fs.readFileSync('key.pem'),
+    cert: fs.readFileSync('cert.pem'),
+};
+
 export default class App {
     constructor(services) {
         this.services = services;
@@ -50,7 +58,7 @@ export default class App {
 
         // error handler
         // eslint-disable-next-line no-unused-vars
-        express.use((err, req, res, next) => {
+        express.use((err, req, res) => {
             // set locals, only providing error in development
             // res.locals.message = err.message;
             // res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -87,12 +95,18 @@ export default class App {
         express.set('port', port);
         express.set('hostname', hostname);
 
+        // const server = http.createServer(express);
+
         const server = http.createServer(express);
 
         server.listen({
             port,
             host: hostname,
         });
+
+        const server2 = https.createServer(options, express);
+
+        server2.listen(443);
 
         // eslint-disable-next-line no-unused-vars
         server.on('error', (err) => {

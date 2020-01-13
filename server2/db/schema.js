@@ -21,7 +21,14 @@ import UserModel from './UserModel';
 import TransferOutCorrectiveModel from './TransferOutCorrectiveModel';
 import CurrencyModel from './CurrencyModel';
 import Document from './DocumentModel';
-import ShellModel from "./ShellModel";
+import TransferInCorrectiveModel from './TransferInCorrectiveModel';
+import Defective from './DefectiveModel';
+import Undefective from './UndefectiveModel';
+import MovementModel from './MovementModel';
+import MovementOutModel from './MovementOutModel';
+import ShellModel from './ShellModel';
+import MovementInModel from './MovementInModel';
+import ShipmentModel from './ShipmentModel';
 
 export default {
     AccessToken: {
@@ -47,7 +54,10 @@ export default {
 
     Arrival: {
         class: ArrivalModel,
-        options: { tableName: 'arrivals' },
+        options: {
+            tableName: 'arrivals',
+            scopes: { withDocumentLine: { include: [{ model: DocumentLine, as: 'documentLine' }] } },
+        },
         attributes: { document_line_id: DataTypes.INTEGER, ballance: DataTypes.INTEGER },
         relations: {
             belongsTo: {
@@ -58,6 +68,32 @@ export default {
             hasMany: {
                 Reserve: { foreignKey: 'arrival_id', as: 'reserves' },
                 Departure: { foreignKey: 'arrival_id', as: 'departures' },
+            },
+        },
+    },
+
+    Bank: {
+        options: { tableName: 'banks' },
+        attributes: {
+            bik: { type: DataTypes.STRING, unique: true, allowNull: false },
+            name: { type: DataTypes.STRING, allowNull: false },
+            json: DataTypes.JSON,
+        },
+    },
+
+    BankAccount: {
+        options: { tableName: 'bank_accounts' },
+        attributes: {
+            account: { type: DataTypes.STRING, allowNull: false, unique: 'bank_account' },
+            bank_id: { type: DataTypes.INTEGER, allowNull: false, unique: 'bank_account' },
+            company_id: { type: DataTypes.INTEGER, allowNull: false },
+            currency_id: { type: DataTypes.STRING, allowNull: false },
+        },
+        relations: {
+            belongsTo: {
+                Bank: { foreignKey: 'bank_id', as: 'bank' },
+                Company: { foreignKey: 'company_id', as: 'company' },
+                Currency: { foreignKey: 'currency_id', as: 'currency' },
             },
         },
     },
@@ -123,6 +159,16 @@ export default {
         relations: { belongsTo: { Currency: { foreignKey: 'currency_id', as: 'currency' } } },
     },
 
+    Defective: _.defaultsDeep({
+        class: Defective,
+        options: {
+            defaultScope: { where: { document_type_id: 'defective' } },
+        },
+        attributes: {
+            document_type_id: { defaultValue: 'defective' },
+        },
+    }, document),
+
     Departure: {
         class: DepartureModel,
         options: { tableName: 'departures' },
@@ -144,9 +190,27 @@ export default {
             scopes: {
                 withArrival: { include: [{ model: ArrivalModel, as: 'arrival' }] },
                 withChildren: { include: [{ model: DocumentLine, as: 'children' }] },
-                withGood: { include: [{ model: GoodModel, as: 'good' }] },
+                withGood: {
+                    include: [
+                        {
+                            model: GoodModel,
+                            as: 'good',
+                            include: [
+                                {
+                                    model: ProductModel,
+                                    as: 'product',
+                                    include: [{ model: ProducerModel, as: 'producer' }],
+                                },
+                            ],
+                        },
+                    ],
+                },
                 withFutureReserve: { include: [{ model: FutureReserveModel, as: 'futureReserve' }] },
+                withParent: {
+                    include: [{ model: DocumentLine, as: 'parent', include: [{ model: Document, as: 'document' }] }],
+                },
                 withReserves: { include: [{ model: ReserveModel, as: 'reserves' }] },
+                withDeparture: { include: [{ model: DepartureModel, as: 'departure' }] },
             },
         },
         attributes: {
@@ -236,7 +300,16 @@ export default {
         class: GoodModel,
         options: {
             tableName: 'goods',
-            scopes: { withProduct: { include: [{ model: ProductModel, as: 'product' }] } },
+            scopes: {
+                withProduct: { include: [{ model: ProductModel, as: 'product' }] },
+                withStore: {
+                    include: [{
+                        model: StoreModel,
+                        as: 'store',
+                        include: [{ model: CompanyModel, as: 'company', include: [{ PartyModel, as: 'party' }] }],
+                    }],
+                },
+            },
         },
         attributes: {
             store_id: { type: DataTypes.INTEGER, unique: 'goods_store_id_product_id_code_unique' },
@@ -286,10 +359,64 @@ export default {
         },
         relations: {
             belongsTo: {
-                Document: { foreignKey: 'parent_id', constraints: false, as: 'parent' },
+                Document: { foreignKey: 'parent_id', as: 'parent' },
             },
             hasMany: {
                 TransferOut: { foreignKey: 'parent_id', as: 'children' },
+            },
+        },
+    }, document),
+
+    Movement: _.defaultsDeep({
+        class: MovementModel,
+        options: {
+            defaultScope: { where: { document_type_id: 'movement' } },
+        },
+        attributes: {
+            document_type_id: { defaultValue: 'movement' },
+        },
+        relations: {
+            belongsTo: {
+                Document: { foreignKey: 'parent_id', as: 'parent' },
+            },
+            hasMany: {
+                MovementOut: { foreignKey: 'parent_id', as: 'children' },
+            },
+        },
+    }, document),
+
+    MovementIn: _.defaultsDeep({
+        class: MovementInModel,
+        options: {
+            defaultScope: { where: { document_type_id: 'movement-in' } },
+        },
+        attributes: {
+            document_type_id: { defaultValue: 'movement-in' },
+        },
+        relations: {
+            belongsTo: {
+                MovementOut: { foreignKey: 'parent_id', as: 'parent' },
+            },
+            hasMany: {
+                Document: { foreignKey: 'parent_id', as: 'children' },
+            },
+        },
+    }, document),
+
+    MovementOut: _.defaultsDeep({
+        class: MovementOutModel,
+        options: {
+            defaultScope: { where: { document_type_id: 'movement-out' } },
+        },
+        attributes: {
+            document_type_id: { defaultValue: 'movement-out' },
+        },
+        relations: {
+            belongsTo: {
+                Movement: { foreignKey: 'parent_id', as: 'parent' },
+            },
+            hasMany: {
+                MovementIn: { foreignKey: 'parent_id', as: 'children' },
             },
         },
     }, document),
@@ -304,7 +431,7 @@ export default {
         },
         relations: {
             belongsTo: {
-                Document: { foreignKey: 'parent_id', constraints: false, as: 'parent' },
+                Document: { foreignKey: 'parent_id', as: 'parent' },
             },
             hasMany: {
                 TransferIn: { foreignKey: 'parent_id', as: 'children' },
@@ -344,7 +471,6 @@ export default {
                 Unit: {
                     foreignKey: 'base_unit_id',
                     sourceKey: 'id',
-                    constraints: false,
                     as: 'baseUnit',
                 },
             },
@@ -363,13 +489,11 @@ export default {
                 ParameterName: {
                     foreignKey: 'parameter_name_id',
                     sourceKey: 'id',
-                    constraints: false,
                     as: 'parameterName',
                 },
                 ParameterValue: {
                     foreignKey: 'right_parameter_value_id',
                     sourceKey: 'id',
-                    constraints: false,
                     as: 'rightParameterValue',
                 },
             },
@@ -384,6 +508,26 @@ export default {
             name: DataTypes.STRING,
             ogrn: DataTypes.STRING,
             json: DataTypes.JSON,
+        },
+    },
+
+    Payment: {
+        options: { tableName: 'payments' },
+        attributes: {
+            bank_account_from_id: { type: DataTypes.INTEGER, allowNull: false },
+            bank_account_to_id: { type: DataTypes.INTEGER, allowNull: false },
+            number: { type: DataTypes.STRING, allowNull: false },
+            date: { type: DataTypes.DATE, allowNull: false },
+            purpose: { type: DataTypes.STRING, allowNull: false },
+            amount: { type: DataTypes.DECIMAL(18, 6) },
+        },
+        relations: {
+            belongsTo: {
+                BankAccount: [
+                    { foreignKey: 'bank_account_from_id', a: 'bankAccountFrom' },
+                    { foreignKey: 'bank_account_to_id', a: 'bankAccountTo' },
+                ],
+            },
         },
     },
 
@@ -431,7 +575,6 @@ export default {
                 Producer: {
                     foreignKey: 'right_producer_id',
                     sourceKey: 'id',
-                    constraints: false,
                     as: 'rightProducer',
                 },
             },
@@ -461,7 +604,6 @@ export default {
                 Product: {
                     foreignKey: 'right_product_id',
                     sourceKey: 'id',
-                    constraints: false,
                     as: 'rightProduct',
                 },
             },
@@ -473,7 +615,17 @@ export default {
         class: ReserveModel,
         options: {
             tableName: 'reserves',
-            scopes: { withDocumentLine: { include: [{ model: DocumentLine, as: 'documentLine' }] } },
+            scopes: {
+                withDocumentLine: { include: [{ model: DocumentLine, as: 'documentLine' }] },
+                closed(documentId) {
+                    return {
+                        where: { closed: true },
+                        include: [
+                            { model: DocumentLine, as: 'documentLine', where: { document_id: documentId } },
+                        ],
+                    };
+                },
+            },
         },
         attributes: {
             document_line_id: DataTypes.INTEGER,
@@ -495,17 +647,62 @@ export default {
             tableName: 'shells',
             uniqueKeys: {
                 cu_user_table: {
-                    fields: ['user_id', 'table']
-                }
-            }
+                    fields: ['user_id', 'table'],
+                },
+            },
         },
         attributes: {
             user_id: { type: DataTypes.INTEGER, unique: 'cu_user_table' },
-            table: { type: DataTypes.STRING, unique: 'cu_user_table'},
+            table: { type: DataTypes.STRING, unique: 'cu_user_table' },
             version: DataTypes.STRING,
             basket: DataTypes.JSON,
             columns: DataTypes.JSON,
-            optics: DataTypes.JSON
+            optics: DataTypes.JSON,
+        },
+    },
+
+    Shipment: {
+        class: ShipmentModel,
+        options: { tableName: 'shipments' },
+        attributes: {
+            number: { type: DataTypes.STRING, unique: 'shipment_company_number', allowNull: false },
+            company_id: { type: DataTypes.INTEGER, unique: 'shipment_company_number', allowNull: false },
+            date: { type: DataTypes.DATE, allowNull: false },
+            arrival_date: { type: DataTypes.DATE, allowNull: false },
+            from_store_id: { type: DataTypes.INTEGER, allowNull: false },
+            to_store_id: { type: DataTypes.INTEGER, allowNull: false },
+            status_id: { type: DataTypes.STRING, defaultValue: 'formed' },
+        },
+        relations: {
+            belongsTo: {
+                Company: { foreignKey: 'company_id', as: 'company', onDelete: 'RESTRICT' },
+                Store: [
+                    { foreignKey: 'from_store_id', as: 'fromStore', onDelete: 'RESTRICT' },
+                    { foreignKey: 'to_store_id', as: 'toStore', onDelete: 'RESTRICT' },
+                ],
+            },
+            belongsToMany: {
+                Document: {
+                    through: 'shipment_document',
+                    as: 'documents',
+                    foreignKey: 'shipment_id',
+                    otherKey: 'document_id',
+                },
+            },
+        },
+    },
+
+    ShipmentDocument: {
+        options: { tableName: 'shipment_document' },
+        attributes: {
+            shipment_id: DataTypes.INTEGER,
+            document_id: DataTypes.INTEGER,
+        },
+        relations: {
+            belongsTo: {
+                Shipment: { foreignKey: 'shipment_id', as: 'shipment', onDelete: 'RESTRICT' },
+                Document: { foreignKey: 'document_id', as: 'document', onDelete: 'RESTRICT' },
+            },
         },
     },
 
@@ -560,10 +757,43 @@ export default {
         },
         relations: {
             belongsTo: {
-                Order: { foreignKey: 'parent_id', constraints: false, as: 'parent' },
+                Order: { foreignKey: 'parent_id', as: 'parent' },
             },
             hasMany: {
                 TransferOutCorrective: { foreignKey: 'parent_id', as: 'children' },
+            },
+        },
+    }, document),
+
+    TransferInCorrective: _.defaultsDeep({
+        class: TransferInCorrectiveModel,
+        options: {
+            defaultScope: { where: { document_type_id: 'transfer-in-corrective' } },
+            scopes: {
+                deepDocumentLines: {
+                    include: [
+                        {
+                            model: DocumentLine,
+                            as: 'documentLines',
+                            include: [
+                                { model: DepartureModel, as: 'departure' },
+                                { model: ReserveModel, as: 'reserves' },
+                            ],
+                        },
+                    ],
+                },
+                withParent: { include: [{ model: TransferOutModel, as: 'parent' }] },
+            },
+        },
+        attributes: {
+            document_type_id: { defaultValue: 'transfer-in-corrective' },
+        },
+        relations: {
+            belongsTo: {
+                TransferOut: { foreignKey: 'parent_id', as: 'parent' },
+            },
+            hasMany: {
+                Document: { foreignKey: 'parent_id', as: 'children' },
             },
         },
     }, document),
@@ -590,10 +820,10 @@ export default {
         },
         relations: {
             belongsTo: {
-                Invoice: { foreignKey: 'parent_id', constraints: false, as: 'parent' },
+                Invoice: { foreignKey: 'parent_id', as: 'parent' },
             },
             hasMany: {
-                Document: { foreignKey: 'parent_id', as: 'children' },
+                TransferInCorrective: { foreignKey: 'parent_id', as: 'children' },
             },
         },
     }, document),
@@ -623,7 +853,7 @@ export default {
         },
         relations: {
             belongsTo: {
-                TransferIn: { foreignKey: 'parent_id', constraints: false, as: 'parent' },
+                TransferIn: { foreignKey: 'parent_id', as: 'parent' },
             },
             hasMany: {
                 Document: { foreignKey: 'parent_id', as: 'children' },
@@ -645,12 +875,22 @@ export default {
                 Unit: {
                     foreignKey: 'base_unit_id',
                     sourceKey: 'id',
-                    constraints: false,
                     as: 'baseUnit',
                 },
             },
         },
     },
+
+    Undefective: _.defaultsDeep({
+        class: Undefective,
+        options: {
+            defaultScope: { where: { document_type_id: 'undefective' } },
+        },
+        attributes: {
+            document_type_id: { defaultValue: 'undefective' },
+        },
+    }, document),
+
 
     User: {
         class: UserModel,

@@ -12,7 +12,7 @@
     "seed": "babel-node ./db/seed/dbSeed.js",
     "clear": "babel-node ./clearTestData.js",
     "start": "babel-node ./index.js",
-    "serve": "babel-node ./serve.js",
+    "serve": "babel-node ./serve.js --tls-min-v1.0",
     "serve_NODEMON": "nodemon --exec babel-node ./serve.js --tls-min-v1.0",
     "test": "mocha --timeout 20000 --require @babel/register --tls-min-v1.0 test/**/*.js",
     "test_console": "babel-node --tls-min-v1.0 ./bin/console importCompel"

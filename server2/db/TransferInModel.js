@@ -39,14 +39,12 @@ export default class TransferIn extends Document {
      */
     // eslint-disable-next-line no-unused-vars
     async _unWorkTransition(params) {
-        this.parent = this.parnet || await this.getParent();
-        if (this.parent.closed) throw new Error('Open parent Order before');
+        await this.parentToBeOpen();
         this.documentLines = this.documentLines || await this.getDocumentLines();
         // eslint-disable-next-line no-unused-vars
         for (const line of this.documentLines) {
             const arrival = await line.getArrival();
             await arrival.destroy();
-            await line.update({ closed: false });
             const parent = await line.getParent();
             await parent.update({ closed: false });
         }

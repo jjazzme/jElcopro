@@ -2,12 +2,10 @@ import unzipper from 'unzipper';
 import fs from 'fs';
 import request from 'request';
 import app from '../index';
-import utils from '../services/utils';
+import { getXlsxData } from '../services/utils';
 
 const _ = require('lodash');
 const XLSX = require('xlsx');
-
-const { getXlsxData } = utils;
 
 const { db, logger, config } = app.services;
 const {
@@ -108,5 +106,5 @@ module.exports.run = async () => {
         }
     }
     const d = await Good.disactivate(store.id, start);
-    logger.info({ count: d }, 'Goods from Compel was disactivated');
+    logger.info({ count: d }, 'Goods from Dan was disactivated');
 };
