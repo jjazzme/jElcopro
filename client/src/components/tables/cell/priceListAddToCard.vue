@@ -107,14 +107,14 @@
       },
       toInvoice(){
         if(this.invoice){
-          this.$store.dispatch('Binder/addLineToDocument', { priceLine: this.value, ourPrice: false, documentId: this.value.id });
+          this.$store.dispatch('Binder/addLineToDocument', { priceLine: this.value, ourPrice: false, documentId: this.invoice.id });
         } else{
           this.$router.push({ name: 'tables', params:{ type: 'Invoice' } })
         }
       },
       toOrder(){
         if(this.order){
-          this.$store.dispatch('Binder/addLineToDocument', { priceLine: this.value, ourPrice: true, documentId: this.value.id });
+          this.$store.dispatch('Binder/addLineToDocument', { priceLine: this.value, ourPrice: true, documentId: this.order.id });
         } else{
           this.$router.push({ name: 'tables', params:{ type: 'Order' } })
         }
