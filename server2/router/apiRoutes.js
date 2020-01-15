@@ -9,6 +9,7 @@ import InvoiceController from '../controller/InvoiceController';
 import ShellController from '../controller/ShellController';
 import OrderController from '../controller/OrderController';
 import GoodController from '../controller/GoodController';
+import DocumentLineController from "../controller/DocumentLineController";
 
 export default function ApiRoutes(services) {
     const apiRouter = new ApiRouter(services.db);
@@ -17,6 +18,7 @@ export default function ApiRoutes(services) {
 
     apiRouter.resource('currency', new ApiController(services.db.models.Currency));
     apiRouter.resource('currencyRateService', CurrencyRateController);
+    apiRouter.resource('docline', DocumentLineController);
     apiRouter.resource('good', GoodController);
     apiRouter.resource('invoice', InvoiceController); // InvoiceController
     apiRouter.resource('order', OrderController); // OrderController new ApiController(services.db.models.Order)

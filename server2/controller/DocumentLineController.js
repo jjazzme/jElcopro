@@ -6,7 +6,7 @@ export default class DocumentLineController extends ApiController {
     }
 
     async modify(req) {
-        const { documentId, priceLine, ourPrice } = req.body;
+        const { documentId, priceLine, ourPrice } = req.body; // order = true
         if (priceLine && documentId && ourPrice) {
             const price = ourPrice ? priceLine.our_price : priceLine.for_all_price;
             return this.Model.create({

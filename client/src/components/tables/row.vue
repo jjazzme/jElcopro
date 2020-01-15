@@ -17,6 +17,7 @@
       :optics="value.dataSource.getTable.optics.value"
       :width="value.viewport.tableRow[name] ? value.viewport.tableRow[name].width : null"
       :bodyWidth="value.viewport.width"
+      :source="value.dataSource"
     />
 
   </div>

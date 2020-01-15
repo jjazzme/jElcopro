@@ -49,21 +49,21 @@
       },
     },
     methods:{
-      closeCard(){
-        if(this.type === 'Invoice'){
-          this.$store.dispatch('Auth/invoiceRemove')
-        } else {
-          this.$store.dispatch('Auth/orderRemove', this.value.id)
-        }
-      }
+      closeCard(){ this.value.dataSource.cardDelete(this.id, this.type) }
     },
     created() {
       if (this.type === 'Invoice') this.alias = 'счёт';
       else if (this.type === 'Order') this.alias = 'заказ';
 
       if (this.id) this.value.dataSource.getSourceById({ type: this.type, id: this.id })
-        //this.$store.dispatch('Binder/getItem', { type: this.type, payload: { id: this.id } })
         .then(doc => this.document=doc)
+    },
+    watch:{
+      id(n){
+        if (n) this.value.dataSource.getSourceById({ type: this.type, id: this.id })
+          .then(doc => this.document = doc);
+        else this.document = null;
+      },
     },
   }
 </script>

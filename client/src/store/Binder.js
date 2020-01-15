@@ -85,7 +85,10 @@ let mutations = {
   clearCacheSets(state, type) { state.loaders[type].cacheSets = []; },
 };
 let actions = {
-  addLineToDocument(){},
+  addLineToDocument({  }, { priceLine, ourPrice, documentId }){
+    axios.post('/api/docline/0', { priceLine, ourPrice, documentId })
+      .then(ans => console.log(ans))
+  },
   getByOptics({ getters, commit }, { type, payload }) {
     // payload = {optics, params, eid}
     // TODO: make a ROW notes

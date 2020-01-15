@@ -69,7 +69,7 @@ export default class Shells{
         },
         initial:{
           id:{show:false, hidden: true, sortable: false, card: false,},
-          date:{to: row => { return {name:'item', params:{ table: 'Invoice', id: row.id} } },
+          date:{ to: row => { return {name:'item', params:{ table: 'Invoice', id: row.id} } },
             editor: 'calendar', show: true, order:10, sortable: true, label: 'Дата', card: false,
             html: row=>Intl.DateTimeFormat(
               'ru-RU',
@@ -173,7 +173,8 @@ export default class Shells{
         scopes:['withSellerable', 'withBuyerable', 'withStore', 'withCurrency', 'withDocumentLines'],
         initial:{
           id:{show:false, hidden: true, sortable: false, card: false},
-          date:{to: {name:'modelItem', params:{table: 'Order', id:'$id'}}, editor: 'calendar', show: true, order:10, sortable: true, label: 'Дата', card: false,
+          date:{ to: row => { return {name:'item', params:{ table: 'Order', id: row.id} } },
+            editor: 'calendar', show: true, order:10, sortable: true, label: 'Дата', card: false,
             html: row=>Intl.DateTimeFormat(
               'ru-RU',
               {
@@ -183,7 +184,8 @@ export default class Shells{
               }).format(new Date(row.date)).replace(',',''),
             filters: [{type: 'calendar_fromto', from:'', to:''}]
           },
-          number:{to: {name:'modelItem', params:{table: 'Order', id:'$id'}}, editor: 'integer', show: true, order:20, sortable: true, label: 'Номер', card: false,
+          number:{ to: row => { return {name:'item', params:{ table: 'Invoice', id: row.id} } },
+            editor: 'integer', show: true, order:20, sortable: true, label: 'Номер', card: false,
             filters: [
               {type: 'integer_fromto', from:'', to:''},
               {type: 'search', _placeholder:'поиск 1'},

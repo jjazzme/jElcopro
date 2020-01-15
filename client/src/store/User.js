@@ -82,9 +82,9 @@ let actions = {
       resolve(true);
     })
   },
-  orderAdd({commit, getters}, id){
+  orderAddRemove({commit, getters}, id){
     return new Promise(resolve => {
-      if (getters.orderIsPresent(id)) commit('setOrder', id);
+      commit('setOrder', id);
       resolve(true);
     })
   },

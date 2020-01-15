@@ -16,10 +16,10 @@
           class="fa fa-pencil-square text-capitalize text-nowrap d-block"
         > {{ value.dataSource.getShell.name.one }}: карта документа</b-link>
         <b-link
-          @click="docToCard(row.id)"
+          @click="docToCard(row)"
           v-if="['Invoice','Order'].includes(value.dataSource.type)"
           class="fa fa-pencil-square text-nowrap d-block"
-        >{{toCard[ind].text}}</b-link>
+        >{{toCard.text}}</b-link>
       </b-dropdown-item>
     </b-dropdown>
   </div>
@@ -37,26 +37,25 @@
       toCard(){
         const type = this.value.dataSource.type;
         if(!['Invoice','Order'].includes(this.value.dataSource.type)) return null;
-        let ret = [];
         const ids = type==='Invoice'
           ? [this.value.dataSource.user.cards.invoice]
           : this.value.dataSource.user.cards.orders;
-        const sellers = type==='Invoice' ? [] : _.map(this.value.dataSource.user.cards.orders, row => row.sellerable_id);
+        const sellers = type==='Invoice' ? [] : _.map(this.value.dataSource.getOrders, row => row.sellerable_id);
 
         let action, text;
-        if (ids.includes(row.id)){
+        if (ids.includes(this.row.id)){
           action = 'remove';
           text = 'Удалить из карты'
-        } else if (type==='Invoice' && ids[0] && ids[0] !== row.id){
+        } else if (type==='Invoice' && ids[0] && ids[0] !== this.row.id){
           action = 'change';
           text = 'Заменить в карте'
         } else if (type==='Invoice' && !ids[0]){
           action = 'add';
           text = 'Добавить в карту'
-        } else if (type==='Order' && sellers.includes(row.sellerable_id)){
+        } else if (type==='Order' && sellers.includes(this.row.sellerable_id)){
           action = 'change';
           text = 'Заменить в картах'
-        } else if (type==='Order' && !sellers.includes(row.sellerable_id)){
+        } else if (type==='Order' && !sellers.includes(this.row.sellerable_id)){
           action = 'add';
           text = 'Добавить в карты'
         }
@@ -64,9 +63,14 @@
       },
     },
     methods: {
-      docToCard(id){
-        const type = this.value.dataSource.type;
-        const action = this.toCard.ac
+      docToCard(row){
+        const sou = this.value.dataSource;
+        const type = sou.type;
+        const action = this.toCard.action;
+        if (action === 'add') sou.cardAdd(row.id, type);
+        else if (action === 'remove') sou.cardDelete(row.id, type);
+        else sou.cardChange(row, type)
+
       },
       basketChange(id){
         console.log('BC', id)
