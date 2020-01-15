@@ -32,31 +32,29 @@ import ShellModel from './ShellModel';
 import MovementInModel from './MovementInModel';
 import ShipmentModel from './ShipmentModel';
 
-const withSum = (Model) => ({
-    attributes: {
-        include: [
-            [
-                literal(`${'COALESCE('
-                        + '(SELECT sum(a.amount_with_vat) FROM document_lines a '
-                        + 'WHERE a.document_id = `'}${Model}\`.\`id\`), 0)`),
-                'amount_with_vat',
-            ],
-            [
-                literal(`${'COALESCE('
-                        + '(SELECT count(a.id) FROM document_lines a '
-                        + 'WHERE a.document_id = `'}${Model}\`.\`id\`), 0)`),
-                'count_document_lines',
-            ],
-        ],
-    },
-});
-
 const newDocument = (DocumentType, ParentModel, ChildModel) => _.defaultsDeep({
     class: DocumentType,
     options: {
         defaultScope: { where: { document_type_id: _.kebabCase(DocumentType.name) } },
         scopes: {
-            withSum: withSum(DocumentType.name),
+            withSum: {
+                attributes: {
+                    include: [
+                        [
+                            literal(`${'COALESCE('
+                            + '(SELECT sum(a.amount_with_vat) FROM document_lines a '
+                            + 'WHERE a.document_id = `'}${DocumentType.name}\`.\`id\`), 0)`),
+                            'amount_with_vat',
+                        ],
+                        [
+                            literal(`${'COALESCE('
+                            + '(SELECT count(a.id) FROM document_lines a '
+                            + 'WHERE a.document_id = `'}${DocumentType.name}\`.\`id\`), 0)`),
+                            'count_document_lines',
+                        ],
+                    ],
+                },
+            },
         },
     },
     attributes: {
