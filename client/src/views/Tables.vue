@@ -67,7 +67,7 @@
             const name = cell.getAttribute('data-field');
             if (name){
               const top =  cell.getBoundingClientRect().top - cell.parentElement.getBoundingClientRect().top;
-              if (this.value.viewport.tableRow[name].top < top) this.$set(this.value.viewport.tableRow[name], 'top', top);
+              if ( !this.value.viewport.tableRow[name] || this.value.viewport.tableRow[name].top < top) this.$set(this.value.viewport.tableRow[name], 'top', top);
             }
           })
         });

@@ -15,6 +15,7 @@ let getters = {
     return user;
   },
   getTicket: state => state.ticket,
+  orderIsPresent: state => id => state.user.cards.orders.includes(id),
 };
 
 let mutations = {
@@ -28,6 +29,16 @@ let mutations = {
   setUser(state, user){
     state.user = user;
     state.lastUserActivity = Date.now();
+  },
+  setInvoice(state, id){ state.user.cards.invoice = id },
+  setOrder(state, id) {
+    // если id есть, то remove, если нет, то add
+    const orders = state.user.cards.orders;
+    if(orders.includes(id)) {
+      orders.splice(orders.indexOf(id), 1);
+    } else {
+      orders.unshift(id);
+    }
   },
 };
 
@@ -58,6 +69,24 @@ let actions = {
       })
       .finally(()=>{commit('setSavingCards', false);});
     return ret;
+  },
+  invoiceRemove({commit}){
+    return new Promise(resolve => {
+      commit('setInvoice', null);
+      resolve(true);
+    })
+  },
+  invoiceAdd({commit}, id){
+    return new Promise(resolve => {
+      commit('setInvoice', id);
+      resolve(true);
+    })
+  },
+  orderAdd({commit, getters}, id){
+    return new Promise(resolve => {
+      if (getters.orderIsPresent(id)) commit('setOrder', id);
+      resolve(true);
+    })
   },
   logoff({ commit }){
     commit('setUser', null);

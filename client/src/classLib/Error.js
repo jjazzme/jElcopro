@@ -19,7 +19,7 @@ export default class Error {
       if (this.error.message === 'aborted') {
         console.log('axios aborted');
       } else if (this.error.response && this.error.response.status === 401) {
-        store.dispatch('Auth/logoff');
+        store.dispatch('User/logoff');
       } else {
         Swal.fire({
           title: 'Ошибка axios',

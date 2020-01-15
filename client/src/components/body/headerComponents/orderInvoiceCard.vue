@@ -50,10 +50,10 @@
     },
     methods:{
       closeCard(){
-        if(this.value._type === 'invoice'){
-          this.$store.dispatch('CARDS/INVOICE_REMOVE')
+        if(this.type === 'Invoice'){
+          this.$store.dispatch('Auth/invoiceRemove')
         } else {
-          this.$store.dispatch('CARDS/ORDER_REMOVE', this.value.id)
+          this.$store.dispatch('Auth/orderRemove', this.value.id)
         }
       }
     },

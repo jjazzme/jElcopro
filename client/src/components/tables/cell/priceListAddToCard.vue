@@ -53,7 +53,7 @@
       return{
         //quantity: this.value._realCount,
         actions: {invoice: false, order: false},
-        user: this.$store.getters['Auth/getUser'],
+        user: this.$store.getters['User/getUser'],
         invoice: null,
         order: null,
       }

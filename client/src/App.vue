@@ -62,7 +62,7 @@ export default {
   },
   computed:{
     storeUser(){
-      return this.$store.getters['Auth/getUser']
+      return this.$store.getters['User/getUser']
     },
     requests(){ return this.$store.getters['Binder/getRequests'] },
   },

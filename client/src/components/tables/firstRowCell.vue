@@ -35,44 +35,43 @@
     },
     computed: {
       toCard(){
-        const type = this.value.dataSource.getTable.type;
+        const type = this.value.dataSource.type;
+        if(!['Invoice','Order'].includes(this.value.dataSource.type)) return null;
         let ret = [];
         const ids = type==='Invoice'
           ? [this.value.dataSource.user.cards.invoice]
           : this.value.dataSource.user.cards.orders;
         const sellers = type==='Invoice' ? [] : _.map(this.value.dataSource.user.cards.orders, row => row.sellerable_id);
 
-        _.forEach(this.value.dataSource.getTable.loadProcessor.data.rows, row=>{
-          let action, text;
-          if (ids.includes(row.id)){
-            action = 'remove';
-            text = 'Удалить из карты'
-          } else if (type==='Invoice' && ids[0] && ids[0] !== row.id){
-            action = 'change';
-            text = 'Заменить в карте'
-          } else if (type==='Invoice' && !ids[0]){
-            action = 'add';
-            text = 'Добавить в карту'
-          } else if (type==='Order' && sellers.includes(row.sellerable_id)){
-            action = 'change';
-            text = 'Заменить в картах'
-          } else if (type==='Order' && !sellers.includes(row.sellerable_id)){
-            action = 'add';
-            text = 'Добавить в карты'
-          }
-          ret.push({action, text})
-        });
-        return ret;
+        let action, text;
+        if (ids.includes(row.id)){
+          action = 'remove';
+          text = 'Удалить из карты'
+        } else if (type==='Invoice' && ids[0] && ids[0] !== row.id){
+          action = 'change';
+          text = 'Заменить в карте'
+        } else if (type==='Invoice' && !ids[0]){
+          action = 'add';
+          text = 'Добавить в карту'
+        } else if (type==='Order' && sellers.includes(row.sellerable_id)){
+          action = 'change';
+          text = 'Заменить в картах'
+        } else if (type==='Order' && !sellers.includes(row.sellerable_id)){
+          action = 'add';
+          text = 'Добавить в карты'
+        }
+        return { action, text }
       },
     },
     methods: {
       docToCard(id){
-        console.log(id)
+        const type = this.value.dataSource.type;
+        const action = this.toCard.ac
       },
       basketChange(id){
         console.log('BC', id)
       },
-      includes(id){
+      includes(id){ //basket
 
       },
     },

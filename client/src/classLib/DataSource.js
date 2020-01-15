@@ -207,7 +207,7 @@ export default class DataSource{
         });
       }
 
-      this.store.dispatch('Auth/autoLogin')
+      this.store.dispatch('User/autoLogin')
         .then(user => {
           this.user = user;
           if (user.cards.invoice){
