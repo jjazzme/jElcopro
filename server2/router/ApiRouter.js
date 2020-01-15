@@ -26,11 +26,19 @@ export default class ApiRouter {
                 next(e);
             }
         });
-        this.router.post(`/${path}/:id?`, async (req, res) => {
-            res.send(await controller.modify(req, res));
+        this.router.post(`/${path}/:id?`, async (req, res, next) => {
+            try {
+                res.send(await controller.modify(req, res));
+            } catch (e) {
+                next(e, req, res);
+            }
         });
-        this.router.delete(`/${path}/:id`, async (req, res) => {
-            res.send(await controller.destroy(req, res));
+        this.router.delete(`/${path}/:id`, async (req, res, next) => {
+            try {
+                res.send(await controller.destroy(req, res));
+            } catch (e) {
+                next(e);
+            }
         });
     }
 
