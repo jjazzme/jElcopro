@@ -1,7 +1,7 @@
 import Vue from     'vue';
 import Vuex from    'vuex';
 
-import Auth from    './Auth';
+import User from './User';
 import Binder from  './Binder';
 import Env from     './Env';
 
@@ -17,7 +17,7 @@ export default new Vuex.Store({
   actions: {},
   getters : {},
   modules:{
-    Auth: Auth,
+    User: User,
     Binder: Binder,
     Env: Env,
 

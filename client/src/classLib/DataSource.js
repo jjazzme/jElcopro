@@ -98,16 +98,41 @@ export default class DataSource{
   cancelAxiosByStoreID(id){
 
   }
+  cardAdd(id, type){
+    if (type === 'Invoice') {
+      this.store.dispatch('User/invoiceAdd', id)
+    } else {
+      this.store.dispatch('User/orderAddRemove', id)
+    }
+  }
+  cardDelete(id, type){
+    if (type === 'Invoice') {
+      this.store.dispatch('User/invoiceRemove')
+    } else {
+      this.store.dispatch('User/orderAddRemove', id)
+    }
+  }
+  cardChange(doc, type){
+    if (type === 'Invoice') {
+      this.cardAdd(doc.id, 'Invoice');
+    } else {
+      const orders = this.getOrders;
+      const deletedId = orders.find(row => row.sellerable_id === doc.sellerable_id).id;
+      this.cardDelete(deletedId, 'Order');
+      this.cardAdd(doc.id, 'Order');
+    }
+  }
   get getBackSensitiveOptics(){
     const getBS = this.getShell.getBackSensitive;
     return getBS ? getBS(this.getTable.optics.value) : this.getTable.optics.value;
   }
   get getInvoice(){
-    return this.user.cards.invoice ? this.getSourceById({ type: 'Invoice', id: this.user.cards.invoice }) : null;
+    return this.user.cards.invoice ? this.store.getters['Binder/cacheGetItem']('Invoice', this.user.cards.invoice)[2] : null;
+    //this.getSourceById({ type: 'Invoice', id: this.user.cards.invoice })
   }
   get getOrders(){
     return this.user.cards.orders.map(id => {
-      return this.getSourceById({ type: 'Order', id })
+      return this.store.getters['Binder/cacheGetItem']('Order', id)[2] //this.getSourceById({ type: 'Order', id })
     })
   }
   get initialCards(){
@@ -207,7 +232,7 @@ export default class DataSource{
         });
       }
 
-      this.store.dispatch('Auth/autoLogin')
+      this.store.dispatch('User/autoLogin')
         .then(user => {
           this.user = user;
           if (user.cards.invoice){

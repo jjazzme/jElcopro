@@ -13,6 +13,7 @@
       v-bind:is="cell.component"
       v-model="row"
       :optics="optics"
+      :source="source"
       :class="cell.class ? cell.class : ''"
     />
     <router-link
@@ -40,6 +41,7 @@
       optics: null,
       width: null,
       bodyWidth: null,
+      source: null,
     },
     computed:{
       calculatedStyle(){

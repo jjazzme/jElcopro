@@ -18,11 +18,11 @@
     },
     methods: {
       logout() {
-        this.$store.dispatch('Auth/logout')
+        this.$store.dispatch('User/logout')
       },
     },
     created(){
-      this.user = this.$store.getters['Auth/getUser'];
+      this.user = this.$store.getters['User/getUser'];
     },
   }
 </script>

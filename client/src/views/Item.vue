@@ -1,5 +1,5 @@
 <template>
-  <main v-if="item">
+  <main v-if="item && value.dataSource.user">
     <h1>{{ h1 }}</h1>
     <article>
       <div
@@ -45,7 +45,7 @@
     },
     created(){
       this.$set(this.value.dataSource, 'type', this.type);
-      const type = this.$route.params.type;
+      const type = this.type;
       const id = this.$route.params.id;
       this.row = this.value.dataSource.getShell.initial;
       this.value.dataSource.getSourceById({ type, id })

@@ -85,6 +85,10 @@ let mutations = {
   clearCacheSets(state, type) { state.loaders[type].cacheSets = []; },
 };
 let actions = {
+  addLineToDocument({  }, { priceLine, ourPrice, documentId }){
+    axios.post('/api/docline/0', { priceLine, ourPrice, documentId })
+      .then(ans => console.log(ans))
+  },
   getByOptics({ getters, commit }, { type, payload }) {
     // payload = {optics, params, eid}
     // TODO: make a ROW notes
@@ -201,7 +205,7 @@ let actions = {
   },
   /*
   setBinderDefaults({rootGetters}, {ticket}){
-    if (!ticket) ticket = rootGetters['Auth/getTicket'];
+    if (!ticket) ticket = rootGetters['User/getTicket'];
     if (ticket && ticket.token_type === 'Bearer' && ticket.expires_in > Date.now()) binder.defaults.headers.common['Authorization'] = `Bearer ${ticket.access_token}`;
     else delete binder.defaults.headers.common['Authorization'];
   },

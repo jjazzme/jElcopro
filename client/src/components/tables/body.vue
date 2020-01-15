@@ -39,9 +39,7 @@
         const table = this.value.dataSource.getTable;
         return table.loadProcessor.displayedSelection(table.optics.value);
       },
-      invoice(){
-        return this.value.dataSource.getInvoice;
-      },
+      //invoice(){return this.value.dataSource.getInvoice;},
     },
     methods:{
       cancel(){
