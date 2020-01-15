@@ -154,18 +154,25 @@ export default class ModelContoller {
             page,
             limit,
             pages,
-            permissions: {}, //auth.getModelPermissions(type, resp.rows),
+            permissions: {}, // auth.getModelPermissions(type, resp.rows),
         };
     }
 
     async get(req) {
-        return this.Model.getInstance(parseInt(req.params.id, 0));
+        return this.Model.getInstance(parseInt(req.params.id, 0), this.scopes || []);
     }
 
-    async modify() {
-        return new Error('Not impement');
+    async modify(req) {
+        let id = parseInt(req.params.id, 0);
+        if (id) {
+            await this.Model.update(req.body, { where: { id } });
+        } else {
+            id = (await this.Model.create(req.body)).id;
+        }
+        return this.Model.getInstance(id, this.scopes || []);
     }
 
+    // eslint-disable-next-line class-methods-use-this
     async destroy() {
         return new Error('Not impement');
     }

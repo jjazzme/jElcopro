@@ -1,6 +1,8 @@
 import _ from 'lodash';
 import bcrypt from 'bcrypt';
-import { DataTypes } from 'sequelize';
+import {
+    DataTypes, literal,
+} from 'sequelize';
 import ProducerModel from './ProducerModel';
 import ProductModel from './ProductModel';
 import document from './document';
@@ -29,6 +31,46 @@ import MovementOutModel from './MovementOutModel';
 import ShellModel from './ShellModel';
 import MovementInModel from './MovementInModel';
 import ShipmentModel from './ShipmentModel';
+
+const withSum = (Model) => ({
+    attributes: {
+        include: [
+            [
+                literal(`${'COALESCE('
+                        + '(SELECT sum(a.amount_with_vat) FROM document_lines a '
+                        + 'WHERE a.document_id = `'}${Model}\`.\`id\`), 0)`),
+                'amount_with_vat',
+            ],
+            [
+                literal(`${'COALESCE('
+                        + '(SELECT count(a.id) FROM document_lines a '
+                        + 'WHERE a.document_id = `'}${Model}\`.\`id\`), 0)`),
+                'count_document_lines',
+            ],
+        ],
+    },
+});
+
+const newDocument = (DocumentType, ParentModel, ChildModel) => _.defaultsDeep({
+    class: DocumentType,
+    options: {
+        defaultScope: { where: { document_type_id: _.kebabCase(DocumentType.name) } },
+        scopes: {
+            withSum: withSum(DocumentType.name),
+        },
+    },
+    attributes: {
+        document_type_id: { defaultValue: _.kebabCase(DocumentType.name) },
+    },
+    relations: {
+        belongsTo: {
+            [ParentModel.name]: { foreignKey: 'parent_id', as: 'parent' },
+        },
+        hasMany: {
+            [ChildModel.name]: { foreignKey: 'parent_id', as: 'children' },
+        },
+    },
+}, document);
 
 export default {
     AccessToken: {
@@ -159,15 +201,7 @@ export default {
         relations: { belongsTo: { Currency: { foreignKey: 'currency_id', as: 'currency' } } },
     },
 
-    Defective: _.defaultsDeep({
-        class: Defective,
-        options: {
-            defaultScope: { where: { document_type_id: 'defective' } },
-        },
-        attributes: {
-            document_type_id: { defaultValue: 'defective' },
-        },
-    }, document),
+    Defective: newDocument(Defective, Document, Document),
 
     Departure: {
         class: DepartureModel,
@@ -306,7 +340,7 @@ export default {
                     include: [{
                         model: StoreModel,
                         as: 'store',
-                        include: [{ model: CompanyModel, as: 'company', include: [{ PartyModel, as: 'party' }] }],
+                        include: [{ model: CompanyModel, as: 'company' }],
                     }],
                 },
             },
@@ -349,95 +383,15 @@ export default {
         },
     },
 
-    Invoice: _.defaultsDeep({
-        class: InvoiceModel,
-        options: {
-            defaultScope: { where: { document_type_id: 'invoice' } },
-        },
-        attributes: {
-            document_type_id: { defaultValue: 'invoice' },
-        },
-        relations: {
-            belongsTo: {
-                Document: { foreignKey: 'parent_id', as: 'parent' },
-            },
-            hasMany: {
-                TransferOut: { foreignKey: 'parent_id', as: 'children' },
-            },
-        },
-    }, document),
+    Invoice: newDocument(InvoiceModel, Document, TransferOutModel),
 
-    Movement: _.defaultsDeep({
-        class: MovementModel,
-        options: {
-            defaultScope: { where: { document_type_id: 'movement' } },
-        },
-        attributes: {
-            document_type_id: { defaultValue: 'movement' },
-        },
-        relations: {
-            belongsTo: {
-                Document: { foreignKey: 'parent_id', as: 'parent' },
-            },
-            hasMany: {
-                MovementOut: { foreignKey: 'parent_id', as: 'children' },
-            },
-        },
-    }, document),
+    Movement: newDocument(MovementModel, Document, MovementOutModel),
 
-    MovementIn: _.defaultsDeep({
-        class: MovementInModel,
-        options: {
-            defaultScope: { where: { document_type_id: 'movement-in' } },
-        },
-        attributes: {
-            document_type_id: { defaultValue: 'movement-in' },
-        },
-        relations: {
-            belongsTo: {
-                MovementOut: { foreignKey: 'parent_id', as: 'parent' },
-            },
-            hasMany: {
-                Document: { foreignKey: 'parent_id', as: 'children' },
-            },
-        },
-    }, document),
+    MovementIn: newDocument(MovementInModel, MovementOutModel, Document),
 
-    MovementOut: _.defaultsDeep({
-        class: MovementOutModel,
-        options: {
-            defaultScope: { where: { document_type_id: 'movement-out' } },
-        },
-        attributes: {
-            document_type_id: { defaultValue: 'movement-out' },
-        },
-        relations: {
-            belongsTo: {
-                Movement: { foreignKey: 'parent_id', as: 'parent' },
-            },
-            hasMany: {
-                MovementIn: { foreignKey: 'parent_id', as: 'children' },
-            },
-        },
-    }, document),
+    MovementOut: newDocument(MovementOutModel, MovementModel, MovementInModel),
 
-    Order: _.defaultsDeep({
-        class: OrderModel,
-        options: {
-            defaultScope: { where: { document_type_id: 'order' } },
-        },
-        attributes: {
-            document_type_id: { defaultValue: 'order' },
-        },
-        relations: {
-            belongsTo: {
-                Document: { foreignKey: 'parent_id', as: 'parent' },
-            },
-            hasMany: {
-                TransferIn: { foreignKey: 'parent_id', as: 'children' },
-            },
-        },
-    }, document),
+    Order: newDocument(OrderModel, Document, TransferInModel),
 
     Parameter: {
         options: { tableName: 'parameters' },
@@ -740,9 +694,7 @@ export default {
     },
 
     TransferIn: _.defaultsDeep({
-        class: TransferInModel,
         options: {
-            defaultScope: { where: { document_type_id: 'transfer-in' } },
             scopes: {
                 deepDocumentLines: {
                     include: [
@@ -752,23 +704,10 @@ export default {
                 withParent: { include: [{ model: OrderModel, as: 'parent' }] },
             },
         },
-        attributes: {
-            document_type_id: { defaultValue: 'transfer-in' },
-        },
-        relations: {
-            belongsTo: {
-                Order: { foreignKey: 'parent_id', as: 'parent' },
-            },
-            hasMany: {
-                TransferOutCorrective: { foreignKey: 'parent_id', as: 'children' },
-            },
-        },
-    }, document),
+    }, newDocument(TransferInModel, OrderModel, TransferOutCorrectiveModel)),
 
     TransferInCorrective: _.defaultsDeep({
-        class: TransferInCorrectiveModel,
         options: {
-            defaultScope: { where: { document_type_id: 'transfer-in-corrective' } },
             scopes: {
                 deepDocumentLines: {
                     include: [
@@ -785,23 +724,10 @@ export default {
                 withParent: { include: [{ model: TransferOutModel, as: 'parent' }] },
             },
         },
-        attributes: {
-            document_type_id: { defaultValue: 'transfer-in-corrective' },
-        },
-        relations: {
-            belongsTo: {
-                TransferOut: { foreignKey: 'parent_id', as: 'parent' },
-            },
-            hasMany: {
-                Document: { foreignKey: 'parent_id', as: 'children' },
-            },
-        },
-    }, document),
+    }, newDocument(TransferInCorrectiveModel, TransferOutModel, Document)),
 
     TransferOut: _.defaultsDeep({
-        class: TransferOutModel,
         options: {
-            defaultScope: { where: { document_type_id: 'transfer-out' } },
             scopes: {
                 deepDocumentLines: {
                     include: [
@@ -815,23 +741,10 @@ export default {
                 withParent: { include: [{ model: InvoiceModel, as: 'parent' }] },
             },
         },
-        attributes: {
-            document_type_id: { defaultValue: 'transfer-out' },
-        },
-        relations: {
-            belongsTo: {
-                Invoice: { foreignKey: 'parent_id', as: 'parent' },
-            },
-            hasMany: {
-                TransferInCorrective: { foreignKey: 'parent_id', as: 'children' },
-            },
-        },
-    }, document),
+    }, newDocument(TransferOutModel, InvoiceModel, TransferInCorrectiveModel)),
 
     TransferOutCorrective: _.defaultsDeep({
-        class: TransferOutCorrectiveModel,
         options: {
-            defaultScope: { where: { document_type_id: 'transfer-out-corrective' } },
             scopes: {
                 deepDocumentLines: {
                     include: [
@@ -848,18 +761,7 @@ export default {
                 withParent: { include: [{ model: TransferInModel, as: 'parent' }] },
             },
         },
-        attributes: {
-            document_type_id: { defaultValue: 'transfer-out-corrective' },
-        },
-        relations: {
-            belongsTo: {
-                TransferIn: { foreignKey: 'parent_id', as: 'parent' },
-            },
-            hasMany: {
-                Document: { foreignKey: 'parent_id', as: 'children' },
-            },
-        },
-    }, document),
+    }, newDocument(TransferOutCorrectiveModel, TransferInModel, Document)),
 
     Unit: {
         options: { tableName: 'units' },
@@ -881,16 +783,7 @@ export default {
         },
     },
 
-    Undefective: _.defaultsDeep({
-        class: Undefective,
-        options: {
-            defaultScope: { where: { document_type_id: 'undefective' } },
-        },
-        attributes: {
-            document_type_id: { defaultValue: 'undefective' },
-        },
-    }, document),
-
+    Undefective: newDocument(Undefective, Document, Document),
 
     User: {
         class: UserModel,

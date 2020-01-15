@@ -6,7 +6,7 @@ export default class UserController extends ApiController {
     }
 
     async get(req) {
-        let id = parseInt(req.params.id, 0);
+        const id = parseInt(req.params.id, 0);
         if (id === 0) return req.user;
         return this.Model.getInstance(id);
     }
