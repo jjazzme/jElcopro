@@ -78,7 +78,7 @@ export default class DocumentLine extends BaseModel {
          * Check Try destroy transferOut line
          */
         this.beforeDestroy(async (line) => {
-            const document = line.document || await line.getDocument();
+            const document = await line.getDocument();
             if (document.status_id !== 'formed') throw new Error('Document must be in formed status');
             const { Reserve } = this.services.db.models;
             if (line.closed) {

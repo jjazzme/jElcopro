@@ -1,30 +1,54 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, literal } from 'sequelize';
+import _ from 'lodash';
 import DocumentLine from './DocumentLineModel';
 import Company from './CompanyModel';
 import Party from './PartyModel';
 import Currency from './CurrencyModel';
 import Store from './StoreModel';
 
-export default {
+export default (DocumentType, ParentModel, ChildModel) => ({
+    class: DocumentType,
     options: {
         tableName: 'documents',
-        defaultScope: {},
+        defaultScope: DocumentType.name === 'Document'
+            ? {}
+            : { where: { document_type_id: _.kebabCase(DocumentType.name) } },
         scopes: {
             withBuyerable: { include: [{ model: Company, as: 'buyerable', include: [{ model: Party, as: 'party' }] }] },
+            withChildren: { include: [{ model: ChildModel, as: 'children' }] },
             withCurrency: { include: [{ model: Currency, as: 'currency' }] },
             withDocumentLines: { include: [{ model: DocumentLine, as: 'documentLines' }] },
             withForeignStore: { include: [{ model: Store, as: 'foreignStore' }] },
+            withParent: { include: [{ model: ParentModel, as: 'parent' }] },
             withSellerable: {
                 include: [{ model: Company, as: 'sellerable', include: [{ model: Party, as: 'party' }] }],
             },
             withStore: { include: [{ model: Store, as: 'store' }] },
+            withSum: {
+                attributes: {
+                    include: [
+                        [
+                            literal(`${'COALESCE('
+                            + '(SELECT sum(a.amount_with_vat) FROM document_lines a '
+                            + 'WHERE a.document_id = `'}${DocumentType.name}\`.\`id\`), 0)`),
+                            'amount_with_vat',
+                        ],
+                        [
+                            literal(`${'COALESCE('
+                            + '(SELECT count(a.id) FROM document_lines a '
+                            + 'WHERE a.document_id = `'}${DocumentType.name}\`.\`id\`), 0)`),
+                            'count_document_lines',
+                        ],
+                    ],
+                },
+            },
         },
     },
     attributes: {
         date: { type: DataTypes.DATE, defaultValue: new Date() },
         number: DataTypes.INTEGER,
         user_id: { type: DataTypes.INTEGER },
-        document_type_id: { type: DataTypes.STRING },
+        document_type_id: { type: DataTypes.STRING, defaultValue: _.kebabCase(DocumentType.name) },
         parent_id: DataTypes.INTEGER,
         sellerable_id: { type: DataTypes.INTEGER, allowNull: false },
         sellerable_type: { type: DataTypes.STRING, defaultValue: 'Company', allowNull: false },
@@ -50,6 +74,7 @@ export default {
                 { foreignKey: 'foreign_store_id', as: 'foreignStore' },
             ],
             Currency: { foreignKey: 'currency_id', as: 'currency' },
+            [ParentModel.name]: { foreignKey: 'parent_id', as: 'parent' },
         },
         belongsToMany: {
             Shipment: {
@@ -61,6 +86,7 @@ export default {
         },
         hasMany: {
             DocumentLine: { foreignKey: 'document_id', as: 'documentLines' },
+            [ChildModel.name]: { foreignKey: 'parent_id', as: 'children' },
         },
     },
-};
+});

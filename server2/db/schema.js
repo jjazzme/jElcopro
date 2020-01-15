@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import bcrypt from 'bcrypt';
 import {
-    DataTypes, literal,
+    DataTypes,
 } from 'sequelize';
 import ProducerModel from './ProducerModel';
 import ProductModel from './ProductModel';
@@ -32,6 +32,7 @@ import ShellModel from './ShellModel';
 import MovementInModel from './MovementInModel';
 import ShipmentModel from './ShipmentModel';
 
+/*
 const newDocument = (DocumentType, ParentModel, ChildModel) => _.defaultsDeep({
     class: DocumentType,
     options: {
@@ -69,6 +70,7 @@ const newDocument = (DocumentType, ParentModel, ChildModel) => _.defaultsDeep({
         },
     },
 }, document);
+*/
 
 export default {
     AccessToken: {
@@ -199,7 +201,7 @@ export default {
         relations: { belongsTo: { Currency: { foreignKey: 'currency_id', as: 'currency' } } },
     },
 
-    Defective: newDocument(Defective, Document, Document),
+    Defective: document(Defective, Document, Document),
 
     Departure: {
         class: DepartureModel,
@@ -213,7 +215,7 @@ export default {
         },
     },
 
-    Document: _.defaultsDeep({ class: Document }, document),
+    Document: document(Document, Document, Document),
 
     DocumentLine: {
         class: DocumentLine,
@@ -381,15 +383,15 @@ export default {
         },
     },
 
-    Invoice: newDocument(InvoiceModel, Document, TransferOutModel),
+    Invoice: document(InvoiceModel, Document, TransferOutModel),
 
-    Movement: newDocument(MovementModel, Document, MovementOutModel),
+    Movement: document(MovementModel, Document, MovementOutModel),
 
-    MovementIn: newDocument(MovementInModel, MovementOutModel, Document),
+    MovementIn: document(MovementInModel, MovementOutModel, Document),
 
-    MovementOut: newDocument(MovementOutModel, MovementModel, MovementInModel),
+    MovementOut: document(MovementOutModel, MovementModel, MovementInModel),
 
-    Order: newDocument(OrderModel, Document, TransferInModel),
+    Order: document(OrderModel, Document, TransferInModel),
 
     Parameter: {
         options: { tableName: 'parameters' },
@@ -699,10 +701,9 @@ export default {
                         { model: DocumentLine, as: 'documentLines', include: [{ model: ArrivalModel, as: 'arrival' }] },
                     ],
                 },
-                withParent: { include: [{ model: OrderModel, as: 'parent' }] },
             },
         },
-    }, newDocument(TransferInModel, OrderModel, TransferOutCorrectiveModel)),
+    }, document(TransferInModel, OrderModel, TransferOutCorrectiveModel)),
 
     TransferInCorrective: _.defaultsDeep({
         options: {
@@ -719,10 +720,9 @@ export default {
                         },
                     ],
                 },
-                withParent: { include: [{ model: TransferOutModel, as: 'parent' }] },
             },
         },
-    }, newDocument(TransferInCorrectiveModel, TransferOutModel, Document)),
+    }, document(TransferInCorrectiveModel, TransferOutModel, Document)),
 
     TransferOut: _.defaultsDeep({
         options: {
@@ -736,10 +736,9 @@ export default {
                         },
                     ],
                 },
-                withParent: { include: [{ model: InvoiceModel, as: 'parent' }] },
             },
         },
-    }, newDocument(TransferOutModel, InvoiceModel, TransferInCorrectiveModel)),
+    }, document(TransferOutModel, InvoiceModel, TransferInCorrectiveModel)),
 
     TransferOutCorrective: _.defaultsDeep({
         options: {
@@ -756,10 +755,9 @@ export default {
                         },
                     ],
                 },
-                withParent: { include: [{ model: TransferInModel, as: 'parent' }] },
             },
         },
-    }, newDocument(TransferOutCorrectiveModel, TransferInModel, Document)),
+    }, document(TransferOutCorrectiveModel, TransferInModel, Document)),
 
     Unit: {
         options: { tableName: 'units' },
@@ -781,7 +779,7 @@ export default {
         },
     },
 
-    Undefective: newDocument(Undefective, Document, Document),
+    Undefective: document(Undefective, Document, Document),
 
     User: {
         class: UserModel,

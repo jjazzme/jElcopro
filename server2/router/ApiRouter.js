@@ -30,7 +30,7 @@ export default class ApiRouter {
             try {
                 res.send(await controller.modify(req, res));
             } catch (e) {
-                next(e, req, res);
+                next(e);
             }
         });
         this.router.delete(`/${path}/:id`, async (req, res, next) => {

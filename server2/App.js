@@ -51,14 +51,9 @@ export default class App {
         // API
         express.use('/api', apiRoutes(this.services));
 
-        // catch 404 and forward to error handler
-        express.use((req, res, next) => {
-            next(createError(404));
-        });
-
         // error handler
         // eslint-disable-next-line no-unused-vars
-        express.use((err, req, res) => {
+        express.use((err, req, res, next) => {
             // set locals, only providing error in development
             // res.locals.message = err.message;
             // res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -66,6 +61,11 @@ export default class App {
             // render the error page
             res.status(err.status || 500).send({ name: err.name, message: err.message });
             // res.render('error');
+        });
+
+        // catch 404 and forward to error handler
+        express.use((req, res, next) => {
+            next(createError(404));
         });
 
         // register error/response handling middleware
@@ -94,8 +94,6 @@ export default class App {
 
         express.set('port', port);
         express.set('hostname', hostname);
-
-        // const server = http.createServer(express);
 
         const server = http.createServer(express);
 

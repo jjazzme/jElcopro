@@ -9,7 +9,7 @@ import InvoiceController from '../controller/InvoiceController';
 import ShellController from '../controller/ShellController';
 import OrderController from '../controller/OrderController';
 import GoodController from '../controller/GoodController';
-import DocumentLineController from "../controller/DocumentLineController";
+import DocumentLineController from '../controller/DocumentLineController';
 
 export default function ApiRoutes(services) {
     const apiRouter = new ApiRouter(services.db);
