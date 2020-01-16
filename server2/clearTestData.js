@@ -3,7 +3,7 @@ import app from './index';
 
 const {
     Invoice, Order, TransferIn, TransferOut, TransferOutCorrective, TransferInCorrective, Defective, Good, Arrival,
-    FutureReserve, Reserve, Undefective, Movement, MovementOut, MovementIn, Product,
+    FutureReserve, Reserve, Undefective, Movement, MovementOut, MovementIn,
 } = app.services.db.models;
 const { transition, logger } = app.services;
 let destroys;
@@ -25,11 +25,6 @@ class State {
 }
 
 app.services.dbConnection.transaction(async (transaction) => {
-    const products = await Product
-        .scope(['withProducer', 'withCategory'])
-        .findAll({ where: { '$producer.name$': 'MAX' } });
-    console.log(products);
-    throw new Error('123');
     const state = new State(60164);
     await state.refresh();
     const good = await Good.getInstance(60164, 'withProduct');

@@ -33,46 +33,6 @@ import MovementInModel from './MovementInModel';
 import ShipmentModel from './ShipmentModel';
 import CategoryModel from './CategoryModel';
 
-/*
-const newDocument = (DocumentType, ParentModel, ChildModel) => _.defaultsDeep({
-    class: DocumentType,
-    options: {
-        defaultScope: { where: { document_type_id: _.kebabCase(DocumentType.name) } },
-        scopes: {
-            withSum: {
-                attributes: {
-                    include: [
-                        [
-                            literal(`${'COALESCE('
-                            + '(SELECT sum(a.amount_with_vat) FROM document_lines a '
-                            + 'WHERE a.document_id = `'}${DocumentType.name}\`.\`id\`), 0)`),
-                            'amount_with_vat',
-                        ],
-                        [
-                            literal(`${'COALESCE('
-                            + '(SELECT count(a.id) FROM document_lines a '
-                            + 'WHERE a.document_id = `'}${DocumentType.name}\`.\`id\`), 0)`),
-                            'count_document_lines',
-                        ],
-                    ],
-                },
-            },
-        },
-    },
-    attributes: {
-        document_type_id: { defaultValue: _.kebabCase(DocumentType.name) },
-    },
-    relations: {
-        belongsTo: {
-            [ParentModel.name]: { foreignKey: 'parent_id', as: 'parent' },
-        },
-        hasMany: {
-            [ChildModel.name]: { foreignKey: 'parent_id', as: 'children' },
-        },
-    },
-}, document);
-*/
-
 export default {
     AccessToken: {
         options: {
