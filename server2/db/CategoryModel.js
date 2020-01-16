@@ -1,3 +1,3 @@
 import BaseModel from './BaseModel';
 
-export default class CategoryModel extends BaseModel {}
+export default class Category extends BaseModel {}
