@@ -43,6 +43,7 @@ let mutations = {
 };
 
 let actions = {
+  // TODO: переделать управление картами в части загрузок
   autoLogin({ commit, dispatch }){
     const ret = dispatch('Binder/getItem', { type: 'User', payload: {id: 0} }, { root: true });
     ret
@@ -58,34 +59,26 @@ let actions = {
       })
     return ret;
   },
-  saveCards({ getters, commit }, cards){
+  saveCards({ getters, commit }){
     const user = getters['getUser'];
-    commit('setSavingCards', true);
-    const ret = axios.put(`/api/user/cards/set/${user.id}`, {cards: cards});
-    ret
-      .catch(err=>{
-        console.log(err);
-        commit('setSavingCards', false);
-      })
-      .finally(()=>{commit('setSavingCards', false);});
-    return ret;
+    return axios.post(`/api/user/${user.id}`, {cards: user.cards});
   },
-  invoiceRemove({commit}){
+  invoiceRemove({commit, dispatch}){
     return new Promise(resolve => {
       commit('setInvoice', null);
-      resolve(true);
+      dispatch('saveCards').then(()=>resolve(true))
     })
   },
-  invoiceAdd({commit}, id){
+  invoiceAdd({commit, dispatch}, id){
     return new Promise(resolve => {
       commit('setInvoice', id);
-      resolve(true);
+      dispatch('saveCards').then(()=>resolve(true))
     })
   },
-  orderAddRemove({commit, getters}, id){
+  orderAddRemove({commit, getters, dispatch}, id){
     return new Promise(resolve => {
       commit('setOrder', id);
-      resolve(true);
+      dispatch('saveCards').then(()=>resolve(true))
     })
   },
   logoff({ commit }){

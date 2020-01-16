@@ -44,6 +44,11 @@ let getters = {
   getCacheTableByType: state => type => state.loaders[type].cache.map(item => item[2]),
 };
 let mutations = {
+  addLineToDocument(state, { line, documentId, documentType }) {
+    const doc = state.loaders[documentType].cache.find(item => _.isEqual(item[0], documentId))[2];
+    doc.documentLines.push(line);
+    doc.amount_with_vat += line.amount_with_vat;
+  },
   addRequest(state, { uid, source, url, type, eid }) {state.requests.push({ uid, source, url, type, eid })},
   cachesClear(state) { _.forEach(state.loaders, loader => loader.cache = []) },
   incAxiosID(state) { state.axiosID++ },
@@ -85,9 +90,11 @@ let mutations = {
   clearCacheSets(state, type) { state.loaders[type].cacheSets = []; },
 };
 let actions = {
-  addLineToDocument({  }, { priceLine, ourPrice, documentId }){
+  addLineToDocument({ commit }, { priceLine, ourPrice, documentId, documentType }){
     axios.post('/api/docline/0', { priceLine, ourPrice, documentId })
-      .then(ans => console.log(ans))
+      .then(ans => {
+        commit('addLineToDocument', { line: ans.data, documentId, documentType })
+      });
   },
   getByOptics({ getters, commit }, { type, payload }) {
     // payload = {optics, params, eid}

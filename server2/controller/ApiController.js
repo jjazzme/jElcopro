@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { Op } from 'sequelize';
+import { Op, col } from 'sequelize';
 
 export default class ModelContoller {
     constructor(Model) {
@@ -7,6 +7,66 @@ export default class ModelContoller {
     }
 
     async index(req) {
+        const { optics, params } = req.body;
+        const { page } = optics;
+        const limit = optics.limit === null
+            ? 15
+            : optics.limit < 0
+                ? null
+                : optics.limit;
+        const offset = (page - 1) * limit;
+        const scopes = params?.scopes ? params.scopes : [];
+
+
+        /*
+        const order = scopes.length === 0 ? null : [[col('id'), 'ASC']];
+        const where = scopes.length === 0 ? null : {
+            '$producer.name$': {[Op.in]: ['MAX', 'EKF']},
+        };
+         */
+
+        let order, where;
+
+
+        const resp = await this.Model.scope(scopes).findAndCountAll({
+            order,
+            limit,
+            offset,
+            where,
+        });
+        const pages = Math.ceil(parseFloat(resp.count) / limit);
+        // eslint-disable-next-line consistent-return
+        return {
+            rows: resp.rows,
+            count: resp.count,
+            offset,
+            page,
+            limit,
+            pages,
+            permissions: {}, // auth.getModelPermissions(type, resp.rows),
+        };
+    }
+
+    async get(req) {
+        return this.Model.getInstance(parseInt(req.params.id, 0), this.scopes || []);
+    }
+
+    async modify(req) {
+        let id = parseInt(req.params.id, 0);
+        if (id) {
+            await this.Model.update(req.body, { where: { id } });
+        } else {
+            id = (await this.Model.create(req.body)).id;
+        }
+        return this.Model.getInstance(id, this.scopes || []);
+    }
+
+    // eslint-disable-next-line class-methods-use-this
+    async destroy() {
+        return new Error('Not impement');
+    }
+
+    async index1(req) {
         const { optics, params } = req.body;
         // const type = req.body.type || req.params.type;
 
@@ -29,10 +89,10 @@ export default class ModelContoller {
         // Криво нужно переделать если не передан limit и page
         const { page } = optics;
         const limit = optics.limit === null
-            ? 15
-            : optics.limit < 0
-                ? null
-                : optics.limit;
+          ? 15
+          : optics.limit < 0
+            ? null
+            : optics.limit;
         const offset = (page - 1) * limit;
         //const limit = offset + limit;
 
@@ -63,10 +123,10 @@ export default class ModelContoller {
                     current.model = this.Model.services.db.loadedModels[item];
                     // eslint-disable-next-line no-nested-ternary
                     current.as = val.as
+                      ? val.as.split('.')[ind]
                         ? val.as.split('.')[ind]
-                            ? val.as.split('.')[ind]
-                            : _.camelCase(item)
-                        : _.camelCase(item);
+                        : _.camelCase(item)
+                      : _.camelCase(item);
                     if (ind !== val.path.split('.').length - 1) {
                         current.include = [{}];
                         // eslint-disable-next-line prefer-destructuring
@@ -118,7 +178,7 @@ export default class ModelContoller {
 
         // eslint-disable-next-line no-nested-ternary
         const where = arrWhereRoot.length === 0
-            ? null : arrWhereRoot.length > 1 ? [{ [Op.and]: arrWhereRoot }] : arrWhereRoot[0];
+          ? null : arrWhereRoot.length > 1 ? [{ [Op.and]: arrWhereRoot }] : arrWhereRoot[0];
 
         const order = [];
         let sorters = _.pickBy(optics.sorters, (item) => item.order !== null);
@@ -156,24 +216,5 @@ export default class ModelContoller {
             pages,
             permissions: {}, // auth.getModelPermissions(type, resp.rows),
         };
-    }
-
-    async get(req) {
-        return this.Model.getInstance(parseInt(req.params.id, 0), this.scopes || []);
-    }
-
-    async modify(req) {
-        let id = parseInt(req.params.id, 0);
-        if (id) {
-            await this.Model.update(req.body, { where: { id } });
-        } else {
-            id = (await this.Model.create(req.body)).id;
-        }
-        return this.Model.getInstance(id, this.scopes || []);
-    }
-
-    // eslint-disable-next-line class-methods-use-this
-    async destroy() {
-        return new Error('Not impement');
     }
 }

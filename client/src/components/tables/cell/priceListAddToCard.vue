@@ -85,11 +85,11 @@
     computed:{
       markup:{
         get(){
-          return parseFloat((this.value.for_all_price/this.value._priceRUR - 1).toFixed(4) * 100)
+          return Math.round((this.value.for_all_price/this.value._priceRUR - 1) * 10000)/100;
         },
         set(val){
           //this.markup = val;
-          this.value.for_all_price = parseFloat((this.value._priceRUR * (1 + val/100)).toFixed(2))
+          this.value.for_all_price = Math.round(this.value._priceRUR * (1 + val/100)*100)/100;
         }
       },
       invoice(){
@@ -107,14 +107,14 @@
       },
       toInvoice(){
         if(this.invoice){
-          this.$store.dispatch('Binder/addLineToDocument', { priceLine: this.value, ourPrice: false, documentId: this.invoice.id });
+          this.$store.dispatch('Binder/addLineToDocument', { priceLine: this.value, ourPrice: false, documentId: this.invoice.id, documentType: 'Invoice' });
         } else{
           this.$router.push({ name: 'tables', params:{ type: 'Invoice' } })
         }
       },
       toOrder(){
         if(this.order){
-          this.$store.dispatch('Binder/addLineToDocument', { priceLine: this.value, ourPrice: true, documentId: this.order.id });
+          this.$store.dispatch('Binder/addLineToDocument', { priceLine: this.value, ourPrice: true, documentId: this.order.id, documentType: 'Order' });
         } else{
           this.$router.push({ name: 'tables', params:{ type: 'Order' } })
         }
