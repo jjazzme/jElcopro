@@ -31,6 +31,7 @@ import MovementOutModel from './MovementOutModel';
 import ShellModel from './ShellModel';
 import MovementInModel from './MovementInModel';
 import ShipmentModel from './ShipmentModel';
+import CategoryModel from "./CategoryModel";
 
 /*
 const newDocument = (DocumentType, ParentModel, ChildModel) => _.defaultsDeep({
@@ -539,7 +540,10 @@ export default {
         class: ProductModel,
         options: {
             tableName: 'products',
-            scopes: { withProducer: { include: [{ model: ProducerModel, as: 'producer' }] } },
+            scopes: {
+                withProducer: { include: [{ model: ProducerModel, as: 'producer' }] },
+                withCategory: { include: [{ model: CategoryModel, as: 'category' }] },
+            },
         },
         attributes: {
             name: { type: DataTypes.STRING, unique: 'product_name_producer_id' },

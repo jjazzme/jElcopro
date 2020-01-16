@@ -112,7 +112,7 @@ export default class Shells{
             ]},
         },
         controller:{
-          scopes:['withSellerable', 'withBuyerable', 'withStore', 'withCurrency', 'withDocumentLines'],
+          scopes:['withSellerable', 'withBuyerable', 'withStore', 'withCurrency', 'withDocumentLines', 'withSum'],
           aliases:{
             sellerable_id: {path: 'Company.Party', as:'sellerable.party', column: 'name'},
             buyerable_id: {path:'Company.Party', as:'buyerable', column: 'name'},
@@ -360,7 +360,10 @@ export default class Shells{
           },
         },
         controller:{
-          scopes:['withSellerable', 'withBuyerable', 'withStore', 'withCurrency', 'withDocumentLines'],
+          scopes:[
+            'withProducer',
+            //'withCategory',
+          ],
           aliases: {
             category_id: {path: 'Category', column: 'name'},
             producer_id: {path: 'Producer', column: 'name'}

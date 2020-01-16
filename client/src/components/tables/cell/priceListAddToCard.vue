@@ -85,11 +85,11 @@
     computed:{
       markup:{
         get(){
-          return parseFloat((this.value.for_all_price/this.value._priceRUR - 1).toFixed(4) * 100)
+          return Math.round((this.value.for_all_price/this.value._priceRUR - 1) * 10000)/100;
         },
         set(val){
           //this.markup = val;
-          this.value.for_all_price = parseFloat((this.value._priceRUR * (1 + val/100)).toFixed(2))
+          this.value.for_all_price = Math.round(this.value._priceRUR * (1 + val/100)*100)/100;
         }
       },
       invoice(){
