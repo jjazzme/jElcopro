@@ -39,12 +39,6 @@ export default class Shells{
           cache:[],
           cacheSets: [],
         },
-        menu: false,
-        controller:{
-          aliases: {
-            currency_id: { path: 'Currency', as: 'currency' },
-          }
-        },
         optics: { limit: -1, page: 1 }
       },
       DocumentLine:{
@@ -112,7 +106,8 @@ export default class Shells{
             ]},
         },
         controller:{
-          scopes:['withSellerable', 'withBuyerable', 'withStore', 'withCurrency', 'withDocumentLines', 'withSum'],
+          scopes:['withSellerable', 'withBuyerable', 'withStore', 'withCurrency', 'withDocumentLines', 'withSum', 'withUser', 'defaultScope'],
+          /*
           aliases:{
             sellerable_id: {path: 'Company.Party', as:'sellerable.party', column: 'name'},
             buyerable_id: {path:'Company.Party', as:'buyerable', column: 'name'},
@@ -124,6 +119,7 @@ export default class Shells{
           filters:{
             document_type_id: [{type: '=', value: 'invoice'}],
           }
+           */
         },
         faIcon: {prefix: "fas", name: "file-invoice-dollar"},
         name: {one: 'счёт', many: 'счета', cardof: 'счёта',},
@@ -170,7 +166,6 @@ export default class Shells{
           cache: [], // [[id, updated, {}], [id, updated, {}]]
           cacheSets: [], // [[hash, updated, [ids]], [hash, updated, [ids]]
         },
-        scopes:['withSellerable', 'withBuyerable', 'withStore', 'withCurrency', 'withDocumentLines'],
         initial:{
           id:{show:false, hidden: true, sortable: false, card: false},
           date:{ to: row => { return {name:'item', params:{ table: 'Order', id: row.id} } },
@@ -216,17 +211,7 @@ export default class Shells{
             ]},
         },
         controller:{
-          aliases: {
-            sellerable_id: {path: 'Company.Party', as:'sellerable.party', column: 'name'},
-            buyerable_id: {path:'Company.Party', as:'buyerable', column: 'name'},
-            store_id: {path: 'Store', column: 'name'},
-            currency_id: {path: 'Currency', column: 'name'},
-            user_id: {path: 'User', column: 'name'},
-            sum: {path: 'DocumentLine', as: 'documentLines'}
-          },
-          filters:{
-            document_type_id: [{type: '=', value: 'order'}],
-          }
+          scopes:['withSellerable', 'withBuyerable', 'withStore', 'withCurrency', 'withDocumentLines', 'withSum', 'withUser', 'defaultScope'],
         },
         menu: 1060,
         faIcon: {prefix: "fab", name:"codepen"},
@@ -360,10 +345,7 @@ export default class Shells{
           },
         },
         controller:{
-          scopes:[
-            'withProducer',
-            //'withCategory',
-          ],
+          scopes: ['withProducer', 'withCategory'],
           aliases: {
             category_id: {path: 'Category', column: 'name'},
             producer_id: {path: 'Producer', column: 'name'}
@@ -410,9 +392,8 @@ export default class Shells{
               : `<img src="/image/small/${pic}" class="rounded-circle">`},
         },
         controller:{
-          aliases: {
-            right_producer: {path: 'Producer', column: 'name', as: 'rightProducer'}
-          }
+          scopes: ['rightProducer']
+          //aliases: { right_producer: {path: 'Producer', column: 'name', as: 'rightProducer'} }
         },
         menu: 1030,
         faIcon: {prefix: "fas", name: "hammer"},
@@ -441,10 +422,7 @@ export default class Shells{
         },
         menu: false,
         controller:{
-          aliases: {
-            company_id: { path: 'Company', as: 'company' },
-            address_id: { path: 'Address', as: 'address' }
-          }
+          scopes: ['withCompany', 'withAddress'],
         },
         optics: { limit: -1, page: 1 }
       },
@@ -502,17 +480,7 @@ export default class Shells{
             ]},
         },
         controller:{
-          aliases: {
-            sellerable_id: {path: 'Company.Party', as:'sellerable.party', column: 'name'},
-            buyerable_id: {path:'Company.Party', as:'buyerable', column: 'name'},
-            store_id: {path: 'Store', column: 'name'},
-            currency_id: {path: 'Currency', column: 'name'},
-            user_id: {path: 'User', column: 'name'},
-            sum: {path: 'DocumentLine', as: 'documentLines'}
-          },
-          filters:{
-            document_type_id: [{type: '=', value: 'transfer-in'}],
-          }
+          scopes: ['defaultScope']
         },
         menu: 1070,
         faIcon: {prefix: "fas", name:"file-import"},
@@ -573,17 +541,7 @@ export default class Shells{
             ]},
         },
         controller:{
-          aliases: {
-            sellerable_id: {path: 'Company.Party', as:'sellerable.party', column: 'name'},
-            buyerable_id: {path:'Company.Party', as:'buyerable', column: 'name'},
-            store_id: {path: 'Store', column: 'name'},
-            currency_id: {path: 'Currency', column: 'name'},
-            user_id: {path: 'User', column: 'name'},
-            sum: {path: 'DocumentLine', as: 'documentLines'}
-          },
-          filters:{
-            document_type_id: [{type: '=', value: 'transfer-out'}],
-          }
+          scopes: ['defaultScope']
         },
         menu: 1050,
         faIcon: {prefix: "fas", name:"file-export"},

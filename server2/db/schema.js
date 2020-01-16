@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import {
     DataTypes,
 } from 'sequelize';
+
 import ProducerModel from './ProducerModel';
 import ProductModel from './ProductModel';
 import document from './document';
@@ -32,6 +33,7 @@ import ShellModel from './ShellModel';
 import MovementInModel from './MovementInModel';
 import ShipmentModel from './ShipmentModel';
 import CategoryModel from './CategoryModel';
+import AddressModel from "./AddressModel";
 
 /*
 const newDocument = (DocumentType, ParentModel, ChildModel) => _.defaultsDeep({
@@ -92,6 +94,7 @@ export default {
 
     Address: {
         options: { tableName: 'addresses' },
+        class: AddressModel,
         attributes: { address: DataTypes.STRING, json: DataTypes.JSON },
     },
 
@@ -676,8 +679,9 @@ export default {
             tableName: 'stores',
             scopes: {
                 withCompany: {
-                    include: [{ model: CompanyModel, as: 'company', include: { model: PartyModel, as: 'party' } }],
+                    include: [{ model: CompanyModel, as: 'company', include: { model: PartyModel, as: 'party' } }]
                 },
+                withAddress: { include: [{ model: AddressModel, as: 'address' }] },
             },
         },
         attributes: {

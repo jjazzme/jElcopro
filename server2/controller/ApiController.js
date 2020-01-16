@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { Op, literal } from 'sequelize';
+import { Op, col } from 'sequelize';
 
 export default class ModelContoller {
     constructor(Model) {
@@ -17,15 +17,18 @@ export default class ModelContoller {
         const offset = (page - 1) * limit;
         const scopes = params?.scopes ? params.scopes : [];
 
-        //addScope(['withSellerable', 'withBuyerable', 'withStore', 'withCurrency', 'withDocumentLines', 'withSum'])
 
-        const order = scopes.length === 0 ? null : [literal('producer.name ASC'), literal('name DESC')];
+        /*
+        const order = scopes.length === 0 ? null : [[col('id'), 'ASC']];
         const where = scopes.length === 0 ? null : {
             '$producer.name$': {[Op.in]: ['MAX', 'EKF']},
         };
+         */
+
+        let order, where;
+
 
         const resp = await this.Model.scope(scopes).findAndCountAll({
-            //include,
             order,
             limit,
             offset,

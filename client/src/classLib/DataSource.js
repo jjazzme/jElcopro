@@ -126,6 +126,9 @@ export default class DataSource{
     const getBS = this.getShell.getBackSensitive;
     return getBS ? getBS(this.getTable.optics.value) : this.getTable.optics.value;
   }
+  getCacheItem(type, key){
+    return this.store.getters['Binder/cacheGetItem'](type, key)[2]
+  }
   get getInvoice(){
     return this.user.cards.invoice ? this.store.getters['Binder/cacheGetItem']('Invoice', this.user.cards.invoice)[2] : null;
     //this.getSourceById({ type: 'Invoice', id: this.user.cards.invoice })

@@ -18,7 +18,7 @@
         {{alias}} №{{ document.number }} от {{ Intl.DateTimeFormat('ru-RU').format(new Date(document.date)) }}
       </router-link>
       <!--div class="h-c-topic">{{alias}} №{{value.number}} от {{Intl.DateTimeFormat('ru-RU').format(new Date(value.date))}}</div-->
-      <div class="h-c-sum">{{ sum.toFixed(2) }}₽</div>
+      <div class="h-c-sum">{{ document.amount_with_vat.toFixed(2) }}₽</div>
       <div class="h-c-lines">Строк: {{ document.documentLines.length }} | Товаров: {{ count }}</div>
       <div class="h-c-buyer" :title="secondPart">{{ secondPart }}</div>
     </div>
@@ -31,9 +31,6 @@
     data(){
       return{
         alias: null,
-        document: null,
-        sum: 0,
-        count: 0,
       }
     },
     props: {
@@ -42,6 +39,8 @@
       type: null,
     },
     computed:{
+      count(){ return this.document ? _.sumBy(this.document.documentLines, line => line.quantity) : 0;},
+      document(){ return this.id ? this.value.dataSource.getCacheItem(this.type, this.id) : null; },
       secondPart(){
         return this.type === 'Invoice'
           ? this.document?.buyerable?.party?.name
@@ -56,14 +55,16 @@
       else if (this.type === 'Order') this.alias = 'заказ';
 
       if (this.id) this.value.dataSource.getSourceById({ type: this.type, id: this.id })
-        .then(doc => this.document=doc)
+        //.then(doc => this.document=doc)
     },
     watch:{
+      /*
       id(n){
-        if (n) this.value.dataSource.getSourceById({ type: this.type, id: this.id })
-          .then(doc => this.document = doc);
+        if (n) this.value.dataSource.getSourceById({ type: this.type, id: this.id });
+          //.then(doc => this.document = doc);
         else this.document = null;
       },
+       */
     },
   }
 </script>

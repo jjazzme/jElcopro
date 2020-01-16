@@ -5,6 +5,7 @@ import Company from './CompanyModel';
 import Party from './PartyModel';
 import Currency from './CurrencyModel';
 import Store from './StoreModel';
+import UserModel from "./UserModel";
 
 export default (DocumentModel, ParentModel, ChildModel) => ({
     class: DocumentModel,
@@ -42,6 +43,7 @@ export default (DocumentModel, ParentModel, ChildModel) => ({
                     ],
                 },
             },
+            withUser: { include: [{ model: UserModel, as: 'user' }] },
         },
     },
     attributes: {
