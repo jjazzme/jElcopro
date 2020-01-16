@@ -143,7 +143,7 @@ export default class CompelService extends ExternalPriceService {
         const items = this._clearItems(result.items);
         const ret = await Promise.all(
             // eslint-disable-next-line no-async-promise-executor,no-unused-vars
-            items.map((item) => new Promise(async (resolve, reject) => {
+            items.map((item) => new Promise(async (resolve) => {
                 const {
                     good, package_, parameter, producer,
                 } = await this._parseApiItem(item, case_, store);
@@ -182,7 +182,7 @@ export default class CompelService extends ExternalPriceService {
                         max: price.max_qty === 0 ? this._getQuantity(proposal) : price.max_qty,
                         currency_id: currency.id,
                         our_price: price.price,
-                        for_all_price: 0,
+                        for_all_price: price.price * (1.2 + Math.exp(-price.price / 1.2) * 2),
                         created_at: new Date(),
                         updated_at: new Date(),
                         actual: new Date(),
