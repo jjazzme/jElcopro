@@ -6,13 +6,13 @@ import Party from './PartyModel';
 import Currency from './CurrencyModel';
 import Store from './StoreModel';
 
-export default (DocumentType, ParentModel, ChildModel) => ({
-    class: DocumentType,
+export default (DocumentModel, ParentModel, ChildModel) => ({
+    class: DocumentModel,
     options: {
         tableName: 'documents',
-        defaultScope: DocumentType.name === 'Document'
+        defaultScope: DocumentModel.name === 'Document'
             ? {}
-            : { where: { document_type_id: _.kebabCase(DocumentType.name) } },
+            : { where: { document_type_id: _.kebabCase(DocumentModel.name) } },
         scopes: {
             withBuyerable: { include: [{ model: Company, as: 'buyerable', include: [{ model: Party, as: 'party' }] }] },
             withChildren: { include: [{ model: ChildModel, as: 'children' }] },
@@ -30,13 +30,13 @@ export default (DocumentType, ParentModel, ChildModel) => ({
                         [
                             literal(`${'COALESCE('
                             + '(SELECT sum(a.amount_with_vat) FROM document_lines a '
-                            + 'WHERE a.document_id = `'}${DocumentType.name}\`.\`id\`), 0)`),
+                            + 'WHERE a.document_id = `'}${DocumentModel.name}\`.\`id\`), 0)`),
                             'amount_with_vat',
                         ],
                         [
                             literal(`${'COALESCE('
                             + '(SELECT count(a.id) FROM document_lines a '
-                            + 'WHERE a.document_id = `'}${DocumentType.name}\`.\`id\`), 0)`),
+                            + 'WHERE a.document_id = `'}${DocumentModel.name}\`.\`id\`), 0)`),
                             'count_document_lines',
                         ],
                     ],
@@ -48,7 +48,7 @@ export default (DocumentType, ParentModel, ChildModel) => ({
         date: { type: DataTypes.DATE, defaultValue: new Date() },
         number: DataTypes.INTEGER,
         user_id: { type: DataTypes.INTEGER },
-        document_type_id: { type: DataTypes.STRING, defaultValue: _.kebabCase(DocumentType.name) },
+        document_type_id: { type: DataTypes.STRING, defaultValue: _.kebabCase(DocumentModel.name) },
         parent_id: DataTypes.INTEGER,
         sellerable_id: { type: DataTypes.INTEGER, allowNull: false },
         sellerable_type: { type: DataTypes.STRING, defaultValue: 'Company', allowNull: false },

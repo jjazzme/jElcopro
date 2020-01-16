@@ -31,7 +31,7 @@ import MovementOutModel from './MovementOutModel';
 import ShellModel from './ShellModel';
 import MovementInModel from './MovementInModel';
 import ShipmentModel from './ShipmentModel';
-import CategoryModel from "./CategoryModel";
+import CategoryModel from './CategoryModel';
 
 /*
 const newDocument = (DocumentType, ParentModel, ChildModel) => _.defaultsDeep({
@@ -142,6 +142,7 @@ export default {
     },
 
     Category: {
+        class: CategoryModel,
         options: { tableName: 'categories' },
         attributes: {
             name: DataTypes.STRING,
