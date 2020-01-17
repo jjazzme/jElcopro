@@ -1,6 +1,6 @@
 <template>
   <main v-if="item && value.dataSource.user">
-    <h1>{{ h1 }}</h1>
+    <h1>{{ h1(item) }}</h1>
     <article>
       <div
         class="t-cell"
@@ -13,6 +13,12 @@
           v-model="row"
           :class="`t-value ${cell.class ? cell.class : ''}`"
         />
+        <router-link
+          v-else-if="cell.to"
+          :to="cell.to(item)"
+          :class="`t-value ${cell.class ? cell.class : ''}`"
+          v-html="cell.html ? cell.html(item) : item[name]"
+        />
         <div
           v-else
           :class="`t-value ${cell.class ? cell.class : ''}`"
@@ -21,7 +27,7 @@
       </div>
     </article>
     <page-environment
-      :head = "{ title: { main: value.dataSource.getShell.name.one, method: h1 } }"
+      :head = "{ title: { main: value.dataSource.getShell.name.one, method: h1(item) } }"
       :foot = "null"
     />
   </main>
@@ -38,17 +44,14 @@
         item: null,
         row: null,
         type: this.$route.params.type,
+        h1: null,
       }
-    },
-    computed:{
-      h1(){ return this.item?.name } // TODO: предусмотреть любое поле для h1
     },
     created(){
       this.$set(this.value.dataSource, 'type', this.type);
-      const type = this.type;
-      const id = this.$route.params.id;
-      this.row = this.value.dataSource.getShell.initial;
-      this.value.dataSource.getSourceById({ type, id })
+      this.$set(this, 'row', this.value.dataSource.getShell.initial);
+      this.$set(this, 'h1', this.value.dataSource.getShell.h1);
+      this.value.dataSource.getSourceById({ type: this.type, id: this.$route.params.id })
         .then(item => this.$set(this, 'item', item))
     }
   }

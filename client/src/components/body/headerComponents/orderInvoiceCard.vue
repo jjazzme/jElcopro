@@ -8,7 +8,7 @@
     </b-link>
 
     <div
-      v-if="document"
+      v-if="document && document.documentLines"
     >
       <div class="h-c-close" @click="closeCard()">x</div>
       <router-link
@@ -54,7 +54,7 @@
       if (this.type === 'Invoice') this.alias = 'счёт';
       else if (this.type === 'Order') this.alias = 'заказ';
 
-      if (this.id) this.value.dataSource.getSourceById({ type: this.type, id: this.id })
+      if (this.id) this.value.dataSource.getSourceById({ type: this.type, id: this.id, check: ['documentLines'] })
         //.then(doc => this.document=doc)
     },
     watch:{
