@@ -74,6 +74,8 @@ let mutations = {
     const item = cache.find(item => _.isEqual(item[0], key));
     if (item) {
       const ind = cache.indexOf(item);
+      //TODO: следить за поведением
+      data = _.mergeWith( item[2], data, (o,s) => { if (_.isArray(o)) {return s} });
       cache.splice(ind, 1);
     }
     cache.unshift([key, Date.now(), data])
@@ -150,7 +152,13 @@ let actions = {
       const key = getters['getLoaderKey'](type, payload);
       let data = getters['cacheGetItem'](type, key);
       const ttl = getters['getLoaderTTL'](type);
-      if (data && data[1] + ttl > Date.now()) {
+      let check = true;
+      if (payload.check) {
+        _.forEach(payload.check, field => {
+          if (data && !data[2][field]) check = false;
+        })
+      }
+      if (data && check && data[1] + ttl > Date.now()) {
         resolve(data[2])
       } else {
         const loader = getters['executorItemLoader'](type, key);

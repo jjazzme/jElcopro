@@ -26,6 +26,8 @@ export default class Shells{
         // menu: false, - можно не писать, так как тут false = undefined
         optics: { limit: -1, page: 1 } // для возврата через put всей таблицы
       },
+      Company:{
+      },
       CurrencyRateService:{
         binder: {
           key: item=>item.id,
@@ -42,12 +44,12 @@ export default class Shells{
         optics: { limit: -1, page: 1 }
       },
       DocumentLine:{
-        binder: {key: item=>item.id},
+        noFirstRowCell: true,
+        loadProcessor: new TableLoadProcessor('DocumentLine'),
         initial:{
           amount_with_vat:{},
           amount_without_vat:{},
           closed:{},
-
         },
       },
       Invoice:{
@@ -62,8 +64,8 @@ export default class Shells{
           cacheSets: [],
         },
         initial:{
-          id:{show:false, hidden: true, sortable: false, card: false,},
-          date:{ to: row => { return {name:'item', params:{ table: 'Invoice', id: row.id} } },
+          id:{show:false, hidden: true, sortable: false, card: false, label: "ID", order: 100},
+          date:{ to: row => { return {name:'item', params:{ type: 'Invoice', id: row.id} } },
             editor: 'calendar', show: true, order:10, sortable: true, label: 'Дата', card: false,
             html: row=>Intl.DateTimeFormat(
               'ru-RU',
@@ -74,13 +76,15 @@ export default class Shells{
               }).format(new Date(row.date)).replace(',',''),
             filters: [{type: 'calendar_fromto', from:'', to:''}]
           },
-          number:{to: row => { return {name:'item', params:{ table: 'Invoice', id: row.id } } },
+          number:{to: row => { return {name:'item', params:{ type: 'Invoice', id: row.id } } },
             editor: 'integer', show: true, order:20, sortable: true, label: 'Номер', card: false,
             filters: [
               {type: 'integer_fromto', from:'', to:''},
               {type: 'search', _placeholder:'поиск 1'},
             ]},
-          sellerable_id:{show: true, order:30, html: row=>row.sellerable.party.name, sortable: true, label: 'Продавец',
+          sellerable_id:{show: true, order:30,
+            html: row => row.sellerable.party.name, sortable: true, label: 'Продавец',
+            to: row => { return {name:'item', params:{ type: 'Company', id: row.sellerable_id} } },
             filters:[
               {type: 'search', _placeholder:'поиск 1'},
               {type: 'search', _placeholder:'поиск 2'},
@@ -98,15 +102,21 @@ export default class Shells{
             filters:[
               {type: 'search', _placeholder:'поиск 1'},
             ]},
-          sum:{show: true, order:70, sortable: true, label: 'Сумма', html: row=>_.sumBy(row.documentLines, line=>line.amount_with_vat).toFixed(2)},
+          amount_with_vat:{show: true, order:70, sortable: true, label: 'Сумма', html: row => row.amount_with_vat.toFixed(2)},
           status_id:{show: true, order: 75, sortable: true, label: 'Статус', html: row=>{ return {formed: 'Формируется', reserved: 'Резерв', in_work: 'В работе'}[row.status_id] } },
           user_id:{show: true, order:80, html: row=>row.user.name, sortable: true, label: 'Автор',
             filters:[
               {type: 'search', _placeholder:'поиск 1'},
             ]},
+          documentLines:{show: false, label: 'Строки счёта', shell: 'DocumentLine',
+            html: row => { return `Количество строк: ${ row.documentLines ? row.documentLines.length : '' }` },
+            to: row => { return {name:'manyToOne', params:{ parentType: 'Invoice', id: row.id, field: 'documentLines' } } },
+            h2: () => 'Строки',
+          }
         },
+        h1: item => `Счёт №${ item.number} от ${Intl.DateTimeFormat('ru-RU').format(new Date(item.date)) } для ${ item.sellerable.party.name }`,
         controller:{
-          scopes:['withSellerable', 'withBuyerable', 'withStore', 'withCurrency', 'withDocumentLines', 'withSum', 'withUser', 'defaultScope'],
+          scopes:['withSellerable', 'withBuyerable', 'withStore', 'withCurrency', 'withSum', 'withUser', 'defaultScope'],
           /*
           aliases:{
             sellerable_id: {path: 'Company.Party', as:'sellerable.party', column: 'name'},

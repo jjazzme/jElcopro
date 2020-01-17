@@ -36,6 +36,12 @@ const router = new Router({
       meta: {middleware: env},
       component: () => import('./views/Item.vue'),
     },
+    {
+      path:'/tables/:parentType/:id/:field',
+      name: 'manyToOne',
+      meta: {middleware: env},
+      component: () => import('./views/ManyToOne.vue'),
+    },
 
     {
       path:'/tables/:type',

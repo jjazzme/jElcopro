@@ -127,7 +127,8 @@ export default class DataSource{
     return getBS ? getBS(this.getTable.optics.value) : this.getTable.optics.value;
   }
   getCacheItem(type, key){
-    return this.store.getters['Binder/cacheGetItem'](type, key)[2]
+    const cache = this.store.getters['Binder/cacheGetItem'](type, key);
+    return cache ? cache[2] : null;
   }
   get getInvoice(){
     return this.user.cards.invoice ? this.store.getters['Binder/cacheGetItem']('Invoice', this.user.cards.invoice)[2] : null;
@@ -155,8 +156,9 @@ export default class DataSource{
       return null;
     }
   }
-  getSourceById({ type, id }){
-    return this.store.dispatch('Binder/getItem', { type, payload: { id } })
+  getSourceById({ type, id, check }){
+    // check - массив названий строк, необходимых для итема. Если есть итем, но нет их, то перезапросить.
+    return this.store.dispatch('Binder/getItem', { type, payload: { id, check } })
   }
   getSourceByOptics({ type, optics }){
     if (optics) this.tables[type].optics.value = optics;

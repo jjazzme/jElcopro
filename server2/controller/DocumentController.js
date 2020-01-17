@@ -9,6 +9,7 @@ export default class DocumentController extends ApiController {
         'withForeignStore',
         'withCurrency',
         'withDocumentLines',
+        'withUser',
         'defaultScope',
     ];
 }
