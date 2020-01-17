@@ -33,7 +33,7 @@ import ShellModel from './ShellModel';
 import MovementInModel from './MovementInModel';
 import ShipmentModel from './ShipmentModel';
 import CategoryModel from './CategoryModel';
-import AddressModel from "./AddressModel";
+import AddressModel from './AddressModel';
 
 export default {
     AccessToken: {
@@ -53,8 +53,8 @@ export default {
     },
 
     Address: {
-        options: { tableName: 'addresses' },
         class: AddressModel,
+        options: { tableName: 'addresses' },
         attributes: { address: DataTypes.STRING, json: DataTypes.JSON },
     },
 
@@ -639,7 +639,7 @@ export default {
             tableName: 'stores',
             scopes: {
                 withCompany: {
-                    include: [{ model: CompanyModel, as: 'company', include: { model: PartyModel, as: 'party' } }]
+                    include: [{ model: CompanyModel, as: 'company', include: { model: PartyModel, as: 'party' } }],
                 },
                 withAddress: { include: [{ model: AddressModel, as: 'address' }] },
             },
