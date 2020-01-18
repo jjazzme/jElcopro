@@ -47,7 +47,8 @@ export default class Auth {
                 await token.update({ revoked: true });
                 return done(null, false, { message: 'Token expired' });
             }
-            return done(null, token.user, { scope: '*' });
+            const user = await token.getUser();
+            return done(null, user, { scope: '*' });
         }));
         const server = oauth2orize.createServer();
         server.exchange(oauth2orize.exchange.password(async (client, username, password, scope, done) => {
@@ -57,7 +58,6 @@ export default class Auth {
             if (!isPassEqual) return done(null, false);
             const token = uuid();
             const now = new Date();
-            // await AccessToken.update({ revoked: true }, { userId: user.id });
             await AccessToken.create({
                 id: token,
                 userId: user.id,
