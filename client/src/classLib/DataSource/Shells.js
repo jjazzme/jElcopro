@@ -27,6 +27,16 @@ export default class Shells{
         optics: { limit: -1, page: 1 } // для возврата через put всей таблицы
       },
       Company:{
+        binder:{
+          key: item=>item.id,
+          byOpticsLoader: (payload)=>axios.put(
+            `/api/company`,
+            {optics:payload.optics, params:payload.params}),
+          itemLoader: (key)=>axios.get(`/api/company/${key}`),
+          ttl: 3600e3*24,
+          cache: [],
+          cacheSets: [],
+        },
       },
       CurrencyRateService:{
         binder: {
@@ -44,12 +54,30 @@ export default class Shells{
         optics: { limit: -1, page: 1 }
       },
       DocumentLine:{
+        binder: {
+          key: item=>item.id,
+          byOpticsLoader: (payload)=>axios.put(
+            '/api/documentLine',
+            { optics:payload.optics, params:payload.params }
+          ),
+          itemLoader: (key)=>axios.get(`/api/documentLine/${key}`),
+          ttl: 3600e3*24,
+          cache: [],
+          cacheSets: [],
+        },
         noFirstRowCell: true,
         loadProcessor: new TableLoadProcessor('DocumentLine'),
         initial:{
-          amount_with_vat:{},
-          amount_without_vat:{},
-          closed:{},
+          id:{show:false, hidden: true, sortable: false, card: false, label: "ID", order: 100},
+          good_id: { label: 'Товар', html: row => row.good_id },
+          quantity: {},
+          price_without_vat: {},
+          price_with_vat: {},
+          amount_with_vat: {},
+          amount_without_vat: {},
+          times:{},
+          remark:{},
+          closed: {},
         },
       },
       Invoice:{
@@ -82,6 +110,7 @@ export default class Shells{
               {type: 'integer_fromto', from:'', to:''},
               {type: 'search', _placeholder:'поиск 1'},
             ]},
+          //sellerable:{show:false, shell: 'Company', key: item => item.id},
           sellerable_id:{show: true, order:30,
             html: row => row.sellerable.party.name, sortable: true, label: 'Продавец',
             to: row => { return {name:'item', params:{ type: 'Company', id: row.sellerable_id} } },

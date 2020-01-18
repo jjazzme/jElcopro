@@ -4,6 +4,7 @@
     <article>
       <div
         class="t-cell"
+        :style="`order: ${cell.order}`"
         v-for="(cell, name) in row"
       >
         <div class="t-alias" v-html="cell.label" />
@@ -51,7 +52,7 @@
       this.$set(this.value.dataSource, 'type', this.type);
       this.$set(this, 'row', this.value.dataSource.getShell.initial);
       this.$set(this, 'h1', this.value.dataSource.getShell.h1);
-      this.value.dataSource.getSourceById({ type: this.type, id: this.$route.params.id })
+      this.value.dataSource.getSourceById({ type: this.type, id: this.$route.params.id, check: 'documentLines' })
         .then(item => this.$set(this, 'item', item))
     }
   }
