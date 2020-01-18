@@ -47,7 +47,7 @@
       this.value.dataSource.getSourceById({ type: this.parentType, id: this.$route.params.id })
         .then(item => {
           this.$set(this, 'item', item);
-          //if (!this.value.dataSource.getTable.loadProcessor) this.value.dataSource.getTable.loadProcessor = {};
+          if (!this.value.dataSource.getTable.loadProcessor.data) this.value.dataSource.getTable.loadProcessor.data = {};
           this.value.dataSource.getTable.loadProcessor.data.rows = item[this.field]
         });
     }
