@@ -3,10 +3,13 @@
     class="header"
   >
     <div
-      class="t-row"
+      :class="{ 't-row': true, 't-linear': isLinear }"
       :style="gtCalculated"
     >
-      <div class="t-fr-cell">first</div>
+      <div
+        class="t-fr-cell"
+        v-if="firstShow"
+      >first</div>
 
       <div
         v-for="(cell, name) in value.dataSource.getShell.initial"
@@ -28,10 +31,12 @@
     props: {
       value: null,
       gtCalculated: null,
+      isLinear: null,
     },
     computed:{
       loading(){ return this.value.dataSource.getTable.loadProcessor.eid },
-      enabled(){ return this.value.viewport.tableRowIsLinear && !_.isEmpty(this.value.viewport.tableRow) }
+      enabled(){ return this.value.viewport.tableRowIsLinear && !_.isEmpty(this.value.viewport.tableRow) },
+      firstShow(){ return !this.value.dataSource.getShell.noFirstRowCell }
     },
     created(){
     }
@@ -91,6 +96,7 @@
     }
   }
 
+  /*
   @media @mob {
     .header{
       padding: 0 10px;
@@ -106,5 +112,6 @@
       padding: 0 40px;
     }
   }
+   */
 
 </style>

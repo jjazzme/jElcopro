@@ -4,6 +4,7 @@
       v-bind:is="value.dataSource.getShell.opticsConstructor"
       v-model="value"
       :gtCalculated="gtCalculated"
+      :isLinear="isLinear"
     />
     <Body
       v-model="value"
@@ -82,7 +83,8 @@
             _.forEach(table.querySelectorAll('div.t-row'), row => {
               _.forEach(row.querySelectorAll(':scope > *'), (cell, ind) => {
                 const top =  cell.getBoundingClientRect().top - cell.parentElement.getBoundingClientRect().top;
-                const width = cell.querySelector(':scope > .t-content').scrollWidth + 1;
+                let width = cell.querySelector(':scope > .t-content').scrollWidth + 1;
+                if ( width < 50) width = 50;
                 if (tableRow[ind]) {
                   if (tableRow[ind].width < width) tableRow[ind].width = width;
                   if (tableRow[ind].top < top) tableRow[ind].top = top;

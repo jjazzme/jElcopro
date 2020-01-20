@@ -2,6 +2,7 @@
   <table-parameters-constructor
     v-model="value"
     :gtCalculated="gtCalculated"
+    :isLinear="isLinear"
   />
 </template>
 
@@ -13,6 +14,7 @@
     props:{
       value: null,
       gtCalculated: null,
+      isLinear: null,
     },
     created(){
       const document_id = parseInt(this.$route.params.id)

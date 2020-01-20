@@ -10,6 +10,7 @@ import ShellController from '../controller/ShellController';
 import OrderController from '../controller/OrderController';
 import GoodController from '../controller/GoodController';
 import DocumentLineController from '../controller/DocumentLineController';
+import ProductController from "../controller/ProductController";
 
 export default function ApiRoutes(services) {
     const apiRouter = new ApiRouter(services.db);
@@ -25,7 +26,7 @@ export default function ApiRoutes(services) {
     apiRouter.resource('party', new ApiController(services.db.models.Party));
     apiRouter.resource('price', new PriceController(services));
     apiRouter.resource('producer', ProducerController);
-    apiRouter.resource('product', new ApiController(services.db.models.Product));
+    apiRouter.resource('product', ProductController);
     apiRouter.resource('shell', ShellController);
     apiRouter.resource('store', new ApiController(services.db.models.Store));
     apiRouter.resource('transferIn', new ApiController(services.db.models.TransferIn));
