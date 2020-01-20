@@ -2,6 +2,7 @@
 
 import axios from "axios";
 import priceListParametersConstructor from "../../components/tables/parametersConstructor/priceListParametersConstructor"
+import documentLinesParametersConstructor from "../../components/tables/parametersConstructor/documentLinesParametersConstructor"
 import priceListFooter from "../../components/body/footerComponents/priceListFooter"
 import PriceLoadProcessor from "./Shells/PriceLoadProcessor";
 import TableLoadProcessor from "./Shells/TableLoadProcessor";
@@ -57,7 +58,7 @@ export default class Shells{
         binder: {
           key: item=>item.id,
           byOpticsLoader: (payload)=>axios.put(
-            '/api/documentLine',
+            '/api/docline',
             { optics:payload.optics, params:payload.params }
           ),
           itemLoader: (key)=>axios.get(`/api/documentLine/${key}`),
@@ -65,11 +66,15 @@ export default class Shells{
           cache: [],
           cacheSets: [],
         },
+        opticsConstructor: documentLinesParametersConstructor,
         noFirstRowCell: true,
         loadProcessor: new TableLoadProcessor('DocumentLine'),
         initial:{
-          id:{show:false, hidden: true, sortable: false, card: false, label: "ID", order: 100},
-          good_id: { label: 'Товар', html: row => row.good_id },
+          id:{show:false, hidden: true, sortable: false, card: false, label: "ID", order: 1000},
+          good_id: { label: 'Товар', order: 10,
+            html: row => row.good.product.name,
+            to: null,
+          },
           quantity: {},
           price_without_vat: {},
           price_with_vat: {},
@@ -79,6 +84,11 @@ export default class Shells{
           remark:{},
           closed: {},
         },
+        controller:{
+          scopes:['withArrival', 'withChildren', 'withGood', 'withFutureReserve', 'withParent', 'withReserves', 'withDeparture'],
+          where:{}
+        },
+        optics: { limit: -1, page: 1 }
       },
       Invoice:{
         binder:{
@@ -92,7 +102,7 @@ export default class Shells{
           cacheSets: [],
         },
         initial:{
-          id:{show:false, hidden: true, sortable: false, card: false, label: "ID", order: 100},
+          id:{show:{item:true, list:false}, sortable: false, card: false, label: "ID", order: 100},
           date:{ to: row => { return {name:'item', params:{ type: 'Invoice', id: row.id} } },
             editor: 'calendar', show: true, order:10, sortable: true, label: 'Дата', card: false,
             html: row=>Intl.DateTimeFormat(
@@ -110,7 +120,7 @@ export default class Shells{
               {type: 'integer_fromto', from:'', to:''},
               {type: 'search', _placeholder:'поиск 1'},
             ]},
-          //sellerable:{show:false, shell: 'Company', key: item => item.id},
+          sellerable:{show:false, shell: 'Company', key: item => item.id},
           sellerable_id:{show: true, order:30,
             html: row => row.sellerable.party.name, sortable: true, label: 'Продавец',
             to: row => { return {name:'item', params:{ type: 'Company', id: row.sellerable_id} } },
@@ -137,10 +147,9 @@ export default class Shells{
             filters:[
               {type: 'search', _placeholder:'поиск 1'},
             ]},
-          documentLines:{show: false, label: 'Строки счёта', shell: 'DocumentLine',
+          documentLines:{label: 'Строки счёта', shell: 'DocumentLine',
             html: row => { return `Количество строк: ${ row.documentLines ? row.documentLines.length : '' }` },
             to: row => { return {name:'manyToOne', params:{ parentType: 'Invoice', id: row.id, field: 'documentLines' } } },
-            h2: () => 'Строки',
           }
         },
         h1: item => `Счёт №${ item.number} от ${Intl.DateTimeFormat('ru-RU').format(new Date(item.date)) } для ${ item.sellerable.party.name }`,
@@ -394,6 +403,7 @@ export default class Shells{
         faIcon: {prefix: "fas", name: "barcode"},
         name: {one: 'продукт', many: 'продукты', cardof: 'продукта',},
         optics: { page: 1, sorters: {}, filters: {}, items: [], limit: limit },
+        h1: item => `Продукт: ${ item.name}`,
       },
       Producer: {
         binder: {

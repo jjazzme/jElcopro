@@ -4,30 +4,31 @@
     :style="calculatedStyle"
     :data-field="name"
   >
-    <div
-      v-html="cell.label"
-      class="t-label"
-    />
-    <component
-      v-if="cell.component"
-      v-bind:is="cell.component"
-      v-model="row"
-      :optics="optics"
-      :source="source"
-      :class="cell.class ? cell.class : ''"
-    />
-    <router-link
-      v-else-if="cell.to"
-      :to="cell.to(row)"
-      :class="`t-value ${cell.class ? cell.class : ''}`"
-      v-html="cell.html ? cell.html(row) : row[name]"
-    />
-    <div
-      v-else
-      :class="`t-value ${cell.class ? cell.class : ''}`"
-      v-html="cell.html ? cell.html(row) : row[name]"
-    />
-
+    <div class="t-content">
+      <div
+        v-html="cell.label"
+        class="t-label"
+      />
+      <component
+        v-if="cell.component"
+        v-bind:is="cell.component"
+        v-model="row"
+        :optics="optics"
+        :source="source"
+        :class="cell.class ? cell.class : ''"
+      />
+      <router-link
+        v-else-if="cell.to"
+        :to="cell.to(row)"
+        :class="`t-value ${cell.class ? cell.class : ''}`"
+        v-html="cell.html ? cell.html(row) : row[name]"
+      />
+      <div
+        v-else
+        :class="`t-value ${cell.class ? cell.class : ''}`"
+        v-html="cell.html ? cell.html(row) : row[name]"
+      />
+    </div>
   </div>
 </template>
 
@@ -58,19 +59,23 @@
 
 <style scoped lang="less">
   .t-cell{
-    a{
-      border: none;
-      text-decoration: underline;
-      color: navy;
-    }
-    .t-label{
-      font-size: 10px;
-      white-space: nowrap;
-      display: block;
-    }
-    .t-value{
-      &::v-deep svg{height: 20px}
-      text-align: left;
+    white-space: nowrap;
+    display: inline-block;
+    .t-content{
+      display: inline-block;
+      a{
+        border: none;
+        text-decoration: underline;
+        color: navy;
+      }
+      .t-label{
+        font-size: 10px;
+        white-space: nowrap;
+      }
+      .t-value{
+        &::v-deep svg{height: 20px}
+        text-align: left;
+      }
     }
   }
 </style>

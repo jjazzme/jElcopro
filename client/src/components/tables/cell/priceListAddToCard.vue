@@ -176,8 +176,8 @@
         .t-add{
           font-size: 12px;
           position: absolute;
-          top: -3px;
-          left: 30px;
+          top: 0;
+          left: 12px;
           color: red
         }
         .t-count{

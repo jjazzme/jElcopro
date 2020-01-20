@@ -23,7 +23,7 @@ export default class Error {
       } else {
         Swal.fire({
           title: 'Ошибка axios',
-          text:  this.error.response.data,
+          text:  this.error.response.data.message ? this.error.response.data.message : this.error.response.data,
           type:  'error',
           timer: 15000
         });

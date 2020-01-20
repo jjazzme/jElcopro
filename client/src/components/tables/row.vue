@@ -1,5 +1,8 @@
 <template>
-  <div :class="{'t-row': true, 't-linear': value.viewport.tableRowIsLinear}">
+  <div
+    :class="{'t-row': true, 't-linear': isLinear}"
+    :style="gtCalculated"
+  >
     <first-row-cell
       v-if="!value.dataSource.getShell.noFirstRowCell"
       v-model="value"
@@ -9,7 +12,7 @@
 
     <cell
       v-for="(cell, name) in value.dataSource.getShell.initial"
-      v-if="cell.show !== false && !cell.hidden"
+      v-if="!cell.hidden && (cell.show === undefined || cell.show === true || ( cell.show && cell.show.list === true ))"
       :key="name"
       :name="name"
       :cell="cell"
@@ -24,6 +27,7 @@
 </template>
 
 <script>
+  //grid-template-columns: 70px auto 100px 100px 100px 100px
   import FirstRowCell from "./firstRowCell";
   import Cell from "./cell";
 
@@ -34,14 +38,16 @@
       row: null,
       ind: null,
       value: null,
+      gtCalculated: null,
+      isLinear: true,
     },
     computed:{
-      cellWidth(){}
+
     },
   }
 </script>
 
-<style scoped lang="less">
+<!--style scoped lang="less">
   @import "~@/less/_variables";
 
   .t-linear{
@@ -70,4 +76,10 @@
       flex-wrap: nowrap;
     }
   }
+</style-->
+
+<style scoped lang="less">
+  @import "~@/less/_variables";
+
+
 </style>

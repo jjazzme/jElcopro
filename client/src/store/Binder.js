@@ -78,7 +78,10 @@ let mutations = {
       data = _.mergeWith( item[2], data, (o,s) => { if (_.isArray(o)) {return s} });
       cache.splice(ind, 1);
     }
-    cache.unshift([key, Date.now(), data])
+    const row = [key, Date.now(), data];
+
+    cache.unshift(row);
+    return row;
   },
   upsertSetToCache(state, {type, hash, data}) {
     const cache = state.loaders[type].cacheSets;

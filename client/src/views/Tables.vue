@@ -1,14 +1,7 @@
 <template>
   <main>
-    <component
-      v-bind:is="value.dataSource.getShell.opticsConstructor"
+    <Table
       v-model="value"
-    />
-    <Body
-      v-model="value"
-      ref="table"
-      class="t-table t-opacity"
-      :style="`${value.viewport.tableRowIsLinear ? 'padding-top: 0' : ''}`"
     />
     <page-environment
       :head = "{ title: { main: 'таблицы', method: value.dataSource.getShell.name.many } }"
@@ -19,45 +12,27 @@
 </template>
 
 <script>
-  import Footer from "../classLib/Footer";
+  //      :style="`${value.viewport.tableRowIsLinear ? 'padding-top: 0' : ''}`"
+  //import Footer from "../classLib/Footer";
   import Body from "../components/tables/body";
+  import Table from "../components/tables/table";
 
   export default {
     name: "Tables",
-    components: {Body},
+    components: {Table, Body},
     props:{
-      value: null
-    },
-    data(){
-      return {
-        calculateAmount: 25,
-      }
+      value: null,
     },
     computed:{
-      footer(){
-        return new Footer({ component: this.value.dataSource.getShell.footer });
-      },
-      optics(){
-        return this.value.dataSource.getTable ? JSON.stringify(this.value.dataSource.getTable.optics.value) : null;
-      },
       type(){
         return this.$route.params.type;
       },
-      getSource() {
-        return _.debounce(
-          () => {
-            const optics = this.value.dataSource.getBackSensitiveOptics;
-            if (!optics) return;
-
-            this.value.dataSource.getTable.loadProcessor.getSource(optics, this.value.dataSource.getShell.controller)
-            .finally(()=>{
-              this.calculateTable()
-            })
-          }, this.value.dataSource.debounceAmount
-        );
-      },
+      //footer(){
+      //  return new Footer({ component: this.value.dataSource.getShell.footer });
+      //},
     },
     methods:{
+      /*
       onResize: _.debounce( function(){
         _.forEach(this.value.viewport.tableRow, row => row.top = 0)
         const table = this.$refs.table.$el;
@@ -74,9 +49,6 @@
         const tops = _.map(this.value.viewport.tableRow, cell => cell.top);
         this.$set(this.value.viewport, 'tableRowIsLinear', Math.min.apply(Math, tops) === Math.max.apply(Math, tops));
       }, 500),
-      tableChange(){
-        console.log('111')
-      },
       calculateTable(){
         let waitTable = () => {
           _.delay(()=>{
@@ -113,39 +85,15 @@
 
         waitTable();
       },
+      */
     },
     created() {
-      window.addEventListener("resize", this.onResize);
-      this.value.viewport.tableRow = {};
       this.value.dataSource.type = this.type;
-      const queryOptics = this.value.dataSource.getOpticsObject(this.$route.query.optics);
-      if (queryOptics) this.$set(this.value.dataSource.getTable.optics, 'value', queryOptics);
-      this.getSource();
-    },
-    destroyed(){
-      window.removeEventListener("resize", this.onResize);
     },
     watch:{
-      optics(n){
-        $(this.$refs.table.$el).addClass('t-opacity');
-        this.value.viewport.tableRow = {};
-        this.value.viewport.tableRowIsLinear = false;
-        if(n !== this.$route.query.optics) this.$router.replace({ query: { optics: n } });
-        this.getSource();
-      },
       type(n){
-        $(this.$refs.table.$el).addClass('t-opacity');
-        this.value.viewport.tableRow = {};
-        this.value.viewport.tableRowIsLinear = false;
         this.value.dataSource.type = n;
-        let queryOptics = this.value.dataSource.getOpticsObject(this.$route.query.optics);
-        if (queryOptics) this.$set(this.value.dataSource.getTable.optics, 'value', queryOptics);
-        else {
-          queryOptics =JSON.stringify(this.value.dataSource.getTable.optics.value);
-          if(queryOptics !== this.$route.query.optics) this.$router.replace({ query: { optics: queryOptics } });
-        }
-        this.getSource();
-      },
+      }
       /*
       'value.queryOptics' ( n, o ) {
         if(n) {
@@ -179,7 +127,7 @@
   }
 </script>
 
-<style scoped lang="less">
+<!--style scoped lang="less">
   .t-table{
 
   }
@@ -192,4 +140,10 @@
       white-space: nowrap;
     }
   }
+</style-->
+
+<style scoped lang="less">
+  @import "~@/less/_variables";
+
+
 </style>
