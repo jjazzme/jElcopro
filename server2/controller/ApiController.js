@@ -8,8 +8,8 @@ export default class ModelContoller {
 
     async index(req) {
         const { optics, params } = req.body;
-        const { page } = optics;
-        const limit = optics.limit === null
+        const  page  = optics.page ? optics.page : 1;
+        const limit = !optics.limit
             ? 15
             : optics.limit < 0
                 ? null
@@ -26,7 +26,7 @@ export default class ModelContoller {
          */
 
         let order, where;
-
+        where = optics.where;
 
         const resp = await this.Model.scope(scopes).findAndCountAll({
             order,

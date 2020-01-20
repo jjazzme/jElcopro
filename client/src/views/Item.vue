@@ -6,6 +6,7 @@
         class="t-cell"
         :style="`order: ${cell.order}`"
         v-for="(cell, name) in row"
+        v-if="cell.show === undefined || cell.show === true || ( cell.show && cell.show.item === true )"
       >
         <div class="t-alias" v-html="cell.label" />
         <component

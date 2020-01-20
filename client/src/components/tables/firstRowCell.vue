@@ -1,27 +1,29 @@
 <template>
   <div class="t-fr-cell t-cell" data-field="_firstRow">
-    <b-form-checkbox
-      size="sm"
-      class="d-inline-block pl-4 pr-0"
-      @change="basketChange(row.id)"
-      :checked="includes(row.id)"
-    ></b-form-checkbox>
-    <b-dropdown
-      text=""
-      size="sm"
-    >
-      <b-dropdown-item>
-        <b-link
-          :to="{ name:'item', params: { type: value.dataSource.type, id:row.id } }"
-          class="fa fa-pencil-square text-capitalize text-nowrap d-block"
-        > {{ value.dataSource.getShell.name.one }}: карта документа</b-link>
-        <b-link
-          @click="docToCard(row)"
-          v-if="['Invoice','Order'].includes(value.dataSource.type)"
-          class="fa fa-pencil-square text-nowrap d-block"
-        >{{toCard.text}}</b-link>
-      </b-dropdown-item>
-    </b-dropdown>
+    <div class="t-content">
+      <b-form-checkbox
+        size="sm"
+        class="d-inline-block pl-4 pr-0"
+        @change="basketChange(row.id)"
+        :checked="includes(row.id)"
+      ></b-form-checkbox>
+      <b-dropdown
+        text=""
+        size="sm"
+      >
+        <b-dropdown-item>
+          <b-link
+            :to="{ name:'item', params: { type: value.dataSource.type, id:row.id } }"
+            class="fa fa-pencil-square text-capitalize text-nowrap d-block"
+          > {{ value.dataSource.getShell.name.one }}: карта документа</b-link>
+          <b-link
+            @click="docToCard(row)"
+            v-if="['Invoice','Order'].includes(value.dataSource.type)"
+            class="fa fa-pencil-square text-nowrap d-block"
+          >{{toCard.text}}</b-link>
+        </b-dropdown-item>
+      </b-dropdown>
+    </div>
   </div>
 </template>
 
@@ -86,7 +88,9 @@
   @import "~@/less/_variables";
 
   .t-fr-cell {
-    width: 70px; max-width: 70px;
     order:-1000000;
+    .t-content{
+      display: inline-block;
+    }
   }
 </style>

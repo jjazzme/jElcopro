@@ -21,6 +21,8 @@
       :row="row"
       :ind="ind"
       :key="ind"
+      :gtCalculated="gtCalculated"
+      :isLinear="isLinear"
     />
   </article>
 </template>
@@ -32,6 +34,8 @@
     components: {Row},
     props: {
       value: null,
+      gtCalculated: null,
+      isLinear: true,
     },
     computed:{
       loading(){ return this.value.dataSource.getTable.loadProcessor.eid },

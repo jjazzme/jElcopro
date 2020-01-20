@@ -1,30 +1,36 @@
 <template>
-  <header
-    v-if="enabled"
+  <div
+    class="header"
   >
-    <div class="t-row">
-      <div>first</div>
+    <div
+      class="t-row"
+      :style="gtCalculated"
+    >
+      <div class="t-fr-cell">first</div>
 
       <div
         v-for="(cell, name) in value.dataSource.getShell.initial"
-        v-if="cell.show !== false && !cell.hidden"
+        v-if="!cell.hidden && (cell.show === undefined || cell.show === true || ( cell.show && cell.show.list === true ))"
         :key="name"
         v-html="cell.label"
-        :style="`width: ${value.viewport.tableRow[name].width}px; order: ${ cell.order }`"
+        :style="`order: ${ cell.order }`"
       />
     </div>
-  </header>
+  </div>
 </template>
 
 <script>
+  //width: ${value.viewport.tableRow[name].width}px;
   //import _ from 'lodash';
 
   export default {
     name: "tableParametersConstructor",
     props: {
       value: null,
+      gtCalculated: null,
     },
     computed:{
+      loading(){ return this.value.dataSource.getTable.loadProcessor.eid },
       enabled(){ return this.value.viewport.tableRowIsLinear && !_.isEmpty(this.value.viewport.tableRow) }
     },
     created(){
@@ -32,7 +38,7 @@
   }
 </script>
 
-<style scoped lang="less">
+<!--style scoped lang="less">
   @import "~@/less/_variables";
 
   .t-row{
@@ -66,6 +72,38 @@
   @media @wid {
     header{
       padding: 20px 40px 0 40px;
+    }
+  }
+
+</style-->
+
+<style scoped lang="less">
+  @import "~@/less/_variables";
+
+  .header{
+    .t-row{
+      min-height: 40px;
+      >*{
+        background: @table-header-bg;
+        color: @table-header-text;
+        padding: 5px;
+      }
+    }
+  }
+
+  @media @mob {
+    .header{
+      padding: 0 10px;
+    }
+  }
+  @media @des {
+    .header{
+      padding: 0 20px;
+    }
+  }
+  @media @wid {
+    .header{
+      padding: 0 40px;
     }
   }
 
