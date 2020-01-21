@@ -1,6 +1,7 @@
 import listEndPoints from 'express-list-endpoints';
 import createError from 'http-errors';
 import apiRoutes from './router/apiRoutes';
+import apiRoutesClassic from './router/apiRoutesClassic';
 
 // const https = require('https');
 // const fs = require('fs');
@@ -50,6 +51,7 @@ export default class App {
         // register express routes
         // API
         express.use('/api', apiRoutes(this.services));
+        express.use('/api2', apiRoutesClassic(this.services));
 
         // error handler
         // eslint-disable-next-line no-unused-vars
