@@ -2,14 +2,11 @@ import axios from 'axios';
 import iconv from 'iconv-lite';
 import { parseString } from 'xml2js';
 import moment from 'moment';
-import ModelService from './ModelService';
-import { Currency, CurrencyRate } from '../models';
-import CurrencyService from './CurrencyService';
 
-export default class CurrencyRateService extends ModelService {
-    constructor() {
-        super(CurrencyRate);
-        this._includes = [{ model: Currency, as: 'currency' }];
+export default class CurrencyRateService {
+    constructor(db, logger) {
+        this.db = db;
+        this.logger = logger;
     }
 
     /**
@@ -22,12 +19,7 @@ export default class CurrencyRateService extends ModelService {
     async _getXMLfromCBR(date) {
         const u = `http://www.cbr.ru/scripts/XML_daily.asp?date_req=${moment(date).format('DD.MM.YYYY')}`;
         const response = await axios.get(u, { responseType: 'arraybuffer' });
-        try {
-            return await iconv.decode(Buffer.from(response.data), 'win1251');
-        } catch (e) {
-            console.error(e);
-            throw e;
-        }
+        return iconv.decode(Buffer.from(response.data), 'win1251');
     }
 
     /**
@@ -36,13 +28,14 @@ export default class CurrencyRateService extends ModelService {
      * @returns {Promise<void>}
      */
     async synchronizeWithCBR(date) {
+        const { Currency, CurrencyRate } = this.db.models;
         const xml = await this._getXMLfromCBR(date);
         return new Promise((resolve, reject) => {
             parseString(xml, async (err, res) => {
                 if (err) reject(err);
                 try {
                     const updates = res.ValCurs.Valute.map(async (value) => {
-                        await (new CurrencyService()).firstOrCreate(
+                        await Currency.getInstanceOrCreate(
                             { id: value.$.ID },
                             {
                                 num_code: value.NumCode[0],
@@ -52,17 +45,17 @@ export default class CurrencyRateService extends ModelService {
                                 name: value.Name[0],
                             },
                         );
-                        return this.updateOrCreate(
+                        return CurrencyRate.getInstanceOrCreate(
                             { currency_id: value.$.ID, date },
                             { rate: value.Value[0].replace(',', '.') },
                         );
                     });
                     updates.push(
-                        this.updateOrCreate({ currency_id: 'R01000', date }, { rate: 1 }),
+                        CurrencyRate.getInstanceOrCreate({ currency_id: 'R01000', date }, { rate: 1 }),
                     );
                     Promise.all(updates).then(() => resolve(true));
                 } catch (e) {
-                    console.error(e);
+                    this.logger.error(e);
                     reject(e);
                 }
             });
@@ -75,6 +68,7 @@ export default class CurrencyRateService extends ModelService {
      * @returns {Promise<Array>}
      */
     async getRatesByDate(date) {
+        const { CurrencyRate } = this.db.models;
         let rates = await CurrencyRate.findAll({ where: { date } });
         if (rates.length === 0) {
             await this.synchronizeWithCBR(date);
@@ -87,7 +81,7 @@ export default class CurrencyRateService extends ModelService {
         return rates;
     }
 
-    get default(){
+    async default() {
         return this.getRatesByDate(Date.now());
     }
 }

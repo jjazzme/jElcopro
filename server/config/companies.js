@@ -65,4 +65,17 @@ export default {
             },
         },
     },
+    rct: {
+        inn: '7714382510',
+        ogrn: '1167746339970',
+        own: false,
+        with_vat: true,
+        stores: {
+            main: {
+                name: 'Склад Радиотех',
+                online: false,
+                url: 'http://www.rct.ru/price/all',
+            },
+        },
+    },
 };
