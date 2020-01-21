@@ -9,6 +9,7 @@ import TableLoadProcessor from "./Shells/TableLoadProcessor";
 import tableFooter from "../../components/body/footerComponents/tableFooter";
 import tableParametersConstructor from "../../components/tables/parametersConstructor/tableParametersConstructor";
 import integerEditor from "../../components/editors/integer";
+import floatEditor from "../../components/editors/float";
 
 export default class Shells{
   constructor(limit){
@@ -81,16 +82,20 @@ export default class Shells{
             editor: integerEditor,
           },
           price_without_vat: { label: 'Цена без НДС', order: 30,
-            html: item => item.price_without_vat.toFixed(2)
+            html: item => item.price_without_vat.toFixed(2),
+            editor: floatEditor,
           },
           price_with_vat: { label: 'Цена с НДС', order: 40,
-            html: item => item.price_with_vat.toFixed(2)
+            html: item => item.price_with_vat.toFixed(2),
+            editor: floatEditor,
           },
           amount_with_vat: { label: 'Сумма без НДС', order: 50,
             html: item => item.amount_with_vat.toFixed(2),
+            editor: floatEditor,
           },
           amount_without_vat: { label: 'Сумма с НДС', order: 60,
             html: item => item.amount_without_vat.toFixed(2),
+            editor: floatEditor,
           },
           times:{ label: 'Срок, дней', order: 70 },
           remark:{ label: 'Примечание', order: 80 },
