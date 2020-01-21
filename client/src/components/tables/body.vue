@@ -60,6 +60,10 @@
 <style scoped lang="less">
   @import "~@/less/_variables";
 
+  article{
+    overflow: auto;
+  }
+
   article.t-linear{
     padding-top: 2px;
   }

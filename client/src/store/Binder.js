@@ -23,6 +23,7 @@ let getters = {
   },
   // execute loader promise for item
   executorItemLoader: state => (type, key) => state.loaders[type].itemLoader(key),
+  executorUpdateLoader: state => (type, item) => state.loaders[type].updateLoader(type, item),
   // execute save promise
   executorItemSave: state => (type, payload) => state.loaders[type].itemSave(payload),
   // make page from set of keys
@@ -228,6 +229,17 @@ let actions = {
     else delete binder.defaults.headers.common['Authorization'];
   },
    */
+
+  updateItem({ getters, commit }, { type, item }) {
+    const loader = getters['executorUpdateLoader'](type, item);
+    loader
+      .then(ans=>{
+        const data = ans.data;
+        const key = item.id
+        commit('upsertItemToCache', {type, key, data});
+      });
+    return loader;
+  },
 };
 
 export default {

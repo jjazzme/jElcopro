@@ -17,7 +17,7 @@
       isLinear: null,
     },
     created(){
-      const document_id = parseInt(this.$route.params.id)
+      const document_id = parseInt(this.$route.params.id);
       const optics = this.value.dataSource.getTable.optics.value;
       optics.where = { document_id };
     }
