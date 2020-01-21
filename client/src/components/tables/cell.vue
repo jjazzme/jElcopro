@@ -3,6 +3,7 @@
     class="t-cell"
     :style="calculatedStyle"
     :data-field="name"
+    @contextmenu="editor"
   >
     <div class="t-content">
       <div
@@ -54,10 +55,35 @@
         return this.width === null ? '' : `flex: 1 1 auto; width: ${width}; order: ${ this.cell.order }`;
       },
     },
+    methods:{
+      editor(e){
+        e.preventDefault();
+        if(this.cell.editor){
+          if (this.source.editor.component) {
+            this.source.editor.component = null;
+            this.source.editor.initiator = null;
+            this.source.editor.row = null;
+            this.source.editor.name = null;
+          } else {
+            this.source.editor.component = this.cell.editor;
+            this.source.editor.initiator = e.target;
+            this.source.editor.row = this.row;
+            this.source.editor.name = this.name;
+
+            const rect = e.target.getBoundingClientRect();
+            this.source.editor.top = rect.top + rect.height + 5;
+            this.source.editor.left = rect.left;
+
+          }
+        }
+      },
+    },
   }
 </script>
 
 <style scoped lang="less">
+  @import "~@/less/_variables";
+
   .t-cell{
     white-space: nowrap;
     display: inline-block;

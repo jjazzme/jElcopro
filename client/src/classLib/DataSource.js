@@ -30,6 +30,13 @@ export default class DataSource{
       ]},
   ];
   constructor(store, optics, classSourceActualTTL, debounceAmount){
+    this.editor = {
+      component: null,
+      name: null,
+      initiator: null,
+      top: 10,
+      left: 10,
+    };
     this.type = null;
     this.store = store;
     this.debounceAmount = debounceAmount ?? 1000;
@@ -253,6 +260,9 @@ export default class DataSource{
         });
 
     });
+  }
+  updateItem({ type, item }){
+    this.store.dispatch('Binder/updateItem', { type, item })
   }
 
 }

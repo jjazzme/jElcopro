@@ -24,6 +24,11 @@
     </section>
     <login-component v-else />
 
+    <editor-cover
+      v-if="dataSource && dataSource.editor.component"
+      v-model="mainModel"
+    />
+
     <requests-component
       v-model="requests"
     />
@@ -39,10 +44,12 @@ import LoginComponent from "./components/body/login";
 import DataSource from "./classLib/DataSource";
 import RequestsComponent from "./components/body/requests";
 import Viewport from "./classLib/Viewport";
+import EditorCover from "./components/editors/cover";
 
 export default {
   name: 'app',
   components: {
+    EditorCover,
     RequestsComponent,
     LoginComponent,
     navComponent,
@@ -154,12 +161,10 @@ export default {
       margin-left: 60px;
       min-height: 600px;
       max-height: 100vh;
-
       &.pinOn{
         max-width: calc(100% - 200px);
         margin-left: 200px;
       }
-
       >header{
         flex: 1 1 auto;
         min-height: @headerHeightDaw;

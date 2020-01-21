@@ -1,13 +1,14 @@
 'use strict';
 
 import axios from "axios";
-import priceListParametersConstructor from "../../components/tables/parametersConstructor/priceListParametersConstructor"
-import documentLinesParametersConstructor from "../../components/tables/parametersConstructor/documentLinesParametersConstructor"
-import priceListFooter from "../../components/body/footerComponents/priceListFooter"
+import priceListParametersConstructor from "../../components/tables/parametersConstructor/priceListParametersConstructor";
+import documentLinesParametersConstructor from "../../components/tables/parametersConstructor/documentLinesParametersConstructor";
+import priceListFooter from "../../components/body/footerComponents/priceListFooter";
 import PriceLoadProcessor from "./Shells/PriceLoadProcessor";
 import TableLoadProcessor from "./Shells/TableLoadProcessor";
-import tableFooter from "../../components/body/footerComponents/tableFooter"
-import tableParametersConstructor from "../../components/tables/parametersConstructor/tableParametersConstructor"
+import tableFooter from "../../components/body/footerComponents/tableFooter";
+import tableParametersConstructor from "../../components/tables/parametersConstructor/tableParametersConstructor";
+import integerEditor from "../../components/editors/integer";
 
 export default class Shells{
   constructor(limit){
@@ -61,7 +62,8 @@ export default class Shells{
             '/api/docline',
             { optics:payload.optics, params:payload.params }
           ),
-          itemLoader: (key)=>axios.get(`/api/documentLine/${key}`),
+          itemLoader: (key)=>axios.get(`/api/docline/${key}`),
+          updateLoader: (type, item) => axios.post(`/api/docline/${item.id}`, item),
           ttl: 3600e3*24,
           cache: [],
           cacheSets: [],
@@ -73,9 +75,11 @@ export default class Shells{
           id:{show:false, hidden: true, sortable: false, card: false, label: "ID", order: 1000},
           good_id: { label: 'Товар', order: 10,
             html: row => row.good.product.name,
-            to: row => { return { name: 'item', params: { type: 'Product', id: row.id } } },
+            to: row => { return { name: 'item', params: { type: 'Product', id: row.good.product.id } } },
           },
-          quantity: { label: 'Количество', order: 20, },
+          quantity: { label: 'Количество', order: 20,
+            editor: integerEditor,
+          },
           price_without_vat: { label: 'Цена без НДС', order: 30,
             html: item => item.price_without_vat.toFixed(2)
           },
@@ -105,6 +109,7 @@ export default class Shells{
             `/api/invoice`,
             {optics:payload.optics, params:payload.params}),
           itemLoader: (key)=>axios.get(`/api/invoice/${key}`),
+          updateLoader: (type, item) => axios.post(`/api/invoice/${item.id}`, item),
           ttl: 3600e3*24,
           cache: [],
           cacheSets: [],
