@@ -1,82 +1,57 @@
 import _ from 'lodash';
 import Sequelize from 'sequelize';
-import ModelService from './ModelService';
-import {
-    Currency,
-    Company,
-    Good,
-    InterStoreRoute,
-    Parameter,
-    ParameterValue,
-    Party,
-    Price,
-    Producer,
-    Product,
-    Store,
-} from '../models';
-import ParameterNameService from './ParameterNameService';
-import ProductService from './ProductService';
-import CompanyService from './CompanyService';
-import StoreService from './StoreService';
-import ExternalPriceService from './ExternalPriceService';
 
-export default class PriceService extends ModelService {
-    /**
-     *
-     */
-    _Op = Sequelize.Op;
+export default class PriceService {
+    constructor(db, cache) {
+        this.db = db;
+        this.cache = cache;
+    }
 
-    /**
-     * Product Template
-     * @type {{include: *[], as: string, model: *, required: boolean}}
-     * @private
-     */
-    _product = {
-        model: Product,
-        as: 'product',
-        required: true,
-        include: [
-            { model: Producer, as: 'producer', required: true },
-            {
-                model: Parameter,
-                as: 'parameters',
-                required: false,
-                include: [
-                    { model: ParameterValue, as: 'parameterValue' },
-                ],
-            },
-        ],
-    };
+    _productPrototype() {
+        const {
+            Product, Producer, Parameter, ParameterValue,
+        } = this.db.models;
+        return {
+            model: Product,
+            as: 'product',
+            required: true,
+            include: [
+                { model: Producer, as: 'producer', required: true },
+                {
+                    model: Parameter,
+                    as: 'parameters',
+                    required: false,
+                    include: [
+                        { model: ParameterValue, as: 'parameterValue' },
+                    ],
+                },
+            ],
+        };
+    }
 
-    /**
-     * Store template
-     * @type {{include: *[], as: string, model: *}}
-     * @private
-     */
-    _store = {
-        model: Store,
-        as: 'store',
-        where: { },
-        include: [
-            {
-                model: Company,
-                as: 'company',
-                required: true,
-                include: [
-                    { model: Party, as: 'party', required: true },
-                ],
-            },
-            {
-                model: InterStoreRoute,
-                as: 'fromRoutes',
-            },
-        ],
-
-    };
-
-    constructor() {
-        super(Price);
-        this._includes = [{ model: Currency, as: 'currency' }];
+    _storePrototype() {
+        const {
+            Store, Company, InterStoreRoute, Party,
+        } = this.db.models;
+        return {
+            model: Store,
+            as: 'store',
+            where: {},
+            include: [
+                {
+                    model: Company,
+                    as: 'company',
+                    required: true,
+                    include: [
+                        { model: Party, as: 'party', required: true },
+                    ],
+                },
+                {
+                    model: InterStoreRoute,
+                    as: 'fromRoutes',
+                },
+            ],
+        };
     }
 
     /**
@@ -90,26 +65,31 @@ export default class PriceService extends ModelService {
      */
     async searchByName(optics) {
         if (!optics || !optics.name || optics.name.length < 3) return [];
-        //
-        const searchName = ProductService.makeSearchName(optics.name);
-        this._product.where = { search_name: { [this._Op.substring]: searchName } };
+        const {
+            Company, Currency, Good, Price, Product, ParameterName, Store,
+        } = this.db.models;
+        const { Op } = Sequelize;
+        const searchName = Product.makeSearchName(optics.name);
+        const product = this._productPrototype();
+        product.where = { search_name: { [Op.substring]: searchName } };
         // eslint-disable-next-line no-underscore-dangle
-        const case_ = await (new ParameterNameService()).getByAlias('case');
-        _.find(this._product.include, { as: 'parameters' }).where = { parameter_name_id: case_.id };
+        const case_ = await ParameterName.getInstance({ alias: 'case' });
+        _.find(product.include, { as: 'parameters' }).where = { parameter_name_id: case_.id };
         //
         let { store } = optics;
         if (!store) {
-            const company = await (new CompanyService()).getByAlias('elcopro');
+            const company = await Company.getByAlias('elcopro');
             store = _.find(company.stores, { is_main: true });
         } else {
-            store = await (new StoreService()).getModel(store);
+            store = await Store.getInstance(store);
         }
-        _.find(this._store.include, { as: 'fromRoutes' }).where = { to_store_id: store.id, is_active: true };
+        const fromStore = this._storePrototype();
+        _.find(fromStore.include, { as: 'fromRoutes' }).where = { to_store_id: store.id, is_active: true };
         if (optics.online !== null && optics.online !== undefined) {
-            this._store.where.online = optics.online;
+            fromStore.where.online = optics.online;
         }
         if (optics.from_store_ids) {
-            this._store.where.id = { [this._Op.in]: optics.from_store_ids };
+            fromStore.where.id = { [Op.in]: optics.from_store_ids };
         }
         //
         const prices = await Price.findAll({
@@ -120,7 +100,7 @@ export default class PriceService extends ModelService {
                     as: 'good',
                     where: { is_active: true },
                     required: true,
-                    include: [this._store, this._product],
+                    include: [fromStore, product],
                 },
             ],
         });
@@ -161,34 +141,21 @@ export default class PriceService extends ModelService {
      * @returns {Promise<Array|*>}
      */
     async searchByNameOnStore(optics) {
-        const stors = new StoreService();
-        const storeInstance = await stors.getModel(optics.from_store);
-        const service = await ExternalPriceService.forCompany(storeInstance.company);
-        if (service) {
-            return service.searchByName(optics.name);
+        const { Store } = this.db.models;
+        const { services } = Store;
+        const storeInstance = await Store.getInstance(optics.from_store, 'withCompany');
+        const configCompany = _.find(services.config.companies, { inn: storeInstance.company.party.inn });
+        if (configCompany) {
+            const serviceName = Object
+                .keys(services.config.companies)
+                .find((key) => services.config.companies[key] === configCompany);
+            const service = services[serviceName];// get(serviceName);
+            if (service) {
+                return service.searchByName(optics.name);
+            }
         }
         return this.searchByName(
             { name: optics.name, from_store_ids: [storeInstance.id], store: optics.store },
         );
     }
-/*
-    searchByNameOnStore(optics) {
-        const stors = new StoreService()
-        stors.getInstance(optics.from_store)
-            .then(response=>{
-                ExternalPriceService.forCompany(storeInstance.company);
-            })
-            .catch(e=>{
-                console.log(e)
-            })
-        const service = await
-        if (service) {
-            return service.searchByName(optics.name);
-        }
-        return this.searchByName(
-            { name: optics.name, from_store_ids: [storeInstance.id], store: optics.store },
-        );
-    }
-
- */
 }

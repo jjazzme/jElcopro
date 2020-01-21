@@ -1,59 +1,55 @@
-'use strict';
-
 import axios from 'axios';
 import fs from 'fs';
 import unzipper from 'unzipper';
-
 import XLSX from 'xlsx';
-import { getData } from "../services/getRowColInXlsX";
 import _ from 'lodash';
-import { Currency, Parameter, Price } from "../models";
-import CompanyService from "../services/CompanyService";
-import ParameterNameService from "../services/ParameterNameService";
-import GoodService from "../services/GoodService";
-import ProducerService from "../services/ProducerService";
-import ProductService from "../services/ProductService";
-import ParameterValueService from "../services/ParameterValueService";
+import app from '../index';
+import { getXlsxData } from '../services/utils';
 
 module.exports.run = async () => {
+    const { logger, db, config } = app.services;
+    const {
+        Currency, Company, Good, Product, Producer, Parameter, ParameterName, ParameterValue, Price,
+    } = db.models;
     const start = new Date();
 
-    const response = await axios.get(global.gConfig.companies.compel.stores.main.url, {responseType: 'arraybuffer'});
+    const response = await axios.get(config.companies.compel.stores.main.url, { responseType: 'arraybuffer' });
     const directory = await unzipper.Open.buffer(response.data);
-    await new Promise( (resolve, reject) => {
+    await new Promise((resolve, reject) => {
         const file = fs.createWriteStream('./storage/COMPELDISTI3_ext_TI.dbf');
         directory.files[0]
             .stream()
             .pipe(file)
             .on('error', reject)
-            .on('finish', resolve)
+            .on('finish', resolve);
     });
 
-    console.log('downloading finish.');
+    logger.info({}, 'Compel downloading finish.');
 
     const workbook = await XLSX.readFile('./storage/COMPELDISTI3_ext_TI.dbf');
     const sheet = await workbook.Sheets[_.first(workbook.SheetNames)];
 
-    const from_row = 2;
-    const company = await (new CompanyService()).getByAlias('compel');
+    const fromRow = 2;
+    const company = await Company.getByAlias('compel');
     const store = _.find(company.stores, { is_main: true });
     const currency = await Currency.findOne({ where: { char_code: 'USD' } });
     // eslint-disable-next-line no-underscore-dangle
-    const case_ = await (new ParameterNameService()).getByAlias('case');
-    const good_service = new GoodService();
-
+    const case_ = await ParameterName.getInstance({ alias: 'case' });
     let product = {};
     let price = [];
     let cost = 0;
     let good = { store_id: store.id };
-    let good_additional = {};
+    let goodAdditional = {};
     let ballance = 0;
-    let case_value = undefined;
+    let caseValue;
+    let prices;
+    let j;
 
-    for (let z in sheet) {
+    // eslint-disable-next-line no-unused-vars
+    for (const z in sheet) {
         if (z[0] === '!') continue;
-        let {col, row, value} = getData(z, sheet);
-        if (row < from_row) continue;
+        const { col, row, value } = getXlsxData(z, sheet);
+        if (row < fromRow) continue;
         switch (col) {
         case 'A':
             good.code = value;
@@ -62,21 +58,19 @@ module.exports.run = async () => {
             product.name = value;
             break;
         case 'D':
-            const producer = await (new ProducerService())
-                .updateOrCreate({ name: value ? value : 'NONAME' });
-            product.producer_id = producer.id;
+            product.producer_id = (await Producer.getRightInstanceOrCreate({ name: value || 'NONAME' })).id;
             break;
         case 'E':
-            good_additional.pack = value;
+            goodAdditional.pack = value;
             break;
         case 'G':
             ballance = value;
             break;
         case 'R':
-            case_value = value;
+            caseValue = value;
             break;
         case 'X':
-            good_additional.multiply = value === 0 ? 1 : good_additional.pack;
+            goodAdditional.multiply = value === 0 ? 1 : goodAdditional.pack;
             break;
         case 'H':
         case 'J':
@@ -95,54 +89,68 @@ module.exports.run = async () => {
                     min: value === 0 ? 1 : value,
                     our_price: cost,
                     for_all_price: 0,
-                    currency_id: currency.id
+                    currency_id: currency.id,
                 });
                 cost = 0;
             }
             break;
         case 'AB':
-            //Update ir Create Good
-            good = await good_service.firstOrNew(good);
+            // Update ir Create Good
+            [good] = await Good.findOrBuild({ where: good });
             if (good.isNewRecord) {
-                product = await (new ProductService()).updateOrCreate(product);
-                good_additional.product_id = product.id;
-                good.set(good_additional);
+                product = await Product.getRightInstanceOrCreate(product);
+                goodAdditional.product_id = product.id;
+                good.set(goodAdditional);
             }
-            good.set({ ballance: ballance, is_active: true });
+            good.set({ ballance, is_active: true });
             good.changed('updatedAt', true);
-            good = await good_service.update(good);
-            //Update Case for Product
-            if (case_value) {
-                case_value = await (new ParameterValueService()).updateOrCreate(
-                    { name: case_value , parameter_name_id: case_.id }
+            await good.save();
+            // Update Case for Product
+            if (caseValue) {
+                caseValue = await ParameterValue.getRightInstanceOrCreate(
+                    { name: caseValue, parameter_name_id: case_.id },
                 );
                 await Parameter.findOrCreate({
                     where: { product_id: good.product_id, parameter_name_id: case_.id },
-                    defaults: { parameter_value_id: case_value.id }
+                    defaults: { parameter_value_id: caseValue.id },
                 });
             }
-            //Update prices
+            // Update prices
+            // eslint-disable-next-line no-plusplus
             for (let i = 0; i < price.length; i++) {
-                if ( i > 0 ) {
+                if (i > 0) {
                     price[i - 1].max = price[i].min - 1;
                 }
                 price[i].good_id = good.id;
             }
             price[price.length - 1].max = ballance;
-            await Price.destroy({ where: { good_id: good.id } });
-            await Price.bulkCreate(price);
+            prices = await Price.findAll({ where: { good_id: good.id } });
+            j = 0;
+            while (j < prices.length) {
+                if (j < price.length) {
+                    await prices[j].update(price[j]);
+                } else {
+                    await prices[j].destroy();
+                }
+                j += 1;
+            }
+            while (j < price.length) {
+                await Price.create(price[j]);
+                j += 1;
+            }
 
             product = {};
             price = [];
             cost = 0;
             good = { store_id: store.id };
-            good_additional = {};
+            goodAdditional = {};
             ballance = 0;
-            case_value = undefined;
-
+            caseValue = undefined;
+            break;
+        default:
             break;
         }
     }
-    const d = await good_service.disactivate(store.id, start);
-    console.log(d);
+    const d = await Good.disactivate(store.id, start);
+    logger.info({ count: d }, 'Goods from Compel was disactivated');
 };

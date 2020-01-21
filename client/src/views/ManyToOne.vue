@@ -59,6 +59,7 @@
 </script>
 
 <style scoped lang="less">
+
   @import "~@/less/_variables";
   h2{text-align: center;}
 </style>
