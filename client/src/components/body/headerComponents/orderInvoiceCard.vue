@@ -58,13 +58,9 @@
         //.then(doc => this.document=doc)
     },
     watch:{
-      /*
       id(n){
-        if (n) this.value.dataSource.getSourceById({ type: this.type, id: this.id });
-          //.then(doc => this.document = doc);
-        else this.document = null;
+        if (n) this.value.dataSource.getSourceById({ type: this.type, id: this.id, check: ['documentLines']  });
       },
-       */
     },
   }
 </script>
