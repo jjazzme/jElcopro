@@ -54,7 +54,8 @@ export default class ModelContoller {
     async modify(req) {
         let id = parseInt(req.params.id, 0);
         if (id) {
-            await this.Model.update(req.body, { where: { id } });
+            const model = await this.Model.findByPk(id);
+            await model.update(req.body);
         } else {
             id = (await this.Model.create(req.body)).id;
         }
