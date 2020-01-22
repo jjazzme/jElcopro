@@ -1,11 +1,14 @@
 import Document from './DocumentModel';
 
+const transitions = [
+    { name: 'toWork', from: 'formed', to: 'in_work' },
+    { name: 'unWork', from: 'in_work', to: 'formed' },
+    { name: 'close', from: 'in_work', to: 'closed' },
+];
 export default class TransferOut extends Document {
-    transitions = [
-        { name: 'toWork', from: 'formed', to: 'in_work' },
-        { name: 'unWork', from: 'in_work', to: 'formed' },
-        { name: 'close', from: 'in_work', to: 'closed' },
-    ];
+    transitions = transitions;
+
+    static transitions = transitions;
 
     /**
      * Transition 'toWork' for make TransferOut 'in_work' status

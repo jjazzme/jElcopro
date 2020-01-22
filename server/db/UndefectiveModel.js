@@ -1,11 +1,15 @@
 import Document from './DocumentModel';
 
+const transitions = [
+    { name: 'toWork', from: 'formed', to: 'in_work' },
+    { name: 'unWork', from: 'in_work', to: 'formed' },
+    { name: 'close', from: 'in_work', to: 'closed' },
+];
+
 export default class Undefective extends Document {
-    transitions = [
-        { name: 'toWork', from: 'formed', to: 'in_work' },
-        { name: 'unWork', from: 'in_work', to: 'formed' },
-        { name: 'close', from: 'in_work', to: 'closed' },
-    ];
+    transitions = transitions;
+
+    static transitions = transitions;
 
     // eslint-disable-next-line no-unused-vars
     async _toWorkTransition(params) {

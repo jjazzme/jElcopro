@@ -1,11 +1,15 @@
 import TransferOut from './TransferOutModel';
 
+const transitions = [
+    { name: 'toWork', from: 'formed', to: 'in_work' },
+    { name: 'unWork', from: 'in_work', to: 'formed' },
+    { name: 'close', from: 'in_work', to: 'closed' },
+];
+
 export default class MovementOut extends TransferOut {
-    transitions = [
-        { name: 'toWork', from: 'formed', to: 'in_work' },
-        { name: 'unWork', from: 'in_work', to: 'formed' },
-        { name: 'close', from: 'in_work', to: 'closed' },
-    ];
+    transitions = transitions;
+
+    static transitions = transitions;
 
     /**
      * Create TransferIn from Order with lines

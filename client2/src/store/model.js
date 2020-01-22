@@ -1,4 +1,5 @@
 import _ from 'lodash';
+const { axios } = window;
 
 const state = {
     name: '',
@@ -8,9 +9,10 @@ const state = {
 
 const getters = {
     NAME: state => state.name,
+    URL: state => `api2/${state.name}`,
     DATA: state => state.data,
     CACHE: state => (id) => {
-        if (_.isNumber(id)) return _.find(state.cache, { id })
+        if (_.isNumber(id)) return _.find(state.cache, { id });
         return state.cache
     }
 };
@@ -40,8 +42,15 @@ const mutations = {
 };
 
 let actions = {
-    GET_DATA() {
-
+    GET_DATA({ getters }, payload) {
+        return new Promise((resolve, reject) => {
+            axios
+                .get(getters.URL, { params: payload })
+                .then((response) => {
+                    resolve(response)
+                })
+                .catch((error) => reject(error));
+        });
     }
 };
 
