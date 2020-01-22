@@ -9,25 +9,27 @@
     </v-app-bar>
     <v-navigation-drawer v-model="drawer" absolute bottom temporary>
       <v-list>
-        <v-list-item :to="{ name: 'home'}">
+        <v-list-item :to="{ name: 'home' }">
           <v-list-item-content>
             <v-list-item-title>Home</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-        <v-list-item :to="{ name: 'about'}">
+        <v-list-item :to="{ name: 'producers' }">
           <v-list-item-content>
-            <v-list-item-title>About</v-list-item-title>
+            <v-list-item-title>Производители</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-        <v-list-item :to="{ name: 'about2'}">
+        <v-list-item :to="{ name: 'about' }">
           <v-list-item-content>
-            <v-list-item-title>About 2</v-list-item-title>
+            <v-list-item-title>About</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
     <v-content>
-      <router-view />
+      <v-card class="my-2 mx-2">
+        <router-view />
+      </v-card>
     </v-content>
   </v-app>
 </template>
