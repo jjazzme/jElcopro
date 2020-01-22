@@ -32,6 +32,7 @@
         tableRow: null,
         isLinear: true,
         width: 0,
+        getSourceAmount: 25,
       }
     },
     computed:{
@@ -60,6 +61,7 @@
       getSource() {
         return _.debounce(
           () => {
+
             const optics = this.value.dataSource.getBackSensitiveOptics;
             if (!optics) return;
 
@@ -76,6 +78,9 @@
     },
     methods:{
       calculateTable(){
+
+        //
+
         let waitTable = () => {
           _.delay(()=>{
             if (!this.$refs.body) {
@@ -93,7 +98,7 @@
               _.forEach(row.querySelectorAll(':scope > *'), (cell, ind) => {
                 const top =  cell.getBoundingClientRect().top - cell.parentElement.getBoundingClientRect().top;
                 const contentCell = cell.querySelector(':scope > .t-content');
-                let width = contentCell.scrollWidth +10; //TODO: PADDING
+                let width = contentCell.getBoundingClientRect().width + 4;
                 const name = $(cell).attr('data-field');
                 if ( width < 50) width = 50;
                 if (tableRow[ind]) {
@@ -104,12 +109,12 @@
             });
 
             this.$set(this, 'tableRow',  tableRow);
-            this.calculateAmount = this.calculateAmount * 2;
 
             this.$set(this, 'isLinear', this.$refs.body.$el.scrollWidth === this.$refs.body.$el.clientWidth);
             this.$set(this, 'width', this.$refs.body.$el.clientWidth);
 
-            //if (this.calculateAmount < 100) waitTable();
+            //this.calculateAmount = this.calculateAmount * 2;
+            //if (this.calculateAmount < 200) waitTable();
             //else this.calculateAmount = 25;
           }, this.calculateAmount)
         };
@@ -122,10 +127,13 @@
     },
     created(){
       window.addEventListener("resize", this.onResize);
-      this.calculateTable();
-      this.value.viewport.tableRow = {};
+      //this.calculateTable();
+      //this.value.viewport.tableRow = {};
       const queryOptics = this.value.dataSource.getOpticsObject(this.$route.query.optics);
       if (queryOptics) this.$set(this.value.dataSource.getTable.optics, 'value', queryOptics);
+
+      this.$set(this, 'isLinear', true);
+      this.$set(this, 'tableRow', null);
       this.getSource();
     },
     destroyed(){
@@ -133,11 +141,15 @@
     },
     watch:{
       optics(n){
+        //this.calculateTable();
         if(n !== this.$route.query.optics) this.$router.replace({ query: { optics: n } });
+
+        this.$set(this, 'isLinear', true);
+        this.$set(this, 'tableRow', null);
         this.getSource();
       },
       type(n){
-        this.calculateTable();
+        //this.calculateTable();
         this.value.dataSource.type = n;
         let queryOptics = this.value.dataSource.getOpticsObject(this.$route.query.optics);
         if (queryOptics) this.$set(this.value.dataSource.getTable.optics, 'value', queryOptics);
@@ -145,6 +157,9 @@
           queryOptics =JSON.stringify(this.value.dataSource.getTable.optics.value);
           if(queryOptics !== this.$route.query.optics) this.$router.replace({ query: { optics: queryOptics } });
         }
+
+        this.$set(this, 'isLinear', true);
+        this.$set(this, 'tableRow', null);
         this.getSource();
       },
     },

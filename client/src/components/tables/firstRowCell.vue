@@ -91,6 +91,7 @@
     order:-1000000;
     .t-content{
       display: inline-block;
+      white-space: nowrap;
     }
   }
 </style>

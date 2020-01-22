@@ -165,7 +165,7 @@ export default class Shells{
             filters:[
               {type: 'search', _placeholder:'поиск 1'},
             ]},
-          documentLines:{label: 'Строки счёта', shell: 'DocumentLine',
+          documentLines:{label: 'Строки счёта', shell: 'DocumentLine', show: false,
             html: row => { return `Количество строк: ${ row.documentLines ? row.documentLines.length : '' }` },
             to: row => { return {name:'manyToOne', params:{ parentType: 'Invoice', id: row.id, field: 'documentLines' } } },
           }
