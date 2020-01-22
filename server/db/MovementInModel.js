@@ -1,12 +1,16 @@
 import _ from 'lodash';
 import TransferIn from './TransferInModel';
 
+const transitions = [
+    { name: 'toWork', from: 'formed', to: 'in_work' },
+    { name: 'unWork', from: 'in_work', to: 'formed' },
+    { name: 'close', from: 'in_work', to: 'closed' },
+];
+
 export default class MovementIn extends TransferIn {
-    transitions = [
-        { name: 'toWork', from: 'formed', to: 'in_work' },
-        { name: 'unWork', from: 'in_work', to: 'formed' },
-        { name: 'close', from: 'in_work', to: 'closed' },
-    ];
+    transitions = transitions;
+
+    static transitions = transitions;
 
     /**
      * Create MovementIn from MovementOut with lines

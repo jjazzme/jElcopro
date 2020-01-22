@@ -4,9 +4,7 @@ import App from './App.vue'
 import vuetify from './plugins/vuetify';
 import router from './router'
 import store from './store'
-import axios from 'axios'
 
-axios.get('api2/producer/1');
 
 Vue.config.productionTip = false;
 

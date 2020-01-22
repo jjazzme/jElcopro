@@ -10,6 +10,7 @@ import OrderController from '../controller/OrderController';
 import GoodController from '../controller/GoodController';
 import DocumentLineController from '../controller/DocumentLineController';
 import ProductController from '../controller/ProductController';
+import TransitionController from '../controller/TransitionController';
 
 export default function ApiRoutes(services) {
     const apiRouter = new ApiRouter(services.db);
@@ -30,6 +31,7 @@ export default function ApiRoutes(services) {
     apiRouter.resource('store', new ApiController(services.db.models.Store));
     apiRouter.resource('transferIn', new ApiController(services.db.models.TransferIn));
     apiRouter.resource('transferOut', new ApiController(services.db.models.TransferOut));
-    apiRouter.resource('user', UserController); //
+    apiRouter.resource('user', UserController);
+    apiRouter.resource('transition', new TransitionController(services.db));
     return apiRouter.router;
 }
