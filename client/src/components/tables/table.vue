@@ -1,5 +1,8 @@
 <template>
-  <div>
+  <div
+    class="t-table"
+    ref="table"
+  >
     <component
       v-bind:is="value.dataSource.getShell.opticsConstructor"
       v-model="value"
@@ -8,8 +11,7 @@
     />
     <Body
       v-model="value"
-      ref="table"
-      class="t-table"
+      ref="body"
       :gtCalculated="gtCalculated"
       :isLinear="isLinear"
     />
@@ -38,10 +40,16 @@
           return null;
         } else {
           let ret = 'grid-template-columns: ';
-          const flat = this.tableRow.map(item => item.width);
-          const max = Math.max.apply(null, flat);
-          _.forEach(flat, width => {
-            ret += width === max && ret.indexOf('auto') < 0 ? 'auto ' : `${width}px `
+          //const flat = this.tableRow.map(item => item.width);
+          //const max = Math.max.apply(null, flat);
+          _.forEach(this.tableRow, cell => {
+            if(cell.name === '_firstCell') {
+              ret += `${cell.width}px `;
+            } else {
+              ret += `minmax(${cell.width}px, auto) `;
+            }
+
+            //ret += width === max && ret.indexOf('auto') < 0 ? 'auto ' : `${width}px `
           });
           return ret;
         }
@@ -70,12 +78,13 @@
       calculateTable(){
         let waitTable = () => {
           _.delay(()=>{
-            if (!this.$refs.table) {
+            if (!this.$refs.body) {
               waitTable();
               return;
             }
-            const table = this.$refs.table.$el;
-            if (table.tagName !== 'ARTICLE') {
+            const body = this.$refs.body.$el;
+            const table = this.$refs.table;
+            if (body.tagName !== 'ARTICLE') {
               waitTable();
               return;
             }
@@ -83,33 +92,25 @@
             _.forEach(table.querySelectorAll('div.t-row'), row => {
               _.forEach(row.querySelectorAll(':scope > *'), (cell, ind) => {
                 const top =  cell.getBoundingClientRect().top - cell.parentElement.getBoundingClientRect().top;
-                let width = cell.querySelector(':scope > .t-content').scrollWidth + 1;
+                const contentCell = cell.querySelector(':scope > .t-content');
+                let width = contentCell.scrollWidth +10; //TODO: PADDING
+                const name = $(cell).attr('data-field');
                 if ( width < 50) width = 50;
                 if (tableRow[ind]) {
                   if (tableRow[ind].width < width) tableRow[ind].width = width;
                   if (tableRow[ind].top < top) tableRow[ind].top = top;
-                } else tableRow.push({ width, top });
+                } else tableRow.push({ width, top, name });
               })
             });
 
             this.$set(this, 'tableRow',  tableRow);
             this.calculateAmount = this.calculateAmount * 2;
 
-            this.$set(this, 'isLinear', this.$refs.table.$el.scrollWidth === this.$refs.table.$el.clientWidth);
-            this.$set(this, 'width', this.$refs.table.$el.clientWidth);
+            this.$set(this, 'isLinear', this.$refs.body.$el.scrollWidth === this.$refs.body.$el.clientWidth);
+            this.$set(this, 'width', this.$refs.body.$el.clientWidth);
 
-            if (this.calculateAmount < 200) waitTable();
-            else this.calculateAmount = 25;
-            /*
-                          this.$set(this.value.viewport, 'tableRow', tableRow);
-            this.calculateAmount = this.calculateAmount * 2;
-            if ($(this.$refs.table.$el).hasClass('t-opacity') && this.calculateAmount > 200) $(this.$refs.table.$el).removeClass('t-opacity');
-            const tops = _.map(tableRow, cell => cell.top);
-            this.$set(this.value.viewport, 'tableRowIsLinear', Math.min.apply(Math, tops) === Math.max.apply(Math, tops));
-
-            if (this.calculateAmount < 500) waitTable();
-            else this.calculateAmount = 25;
-            */
+            //if (this.calculateAmount < 100) waitTable();
+            //else this.calculateAmount = 25;
           }, this.calculateAmount)
         };
 
@@ -151,5 +152,12 @@
 </script>
 
 <style scoped lang="less">
+  .t-table{
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+    width: 100%;
+    position: absolute;
 
+  }
 </style>

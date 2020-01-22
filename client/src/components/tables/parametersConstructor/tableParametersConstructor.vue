@@ -7,17 +7,31 @@
       :style="gtCalculated"
     >
       <div
-        class="t-fr-cell"
+        class="t-fr-cell t-cell"
         v-if="firstShow"
-      >first</div>
+        data-field="_firstCell"
+      >
+        <div class="t-content">
+          first
+        </div>
+      </div>
 
       <div
         v-for="(cell, name) in value.dataSource.getShell.initial"
         v-if="!cell.hidden && (cell.show === undefined || cell.show === true || ( cell.show && cell.show.list === true ))"
         :key="name"
-        v-html="cell.label"
         :style="`order: ${ cell.order }`"
-      />
+        class="t-cell"
+        :data-field="name"
+      >
+        <div class="t-label">
+
+        </div>
+        <div
+          class="t-content"
+          v-html="cell.label"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -91,7 +105,27 @@
       >*{
         background: @table-header-bg;
         color: @table-header-text;
-        padding: 5px;
+        //padding: 5px;
+      }
+      .t-cell{
+        white-space: nowrap;
+        display: inline-block;
+        .t-content{
+          display: inline-block;
+          a{
+            border: none;
+            text-decoration: underline;
+            color: navy;
+          }
+          .t-label{
+            font-size: 10px;
+            white-space: nowrap;
+          }
+          .t-value{
+            &::v-deep svg{height: 20px}
+            text-align: left;
+          }
+        }
       }
     }
   }
