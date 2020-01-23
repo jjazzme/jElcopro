@@ -1,11 +1,12 @@
 <template>
   <div
-    class="t-cell"
+    :class="{ 't-cell': true, 't-editable': cell.editor }"
     :style="calculatedStyle"
     :data-field="name"
     @contextmenu="editor"
   >
     <div class="t-content">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path fill="currentColor" d="M402.6 83.2l90.2 90.2c3.8 3.8 3.8 10 0 13.8L274.4 405.6l-92.8 10.3c-12.4 1.4-22.9-9.1-21.5-21.5l10.3-92.8L388.8 83.2c3.8-3.8 10-3.8 13.8 0zm162-22.9l-48.8-48.8c-15.2-15.2-39.9-15.2-55.2 0l-35.4 35.4c-3.8 3.8-3.8 10 0 13.8l90.2 90.2c3.8 3.8 10 3.8 13.8 0l35.4-35.4c15.2-15.3 15.2-40 0-55.2zM384 346.2V448H64V128h229.8c3.2 0 6.2-1.3 8.5-3.5l40-40c7.6-7.6 2.2-20.5-8.5-20.5H48C21.5 64 0 85.5 0 112v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V306.2c0-10.7-12.9-16-20.5-8.5l-40 40c-2.2 2.3-3.5 5.3-3.5 8.5z"></path></svg>
       <div
         v-html="cell.label"
         class="t-label"
@@ -26,7 +27,7 @@
       />
       <div
         v-else
-        :class="`t-value ${cell.class ? cell.class : ''}`"
+        :class="`t-value ${ cell.class ? cell.class : '' }`"
         v-html="cell.html ? cell.html(row) : row[name]"
       />
     </div>
@@ -43,6 +44,7 @@
       optics: null,
       width: null,
       bodyWidth: null,
+      bodyHeight: null,
       source: null,
     },
     computed:{
@@ -61,9 +63,6 @@
         if(this.cell.editor){
           if (this.source.editor.component) {
             this.source.editor.component = null;
-            this.source.editor.initiator = null;
-            this.source.editor.row = null;
-            this.source.editor.name = null;
           } else {
             this.source.editor.component = this.cell.editor;
             this.source.editor.initiator = e.target;
@@ -71,9 +70,10 @@
             this.source.editor.name = this.name;
 
             const rect = e.target.getBoundingClientRect();
-            this.source.editor.top = rect.top + rect.height + 5;
+            this.source.editor.top = rect.bottom + 5;
+            this.source.editor.bottom = this.bodyHeight - rect.top - 5;
             this.source.editor.left = rect.left;
-
+            this.source.editor.right = this.bodyWidth - rect.right;
           }
         }
       },
@@ -87,7 +87,9 @@
   .t-cell{
     white-space: nowrap;
     display: inline-block;
+    position: relative;
     .t-content{
+      >svg{display: none}
       display: inline-block;
       a{
         border: none;
@@ -101,6 +103,19 @@
       .t-value{
         &::v-deep svg{height: 20px}
         text-align: left;
+      }
+    }
+  }
+  .t-editable{
+    cursor: alias;
+    .t-content {
+      >svg{
+        display: block;
+        width: 12px;
+        position: absolute;
+        right: 10px;
+        opacity: 0.5;
+        color: red;
       }
     }
   }

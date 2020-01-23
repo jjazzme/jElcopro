@@ -1,6 +1,6 @@
 <template>
   <div
-    :style="`top: ${value.dataSource.editor.top}px; left: ${value.dataSource.editor.left}px`"
+    :style="style"
     class="t-e-cover"
   >
     <div
@@ -9,6 +9,7 @@
     >
       x
     </div>
+
     <component
       v-bind:is="value.dataSource.editor.component"
       :source="value.dataSource"
@@ -22,6 +23,15 @@
     name: "editorCover",
     props: {
       value: null,
+    },
+    computed:{
+      style(){
+        let vertical = 'top';
+        let horizontal = 'right';
+        let vVal = this.value.dataSource.editor[vertical];
+        let hVal = this.value.dataSource.editor[horizontal];
+        return `${ vertical }: ${ vVal }px; ${ horizontal }: ${ hVal }px`;
+      }
     },
     methods:{
       close(){

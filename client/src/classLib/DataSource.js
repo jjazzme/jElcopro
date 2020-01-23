@@ -12,22 +12,25 @@ import {Optics} from "./DataSource/Optics";
 export default class DataSource{
   refsOrder = [
     {
+      type: 'Transition',
+      errorAddText: 'переходов документа',
+      getSource: () => this.getSourceById({type: 'Transition', id: 0})
+    },
+    {
       type: 'Store',
-      //targets: [(val) => { this.priceList.references.stores = val }],
       errorAddText: 'складов',
       after: [
         {
           type: 'Currency',
-          //targets: [(val) => { this.priceList.references.currencies = val }],
           errorAddText: 'валют',
           after: [
             {
               type: 'CurrencyRateService',
-              //targets: [(val) => { this.priceList.references.currencyRates = val }],
               errorAddText: 'курсов валют'
             },
           ]},
-      ]},
+      ]
+    },
   ];
   constructor(store, optics, classSourceActualTTL, debounceAmount){
     this.editor = {
@@ -191,36 +194,49 @@ export default class DataSource{
   loadReferences(){
     const refLoader = (refs) => {
       _.forEach(refs, item=>{
-        this.getSourceByOptics({ type: item.type })
-          .then((ans)=> {
-            if (item.type === 'Store') {
-              this.tables.PriceList.optics.value.selectedStores = ans.rows.map(store=>{ if(!store.online) return store.id }).filter(id => id);
-              this.tables.PriceList.loadProcessor.stores = ans.rows;
-            } else if (item.type === 'Currency') {
-              this.tables.PriceList.loadProcessor.currency = ans.rows;
-            } else if (item.type === 'CurrencyRateService') {
-              this.tables.PriceList.loadProcessor.currencyRates = ans;
-            }
-          })
-          .finally(()=>{
-            // последовательность
-            if(item.after) refLoader(item.after)
-          });
-        /*
-                  .then(()=> {
-            _.forEach(item.targets, target => {
-              const table = this.getTableByType(item.type);
-              target(table);
-              if (item.type === 'Store') {
-                let selectedStores = table.map(store=>{ if(!store.online) return store.id }).filter(id => id);
-                this.priceList.selectedStores = selectedStores;
+        if(item.getSource){
+          item.getSource()
+            .then(ans => {
+              if (item.type === 'Transition') {
+                _.forEach(ans, row => {
+                  const name = Object.keys(row)[0];
+                  const transitions = row[Object.keys(row)[0]];
+                  if(!this.shells.template[name]) this.shells.template[name] = {};
+
+                  const statuses = [];
+                  _.forEach(transitions, transition => {
+                    if(!statuses.includes(transition.from)) statuses.push(transition.from)
+                  });
+                  if(!statuses.includes(_.last(transitions).to)) statuses.push(_.last(transitions).to);
+
+                  _.forEach(transitions, transition => {
+                    const fromInd = statuses.indexOf(transition.from);
+                    const toInd = statuses.indexOf(transition.to);
+                    transition.vector = toInd - fromInd;
+                  });
+
+                  const shell = this.shells.template[name];
+                  shell.transition = transitions;
+                })
               }
             });
-          })
-          .catch(err=>{
-            console.log(err);
-          })
-         */
+        } else{
+          this.getSourceByOptics({ type: item.type })
+            .then((ans)=> {
+              if (item.type === 'Store') {
+                this.tables.PriceList.optics.value.selectedStores = ans.rows.map(store=>{ if(!store.online) return store.id }).filter(id => id);
+                this.tables.PriceList.loadProcessor.stores = ans.rows;
+              } else if (item.type === 'Currency') {
+                this.tables.PriceList.loadProcessor.currency = ans.rows;
+              } else if (item.type === 'CurrencyRateService') {
+                this.tables.PriceList.loadProcessor.currencyRates = ans;
+              }
+            })
+            .finally(()=>{
+              // последовательность
+              if(item.after) refLoader(item.after)
+            });
+        }
       });
     };
     refLoader(this.refsOrder);
@@ -261,8 +277,8 @@ export default class DataSource{
 
     });
   }
-  updateItem({ type, item }){
-    this.store.dispatch('Binder/updateItem', { type, item })
+  updateItem({ type, item, returnType }){
+    this.store.dispatch('Binder/updateItem', { type, item, returnType })
   }
 
 }

@@ -10,6 +10,7 @@ import tableFooter from "../../components/body/footerComponents/tableFooter";
 import tableParametersConstructor from "../../components/tables/parametersConstructor/tableParametersConstructor";
 import integerEditor from "../../components/editors/integer";
 import floatEditor from "../../components/editors/float";
+import documentStatus from "../../components/editors/documentStatus";
 
 export default class Shells{
   constructor(limit){
@@ -56,6 +57,7 @@ export default class Shells{
         },
         optics: { limit: -1, page: 1 }
       },
+      Defective:{},
       DocumentLine:{
         binder: {
           key: item=>item.id,
@@ -107,91 +109,6 @@ export default class Shells{
         },
         optics: { limit: -1, page: 1 }
       },
-      Invoice:{
-        binder:{
-          key: item=>item.id,
-          byOpticsLoader: (payload)=>axios.put(
-            `/api/invoice`,
-            {optics:payload.optics, params:payload.params}),
-          itemLoader: (key)=>axios.get(`/api/invoice/${key}`),
-          updateLoader: (type, item) => axios.post(`/api/invoice/${item.id}`, item),
-          ttl: 3600e3*24,
-          cache: [],
-          cacheSets: [],
-        },
-        initial:{
-          id:{show:{item:true, list:false}, sortable: false, card: false, label: "ID", order: 100},
-          date:{ to: row => { return {name:'item', params:{ type: 'Invoice', id: row.id} } },
-            editor: 'calendar', show: true, order:10, sortable: true, label: 'Дата', card: false,
-            html: row=>Intl.DateTimeFormat(
-              'ru-RU',
-              {
-                year: '2-digit', month: 'numeric', day: 'numeric',
-                hour: 'numeric', minute: 'numeric',
-                hour12: false
-              }).format(new Date(row.date)).replace(',',''),
-            filters: [{type: 'calendar_fromto', from:'', to:''}]
-          },
-          number:{to: row => { return { name:'item', params:{ type: 'Invoice', id: row.id } } },
-            editor: 'integer', show: true, order:20, sortable: true, label: 'Номер', card: false,
-            filters: [
-              {type: 'integer_fromto', from:'', to:''},
-              {type: 'search', _placeholder:'поиск 1'},
-            ]},
-          sellerable:{show:false, shell: 'Company', key: item => item.id},
-          sellerable_id:{show: true, order:30,
-            html: row => row.sellerable.party.name, sortable: true, label: 'Продавец',
-            to: row => { return {name:'item', params:{ type: 'Company', id: row.sellerable_id} } },
-            filters:[
-              {type: 'search', _placeholder:'поиск 1'},
-              {type: 'search', _placeholder:'поиск 2'},
-            ]},
-          buyerable_id:{show: true, order:40, html: row=>row.buyerable.party.name, sortable: true, label: 'Покупатель',
-            filters:[
-              {type: 'search', _placeholder:'поиск 1'},
-              {type: 'search', _placeholder:'поиск 2'},
-            ]},
-          store_id:{show: true, order:50, html: row=>row.store.name, sortable: true, label: 'Склад',
-            filters:[
-              {type: 'search', _placeholder:'поиск 1'},
-            ]},
-          currency_id:{show: true, order:60, html: row=>row.currency.name, sortable: true, label: 'Валюта',
-            filters:[
-              {type: 'search', _placeholder:'поиск 1'},
-            ]},
-          amount_with_vat:{show: true, order:70, sortable: true, label: 'Сумма', html: row => row.amount_with_vat.toFixed(2)},
-          status_id:{show: true, order: 75, sortable: true, label: 'Статус', html: row=>{ return {formed: 'Формируется', reserved: 'Резерв', in_work: 'В работе'}[row.status_id] } },
-          user_id:{show: true, order:80, html: row=>row.user.name, sortable: true, label: 'Автор',
-            filters:[
-              {type: 'search', _placeholder:'поиск 1'},
-            ]},
-          documentLines:{label: 'Строки счёта', shell: 'DocumentLine', show: false,
-            html: row => { return `Количество строк: ${ row.documentLines ? row.documentLines.length : '' }` },
-            to: row => { return {name:'manyToOne', params:{ parentType: 'Invoice', id: row.id, field: 'documentLines' } } },
-          }
-        },
-        h1: item => `Счёт №${ item.number} от ${Intl.DateTimeFormat('ru-RU').format(new Date(item.date)) } для ${ item.sellerable.party.name }`,
-        controller:{
-          scopes:['withSellerable', 'withBuyerable', 'withStore', 'withCurrency', 'withSum', 'withUser', 'defaultScope'],
-          /*
-          aliases:{
-            sellerable_id: {path: 'Company.Party', as:'sellerable.party', column: 'name'},
-            buyerable_id: {path:'Company.Party', as:'buyerable', column: 'name'},
-            store_id: {path: 'Store', column: 'name'},
-            currency_id: {path: 'Currency', column: 'name'},
-            user_id: {path: 'User', column: 'name'},
-            sum: {path: 'DocumentLine', as: 'documentLines'}
-          },
-          filters:{
-            document_type_id: [{type: '=', value: 'invoice'}],
-          }
-           */
-        },
-        faIcon: {prefix: "fas", name: "file-invoice-dollar"},
-        name: {one: 'счёт', many: 'счета', cardof: 'счёта',},
-        menu: 1040,
-        optics: { page: 1, sorters: {}, filters: {}, items: [], limit: limit },
-      },
       Good:{
         binder: {
           key: item => item.id,
@@ -221,6 +138,97 @@ export default class Shells{
         pack: {},
         multiply: {}
       },
+      Invoice:{
+        binder:{
+          key: item=>item.id,
+          byOpticsLoader: (payload)=>axios.put(
+            `/api/invoice`,
+            {optics:payload.optics, params:payload.params}),
+          itemLoader: (key)=>axios.get(`/api/invoice/${key}`),
+          updateLoader: (type, item) => axios.post(`/api/invoice/${item.id}`, item),
+          ttl: 3600e3*24,
+          cache: [],
+          cacheSets: [],
+        },
+        initial:{
+          id:{show:{item:true, list:false}, sortable: false, card: false, label: "ID", order: 100},
+          date:{ to: row => { return {name:'item', params:{ type: 'Invoice', id: row.id} } },
+            editor: 'calendar', show: true, order:10, sortable: true, label: 'Дата', card: false,
+            html: row=>Intl.DateTimeFormat(
+              'ru-RU',
+              {
+                year: '2-digit', month: 'numeric', day: 'numeric',
+                hour: 'numeric', minute: 'numeric',
+                hour12: false
+              }).format(new Date(row.date)).replace(',',''),
+            filters: [{type: 'calendar_fromto', from:'', to:''}]
+          },
+          number:{to: row => { return { name:'item', params:{ type: 'Invoice', id: row.id } } },
+            show: true, order:20, sortable: true, label: 'Номер', card: false,
+            filters: [
+              {type: 'integer_fromto', from:'', to:''},
+              {type: 'search', _placeholder:'поиск 1'},
+            ]},
+          sellerable:{show:false, shell: 'Company', key: item => item.id},
+          sellerable_id:{show: true, order:30,
+            html: row => row.sellerable.party.name, sortable: true, label: 'Продавец',
+            to: row => { return {name:'item', params:{ type: 'Company', id: row.sellerable_id} } },
+            filters:[
+              {type: 'search', _placeholder:'поиск 1'},
+              {type: 'search', _placeholder:'поиск 2'},
+            ]},
+          buyerable_id:{show: true, order:40, html: row=>row.buyerable.party.name, sortable: true, label: 'Покупатель',
+            filters:[
+              {type: 'search', _placeholder:'поиск 1'},
+              {type: 'search', _placeholder:'поиск 2'},
+            ]},
+          store_id:{show: true, order:50, html: row=>row.store.name, sortable: true, label: 'Склад',
+            filters:[
+              {type: 'search', _placeholder:'поиск 1'},
+            ]},
+          currency_id:{show: true, order:60, html: row=>row.currency.name, sortable: true, label: 'Валюта',
+            filters:[
+              {type: 'search', _placeholder:'поиск 1'},
+            ]},
+          amount_with_vat:{show: true, order:70, sortable: true, label: 'Сумма', html: row => row.amount_with_vat.toFixed(2)},
+          status_id:{show: true, order: 75, sortable: true, label: 'Статус',
+            html: row=>{ return {formed: 'Формируется', reserved: 'Резерв', in_work: 'В работе'}[row.status_id] },
+            editor: documentStatus,
+          },
+          user_id:{show: true, order:80, html: row=>row.user.name, sortable: true, label: 'Автор',
+            filters:[
+              {type: 'search', _placeholder:'поиск 1'},
+            ]},
+          documentLines:{label: 'Строки счёта', shell: 'DocumentLine', show: {item: true},
+            html: row => { return `Количество строк: ${ row.documentLines ? row.documentLines.length : '' }` },
+            to: row => { return {name:'manyToOne', params:{ parentType: 'Invoice', id: row.id, field: 'documentLines' } } },
+          }
+        },
+        h1: item => `Счёт №${ item.number} от ${Intl.DateTimeFormat('ru-RU').format(new Date(item.date)) } для ${ item.sellerable.party.name }`,
+        controller:{
+          scopes:['withSellerable', 'withBuyerable', 'withStore', 'withCurrency', 'withSum', 'withUser', 'defaultScope'],
+          /*
+          aliases:{
+            sellerable_id: {path: 'Company.Party', as:'sellerable.party', column: 'name'},
+            buyerable_id: {path:'Company.Party', as:'buyerable', column: 'name'},
+            store_id: {path: 'Store', column: 'name'},
+            currency_id: {path: 'Currency', column: 'name'},
+            user_id: {path: 'User', column: 'name'},
+            sum: {path: 'DocumentLine', as: 'documentLines'}
+          },
+          filters:{
+            document_type_id: [{type: '=', value: 'invoice'}],
+          }
+           */
+        },
+        faIcon: {prefix: "fas", name: "file-invoice-dollar"},
+        name: {one: 'счёт', many: 'счета', cardof: 'счёта',},
+        menu: 1040,
+        optics: { page: 1, sorters: {}, filters: {}, items: [], limit: limit },
+      },
+      Movement:{},
+      MovementIn:{},
+      MovementOut:{},
       Order:{
         binder:{
           key: item=>item.id,
@@ -614,6 +622,18 @@ export default class Shells{
         faIcon: {prefix: "fas", name:"file-export"},
         name: {one: 'исх. упд', many: 'исх. упд', cardof: 'исходящего упд',},
         optics: { page: 1, sorters: {}, filters: {}, items: [], limit: limit },
+      },
+      Transition:{
+        binder: {
+          key: item=>item.id,
+          itemLoader: (key)=>axios.put(`/api/transition`),
+          updateLoader: (type, item) => axios.post(`/api/transition/${item.id}`, item),
+          // item = { id: 100, transion: 'reserve', Model: 'Invoice' }
+          ttl: 3600e3*24,
+          cache:[],
+          cacheSets: [],
+        },
+        optics: { limit: -1, page: 1 } // для возврата через put всей таблицы
       },
       User: {
         binder: {
