@@ -3,8 +3,17 @@ export default class ApiContollerClassic {
         this.Model = Model;
     }
 
-    async index() {
-        return this.Model.findAll();
+    async index(req) {
+        const {
+            page, itemsPerPage, sortBy, sortDesc,
+        } = req.query;
+        let limit;
+        if (!itemsPerPage) limit = 15;
+        else if (itemsPerPage === '-1') limit = 0;
+        else limit = parseInt(itemsPerPage, 0);
+        const offset = (page - 1) * limit;
+        const order = !sortBy ? [] : sortBy.map((sort, i) => ([sort, sortDesc[i] === 'false' ? 'ASC' : 'DESC']));
+        return this.Model.findAndCountAll({ order, offset, limit });
     }
 
     async get(req) {

@@ -4,6 +4,16 @@ import _ from 'lodash'
 let state = _.cloneDeep(model.state);
 
 state.name = 'producer';
+state.headers = [
+    {
+        text: 'Наименование',
+        value: 'name',
+    },
+    {
+        text: 'Сайт',
+        value: 'site'
+    },
+];
 
 export default {
     namespaced: true,

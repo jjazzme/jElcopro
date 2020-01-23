@@ -28,7 +28,9 @@
     </v-navigation-drawer>
     <v-content>
       <v-card class="my-2 mx-2">
-        <router-view />
+        <keep-alive>
+          <router-view />
+        </keep-alive>
       </v-card>
     </v-content>
   </v-app>
