@@ -10,9 +10,12 @@
         <template v-slot:body.prepend>
             <tr>
                 <td>
-                    <v-text-field v-model="options.filters.producerName" label="Продюсер"/>
+                    <v-text-field v-model="options.filters.name" label="введите наименование"/>
                 </td>
                 <td/>
+                <td>
+                    <producer-select v-model="options.filters.right_producer_id" multiple/>
+                </td>
             </tr>
         </template>
         <template v-slot:item.site="{ item }">
@@ -22,25 +25,30 @@
 </template>
 
 <script>
+    import _ from 'lodash'
     import { mapGetters } from 'vuex';
+    import ProducerSelect from '@/components/ProducerSelect';
 
     export default {
         name: "Producers",
+        components: {ProducerSelect},
         data() {
             return {
                 loading: false,
                 total: 300,
                 options: {
                     filters: {
-                        producerName: ''
+                        name: '',
+                        right_producer_id: [],
                     },
+                    filterActions: {
+                        name: 'substring',
+                        right_producer_id: 'in',
+                    },
+                    scopes: ['withRightProducer']
                 },
                 producerName: '',
-                items: [
-                    { name: 'MAX', site: 'http://www.max.com' },
-                    { name: 'TI', site: 'http://www.ti.com' },
-                    { name: 'ОРЕЛ', site: 'http://www.orel.com' }
-                ]
+                items: [],
             }
         },
         computed: {
@@ -48,15 +56,18 @@
         },
         watch: {
             options: {
-                handler() {
+                handler: _.debounce(function() {
+                    this.loading = true;
                     this.$store.dispatch('PRODUCER/GET_ITEMS', this.options)
-                    .then((response) => {
-                        this.total = response.data.count;
-                        this.items = response.data.rows;
-                    })
-                    // eslint-disable-next-line no-console
-                    // console.log('HANDLER')
-                },
+                        .then((response) => {
+                            this.total = response.data.count;
+                            this.items = response.data.rows;
+                           //  this.$router.push({ query: { a:1, b: [2]}}) //Object.assign(this.$route.query, this.options)
+                        })
+                        // eslint-disable-next-line no-unused-vars
+                        .catch(error => {})
+                        .then(() => this.loading = false)
+                }, 500),
                 deep: true
             }
         },
@@ -73,7 +84,7 @@
             // console.log('Enter')
             next(vm => {
                 // eslint-disable-next-line no-console
-                console.log(vm.options)
+                // console.log(vm.options)
             })
         },
         beforeRouteUpdate(to, from, next) {

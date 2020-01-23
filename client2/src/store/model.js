@@ -44,14 +44,21 @@ const mutations = {
 };
 
 let actions = {
-    GET_ITEMS({ getters }, payload) {
+    GET_ITEMS({ getters, commit }, payload) {
         return new Promise((resolve, reject) => {
             axios
                 .get(getters.URL, { params: payload })
                 .then((response) => {
-                    resolve(response)
+                    resolve(response);
                 })
-                .catch((error) => reject(error));
+                .catch((error) => {
+                    commit(
+                        'SNACKBAR/SET',
+                        { text: error.response.data, color: 'error', snackbar: 'true'},
+                        { root: true }
+                    );
+                    reject(error);
+                });
         });
     }
 };

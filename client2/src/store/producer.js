@@ -13,6 +13,10 @@ state.headers = [
         text: 'Сайт',
         value: 'site'
     },
+    {
+        text: 'Правильный',
+        value: 'rightProducer.name'
+    }
 ];
 
 export default {

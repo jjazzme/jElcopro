@@ -33,15 +33,40 @@
         </keep-alive>
       </v-card>
     </v-content>
+    <v-snackbar
+            :value="snackbar"
+            :color="snackbarColor"
+            :multi-line="snackbarMulti"
+            :timeout="snackbarTimeout"
+    >
+      {{ snackbarText }}
+      <v-btn
+              dark
+              text
+              @click="$store.commit('SNACKBAR/SNACKBAR', false)"
+      >
+        Закрыть
+      </v-btn>
+    </v-snackbar>
   </v-app>
 </template>
 <script>
+  import { mapGetters } from 'vuex';
   export default {
     name: 'App',
     data() {
       return {
-        drawer: false
+        drawer: false,
       }
+    },
+    computed: {
+      ...mapGetters({
+        snackbar: 'SNACKBAR/SNACKBAR',
+        snackbarText: 'SNACKBAR/TEXT',
+        snackbarColor: 'SNACKBAR/COLOR',
+        snackbarTimeout: 'SNACKBAR/TIMEOUT',
+        snackbarMulti: 'SNACKBAR/MULTI',
+      })
     }
   }
 </script>
