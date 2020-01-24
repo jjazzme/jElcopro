@@ -109,6 +109,7 @@ export default class DataSource{
 
   }
   cardAdd(id, type){
+    //this.getSourceById({ type, id, check: ['documentLines'] });
     if (type === 'Invoice') {
       this.store.dispatch('User/invoiceAdd', id)
     } else {

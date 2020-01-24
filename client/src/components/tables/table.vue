@@ -122,7 +122,9 @@
         waitTable();
       },
       onResize: _.debounce( function(){
-        //this.calculateTable()
+        this.$set(this, 'isLinear', true);
+        this.$set(this, 'tableRow', null);
+        this.calculateTable()
       }, 500),
     },
     created(){
