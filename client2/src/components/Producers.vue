@@ -62,7 +62,9 @@
                         .then((response) => {
                             this.total = response.data.count;
                             this.items = response.data.rows;
-                           //  this.$router.push({ query: { a:1, b: [2]}}) //Object.assign(this.$route.query, this.options)
+                            this.$router.replace(
+                                { name: 'producers', query: _.omit(this.options, ['filters', 'filterActions', 'scopes']) }
+                            );
                         })
                         // eslint-disable-next-line no-unused-vars
                         .catch(error => {})
@@ -79,19 +81,14 @@
                 return ret;
             }
         },
-        beforeRouteEnter(to, from, next) {
-            // eslint-disable-next-line no-console
-            // console.log('Enter')
+        beforeRouteEnter(to, from, next){
             next(vm => {
-                // eslint-disable-next-line no-console
-                // console.log(vm.options)
+                to.query.itemsPerPage = to.query.itemsPerPage
+                    ? parseInt(to.query.itemsPerPage)
+                    : vm.options.itemsPerPage;
+                vm.options = _.assign(vm.options, to.query)
+
             })
-        },
-        beforeRouteUpdate(to, from, next) {
-            // eslint-disable-next-line no-console
-            // console.update('Update')
-            // eslint-disable-next-line no-console
-            // console.log(this.options)
         }
     }
 </script>

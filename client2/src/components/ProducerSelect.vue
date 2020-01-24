@@ -54,7 +54,8 @@
             search: _.debounce(function(val) {
                 if (!val || this.isLoading) return;
                 const options = {
-                    page: 1, itemsPerPage: 10, filters: { name: val }, filterActions: { name: 'substring' }
+                    page: 1, itemsPerPage: 10, filters: { name: val }, filterActions: { name: 'substring' },
+                    sortBy: ['name'], sortDesc: ['false'],
                 };
                 this.isLoading = true;
                 this.$store.dispatch('PRODUCER/GET_ITEMS', options)
