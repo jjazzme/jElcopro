@@ -13,14 +13,22 @@
       >
         <b-dropdown-item>
           <b-link
-            :to="{ name:'item', params: { type: value.dataSource.type, id:row.id } }"
-            class="fa fa-pencil-square text-capitalize text-nowrap d-block"
-          > {{ value.dataSource.getShell.name.one }}: карта документа</b-link>
-          <b-link
             @click="docToCard(row)"
             v-if="['Invoice','Order'].includes(value.dataSource.type)"
-            class="fa fa-pencil-square text-nowrap d-block"
+            class="text-nowrap d-block t-cap"
           >{{toCard.text}}</b-link>
+
+          <b-link
+            :to="{ name:'item', params: { type: value.dataSource.type, id:row.id } }"
+            class="text-nowrap d-block t-cap"
+          > {{ value.dataSource.getShell.name.one }}: карта документа</b-link>
+
+          <b-link
+            v-for="item in firstCellMenu"
+            :to="item.to(row)"
+          >
+            {{ item.label }}
+          </b-link>
         </b-dropdown-item>
       </b-dropdown>
     </div>
@@ -36,6 +44,7 @@
       row: null,
     },
     computed: {
+      firstCellMenu(){ return this.value.dataSource.getShell.firstCell?.menu },
       toCard(){
         const type = this.value.dataSource.type;
         if(!['Invoice','Order'].includes(this.value.dataSource.type)) return null;
@@ -89,6 +98,9 @@
 
   .t-fr-cell {
     order:-1000000;
+    .t-cap::first-letter{
+      text-transform: uppercase;
+    }
     .t-content{
       display: inline-block;
       white-space: nowrap;

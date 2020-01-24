@@ -139,6 +139,13 @@ export default class Shells{
         multiply: {}
       },
       Invoice:{
+        firstCell:{
+          menu: [{
+              label: 'Строки',
+              to: row => { return {name:'manyToOne', params:{ parentType: 'Invoice', id: row.id, field: 'documentLines' } } },
+            }
+            ]
+        },
         binder:{
           key: item=>item.id,
           byOpticsLoader: (payload)=>axios.put(

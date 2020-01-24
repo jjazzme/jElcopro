@@ -76,11 +76,14 @@ let mutations = {
     if (item) {
       const ind = cache.indexOf(item);
       //TODO: следить за поведением
+
       item[2] = _.mergeWith( item[2], data, (o,s) => { if (_.isArray(o)) {return s} });
+      item[2]._changeCounter++;
       item[1] = Date.now();
     }
     else{
       item = [key, Date.now(), data];
+      item[2]._changeCounter=0;
       cache.unshift(item);
     }
     return item;

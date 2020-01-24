@@ -80,7 +80,6 @@
       calculateTable(){
 
         //
-
         let waitTable = () => {
           _.delay(()=>{
             if (!this.$refs.body) {
@@ -122,7 +121,7 @@
         waitTable();
       },
       onResize: _.debounce( function(){
-        this.$set(this, 'isLinear', true);
+        this.$set(this, 'isLinear', false);
         this.$set(this, 'tableRow', null);
         this.calculateTable()
       }, 500),
@@ -134,7 +133,7 @@
       const queryOptics = this.value.dataSource.getOpticsObject(this.$route.query.optics);
       if (queryOptics) this.$set(this.value.dataSource.getTable.optics, 'value', queryOptics);
 
-      this.$set(this, 'isLinear', true);
+      this.$set(this, 'isLinear', false);
       this.$set(this, 'tableRow', null);
       this.getSource();
     },
@@ -146,7 +145,7 @@
         //this.calculateTable();
         if(n !== this.$route.query.optics) this.$router.replace({ query: { optics: n } });
 
-        this.$set(this, 'isLinear', true);
+        this.$set(this, 'isLinear', false);
         this.$set(this, 'tableRow', null);
         this.getSource();
       },
@@ -160,7 +159,7 @@
           if(queryOptics !== this.$route.query.optics) this.$router.replace({ query: { optics: queryOptics } });
         }
 
-        this.$set(this, 'isLinear', true);
+        this.$set(this, 'isLinear', false);
         this.$set(this, 'tableRow', null);
         this.getSource();
       },

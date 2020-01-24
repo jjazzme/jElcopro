@@ -1,5 +1,6 @@
 <template>
   <div
+    v-if="isLinear"
     class="header"
   >
     <div
