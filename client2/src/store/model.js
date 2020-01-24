@@ -10,7 +10,7 @@ const state = {
 
 const getters = {
     NAME: state => state.name,
-    URL: state => `api2/${state.name}`,
+    URL: state => `/api2/${state.name}`,
     ITEMS: state => state.items,
     HEADERS: state => state.headers,
     CACHE: state => (id) => {

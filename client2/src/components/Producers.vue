@@ -55,7 +55,6 @@
                     },
                     scopes: ['withRightProducer']
                 },
-                producerName: '',
                 items: [],
             }
         },

@@ -2,6 +2,8 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import producer from './producer';
 import snackbar from './snacbar'
+import invoice from '@/store/invoice';
+import order from '@/store/order';
 
 Vue.use(Vuex);
 
@@ -13,6 +15,8 @@ export default new Vuex.Store({
   actions: {
   },
   modules: {
+      INVOICE: invoice,
+      ORDER: order,
       PRODUCER: producer,
       SNACKBAR: snackbar,
   }

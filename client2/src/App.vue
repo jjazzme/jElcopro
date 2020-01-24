@@ -9,21 +9,23 @@
     </v-app-bar>
     <v-navigation-drawer v-model="drawer" absolute bottom temporary>
       <v-list>
-        <v-list-item :to="{ name: 'home' }">
-          <v-list-item-content>
-            <v-list-item-title>Home</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item :to="{ name: 'producers' }">
-          <v-list-item-content>
-            <v-list-item-title>Производители</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item :to="{ name: 'about' }">
-          <v-list-item-content>
-            <v-list-item-title>About</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
+        <div v-for="menu in menus" :key="menu.text">
+          <v-list-item v-if="menu.to" :to="menu.to" link>
+            <v-list-item-content>
+              <v-list-item-title>{{ menu.text }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-group v-else no-action value="true">
+            <template v-slot:activator>
+              <v-list-item-title>{{ menu.text }}</v-list-item-title>
+            </template>
+            <v-list-item v-for="subMenu in menu.sub" :to="subMenu.to" :key="subMenu.text" link>
+              <v-list-item-content>
+                <v-list-item-title>{{ subMenu.text }}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list-group>
+        </div>
       </v-list>
     </v-navigation-drawer>
     <v-content>
@@ -57,6 +59,16 @@
     data() {
       return {
         drawer: false,
+        menus: [
+          { text: 'ДОМОЙ', to: { name: 'home' } },
+          { text: 'ПРОИЗВОДИТЕЛИ', to: { name: 'producers'} },
+          { text: 'ДОКУМЕНЫ', sub: [
+              { text: 'ЗАКАЗ', to: { name: 'documentes', params: { type: 'order' } } },
+              { text: 'СЧЕТ', to: { name: 'documentes', params: { type: 'invoice' } } }
+            ]
+          },
+          { text: 'О НАС', to: { name: 'about' } },
+        ]
       }
     },
     computed: {
