@@ -1,5 +1,5 @@
 <template>
-  <div class="t-fr-cell t-cell" data-field="_firstRow">
+  <div class="t-fr-cell t-cell" data-field="_firstCell">
     <div class="t-content">
       <b-form-checkbox
         size="sm"
@@ -91,6 +91,7 @@
     order:-1000000;
     .t-content{
       display: inline-block;
+      white-space: nowrap;
     }
   }
 </style>

@@ -72,17 +72,18 @@ let mutations = {
   setLoaders(state, val) { state.loaders = val },
   upsertItemToCache(state, {type, key, data}) {
     const cache = state.loaders[type].cache;
-    const item = cache.find(item => _.isEqual(item[0], key));
+    let item = cache.find(item => _.isEqual(item[0], key));
     if (item) {
       const ind = cache.indexOf(item);
       //TODO: следить за поведением
-      data = _.mergeWith( item[2], data, (o,s) => { if (_.isArray(o)) {return s} });
-      cache.splice(ind, 1);
+      item[2] = _.mergeWith( item[2], data, (o,s) => { if (_.isArray(o)) {return s} });
+      item[1] = Date.now();
     }
-    const row = [key, Date.now(), data];
-
-    cache.unshift(row);
-    return row;
+    else{
+      item = [key, Date.now(), data];
+      cache.unshift(item);
+    }
+    return item;
   },
   upsertSetToCache(state, {type, hash, data}) {
     const cache = state.loaders[type].cacheSets;
@@ -103,6 +104,46 @@ let actions = {
       });
   },
   getByOptics({ getters, commit }, { type, payload }) {
+    const hash = getHash(payload);
+    return new Promise((resolve, reject) => {
+      let kit = getters['cacheGetSetsByHash'](type, hash);
+      const ttl = getters['getLoaderTTL'](type);
+      let kitWithData = null;
+      let dataset = [];
+
+      if(kit && kit[1] + ttl > Date.now()) {
+        dataset = getters['formingSetFromCache'](type, kit[2]._rows);
+        kitWithData = _.cloneDeep(kit[2]);
+        kitWithData.rows = dataset;
+        resolve(kitWithData)
+      } else {
+        const loader = getters['executorByOpticsLoader'](type, payload);
+        loader
+          .then(ans => {
+            if (ttl >= 0 ){
+              kit  = [ hash, Date.now(),  _.cloneDeep(ans.data)];
+              kit[2]._rows = _.map(ans.data.rows, item => getters['getLoaderKey'](type, item));
+              delete kit[2].rows;
+              commit('upsertSetToCache', {type: type, hash: hash, data: kit[2]});
+
+              dataset = ans.data.rows || ans.data;
+              dataset.forEach(row => {
+                const key = getters['getLoaderKey'](type, row);
+                commit('upsertItemToCache', {type, key, data: row})
+              });
+
+              dataset = getters['formingSetFromCache'](type, kit[2]._rows);
+              kitWithData = _.cloneDeep(kit[2]);
+              kitWithData.rows = dataset;
+              resolve(kitWithData);
+            } else {
+              resolve(ans)
+            }
+          });
+      }
+    });
+  },
+  getByOptics_({ getters, commit }, { type, payload }) {
     // payload = {optics, params, eid}
     // TODO: make a ROW notes
     const hash = getHash(payload);
@@ -117,7 +158,7 @@ let actions = {
           cacheItem = getters['formingSetFromCache'](type, cached[2]);
         } else {
           dataset = getters['formingSetFromCache'](type, cached[2]._rows);
-          cacheItem = _.cloneDeep(cached[2]);
+          cacheItem = cached[2];
           cacheItem.rows = dataset;
         }
         resolve(cacheItem)
@@ -132,17 +173,20 @@ let actions = {
               } else {
                 dataset = ans.data.rows;
                 cacheItem = _.cloneDeep(ans.data);
-                cacheItem._rows = _.map(dataset, item=>getters['getLoaderKey'](type, item))
+                cacheItem._rows = _.map(dataset, item=>getters['getLoaderKey'](type, item));
                 ans.data._rows = cacheItem._rows;
                 delete cacheItem.rows;
               }
               dataset.forEach(data=>{
                 const key = getters['getLoaderKey'](type, data);
-                //keys.push(key);
                 commit('upsertItemToCache', {type, key, data})
               });
               commit('upsertSetToCache', {type: type, hash: hash, data: cacheItem});
-              resolve(ans.data)
+
+              dataset = getters['formingSetFromCache'](type, cacheItem._rows);
+              const cacheItem2 = _.cloneDeep(cacheItem);
+              cacheItem2.rows = dataset;
+              resolve(cacheItem2)
             }
             else resolve(ans)
           })
@@ -230,15 +274,18 @@ let actions = {
   },
    */
 
-  updateItem({ getters, commit }, { type, item }) {
+  updateItem({ getters, commit }, { type, item, returnType }) {
     const loader = getters['executorUpdateLoader'](type, item);
     loader
       .then(ans=>{
         const data = ans.data;
         const key = item.id
-        commit('upsertItemToCache', {type, key, data});
+        commit('upsertItemToCache', {type: returnType || type, key, data});
       });
     return loader;
+  },
+  runProcedure({  }, { type, item, returnType  }) {
+
   },
 };
 

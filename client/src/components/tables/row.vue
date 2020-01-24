@@ -20,6 +20,7 @@
       :optics="value.dataSource.getTable.optics.value"
       :width="value.viewport.tableRow[name] ? value.viewport.tableRow[name].width : null"
       :bodyWidth="value.viewport.width"
+      :bodyHeight="value.viewport.height"
       :source="value.dataSource"
     />
 
