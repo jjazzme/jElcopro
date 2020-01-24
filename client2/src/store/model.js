@@ -60,6 +60,24 @@ let actions = {
                     reject(error);
                 });
         });
+    },
+    UPDATE_ITEM({ getters, commit}, payload) {
+        const { item } = payload;
+        return new Promise((resolve, reject) => {
+            axios
+                .put(getters.URL + '/' + item.id, item)
+                .then(response => {
+                    resolve(response)
+                })
+                .catch((error) => {
+                    commit(
+                        'SNACKBAR/SET',
+                        { text: error.response.data, color: 'error', snackbar: 'true'},
+                        { root: true }
+                    );
+                    reject(error);
+                });
+        });
     }
 };
 

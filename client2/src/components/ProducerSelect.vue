@@ -60,13 +60,13 @@
                 this.isLoading = true;
                 this.$store.dispatch('PRODUCER/GET_ITEMS', options)
                     .then((response) => {
-                        const filtred = _.isArray(this.items)
+                        const filtred = _.isArray(this.value)
                             ? this.items.filter((item) => this.value.indexOf(item.id) >= 0)
                             : [];
                         this.items = _.union(response.data.rows, filtred);
                     })
                     // eslint-disable-next-line no-unused-vars
-                    .catch((error) => {})
+                    .catch(() => {})
                     .then(() => this.isLoading = false)
             }, 500)
         }

@@ -49,7 +49,8 @@ export default class ApiContollerClassic {
 
     async update(req) {
         const id = parseInt(req.params.id, 0);
-        await this.Model.update(req.body, { where: { id } });
+        const model = await this.Model.findByPk(id);
+        await model.update(req.body);
         return this.Model.getInstance(id, this.scopes || []);
     }
 
