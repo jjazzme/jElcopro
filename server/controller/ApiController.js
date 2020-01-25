@@ -26,7 +26,7 @@ export default class ModelContoller {
          */
 
         let order, where;
-        where = optics.where;
+        where = params ? params.where : null;
 
         const resp = await this.Model.scope(scopes).findAndCountAll({
             order,

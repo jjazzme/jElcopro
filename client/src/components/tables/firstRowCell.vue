@@ -1,5 +1,9 @@
 <template>
-  <div class="t-fr-cell t-cell" data-field="_firstCell">
+  <div
+    class="t-fr-cell t-cell"
+    data-field="_firstCell"
+    :style="`min-width: ${width};`"
+  >
     <div class="t-content">
       <b-form-checkbox
         size="sm"
@@ -42,6 +46,7 @@
       value: null,
       ind: null,
       row: null,
+      width: null,
     },
     computed: {
       firstCellMenu(){ return this.value.dataSource.getShell.firstCell?.menu },

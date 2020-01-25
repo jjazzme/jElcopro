@@ -71,6 +71,7 @@ export default class Shells{
           cache: [],
           cacheSets: [],
         },
+        parentId: 'document_id',
         opticsConstructor: documentLinesParametersConstructor,
         noFirstRowCell: true,
         loadProcessor: new TableLoadProcessor('DocumentLine'),
@@ -105,7 +106,7 @@ export default class Shells{
         },
         controller:{
           scopes:['withArrival', 'withChildren', 'withGood', 'withFutureReserve', 'withParent', 'withReserves', 'withDeparture'],
-          where:{}
+          where:{  }
         },
         optics: { limit: -1, page: 1 }
       },
@@ -232,6 +233,19 @@ export default class Shells{
         name: {one: 'счёт', many: 'счета', cardof: 'счёта',},
         menu: 1040,
         optics: { page: 1, sorters: {}, filters: {}, items: [], limit: limit },
+      },
+      Model:{
+        binder: {
+          key: item=>item.id,
+          itemLoader: (key)=>axios.put(`/api/model`),
+          byOpticsLoader: (payload)=>axios.put(
+            `/api/model`,
+            {optics:payload.optics, params:payload.params}),
+          ttl: 3600e3*24,
+          cache:[],
+          cacheSets: [],
+        },
+        optics: { limit: -1, page: 1 }
       },
       Movement:{},
       MovementIn:{},
@@ -657,7 +671,7 @@ export default class Shells{
     _.forEach(this.template, (item, name) => {
       if (!item.loadProcessor && item.menu) item.loadProcessor = new TableLoadProcessor(name);
       if (!item.footer) item.footer = tableFooter;
-      if (!item.opticsConstructor) item.opticsConstructor = tableParametersConstructor;
+      //if (!item.opticsConstructor) item.opticsConstructor = tableParametersConstructor;
     })
   }
 

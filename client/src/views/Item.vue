@@ -1,14 +1,15 @@
 <template>
-  <main v-if="item && value.dataSource.user">
-    <h1>{{ h1(item) }}</h1>
+  <main v-if="row && value.dataSource.user">
+    <h1>{{ h1(row) }}</h1>
     <article>
       <div
         class="t-cell"
         :style="`order: ${cell.order}`"
-        v-for="(cell, name) in row"
+        v-for="(cell, name) in initial"
         v-if="cell.show === undefined || cell.show === true || ( cell.show && cell.show.item === true )"
       >
         <div class="t-alias" v-html="cell.label" />
+
         <component
           v-if="cell.component"
           v-bind:is="cell.component"
@@ -17,44 +18,58 @@
         />
         <router-link
           v-else-if="cell.to"
-          :to="cell.to(item)"
+          :to="cell.to(row)"
           :class="`t-value ${cell.class ? cell.class : ''}`"
-          v-html="cell.html ? cell.html(item) : item[name]"
+          v-html="cell.html ? cell.html(row) : row[name]"
         />
         <div
           v-else
           :class="`t-value ${cell.class ? cell.class : ''}`"
-          v-html="cell.html ? cell.html(item) : item[name]"
+          v-html="cell.html ? cell.html(row) : row[name]"
+        />
+
+        <editor-button
+          v-if="cell.editor"
+          :cell="cell"
+          :source="value.dataSource"
+          :row="row"
+          :name="name"
+          :bodyWidth="value.viewport.width"
         />
       </div>
     </article>
     <page-environment
-      :head = "{ title: { main: value.dataSource.getShell.name.one, method: h1(item) } }"
+      :head = "{ title: { main: value.dataSource.getShell.name.one, method: h1(row) } }"
       :foot = "null"
     />
   </main>
 </template>
 
 <script>
+  import EditorButton from "../components/editors/editorButton";
   export default {
     name: "Item",
+    components: {EditorButton},
     props:{
       value: null,
     },
     data(){
       return{
-        item: null,
-        row: null,
+        //row: null,
+        initial: null,
         type: this.$route.params.type,
         h1: null,
       }
     },
+    computed: {
+      row() { return this.value.dataSource.getCacheItem(this.type, parseInt(this.$route.params.id)) },
+    },
     created(){
       this.$set(this.value.dataSource, 'type', this.type);
-      this.$set(this, 'row', this.value.dataSource.getShell.initial);
+      this.$set(this, 'initial', this.value.dataSource.getShell.initial);
       this.$set(this, 'h1', this.value.dataSource.getShell.h1);
-      this.value.dataSource.getSourceById({ type: this.type, id: this.$route.params.id, check: 'documentLines' })
-        .then(item => this.$set(this, 'item', item))
+      this.value.dataSource.getSourceById({ type: this.type, id: parseInt(this.$route.params.id), check: 'documentLines' })
+        //.then(row => this.$set(this, 'row', row))
     }
   }
 </script>
@@ -63,6 +78,7 @@
   @import "~@/less/_variables";
 
   .t-cell{
+    position: relative;
     width: 100%;
     max-width: 1200px;
     display: flex;

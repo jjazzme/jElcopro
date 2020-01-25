@@ -14,7 +14,13 @@ export default class DataSource{
     {
       type: 'Transition',
       errorAddText: 'переходов документа',
-      getSource: () => this.getSourceById({type: 'Transition', id: 0})
+      getSource: () => this.getSourceById({type: 'Transition', id: 0}),
+      after: [
+        {
+          type: 'Model',
+          errorAddText: 'моделей',
+        }
+      ]
     },
     {
       type: 'Store',
@@ -220,7 +226,11 @@ export default class DataSource{
                   shell.transition = transitions;
                 })
               }
-            });
+            })
+            .finally(()=>{
+            // последовательность
+            if(item.after) refLoader(item.after)
+          });
         } else{
           this.getSourceByOptics({ type: item.type })
             .then((ans)=> {
@@ -278,8 +288,11 @@ export default class DataSource{
 
     });
   }
-  updateItem({ type, item, returnType }){
-    this.store.dispatch('Binder/updateItem', { type, item, returnType })
+  runProcedure({ type, params }){
+    this.store.dispatch('Binder/runProcedure', { type, params })
+  }
+  updateItem({ type, item }){
+    this.store.dispatch('Binder/updateItem', { type, item })
   }
 
 }

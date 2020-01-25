@@ -39,6 +39,8 @@
         this.value.dataSource.editor.initiator = null;
         this.value.dataSource.editor.row = null;
         this.value.dataSource.editor.name = null;
+        this.value.dataSource.editor.transition = null;
+        this.value.dataSource.editor.type = null;
       }
     },
   }
