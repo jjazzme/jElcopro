@@ -1,7 +1,11 @@
 <template>
     <document-lines :document-id="$route.params.id" :key="uniqueKey">
         <template v-slot:header>
-            <v-chip-group>
+            <v-chip-group class="ml-4">
+                <v-chip label>
+                    {{ document.status_id }}
+                    <v-icon right>mdi-contactless-payment</v-icon>
+                </v-chip>
                 <v-chip v-for="transition in possibleTransitions"
                         :key="transition.name"
                         @click="executeTransition(transition)"
