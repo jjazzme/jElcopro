@@ -84,17 +84,20 @@ let actions = {
                 });
         });
     },
-    CACHE({ getters, commit }, id) {
+    CACHE({ getters, dispatch }, id) {
         return new Promise((resolve, reject) => {
             if (getters.CACHE(id)) {
                 resolve(getters.CACHE(id));
                 return;
             }
+            dispatch('GET_ITEM', id).then(response => resolve(response)).catch(error => reject(error))
+        });
+    },
+    GET_ITEM({ getters, commit }, id) {
+         return new Promise((resolve, reject) => {
             axios
                 .get(getters.URL + '/' + id)
                 .then(response => {
-                    // eslint-disable-next-line no-debugger
-                    debugger;
                     commit('SET_CACHE', response.data);
                     resolve(response.data)
                 })

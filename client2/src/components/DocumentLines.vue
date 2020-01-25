@@ -7,6 +7,9 @@
             :loading="loading"
             loading-text="Loading... Please wait"
     >
+        <template v-slot:top>
+            <slot name="header"></slot>
+        </template>
         <template v-slot:item.quantity="props">
             <v-edit-dialog>
                 {{ props.item.quantity }}
