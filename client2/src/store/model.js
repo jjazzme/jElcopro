@@ -3,14 +3,16 @@ const { axios } = window;
 
 const state = {
     name: '',
-    data: [],
+    items: [],
     cache: [],
+    headers: [],
 };
 
 const getters = {
     NAME: state => state.name,
     URL: state => `api2/${state.name}`,
-    DATA: state => state.data,
+    ITEMS: state => state.items,
+    HEADERS: state => state.headers,
     CACHE: state => (id) => {
         if (_.isNumber(id)) return _.find(state.cache, { id });
         return state.cache
@@ -18,17 +20,17 @@ const getters = {
 };
 
 const mutations = {
-    CLEAR_DATA(state) {
-        state.data = [];
+    CLEAR_ITEMS(state) {
+        state.items = [];
     },
 
-    SET_DATA(state, newData) {
-        state.data = newData;
-        // _.unionBy(_.isArray(value) ? value : [ value ], state.data, 'id')
+    SET_ITEMS(state, newData) {
+        state.items = newData;
+        // _.unionBy(_.isArray(value) ? value : [ value ], state.items, 'id')
     },
 
-    UPDATE_DATA(state, newDataRow) {
-        let row = _.find(state.data, { id: newDataRow });
+    UPDATE_ITEM(state, newDataRow) {
+        let row = _.find(state.items, { id: newDataRow });
         if (row) row = newDataRow;
     },
 
@@ -42,14 +44,39 @@ const mutations = {
 };
 
 let actions = {
-    GET_DATA({ getters }, payload) {
+    GET_ITEMS({ getters, commit }, payload) {
         return new Promise((resolve, reject) => {
             axios
                 .get(getters.URL, { params: payload })
                 .then((response) => {
+                    resolve(response);
+                })
+                .catch((error) => {
+                    commit(
+                        'SNACKBAR/SET',
+                        { text: error.response.data, color: 'error', snackbar: 'true'},
+                        { root: true }
+                    );
+                    reject(error);
+                });
+        });
+    },
+    UPDATE_ITEM({ getters, commit}, payload) {
+        const { item } = payload;
+        return new Promise((resolve, reject) => {
+            axios
+                .put(getters.URL + '/' + item.id, item)
+                .then(response => {
                     resolve(response)
                 })
-                .catch((error) => reject(error));
+                .catch((error) => {
+                    commit(
+                        'SNACKBAR/SET',
+                        { text: error.response.data, color: 'error', snackbar: 'true'},
+                        { root: true }
+                    );
+                    reject(error);
+                });
         });
     }
 };

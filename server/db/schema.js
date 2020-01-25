@@ -478,7 +478,7 @@ export default {
         options: {
             tableName: 'producers',
             scopes: {
-                rightProducer: {
+                withRightProducer: {
                     include: [{ model: ProducerModel, as: 'rightProducer' }],
                 },
             },

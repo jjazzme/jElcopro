@@ -202,7 +202,7 @@ export default class ModelContoller {
         const resp = await this.Model.findAndCountAll({
             include,
             order,
-            limit: limit,
+            limit,
             offset,
             where,
         });

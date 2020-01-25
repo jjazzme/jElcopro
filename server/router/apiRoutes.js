@@ -11,6 +11,7 @@ import GoodController from '../controller/GoodController';
 import DocumentLineController from '../controller/DocumentLineController';
 import ProductController from '../controller/ProductController';
 import TransitionController from '../controller/TransitionController';
+import ModelController from '../controller/ModelController';
 
 export default function ApiRoutes(services) {
     const apiRouter = new ApiRouter(services.db);
@@ -33,5 +34,6 @@ export default function ApiRoutes(services) {
     apiRouter.resource('transferOut', new ApiController(services.db.models.TransferOut));
     apiRouter.resource('user', UserController);
     apiRouter.resource('transition', new TransitionController(services.db));
+    apiRouter.resource('model', new ModelController(services.db));
     return apiRouter.router;
 }

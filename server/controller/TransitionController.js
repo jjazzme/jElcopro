@@ -15,6 +15,6 @@ export default class TransitionController {
         const Model = this.db.models[req.body.Model];
         const model = await Model.findByPk(parseInt(req.params.id, 0));
         await model.services.transition.execute(req.body.transition, model);
-        return model;
+        return { [Model.name]: [model.id] };
     }
 }

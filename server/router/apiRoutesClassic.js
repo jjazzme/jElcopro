@@ -1,12 +1,13 @@
 import ApiRouterClassic from './ApiRouterClassic';
-import ApiController from '../controller/ApiControllerClassic';
+// import ApiController from '../controller/ApiControllerClassic';
+import ProducerControllerClassic from '../controller/ProducerControllerClassic';
 
 export default function ApiRoutesClassic(services) {
     const apiRouter = new ApiRouterClassic(services.db);
 
     // apiRouter.middleware(services.auth.bearer);
 
-    apiRouter.resource('producer', new ApiController(services.db.models.Producer));
+    apiRouter.resource('producer', ProducerControllerClassic);
 
     return apiRouter.router;
 }
