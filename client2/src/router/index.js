@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 import Home from '../components/Home'
 import Producers from '@/components/Producers'
 import Documentes from '@/components/Documents'
+import Document from '@/components/Document'
 
 Vue.use(VueRouter);
 
@@ -19,8 +20,13 @@ const routes = [
   },
   {
       path: '/document/:type',
-      name: 'documentes',
+      name: 'documents',
       component: Documentes,
+  },
+  {
+    path: '/document/:type/:id',
+    name: 'document',
+    component: Document,
   },
   {
     path: '/about',

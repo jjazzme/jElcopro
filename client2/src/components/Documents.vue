@@ -6,12 +6,22 @@
             :options.sync="options"
             :loading="loading"
             loading-text="Loading... Please wait"
-    />
+    >
+        <template v-slot:item.date="{ item }">
+            <div>{{ dateFormat(item.date) }}</div>
+        </template>
+        <template v-slot:item.number="{ item }">
+            <router-link :to="{ name: 'document', params: { type: $route.params.type, id: item.id } }">
+                {{ item.number }}
+            </router-link>
+        </template>
+    </v-data-table>
 </template>
 
 <script>
     import _ from 'lodash';
-    // import { mapGetters } from 'vuex';
+    import moment from 'moment';
+    import tableMixin from '@/mixins/tableMixin';
 
     export default {
         name: "Documentes",
@@ -24,43 +34,18 @@
                     filterActions: {
 
                     },
-                    scopes: ['withBuyerable', 'withSellerable', 'withStore', 'withCurrency']
+                    scopes: ['withBuyerable', 'withSellerable', 'withStore', 'withCurrency', 'withSum']
                 },
                 loading: false,
                 total: 0,
                 items:[],
+                dependent: false,
             }
         },
-        computed: {
-            headers() {
-                return this.$store.getters[this.documentType + '/HEADERS'];
-            },
-            documentType() {
-                return this.options.documentType ? _.toUpper(this.options.documentType) : 'ORDER';
-            }
-        },
+        mixins: [tableMixin],
         methods: {
-
-        },
-        watch: {
-            options: {
-                handler: _.debounce(function() {
-                    this.loading = true;
-                    if (this.$route.query.page === this.options.page) this.options.page = 1;
-                    this.$store.dispatch( this.documentType + '/GET_ITEMS', this.options)
-                        .then((response) => {
-                            this.total = response.data.count;
-                            this.items = response.data.rows;
-                            const newQuery = _.omit(this.options, ['filters', 'filterActions', 'scopes']);
-                            if (!_.isEqual(this.$route.query, newQuery)) {
-                                this.$router.replace({ name: 'producers', query: newQuery });
-                            }
-                        })
-                        // eslint-disable-next-line no-unused-vars
-                        .catch(() => {})
-                        .then(() => this.loading = false)
-                }, 500),
-                deep: true
+            dateFormat(date) {
+                return moment(date).format('D/MM/Y');
             }
         },
         beforeRouteEnter(to, from, next){
@@ -69,13 +54,13 @@
                     ? parseInt(to.query.itemsPerPage)
                     : vm.options.itemsPerPage;
                 vm.options = _.assign(vm.options, to.query);
-                vm.options.documentType = to.params.type;
-                // eslint-disable-next-line no-console
-                console.log('ENTER');
+                vm.$set(vm.options, 'documentType', to.params.type);
+                vm.$store.commit('BREADCRUMBS/ITEMS', [vm.$store.getters[vm.documentType + '/BREADCRUMB']]);
             })
         },
         beforeRouteUpdate(to, from, next) {
-            this.options.documentType = to.params.type;
+            this.$set(this.options, 'documentType', to.params.type);
+            this.$store.commit('BREADCRUMBS/ITEMS', [this.$store.getters[this.documentType + '/BREADCRUMB']]);
             next();
         }
     }

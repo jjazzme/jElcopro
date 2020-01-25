@@ -4,6 +4,12 @@ import model from '@/store/model';
 
 let state = _.cloneDeep(document.state);
 state.name = 'invoice';
+state.breadcrumb = {
+    text: 'СЧЕТА',
+    to: { name: 'documents', params: { type: 'invoice' } },
+    link: true,
+    disabled: true,
+};
 
 export default {
     namespaced: true,

@@ -29,6 +29,7 @@
       </v-list>
     </v-navigation-drawer>
     <v-content>
+      <v-breadcrumbs :items="breadcrumbs" large/>
       <v-card class="my-2 mx-2">
         <keep-alive>
           <router-view />
@@ -63,8 +64,8 @@
           { text: 'ДОМОЙ', to: { name: 'home' } },
           { text: 'ПРОИЗВОДИТЕЛИ', to: { name: 'producers'} },
           { text: 'ДОКУМЕНЫ', sub: [
-              { text: 'ЗАКАЗ', to: { name: 'documentes', params: { type: 'order' } } },
-              { text: 'СЧЕТ', to: { name: 'documentes', params: { type: 'invoice' } } }
+              { text: 'ЗАКАЗ', to: { name: 'documents', params: { type: 'order' } } },
+              { text: 'СЧЕТ', to: { name: 'documents', params: { type: 'invoice' } } }
             ]
           },
           { text: 'О НАС', to: { name: 'about' } },
@@ -78,6 +79,7 @@
         snackbarColor: 'SNACKBAR/COLOR',
         snackbarTimeout: 'SNACKBAR/TIMEOUT',
         snackbarMulti: 'SNACKBAR/MULTI',
+        breadcrumbs: 'BREADCRUMBS/ITEMS',
       })
     }
   }

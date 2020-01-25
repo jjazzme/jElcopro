@@ -29,16 +29,16 @@ state.headers = [
         value: 'store.name'
     },
     {
-        text: 'Валюта',
-        value: 'currency.char_code'
-    },
-    {
         text: 'Строк',
         value: 'count_document_lines'
     },
     {
         text: 'Сумма с НДС',
         value: 'amount_with_vat'
+    },
+    {
+        text: 'Валюта',
+        value: 'currency.char_code'
     },
     {
         text: 'Статус',

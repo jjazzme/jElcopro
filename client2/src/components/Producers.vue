@@ -34,8 +34,9 @@
 
 <script>
     import _ from 'lodash'
-    import { mapGetters } from 'vuex';
+    // import { mapGetters } from 'vuex';
     import ProducerSelect from '@/components/ProducerSelect';
+    import tableMixin from '@/mixins/tableMixin';
 
     export default {
         name: "Producers",
@@ -56,11 +57,16 @@
                     scopes: ['withRightProducer']
                 },
                 items: [],
+                dependent: false,
             }
         },
+        /*
         computed: {
             ...mapGetters({ headers: 'PRODUCER/HEADERS'})
         },
+        */
+        mixins: [tableMixin],
+        /*
         watch: {
             options: {
                 handler: _.debounce(function() {
@@ -82,6 +88,8 @@
                 deep: true
             }
         },
+
+         */
         filters: {
             removeHttp(value) {
                 let ret = value.replace('http:', '');
@@ -105,8 +113,8 @@
                     ? parseInt(to.query.itemsPerPage)
                     : vm.options.itemsPerPage;
                 vm.options = _.assign(vm.options, to.query);
-                // eslint-disable-next-line no-console
-                console.log('ENTER');
+                vm.$set(vm.options, 'documentType', 'producer');
+                vm.$store.commit('BREADCRUMBS/ITEMS', [vm.$store.getters['PRODUCER/BREADCRUMB']]);
             })
         }
     }

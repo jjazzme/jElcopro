@@ -6,9 +6,11 @@ const state = {
     items: [],
     cache: [],
     headers: [],
+    breadcrumb: {}
 };
 
 const getters = {
+    BREADCRUMB: state => state.breadcrumb,
     NAME: state => state.name,
     URL: state => `/api2/${state.name}`,
     ITEMS: state => state.items,
@@ -49,6 +51,8 @@ let actions = {
             axios
                 .get(getters.URL, { params: payload })
                 .then((response) => {
+                    // eslint-disable-next-line no-debugger
+                    commit('SET_CACHE', response.data.rows);
                     resolve(response);
                 })
                 .catch((error) => {
@@ -61,13 +65,38 @@ let actions = {
                 });
         });
     },
-    UPDATE_ITEM({ getters, commit}, payload) {
+    UPDATE_ITEM({ getters, commit }, payload) {
         const { item } = payload;
         return new Promise((resolve, reject) => {
             axios
                 .put(getters.URL + '/' + item.id, item)
                 .then(response => {
+                    commit('SET_CACHE', response.data);
                     resolve(response)
+                })
+                .catch((error) => {
+                    commit(
+                        'SNACKBAR/SET',
+                        { text: error.response.data, color: 'error', snackbar: 'true'},
+                        { root: true }
+                    );
+                    reject(error);
+                });
+        });
+    },
+    CACHE({ getters, commit }, id) {
+        return new Promise((resolve, reject) => {
+            if (getters.CACHE(id)) {
+                resolve(getters.CACHE(id));
+                return;
+            }
+            axios
+                .get(getters.URL + '/' + id)
+                .then(response => {
+                    // eslint-disable-next-line no-debugger
+                    debugger;
+                    commit('SET_CACHE', response.data);
+                    resolve(response.data)
                 })
                 .catch((error) => {
                     commit(

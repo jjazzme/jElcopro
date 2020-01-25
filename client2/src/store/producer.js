@@ -4,6 +4,13 @@ import _ from 'lodash'
 let state = _.cloneDeep(model.state);
 
 state.name = 'producer';
+
+state.breadcrumb = {
+    text: 'ПРОИЗВОДИТЕЛИ',
+    to: { name: 'producers' },
+    disabled: true,
+};
+
 state.headers = [
     {
         text: 'Наименование',
