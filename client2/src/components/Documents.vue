@@ -7,8 +7,13 @@
             :loading="loading"
             loading-text="Loading... Please wait"
     >
-        <template v-slot:item.date="{ item }">
-            <div @dblclick="toCards(item)">{{ dateFormat(item.date) }}</div>
+        <template v-slot:header.inCard>
+            <v-icon>mdi-cart-outline</v-icon>
+        </template>
+        <template v-slot:item.inCard="{ item }">
+            <v-icon v-if="inCards(item) === 'add'" @click="addToCards(item)">mdi-cart-plus</v-icon>
+            <v-icon v-else-if="inCards(item) === 'remove'" @click="removeFromCards(item)">mdi-cart-minus</v-icon>
+            <v-icon v-else @click="replaceInCards(item)">mdi-cart-arrow-up</v-icon>
         </template>
         <template v-slot:item.number="{ item }">
             <router-link :to="{ name: 'document', params: { type: $route.params.type, id: item.id } }">
@@ -47,9 +52,39 @@
             dateFormat(date) {
                 return moment(date).format('D/MM/Y');
             },
-            toCards(item) {
-                // eslint-disable-next-line no-console
-                console.log(item.id)
+            inCards(item) {
+                if (_.indexOf(['invoice', 'order'], item.document_type_id) < 0) return null;
+                if (item.document_type_id === 'invoice') {
+                    if (!this.$store.getters['USER/INVOICE']) return 'add';
+                    if (this.$store.getters['USER/INVOICE'].id === item.id) return 'remove';
+                    return 'replace';
+                }
+                if ( _.findIndex(this.$store.getters['USER/ORDERS'], { id: item.id }) >=0) return 'remove';
+                const sellers = this.$store.getters['USER/ORDERS'].map((order) => order.sellerable_id);
+                if (_.indexOf(sellers, item.sellerable_id) >= 0) return 'replace';
+                return 'add';
+            },
+            addToCards(item) {
+                if (item.document_type_id === 'invoice') {
+                    this.$store.commit('USER/SET_INVOICE', item.id)
+                } else {
+                    this.$store.commit('USER/PUSH_ORDER', item.id)
+                }
+            },
+            removeFromCards(item) {
+                if (item.document_type_id === 'invoice') {
+                    this.$store.commit('USER/CLEAR_INVOICE', item.id)
+                } else {
+                    this.$store.commit('USER/REMOVE_ORDER', item.id)
+                }
+            },
+            replaceInCards(item) {
+                if (item.document_type_id === 'invoice') {
+                    this.$store.commit('USER/SET_INVOICE', item.id)
+                } else {
+                    const index = _.findIndex(this.$store.getters['USER/ORDERS'], { sellerable_id: item.sellerable_id });
+                    this.$store.commit('USER/CHANGE_ORDER', { index, id: item.id})
+                }
             }
         },
         beforeRouteEnter(to, from, next){

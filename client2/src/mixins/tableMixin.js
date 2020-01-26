@@ -3,7 +3,12 @@ import _ from 'lodash';
 export default {
     computed: {
         headers() {
-            return this.documentType ? this.$store.getters[this.documentType + '/HEADERS'] : [];
+            if (!this.documentType) return [];
+            const headers = this.$store.getters[this.documentType + '/HEADERS'];
+            if (_.indexOf(['ORDER', 'INVOICE'], this.documentType) >= 0 && headers[0].value !== 'inCard') {
+                headers.unshift({ text: '', value: 'inCard', sortable: false })
+            }
+            return headers;
         },
         documentType() {
             return this.options.documentType ? _.toUpper(this.options.documentType) : null;

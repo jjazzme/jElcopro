@@ -32,7 +32,10 @@
 
         <v-slide-group>
           <v-slide-item>
-            <document-card document-type="invoice"></document-card>
+            <document-card document-type="invoice" :document-id="user.cards.invoice"></document-card>
+          </v-slide-item>
+          <v-slide-item v-for="order in user.cards.orders" :key="order">
+            <document-card document-type="order" :document-id="order"></document-card>
           </v-slide-item>
           <v-slide-item>
             <document-card document-type="order"></document-card>
@@ -68,7 +71,10 @@
   import DocumentCard from '@/components/DocumentCard';
   export default {
     name: 'App',
-    components: {DocumentCard},
+    components: { DocumentCard },
+    created() {
+        this.$store.dispatch('USER/GET');
+    },
     data() {
       return {
         drawer: false,
@@ -92,6 +98,7 @@
         snackbarTimeout: 'SNACKBAR/TIMEOUT',
         snackbarMulti: 'SNACKBAR/MULTI',
         breadcrumbs: 'BREADCRUMBS/ITEMS',
+        user: 'USER/GET'
       })
     }
   }

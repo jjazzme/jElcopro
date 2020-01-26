@@ -2,6 +2,14 @@
     <document-lines :document-id="$route.params.id" :key="uniqueKey">
         <template v-slot:header>
             <v-chip-group class="ml-4">
+                <v-chip v-if="inCards" @click="removeFromCards">
+                    Удалить из карт
+                    <v-icon>mdi-cart-minus</v-icon>
+                </v-chip>
+                <v-chip v-else>
+                    Добавить в карты
+                    <v-icon>mdi-cart-plus</v-icon>
+                </v-chip>
                 <v-chip label>
                     {{ document ? document.status_id : '' }}
                     <v-icon right>mdi-contactless-payment</v-icon>
@@ -49,6 +57,16 @@
             },
             Model() {
                 return _.upperFirst(this.$route.params.type);
+            },
+            inCards() {
+                if (!this.document || _.indexOf(['invoice', 'order'], this.document.document_type_id) < 0) return false;
+                if (
+                    this.document.document_type_id === 'invoice' &&
+                    this.$store.getters['USER/INVOICE'] &&
+                    this.$store.getters['USER/INVOICE'].id === this.document.id
+                ) return true;
+                if ( _.findIndex(this.$store.getters['USER/ORDERS'], { id: this.document.id }) >=0) return true;
+                return false;
             }
         },
         methods: {
@@ -73,6 +91,15 @@
                 this.$store.dispatch('TRANSITIONS/EXECUTE', { id: this.document.id, Model: this.Model, transition: transition.name })
                     .then(() => this.unique += 1)
             },
+            async removeFromCards() {
+                if (this.document.document_type_id === 'invoice') {
+                    await this.$store.commit('USER/CLEAR_INVOICE');
+                    this.$router.push({ name: 'documents', params: { type: 'invoice' } });
+                } else {
+                    await this.$store.commit('USER/REMOVE_ORDER', this.document.id);
+                    this.$router.push({ name: 'documents', params: { type: 'order' } });
+                }
+            }
         },
         beforeRouteEnter(to, from, next) {
             next(vm => {

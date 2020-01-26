@@ -7,6 +7,7 @@ import order from '@/store/order';
 import breadcrumbs from '@/store/breadcrumbs';
 import documentLine from '@/store/documentLine';
 import transitions from '@/store/transitions';
+import user from '@/store/user';
 
 Vue.use(Vuex);
 
@@ -25,5 +26,6 @@ export default new Vuex.Store({
       BREADCRUMBS: breadcrumbs,
       DOCUMENTLINE: documentLine,
       TRANSITIONS: transitions,
+      USER: user,
   }
 })
