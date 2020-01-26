@@ -71,6 +71,7 @@ export default class Shells{
           cache: [],
           cacheSets: [],
         },
+        parentId: 'document_id',
         opticsConstructor: documentLinesParametersConstructor,
         noFirstRowCell: true,
         loadProcessor: new TableLoadProcessor('DocumentLine'),
@@ -105,7 +106,7 @@ export default class Shells{
         },
         controller:{
           scopes:['withArrival', 'withChildren', 'withGood', 'withFutureReserve', 'withParent', 'withReserves', 'withDeparture'],
-          where:{}
+          where:{  }
         },
         optics: { limit: -1, page: 1 }
       },
@@ -139,6 +140,13 @@ export default class Shells{
         multiply: {}
       },
       Invoice:{
+        firstCell:{
+          menu: [{
+              label: 'Строки',
+              to: row => { return {name:'manyToOne', params:{ parentType: 'Invoice', id: row.id, field: 'documentLines' } } },
+            }
+            ]
+        },
         binder:{
           key: item=>item.id,
           byOpticsLoader: (payload)=>axios.put(
@@ -192,7 +200,7 @@ export default class Shells{
             ]},
           amount_with_vat:{show: true, order:70, sortable: true, label: 'Сумма', html: row => row.amount_with_vat.toFixed(2)},
           status_id:{show: true, order: 75, sortable: true, label: 'Статус',
-            html: row=>{ return {formed: 'Формируется', reserved: 'Резерв', in_work: 'В работе'}[row.status_id] },
+            html: row=>{ return {formed: 'Формируется', reserved: 'Резерв', in_work: 'В работе', closed: 'Закрыт'}[row.status_id] },
             editor: documentStatus,
           },
           user_id:{show: true, order:80, html: row=>row.user.name, sortable: true, label: 'Автор',
@@ -225,6 +233,19 @@ export default class Shells{
         name: {one: 'счёт', many: 'счета', cardof: 'счёта',},
         menu: 1040,
         optics: { page: 1, sorters: {}, filters: {}, items: [], limit: limit },
+      },
+      Model:{
+        binder: {
+          key: item=>item.id,
+          itemLoader: (key)=>axios.put(`/api/model`),
+          byOpticsLoader: (payload)=>axios.put(
+            `/api/model`,
+            {optics:payload.optics, params:payload.params}),
+          ttl: 3600e3*24,
+          cache:[],
+          cacheSets: [],
+        },
+        optics: { limit: -1, page: 1 }
       },
       Movement:{},
       MovementIn:{},
@@ -278,7 +299,10 @@ export default class Shells{
               {type: 'search', _placeholder:'поиск 1'},
             ]},
           sum:{show: true, order:70, sortable: true, label: 'Сумма', html: row=>_.sumBy(row.documentLines, line=>line.amount_with_vat).toFixed(2)},
-          status_id:{show: true, order: 75, sortable: true, label: 'Статус', html: row=>{ return {formed: 'Формируется', reserved: 'Резерв', in_work: 'В работе'}[row.status_id] } },
+          status_id:{show: true, order: 75, sortable: true, label: 'Статус',
+            html: row=>{ return {formed: 'Формируется', reserved: 'Резерв', in_work: 'В работе', closed: 'Закрыт'}[row.status_id] },
+            editor: documentStatus,
+            },
           user_id:{show: true, order:80, html: row=>row.user.name, sortable: true, label: 'Автор',
             filters:[
               {type: 'search', _placeholder:'поиск 1'},
@@ -647,7 +671,7 @@ export default class Shells{
     _.forEach(this.template, (item, name) => {
       if (!item.loadProcessor && item.menu) item.loadProcessor = new TableLoadProcessor(name);
       if (!item.footer) item.footer = tableFooter;
-      if (!item.opticsConstructor) item.opticsConstructor = tableParametersConstructor;
+      //if (!item.opticsConstructor) item.opticsConstructor = tableParametersConstructor;
     })
   }
 

@@ -8,7 +8,7 @@
     </b-link>
 
     <div
-      v-if="document && document.documentLines"
+      v-if="document && documentLines"
     >
       <div class="h-c-close" @click="closeCard()">x</div>
       <router-link
@@ -19,7 +19,7 @@
       </router-link>
       <!--div class="h-c-topic">{{alias}} №{{value.number}} от {{Intl.DateTimeFormat('ru-RU').format(new Date(value.date))}}</div-->
       <div class="h-c-sum">{{ document.amount_with_vat.toFixed(2) }}₽</div>
-      <div class="h-c-lines">Строк: {{ document.documentLines.length }} | Товаров: {{ count }}</div>
+      <div class="h-c-lines">Строк: {{ document.documentLines ? document.documentLines.length : ''}} | Товаров: {{ count }}</div>
       <div class="h-c-buyer" :title="secondPart">{{ secondPart }}</div>
     </div>
   </div>
@@ -31,6 +31,8 @@
     data(){
       return{
         alias: null,
+        document: null,
+        documentLines: null,
       }
     },
     props: {
@@ -39,8 +41,8 @@
       type: null,
     },
     computed:{
-      count(){ return this.document ? _.sumBy(this.document.documentLines, line => line.quantity) : 0;},
-      document(){ return this.id ? this.value.dataSource.getCacheItem(this.type, this.id) : null; },
+      count(){ return this.document ? _.sumBy(this.document.documentLines, line => line.quantity) : 0 },
+      _document(){ return this.id ? this.value.dataSource.getCacheItem(this.type, this.id) : null; },
       secondPart(){
         return this.type === 'Invoice'
           ? this.document?.buyerable?.party?.name
@@ -61,6 +63,17 @@
       id(n){
         if (n) this.value.dataSource.getSourceById({ type: this.type, id: this.id, check: ['documentLines']  });
       },
+      _document:{
+        handler: function(n) {
+          this.$set(this, 'document', n);
+          if (n) {
+            this.$set(this, 'documentLines', n.documentLines)
+          } else {
+            this.$set(this, 'documentLines', null)
+          }
+        },
+        deep: true
+      }
     },
   }
 </script>

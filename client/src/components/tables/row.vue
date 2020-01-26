@@ -8,6 +8,7 @@
       v-model="value"
       :ind="ind"
       :row="row"
+      :width="tableRow ? tableRow.find(item => item.name === '_firstCell').width : 'auto'"
     />
 
     <cell
@@ -18,10 +19,10 @@
       :cell="cell"
       :row="row"
       :optics="value.dataSource.getTable.optics.value"
-      :width="value.viewport.tableRow[name] ? value.viewport.tableRow[name].width : null"
       :bodyWidth="value.viewport.width"
       :bodyHeight="value.viewport.height"
       :source="value.dataSource"
+      :width="tableRow ? tableRow.find(item => item.name === name).width : 'auto'"
     />
 
   </div>
@@ -41,6 +42,7 @@
       value: null,
       gtCalculated: null,
       isLinear: true,
+      tableRow: null,
     },
     computed:{
 

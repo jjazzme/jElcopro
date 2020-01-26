@@ -76,11 +76,14 @@ let mutations = {
     if (item) {
       const ind = cache.indexOf(item);
       //TODO: следить за поведением
+
       item[2] = _.mergeWith( item[2], data, (o,s) => { if (_.isArray(o)) {return s} });
+      item[2]._changeCounter++;
       item[1] = Date.now();
     }
     else{
       item = [key, Date.now(), data];
+      item[2]._changeCounter=0;
       cache.unshift(item);
     }
     return item;
@@ -195,7 +198,7 @@ let actions = {
     });
   },
   getCardsInvoice() {},
-  getItem({getters, commit}, {type, payload}) {
+  getItem({getters, commit}, {type, payload, nocache}) {
     return new Promise((resolve)=>{
       const key = getters['getLoaderKey'](type, payload);
       let data = getters['cacheGetItem'](type, key);
@@ -206,7 +209,7 @@ let actions = {
           if (data && !data[2][field]) check = false;
         })
       }
-      if (data && check && data[1] + ttl > Date.now()) {
+      if (!nocache && data && check && data[1] + ttl > Date.now()) {
         resolve(data[2])
       } else {
         const loader = getters['executorItemLoader'](type, key);
@@ -274,18 +277,26 @@ let actions = {
   },
    */
 
-  updateItem({ getters, commit }, { type, item, returnType }) {
+  updateItem({ getters, commit }, { type, item }) {
     const loader = getters['executorUpdateLoader'](type, item);
     loader
       .then(ans=>{
         const data = ans.data;
-        const key = item.id
-        commit('upsertItemToCache', {type: returnType || type, key, data});
+        const key = item.id;
+        commit('upsertItemToCache', { type, key, data });
       });
     return loader;
   },
-  runProcedure({  }, { type, item, returnType  }) {
-
+  runProcedure({ dispatch }, { type, params }) {
+    const executor = axios.post(`/api/${type.toLowerCase()}/${params.id}`, params)
+    executor
+      .then(ans => {
+        _.forEach(ans.data, (ids, type) => {
+          _.forEach(ids, id => {
+            dispatch('getItem', { type, payload: { id: id }, nocache: true })
+          });
+        });
+      });
   },
 };
 

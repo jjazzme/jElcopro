@@ -1,9 +1,9 @@
 <template>
   <div
-    class="header"
+    :class="{ header: true, 't-hide': !isLinear }"
   >
     <div
-      :class="{ 't-row': true, 't-linear': isLinear }"
+      :class="{ 't-row': true }"
       :style="gtCalculated"
     >
       <div
@@ -57,50 +57,17 @@
   }
 </script>
 
-<!--style scoped lang="less">
-  @import "~@/less/_variables";
-
-  .t-row{
-    display: flex;
-    align-items: flex-start;
-    flex-flow: row nowrap;
-    >div{
-      flex: 1 1 auto;
-      padding: 2px 5px;
-      margin: 3px;
-      align-self: stretch;
-      background-color: @table-header-bg;
-      color: white;
-    }
-    >div:first-child{
-      flex: none;
-      width: 70px;
-    }
-  }
-
-  @media @mob {
-    header{
-      padding: 5px 10px 0 10px;
-    }
-  }
-  @media @des {
-    header{
-      padding: 10px 20px 0 20px;
-    }
-  }
-  @media @wid {
-    header{
-      padding: 20px 40px 0 40px;
-    }
-  }
-
-</style-->
-
 <style scoped lang="less">
   @import "~@/less/_variables";
 
+  .t-hide{
+    overflow-y: hidden;
+    overflow-x: auto;
+    max-height: 0;
+  }
   .header{
     .t-row{
+      display: grid;
       min-height: 40px;
       >*{
         background: @table-header-bg;
@@ -129,23 +96,4 @@
       }
     }
   }
-
-  /*
-  @media @mob {
-    .header{
-      padding: 0 10px;
-    }
-  }
-  @media @des {
-    .header{
-      padding: 0 20px;
-    }
-  }
-  @media @wid {
-    .header{
-      padding: 0 40px;
-    }
-  }
-   */
-
 </style>

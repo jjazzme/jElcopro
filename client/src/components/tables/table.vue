@@ -6,25 +6,32 @@
     <component
       v-bind:is="value.dataSource.getShell.opticsConstructor"
       v-model="value"
+    />
+    <table-parameters-constructor
+      v-model="value"
       :gtCalculated="gtCalculated"
       :isLinear="isLinear"
+      ref="header"
     />
     <Body
       v-model="value"
       ref="body"
       :gtCalculated="gtCalculated"
       :isLinear="isLinear"
+      :tableRow="tableRow"
     />
   </div>
 </template>
 
 <script>
   import Body from "./body";
+  import TableParametersConstructor from "./parametersConstructor/tableParametersConstructor";
   export default {
     name: "Table",
-    components: {Body},
+    components: {TableParametersConstructor, Body},
     props:{
       value: null,
+      one: null,
     },
     data(){
       return {
@@ -65,7 +72,10 @@
             const optics = this.value.dataSource.getBackSensitiveOptics;
             if (!optics) return;
 
-            this.value.dataSource.getTable.loadProcessor.getSource(optics, this.value.dataSource.getShell.controller)
+            const params = this.value.dataSource.getShell.controller;
+            if (this.one) params.where.document_id = this.one;
+
+            this.value.dataSource.getTable.loadProcessor.getSource(optics, params)
               .finally(()=>{
                 this.calculateTable()
               })
@@ -78,9 +88,6 @@
     },
     methods:{
       calculateTable(){
-
-        //
-
         let waitTable = () => {
           _.delay(()=>{
             if (!this.$refs.body) {
@@ -109,9 +116,9 @@
             });
 
             this.$set(this, 'tableRow',  tableRow);
+            this.onResize();
+            //this.$set(this, 'isLinear', this.$refs.body.$el.scrollWidth === this.$refs.body.$el.clientWidth);
 
-            this.$set(this, 'isLinear', this.$refs.body.$el.scrollWidth === this.$refs.body.$el.clientWidth);
-            this.$set(this, 'width', this.$refs.body.$el.clientWidth);
 
             //this.calculateAmount = this.calculateAmount * 2;
             //if (this.calculateAmount < 200) waitTable();
@@ -121,9 +128,10 @@
 
         waitTable();
       },
-      onResize: _.debounce( function(){
-        //this.calculateTable()
-      }, 500),
+      onResize: _.throttle( function(){
+        this.isLinear = this.$refs.header.$el.clientWidth === this.$refs.header.$el.scrollWidth;
+        this.$set(this, 'width', this.$refs.body.$el.clientWidth);
+      }, 250),
     },
     created(){
       window.addEventListener("resize", this.onResize);
@@ -132,7 +140,7 @@
       const queryOptics = this.value.dataSource.getOpticsObject(this.$route.query.optics);
       if (queryOptics) this.$set(this.value.dataSource.getTable.optics, 'value', queryOptics);
 
-      this.$set(this, 'isLinear', true);
+      this.$set(this, 'isLinear', false);
       this.$set(this, 'tableRow', null);
       this.getSource();
     },
@@ -144,7 +152,7 @@
         //this.calculateTable();
         if(n !== this.$route.query.optics) this.$router.replace({ query: { optics: n } });
 
-        this.$set(this, 'isLinear', true);
+        this.$set(this, 'isLinear', false);
         this.$set(this, 'tableRow', null);
         this.getSource();
       },
@@ -158,7 +166,7 @@
           if(queryOptics !== this.$route.query.optics) this.$router.replace({ query: { optics: queryOptics } });
         }
 
-        this.$set(this, 'isLinear', true);
+        this.$set(this, 'isLinear', false);
         this.$set(this, 'tableRow', null);
         this.getSource();
       },

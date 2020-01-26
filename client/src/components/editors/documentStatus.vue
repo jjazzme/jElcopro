@@ -50,25 +50,29 @@
     },
     computed:{
       _value() { return this.value.row[this.value.name] },
-      back() { return this.source.getShell.transition.filter(item => item.from === this._value && item.vector === -1) },
-      forward() { return this.source.getShell.transition.filter(item => item.from === this._value && item.vector === 1) },
-      additional() { return this.source.getShell.transition.filter(item => item.from === this._value && item.vector === 0) },
+      back() {
+        let ret = this.source.editor.transition
+        ? this.source.editor.transition.filter(item => item.from === this._value && item.vector === -1)
+        : this.source.getShell.transition.filter(item => item.from === this._value && item.vector === -1);
+        return ret;
+      },
+      forward() { return this.source.editor.transition
+        ? this.source.editor.transition.filter(item => item.from === this._value && item.vector === 1)
+        : this.source.getShell.transition.filter(item => item.from === this._value && item.vector === 1) },
+      additional() { return this.source.editor.transition
+        ? this.source.editor.transition.filter(item => item.from === this._value && item.vector === 0)
+        : this.source.getShell.transition.filter(item => item.from === this._value && item.vector === 0) },
     },
     methods:{
       change(transition){
         const item = _.cloneDeep(this.value.row);
         const id = item.id;
         const Model = this.source.type;
-        this.source.updateItem({ type: 'Transition', item: { id, transition, Model }, returnType: Model })
+        this.source.runProcedure({ type: 'Transition', params: { id, transition, Model: this.source.editor.type || Model } })
       }
     },
     created(){
-      /*
-      this._value = this.value.row[this.value.name];
-      this.back = this.source.getShell.transition.filter(item => item.from === this._value && item.vector === -1);
-      this.forward = this.source.getShell.transition.filter(item => item.from === this._value && item.vector === 1);
-      this.additional = this.source.getShell.transition.filter(item => item.from === this._value && item.vector === 0);
-       */
+
     },
   }
 </script>

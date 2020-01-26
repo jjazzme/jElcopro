@@ -23,6 +23,7 @@
       :key="ind"
       :gtCalculated="gtCalculated"
       :isLinear="isLinear"
+      :tableRow="tableRow"
     />
   </article>
 </template>
@@ -36,6 +37,7 @@
       value: null,
       gtCalculated: null,
       isLinear: true,
+      tableRow: null
     },
     computed:{
       loading(){ return this.value.dataSource.getTable.loadProcessor.eid },
@@ -62,6 +64,7 @@
 
   article{
     overflow: auto;
+    height: 100%;
   }
 
   article.t-linear{

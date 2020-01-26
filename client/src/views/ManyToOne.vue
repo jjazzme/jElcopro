@@ -5,6 +5,7 @@
 
     <Table
       v-model="value"
+      :one="parseInt(this.$route.params.id)"
     />
 
     <page-environment
@@ -39,11 +40,9 @@
       this.$set(this, 'h2', this.row[this.field].label);
       //this.$set(this, 'childRow', this.value.dataSource.shells.template[shell.initial.documentLines.shell].initial);
       this.$set(this.value.dataSource, 'type', this.row[this.field].shell);
-      this.value.dataSource.getSourceById({ type: this.parentType, id: this.$route.params.id, check: 'documentLines' })
+      this.value.dataSource.getSourceById({ type: this.parentType, id: parseInt(this.$route.params.id), check: 'documentLines' })
         .then(item => {
           this.$set(this, 'item', item);
-      //    if (!this.value.dataSource.getTable.loadProcessor.data) this.value.dataSource.getTable.loadProcessor.data = {};
-      //    this.value.dataSource.getTable.loadProcessor.data.rows = item[this.field]
         });
     }
   }
