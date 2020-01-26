@@ -3,7 +3,7 @@
         <template v-slot:header>
             <v-chip-group class="ml-4">
                 <v-chip label>
-                    {{ document.status_id }}
+                    {{ document ? document.status_id : '' }}
                     <v-icon right>mdi-contactless-payment</v-icon>
                 </v-chip>
                 <v-chip v-for="transition in possibleTransitions"
@@ -71,6 +71,7 @@
             },
             executeTransition(transition) {
                 this.$store.dispatch('TRANSITIONS/EXECUTE', { id: this.document.id, Model: this.Model, transition: transition.name })
+                    .then(() => this.unique += 1)
             },
         },
         beforeRouteEnter(to, from, next) {

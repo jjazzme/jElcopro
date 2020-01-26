@@ -29,6 +29,16 @@
       </v-list>
     </v-navigation-drawer>
     <v-content>
+
+        <v-slide-group>
+          <v-slide-item>
+            <document-card document-type="invoice"></document-card>
+          </v-slide-item>
+          <v-slide-item>
+            <document-card document-type="order"></document-card>
+          </v-slide-item>
+        </v-slide-group>
+
       <v-breadcrumbs :items="breadcrumbs" large/>
       <v-card class="my-2 mx-2">
         <keep-alive>
@@ -55,8 +65,10 @@
 </template>
 <script>
   import { mapGetters } from 'vuex';
+  import DocumentCard from '@/components/DocumentCard';
   export default {
     name: 'App',
+    components: {DocumentCard},
     data() {
       return {
         drawer: false,

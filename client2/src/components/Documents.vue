@@ -8,7 +8,7 @@
             loading-text="Loading... Please wait"
     >
         <template v-slot:item.date="{ item }">
-            <div>{{ dateFormat(item.date) }}</div>
+            <div @dblclick="toCards(item)">{{ dateFormat(item.date) }}</div>
         </template>
         <template v-slot:item.number="{ item }">
             <router-link :to="{ name: 'document', params: { type: $route.params.type, id: item.id } }">
@@ -46,6 +46,10 @@
         methods: {
             dateFormat(date) {
                 return moment(date).format('D/MM/Y');
+            },
+            toCards(item) {
+                // eslint-disable-next-line no-console
+                console.log(item.id)
             }
         },
         beforeRouteEnter(to, from, next){
