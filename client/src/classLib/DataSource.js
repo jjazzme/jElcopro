@@ -231,7 +231,7 @@ export default class DataSource{
             // последовательность
             if(item.after) refLoader(item.after)
           });
-        } else{
+        } else {
           this.getSourceByOptics({ type: item.type })
             .then((ans)=> {
               if (item.type === 'Store') {
@@ -241,6 +241,11 @@ export default class DataSource{
                 this.tables.PriceList.loadProcessor.currency = ans.rows;
               } else if (item.type === 'CurrencyRateService') {
                 this.tables.PriceList.loadProcessor.currencyRates = ans;
+              } else if (item.type === 'Model') {
+                _.forEach(ans.rows, row => {
+                  if (!this.shells.template[row.id]) this.shells.template[row.id] = {};
+                  this.shells.template[row.id].Model = { perent: row.parent, children: row.children }
+                });
               }
             })
             .finally(()=>{

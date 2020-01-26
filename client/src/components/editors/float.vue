@@ -5,6 +5,7 @@
       type="number"
       v-model.number="_value"
       @keypress="keypress"
+      ref="input"
     />
     <b-button
       size="sm"
