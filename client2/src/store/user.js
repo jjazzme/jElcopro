@@ -47,8 +47,6 @@ const mutations = {
         state.data.cards.orders.splice(payload.index, 1, parseInt(payload.id,0));
     },
     REMOVE_ORDER(state, id) {
-        // eslint-disable-next-line no-debugger
-        debugger
         const index = state.data.cards.orders.indexOf(parseInt(id,0));
         if (index >= 0 ) state.data.cards.orders.splice(index, 1);
     }
