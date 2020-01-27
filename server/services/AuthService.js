@@ -26,12 +26,6 @@ export default class Auth {
         }),
     };
 
-    // not use!!!!
-    async authorize() {
-        this.user = await this.db.models.User.findByPk(1);
-        return true;
-    }
-
     init() {
         const { AccessToken, User } = this.db.models;
         this.express.use(passport.initialize());
@@ -47,8 +41,8 @@ export default class Auth {
                 await token.update({ revoked: true });
                 return done(null, false, { message: 'Token expired' });
             }
-            const user = await token.getUser();
-            return done(null, user, { scope: '*' });
+            this.user = await token.getUser();
+            return done(null, this.user, { scope: '*' });
         }));
         const server = oauth2orize.createServer();
         server.exchange(oauth2orize.exchange.password(async (client, username, password, scope, done) => {
