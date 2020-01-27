@@ -64,6 +64,9 @@
         Закрыть
       </v-btn>
     </v-snackbar>
+    <v-overlay :value="loading">
+      <v-progress-circular indeterminate size="64"></v-progress-circular>
+    </v-overlay>
   </v-app>
 </template>
 <script>
@@ -73,10 +76,14 @@
     name: 'App',
     components: { DocumentCard },
     created() {
-        this.$store.dispatch('USER/GET');
+        Promise.all([
+          this.$store.dispatch('USER/GET'),
+          this.$store.dispatch('DOCUMENTTYPES/GET')
+        ]).then(() => this.loading = false)
     },
     data() {
       return {
+        loading: true,
         drawer: false,
         menus: [
           { text: 'ДОМОЙ', to: { name: 'home' } },

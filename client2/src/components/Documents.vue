@@ -15,9 +15,12 @@
             <v-icon v-else-if="inCards(item) === 'remove'" @click="removeFromCards(item)">mdi-cart-minus</v-icon>
             <v-icon v-else @click="replaceInCards(item)">mdi-cart-arrow-up</v-icon>
         </template>
-        <template v-slot:item.number="{ item }">
+        <template v-slot:item.date="{ item }">
+            {{ dateFormat(item.date) }}
+        </template>
+        <template v-slot:item.count_document_lines="{ item }">
             <router-link :to="{ name: 'document', params: { type: $route.params.type, id: item.id } }">
-                {{ item.number }}
+                {{ item.count_document_lines }}
             </router-link>
         </template>
     </v-data-table>
@@ -25,7 +28,7 @@
 
 <script>
     import _ from 'lodash';
-    import moment from 'moment';
+    import utilsMixin from '@/mixins/utilsMixin';
     import tableMixin from '@/mixins/tableMixin';
 
     export default {
@@ -47,11 +50,8 @@
                 dependent: false,
             }
         },
-        mixins: [tableMixin],
+        mixins: [tableMixin, utilsMixin],
         methods: {
-            dateFormat(date) {
-                return moment(date).format('D/MM/Y');
-            },
             inCards(item) {
                 if (_.indexOf(['invoice', 'order'], item.document_type_id) < 0) return null;
                 if (item.document_type_id === 'invoice') {

@@ -1,4 +1,5 @@
 <template>
+    <div>
     <document-lines :document-id="$route.params.id" :key="uniqueKey">
         <template v-slot:header>
             <v-chip-group class="ml-4">
@@ -23,15 +24,20 @@
             </v-chip-group>
         </template>
     </document-lines>
-
+        <v-card>
+            <router-link v-if="parent" :to="parent.to">{{ parent.text }}</router-link>
+        </v-card>
+    </div>
 </template>
 
 <script>
     import _ from 'lodash';
+    import utilsMixin from '@/mixins/utilsMixin';
     import DocumentLines from '@/components/DocumentLines';
     export default {
         name: "Document",
         components: { DocumentLines },
+        mixins: [utilsMixin],
         data() {
             return {
                 uniqueKey: 0,
@@ -65,8 +71,19 @@
                     this.$store.getters['USER/INVOICE'] &&
                     this.$store.getters['USER/INVOICE'].id === this.document.id
                 ) return true;
-                if ( _.findIndex(this.$store.getters['USER/ORDERS'], { id: this.document.id }) >=0) return true;
+                if (_.findIndex(this.$store.getters['USER/ORDERS'], { id: this.document.id })>=0) return true;
                 return false;
+            },
+            parent() {
+                if (!this.document.parent) return false;
+                const parent = {};
+                parent.to = {
+                    name: 'document', params: { type: this.document.parent.documet_type_id, id:this.document.parent.id }
+                };
+                parent.text = _.find(
+                    this.$store.getters['DOCUMENTTYPES/ITEMS'], { id: this.document.parent.documet_type_id }
+                ).name + ' №' + this.document.parent.number_prefix + '-' + this.document.parent.number;
+                return parent
             }
         },
         methods: {

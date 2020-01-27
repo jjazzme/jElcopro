@@ -1,5 +1,5 @@
 import ApiRouterClassic from './ApiRouterClassic';
-// import ApiController from '../controller/ApiControllerClassic';
+import ApiController from '../controller/ApiControllerClassic';
 import ProducerControllerClassic from '../controller/ProducerControllerClassic';
 import InvoiceControllerClassic from '../controller/InvoiceControllerClassic';
 import OrderControllerClassic from '../controller/OrderControllerClassic';
@@ -16,5 +16,6 @@ export default function ApiRoutesClassic(services) {
     apiRouter.resource('order', OrderControllerClassic);
     apiRouter.resource('document-line', DocumentLineControllerClassic);
     apiRouter.resource('transitions', TransitionControllerClassic);
+    apiRouter.resource('document-type', new ApiController(services.db.models.DocumentType));
     return apiRouter.router;
 }
