@@ -11,5 +11,7 @@ export default class DocumentController extends ApiController {
         'withDocumentLines',
         'withUser',
         'defaultScope',
+        'withChildren',
+        'withParent',
     ];
 }

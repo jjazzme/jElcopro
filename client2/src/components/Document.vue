@@ -2,6 +2,27 @@
     <div>
     <document-lines :document-id="$route.params.id" :key="uniqueKey">
         <template v-slot:header>
+            <v-form>
+                <v-menu
+                        v-model="datePicker"
+                        :close-on-content-click="false"
+                        :nudge-right="40"
+                        transition="scale-transition"
+                        offset-y
+                        min-width="290px"
+                >
+                    <template v-slot:activator="{ on }">
+                        <v-text-field
+                                v-model="editDocument.date"
+                                label="Picker without buttons"
+                                prepend-icon="mdi-calendar-edit"
+                                readonly
+                                v-on="on"
+                        ></v-text-field>
+                    </template>
+                    <v-date-picker v-model="editDocument.date" @input="datePicker = false"></v-date-picker>
+                </v-menu>
+            </v-form>
             <v-chip-group class="ml-4">
                 <v-chip v-if="inCards" @click="removeFromCards">
                     Удалить из карт
@@ -24,8 +45,15 @@
             </v-chip-group>
         </template>
     </document-lines>
-        <v-card>
-            <router-link v-if="parent" :to="parent.to">{{ parent.text }}</router-link>
+        <v-card class="py-4">
+            <v-item-group>
+                <v-item v-if="parent">
+                    <router-link :to="parent.to">{{ parent.text }}</router-link>
+                </v-item>
+                <v-item v-for="child in children" :key="child.id" class="ml-4">
+                    <router-link :to="child.to">{{ child.text }}</router-link>
+                </v-item>
+            </v-item-group>
         </v-card>
     </div>
 </template>
@@ -42,6 +70,8 @@
             return {
                 uniqueKey: 0,
                 transitions: [],
+                datePicker: false,
+                editDocument: {},
             }
         },
         computed: {
@@ -83,22 +113,33 @@
                 };
                 parent.text = this.documentText(this.document.parent);
                 return parent;
+            },
+            children() {
+                if (!this.document || !this.document.children) return false;
+                return this.document.children.map((child) => ({
+                    to: {
+                        name: 'document',
+                        params: { type: child.documet_type_id, id: child.id },
+                    },
+                    text: this.documentText(child)
+                }));
             }
         },
         methods: {
             pushBreadcrumb() {
                 this.getDocument().then(document => {
+                    this.editDocument = document;
                     this.$store.commit(
                         'BREADCRUMBS/PUSH',
                         {
-                            text: this.documentText(document), //`ДОКУМЕНТ № ${document.number_prefix}-${document.number}`,
+                            text: this.documentText(document),
                             disabled: true,
                         }
                     );
                 });
             },
             async getDocument() {
-                return await this.$store.dispatch(this.documentType + '/CACHE', parseInt(this.$route.params.id));
+                return await this.$store.dispatch(this.documentType + '/GET_ITEM', parseInt(this.$route.params.id));
             },
             getTransitions() {
                 this.$store.dispatch('TRANSITIONS/GET').then(t => this.transitions = t);
