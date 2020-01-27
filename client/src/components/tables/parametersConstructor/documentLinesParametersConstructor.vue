@@ -3,14 +3,27 @@
     v-if="row"
   >
     <h1>{{ h1(row) }}</h1>
-    <div>
-      Сумма с НДС: {{ row ? row.amount_with_vat : '-' }}р. |
-      Статус :
-      <b-button
-        v-if="row"
-        variant="link"
-        @click="editor"
-      >{{ initial.status_id.html(row) }}</b-button>
+    <div class="t-additional">
+      <div>Сумма с НДС: {{ row ? row.amount_with_vat : '-' }}р.</div>
+      <div>
+        Статус :
+        <b-button
+          v-if="row"
+          variant="link"
+          @click="editor"
+        >{{ initial.status_id.html(row) }}</b-button>
+      </div>
+      <div
+        v-if="childrenShell.Model && childrenShell.Model.children"
+      >
+        Создать
+        <b-button
+          variant="link"
+          @click="makeChildren"
+        >
+          {{ childrenShell.name.one }}
+        </b-button>
+      </div>
     </div>
   </div>
 </template>
@@ -33,8 +46,18 @@
     },
     computed:{
       row() { return this.value.dataSource.getCacheItem(this.parentType, parseInt(this.$route.params.id)) },
+      childrenShell(){
+        const from = this.value.dataSource.shells.template[this.parentType].Model.children;
+        return this.value.dataSource.shells.template[from];
+      }
     },
     methods:{
+      makeChildren(){
+        this.value.dataSource.runProcedure({ type: 'makeChildren', params: { for: this.parentType, id: parseInt(this.$route.params.id) } })
+          .then(ans => {
+            console.log(ans)
+          });
+      },
       editor(e){
         e.preventDefault();
         if(this.initial.status_id.editor){
@@ -65,10 +88,27 @@
       this.$set(this, 'transition', parentShell.transition);
       this.value.dataSource.getSourceById({ type: this.parentType, id: parseInt(this.$route.params.id), check: 'documentLines' });
       this.$set(this, 'h1', parentShell.h1);
+
     }
   }
 </script>
 
-<style scoped>
+<style scoped lang="less">
+  @import "~@/less/_variables";
+
+  .t-additional{
+    display: flex;
+    flex-flow: row;
+    > div{
+      margin: 0 0 0 10px;
+      padding: 0 10px;
+      border-right: 1px solid gray;
+      button{
+        padding: 0 20px;
+        vertical-align: top;
+      }
+    }
+    > div:last-child{ border: none; }
+  }
 
 </style>

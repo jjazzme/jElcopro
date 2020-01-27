@@ -288,15 +288,18 @@ let actions = {
     return loader;
   },
   runProcedure({ dispatch }, { type, params }) {
-    const executor = axios.post(`/api/${type.toLowerCase()}/${params.id}`, params)
+    const executor = axios.post(`/api/procedure/${type}`, params)
     executor
       .then(ans => {
         _.forEach(ans.data, (ids, type) => {
-          _.forEach(ids, id => {
-            dispatch('getItem', { type, payload: { id: id }, nocache: true })
-          });
+          if (type.charAt(0) !== '_'){
+            _.forEach(ids, id => {
+              dispatch('getItem', { type, payload: { id: id }, nocache: true })
+            });
+          }
         });
       });
+    return executor;
   },
 };
 

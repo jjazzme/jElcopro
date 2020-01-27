@@ -294,7 +294,7 @@ export default class DataSource{
     });
   }
   runProcedure({ type, params }){
-    this.store.dispatch('Binder/runProcedure', { type, params })
+    return this.store.dispatch('Binder/runProcedure', { type, params })
   }
   updateItem({ type, item }){
     this.store.dispatch('Binder/updateItem', { type, item })
