@@ -12,7 +12,7 @@ import DocumentLineController from '../controller/DocumentLineController';
 import ProductController from '../controller/ProductController';
 import TransitionController from '../controller/TransitionController';
 import ModelController from '../controller/ModelController';
-import ProcedureController from "../controller/ProcedureController";
+import ProcedureController from '../controller/ProcedureController';
 
 export default function ApiRoutes(services) {
     const apiRouter = new ApiRouter(services.db);
@@ -36,6 +36,6 @@ export default function ApiRoutes(services) {
     apiRouter.resource('user', UserController);
     apiRouter.resource('transition', new TransitionController(services.db));
     apiRouter.resource('model', new ModelController(services.db));
-    apiRouter.resource('procedure', new ProcedureController(services.db))
+    apiRouter.resource('procedure', new ProcedureController(services.db));
     return apiRouter.router;
 }
