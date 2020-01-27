@@ -5,6 +5,7 @@
       type="number"
       v-model.number="_value"
       @keypress="keypress"
+      ref="input"
     />
     <b-button
       size="sm"
@@ -44,6 +45,9 @@
     created(){
       this._value = this.value.row[this.value.name];
     },
+    mounted(){
+      this.$refs.input.$el.focus();
+    }
   }
 </script>
 
