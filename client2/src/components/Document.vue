@@ -70,20 +70,19 @@
                     this.document.document_type_id === 'invoice' &&
                     this.$store.getters['USER/INVOICE'] &&
                     this.$store.getters['USER/INVOICE'].id === this.document.id
-                ) return true;
-                if (_.findIndex(this.$store.getters['USER/ORDERS'], { id: this.document.id })>=0) return true;
-                return false;
+                ) {
+                    return true;
+                }
+                return _.findIndex(this.$store.getters['USER/ORDERS'], { id: this.document.id })>=0;
             },
             parent() {
-                if (!this.document.parent) return false;
+                if (!this.document || !this.document.parent) return false;
                 const parent = {};
                 parent.to = {
                     name: 'document', params: { type: this.document.parent.documet_type_id, id:this.document.parent.id }
                 };
-                parent.text = _.find(
-                    this.$store.getters['DOCUMENTTYPES/ITEMS'], { id: this.document.parent.documet_type_id }
-                ).name + ' №' + this.document.parent.number_prefix + '-' + this.document.parent.number;
-                return parent
+                parent.text = this.documentText(this.document.parent);
+                return parent;
             }
         },
         methods: {
@@ -92,7 +91,7 @@
                     this.$store.commit(
                         'BREADCRUMBS/PUSH',
                         {
-                            text: `ДОКУМЕНТ № ${document.number_prefix}-${document.number}`,
+                            text: this.documentText(document), //`ДОКУМЕНТ № ${document.number_prefix}-${document.number}`,
                             disabled: true,
                         }
                     );
@@ -116,6 +115,13 @@
                     await this.$store.commit('USER/REMOVE_ORDER', this.document.id);
                     this.$router.push({ name: 'documents', params: { type: 'order' } });
                 }
+            },
+            documentText(document) {
+                if (!document) return '';
+                const documentTypes = this.$store.getters['DOCUMENTTYPES/ITEMS'];
+                const documentType = _.find(documentTypes, { id: document.document_type_id });
+                return documentType.name + ' № ' + document.number_prefix + '-' + document.number
+                    + ' от ' + this.dateFormat(document.date);
             }
         },
         beforeRouteEnter(to, from, next) {

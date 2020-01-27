@@ -21,7 +21,7 @@ const actions = {
         return new Promise((resolve, reject) => {
             axios.get(getters.URL, { params: { itemsPerPage: -1 } })
                 .then((response) => {
-                    commit('ITEMS', response.data);
+                    commit('ITEMS', response.data.rows);
                     resolve(response.data);
                 })
                 .catch((error) => {
