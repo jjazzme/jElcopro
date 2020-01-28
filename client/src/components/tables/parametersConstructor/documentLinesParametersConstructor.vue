@@ -53,9 +53,10 @@
     },
     methods:{
       makeChildren(){
-        this.value.dataSource.runProcedure({ type: 'makeChildren', params: { for: this.parentType, id: parseInt(this.$route.params.id) } })
+        this.value.dataSource.runProcedure({ type: 'makeChildren', params: { for: this.parentType, id: parseInt(this.$route.params.id), to: this.value.dataSource.shells.template[this.parentType].Model.children } })
           .then(ans => {
-            console.log(ans)
+            const type = this.value.dataSource.shells.template[this.parentType].Model.children;
+            this.$router.push({ name: 'item', params: { type, id: ans.data[type][0].id } })
           });
       },
       editor(e){

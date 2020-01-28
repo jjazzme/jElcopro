@@ -287,14 +287,16 @@ let actions = {
       });
     return loader;
   },
-  runProcedure({ dispatch }, { type, params }) {
+  runProcedure({ commit, getters }, { type, params }) {
     const executor = axios.post(`/api/procedure/${type}`, params)
     executor
       .then(ans => {
-        _.forEach(ans.data, (ids, type) => {
+        _.forEach(ans.data, (items, type) => {
           if (type.charAt(0) !== '_'){
-            _.forEach(ids, id => {
-              dispatch('getItem', { type, payload: { id: id }, nocache: true })
+            _.forEach(items, data => {
+              //dispatch('getItem', { type, payload: { id: id }, nocache: true })
+              const key = getters['getLoaderKey'](type, data);
+              commit('upsertItemToCache', { type, data, key })
             });
           }
         });

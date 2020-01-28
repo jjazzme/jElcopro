@@ -1,6 +1,6 @@
 <template>
   <main v-if="row && value.dataSource.user">
-    <h1>{{ h1(row) }}</h1>
+    <h1 v-if="actual">{{ h1(row) }}</h1>
     <article v-if="actual">
       <div
         class="t-cell"
@@ -67,10 +67,11 @@
       row() { return this.value.dataSource.getCacheItem(this.type, parseInt(this.$route.params.id)) },
     },
     created(){
+      this.actual = false;
       this.$set(this.value.dataSource, 'type', this.type);
       this.$set(this, 'initial', this.value.dataSource.getShell.initial);
       this.$set(this, 'h1', this.value.dataSource.getShell.h1);
-      this.value.dataSource.getSourceById({ type: this.type, id: parseInt(this.$route.params.id), check: 'documentLines' })
+      this.value.dataSource.getSourceById({ type: this.type, id: parseInt(this.$route.params.id), check: ['documentLines', 'selerable', 'buyerable'] })
         .then(row => { this.actual = true; })
     }
   }
