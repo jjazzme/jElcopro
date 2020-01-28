@@ -9,6 +9,7 @@ import documentLine from '@/store/documentLine';
 import transitions from '@/store/transitions';
 import user from '@/store/user';
 import documentTypes from '@/store/documentTypes';
+import transferIn from '@/store/transferIn';
 
 Vue.use(Vuex);
 
@@ -28,6 +29,7 @@ export default new Vuex.Store({
       DOCUMENTLINE: documentLine,
       TRANSITIONS: transitions,
       USER: user,
-      DOCUMENTTYPES: documentTypes
+      DOCUMENTTYPES: documentTypes,
+      'TRANSFER-IN': transferIn,
   }
 })

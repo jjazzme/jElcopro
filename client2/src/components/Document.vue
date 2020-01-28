@@ -98,7 +98,7 @@
                 return this.document.children.map((child) => ({
                     to: {
                         name: 'document',
-                        params: { type: child.documet_type_id, id: child.id },
+                        params: { type: child.document_type_id, id: child.id },
                     },
                     text: this.documentText(child)
                 }));

@@ -16,11 +16,11 @@ export default (DocumentModel, ParentModel, ChildModel) => ({
             : { where: { document_type_id: _.kebabCase(DocumentModel.name) } },
         scopes: {
             withBuyerable: { include: [{ model: Company, as: 'buyerable', include: [{ model: Party, as: 'party' }] }] },
-            withChildren: { include: [{ model: ChildModel, as: 'children' }] },
+            withChildren: { include: [{ model: ChildModel, as: 'children', required: false }] },
             withCurrency: { include: [{ model: Currency, as: 'currency' }] },
             withDocumentLines: { include: [{ model: DocumentLine, as: 'documentLines' }] },
             withForeignStore: { include: [{ model: Store, as: 'foreignStore' }] },
-            withParent: { include: [{ model: ParentModel, as: 'parent' }] },
+            withParent: { include: [{ model: ParentModel, as: 'parent', required: false }] },
             withSellerable: {
                 include: [{ model: Company, as: 'sellerable', include: [{ model: Party, as: 'party' }] }],
             },
