@@ -2,27 +2,7 @@
     <div>
     <document-lines :document-id="$route.params.id" :key="uniqueKey">
         <template v-slot:header>
-            <v-form>
-                <v-menu
-                        v-model="datePicker"
-                        :close-on-content-click="false"
-                        :nudge-right="40"
-                        transition="scale-transition"
-                        offset-y
-                        min-width="290px"
-                >
-                    <template v-slot:activator="{ on }">
-                        <v-text-field
-                                v-model="editDocument.date"
-                                label="Picker without buttons"
-                                prepend-icon="mdi-calendar-edit"
-                                readonly
-                                v-on="on"
-                        ></v-text-field>
-                    </template>
-                    <v-date-picker v-model="editDocument.date" @input="datePicker = false"></v-date-picker>
-                </v-menu>
-            </v-form>
+            <document-editor v-if="document" :value="document"/>
             <v-chip-group class="ml-4">
                 <v-chip v-if="inCards" @click="removeFromCards">
                     Удалить из карт
@@ -62,16 +42,15 @@
     import _ from 'lodash';
     import utilsMixin from '@/mixins/utilsMixin';
     import DocumentLines from '@/components/DocumentLines';
+    import DocumentEditor from '@/components/DocumentEditor';
     export default {
         name: "Document",
-        components: { DocumentLines },
+        components: {DocumentEditor, DocumentLines },
         mixins: [utilsMixin],
         data() {
             return {
                 uniqueKey: 0,
                 transitions: [],
-                datePicker: false,
-                editDocument: {},
             }
         },
         computed: {
@@ -128,7 +107,6 @@
         methods: {
             pushBreadcrumb() {
                 this.getDocument().then(document => {
-                    this.editDocument = document;
                     this.$store.commit(
                         'BREADCRUMBS/PUSH',
                         {
