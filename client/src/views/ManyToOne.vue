@@ -6,6 +6,7 @@
     <Table
       v-model="value"
       :one="parseInt(this.$route.params.id)"
+      v-if="actual"
     />
 
     <page-environment
@@ -31,9 +32,11 @@
         h1: null,
         h2: null,
         parentType: this.$route.params.parentType,
+        actual: false,
       }
     },
     created(){
+      this.$set(this, 'actual', false);
       const parentShell = this.value.dataSource.shells.template[this.parentType];
       this.$set(this, 'row', parentShell.initial);
       this.$set(this, 'h1', parentShell.h1);
@@ -43,6 +46,7 @@
       this.value.dataSource.getSourceById({ type: this.parentType, id: parseInt(this.$route.params.id), check: 'documentLines' })
         .then(item => {
           this.$set(this, 'item', item);
+          this.$set(this, 'actual', true);
         });
     }
   }

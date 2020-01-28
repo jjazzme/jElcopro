@@ -14,6 +14,7 @@
       ref="header"
     />
     <Body
+      v-if="actual"
       v-model="value"
       ref="body"
       :gtCalculated="gtCalculated"
@@ -40,6 +41,7 @@
         isLinear: true,
         width: 0,
         getSourceAmount: 25,
+        actual: false,
       }
     },
     computed:{
@@ -69,14 +71,18 @@
         return _.debounce(
           () => {
 
-            const optics = this.value.dataSource.getBackSensitiveOptics;
+            const optics = _.cloneDeep(this.value.dataSource.getBackSensitiveOptics);
+            if (this.one) {
+              if (!optics.where) optics.where=[];
+              optics.where.push({ document_id: this.one });
+            }
             if (!optics) return;
 
             const params = this.value.dataSource.getShell.controller;
-            if (this.one) params.where.document_id = this.one;
 
             this.value.dataSource.getTable.loadProcessor.getSource(optics, params)
               .finally(()=>{
+                this.$set(this, 'actual', true);
                 this.calculateTable()
               })
           }, this.value.dataSource.debounceAmount
@@ -134,6 +140,7 @@
       }, 250),
     },
     created(){
+      this.$set(this, 'actual', false);
       window.addEventListener("resize", this.onResize);
       //this.calculateTable();
       //this.value.viewport.tableRow = {};

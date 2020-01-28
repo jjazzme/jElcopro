@@ -1,11 +1,12 @@
 <template>
   <main v-if="row && value.dataSource.user">
     <h1>{{ h1(row) }}</h1>
-    <article>
+    <article v-if="actual">
       <div
         class="t-cell"
         :style="`order: ${cell.order}`"
         v-for="(cell, name) in initial"
+        :key="name"
         v-if="cell.show === undefined || cell.show === true || ( cell.show && cell.show.item === true )"
       >
         <div class="t-alias" v-html="cell.label" />
@@ -59,6 +60,7 @@
         initial: null,
         type: this.$route.params.type,
         h1: null,
+        actual: false,
       }
     },
     computed: {
@@ -69,7 +71,7 @@
       this.$set(this, 'initial', this.value.dataSource.getShell.initial);
       this.$set(this, 'h1', this.value.dataSource.getShell.h1);
       this.value.dataSource.getSourceById({ type: this.type, id: parseInt(this.$route.params.id), check: 'documentLines' })
-        //.then(row => this.$set(this, 'row', row))
+        .then(row => { this.actual = true; })
     }
   }
 </script>
