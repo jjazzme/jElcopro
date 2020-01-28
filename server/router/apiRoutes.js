@@ -13,6 +13,8 @@ import ProductController from '../controller/ProductController';
 import TransitionController from '../controller/TransitionController';
 import ModelController from '../controller/ModelController';
 import ProcedureController from '../controller/ProcedureController';
+import TransferInController from "../controller/TransferInController";
+import TransferOutController from "../controller/TransferOutController";
 
 export default function ApiRoutes(services) {
     const apiRouter = new ApiRouter(services.db);
@@ -31,10 +33,10 @@ export default function ApiRoutes(services) {
     apiRouter.resource('product', ProductController);
     apiRouter.resource('shell', ShellController);
     apiRouter.resource('store', new ApiController(services.db.models.Store));
-    apiRouter.resource('transferIn', new ApiController(services.db.models.TransferIn));
-    apiRouter.resource('transferOut', new ApiController(services.db.models.TransferOut));
-    apiRouter.resource('user', UserController);
+    apiRouter.resource('transferIn', TransferInController);
+    apiRouter.resource('transferOut', TransferOutController);
     apiRouter.resource('transition', new TransitionController(services.db));
+    apiRouter.resource('user', UserController);
     apiRouter.resource('model', new ModelController(services.db));
     apiRouter.resource('procedure', new ProcedureController(services.db));
     return apiRouter.router;

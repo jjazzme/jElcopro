@@ -16,17 +16,13 @@ export default class ProcedureController {
         const Model = this.db.models[params.Model];
         const model = await Model.findByPk(parseInt(params.id, 0));
         await model.services.transition.execute(params.transition, model);
-        return { [Model.name]: [model.id] };
+        return { [Model.name]: [model] };
     }
 
     async makeChildren(params) {
-        if (params.for === 'Invoice') {
-            const ans = await TransferOut.createFromOptics({ parent_id: params.id });
-            return {
-                _ans: ans,
-                Invoice: [params.id],
-            };
-        }
-    // return { _val: params }
+        const ans = await this.db.models[params.to].createFromOptics({ parent_id: params.id });
+        return {
+            [params.to]: [ans],
+        };
     }
 }
