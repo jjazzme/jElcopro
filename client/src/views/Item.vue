@@ -1,7 +1,7 @@
 <template>
-  <main v-if="row && value.dataSource.user">
-    <h1 v-if="actual">{{ h1(row) }}</h1>
-    <article v-if="actual">
+  <main v-if="actual">
+    <h1>{{ h1(row) }}</h1>
+    <article>
       <div
         class="t-cell"
         :style="`order: ${cell.order}`"

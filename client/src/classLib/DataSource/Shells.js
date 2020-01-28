@@ -562,12 +562,12 @@ export default class Shells{
           byOpticsLoader: (payload)=>axios.put(
             `/api/transferIn`,
             {optics:payload.optics, params:payload.params}),
-          itemLoader: (key)=>axios.get(`/api/transferin/${key}`),
+          itemLoader: (key)=>axios.get(`/api/transferIn/${key}`),
           ttl: 3600e3*24,
           cache: [],
           cacheSets: [],
         },
-        h1: item => `Входящий УПД №${ item.number} от ${Intl.DateTimeFormat('ru-RU').format(new Date(item.date)) } для ${ item.sellerable.party.name }`,
+        h1: item => `Входящий УПД №${ item.number} от ${Intl.DateTimeFormat('ru-RU').format(new Date(item.date)) } от ${ item.sellerable.party.name }`,
         initial:{
           id:{show:{item:true, list:false}, sortable: false, card: false, label: "ID", order: 100},
           date:{ to: row => { return {name:'item', params:{ table: 'Order', id: row.id} } },
@@ -681,12 +681,13 @@ export default class Shells{
         optics: { page: 1, sorters: {}, filters: {}, items: [], limit: limit },
       },
       TransferOut:{
+        h1: item => `Исходящий УПД №${ item.number} от ${Intl.DateTimeFormat('ru-RU').format(new Date(item.date)) } для ${ item.buyerable.party.name }`,
         binder: {
           key: item=>item.id,
           byOpticsLoader: (payload)=>axios.put(
             `/api/transferOut`,
             {optics:payload.optics, params:payload.params}),
-          itemLoader: (key)=>axios.get(`/api/transferout/get/${key}`),
+          itemLoader: (key)=>axios.get(`/api/transferOut/get/${key}`),
           ttl: 3600e3*24,
           cache: [],
           cacheSets: [],
@@ -739,6 +740,169 @@ export default class Shells{
         menu: 1050,
         faIcon: {prefix: "fas", name:"file-export"},
         name: {one: 'исх. упд', many: 'исх. упд', cardof: 'исходящего упд',},
+        optics: { page: 1, sorters: {}, filters: {}, items: [], limit: limit },
+      },
+      TransferInCorrective: {
+        binder: {
+          key: item=>item.id,
+          byOpticsLoader: (payload)=>axios.put(
+            `/api/transferInCorrective`,
+            {optics:payload.optics, params:payload.params}),
+          itemLoader: (key)=>axios.get(`/api/transferInCorrective/${key}`),
+          ttl: 3600e3*24,
+          cache: [],
+          cacheSets: [],
+        },
+        h1: item => `Возврат от покупателя №${ item.number} от ${Intl.DateTimeFormat('ru-RU').format(new Date(item.date)) } от ${ item.buyerable.party.name }`,
+        initial:{
+          id:{show:{item:true, list:false}, sortable: false, card: false, label: "ID", order: 100},
+          date:{ to: row => { return {name:'item', params:{ table: 'Order', id: row.id} } },
+            show: true, order:10, sortable: true, label: 'Дата', card: false,
+            //editor: 'calendar',
+            html: row=>Intl.DateTimeFormat(
+              'ru-RU',
+              {
+                year: '2-digit', month: 'numeric', day: 'numeric',
+                hour: 'numeric', minute: 'numeric',
+                hour12: false
+              }).format(new Date(row.date)).replace(',',''),
+            filters: [{type: 'calendar_fromto', from:'', to:''}]
+          },
+          number:{
+            to: row => { return {name:'item', params:{ table: 'TransferIn', id: row.id} } },
+            show: true, order:20, sortable: true, label: 'Номер', card: false,
+            // editor: 'integer',
+            filters: [
+              {type: 'integer_fromto', from:'', to:''},
+              {type: 'search', _placeholder:'поиск 1'},
+            ]},
+          sellerable_id:{show: true, order:30, sortable: true, label: 'Продавец',
+            html: row=>row.sellerable.party.name,
+            filters:[
+              {type: 'search', _placeholder:'поиск 1'},
+              {type: 'search', _placeholder:'поиск 2'},
+            ]},
+          buyerable_id:{show: true, order:40, sortable: true, label: 'Покупатель',
+            html: row=>row.buyerable.party.name,
+            filters:[
+              {type: 'search', _placeholder:'поиск 1'},
+              {type: 'search', _placeholder:'поиск 2'},
+            ]},
+          store_id:{show: true, order:50, sortable: true, label: 'Склад',
+            html: row=>row.store.name,
+            filters:[
+              {type: 'search', _placeholder:'поиск 1'},
+            ]},
+          currency_id:{show: true, order:60, sortable: true, label: 'Валюта',
+            html: row=>row.currency.name,
+            filters:[
+              {type: 'search', _placeholder:'поиск 1'},
+            ]},
+          amount_with_vat:{show: true, order:70, sortable: true, label: 'Сумма',
+            html: row => row.amount_with_vat.toFixed(2)
+          },
+          //sum:{show: true, order:70, sortable: true, label: 'Сумма', html: row=>_.sumBy(row.documentLines, line=>line.amount_with_vat).toFixed(2)},
+          status_id:{show: true, order: 75, sortable: true, label: 'Статус',
+            html: row=>{ return {formed: 'Формируется', reserved: 'Резерв', in_work: 'В работе', closed: 'Закрыт'}[row.status_id] },
+            editor: documentStatus,
+          },
+          user_id:{show: true, order:80, sortable: true, label: 'Автор',
+            html: row=>row.user.name,
+            filters:[
+              {type: 'search', _placeholder:'поиск 1'},
+            ]},
+          documentLines:{label: 'Строки возврата', shell: 'DocumentLine', show: {item: true},
+            html: row => { return `Количество строк: ${ row.documentLines ? row.documentLines.length : '' }` },
+            to: row => { return {name:'manyToOne', params:{ parentType: 'TransferInCorrective', id: row.id, field: 'documentLines' } } },
+          }
+        },
+        controller:{
+          scopes:['withSellerable', 'withBuyerable', 'withStore', 'withCurrency', 'withSum', 'withUser', 'defaultScope'],
+        },
+        menu: 1080,
+        faIcon: {prefix: "fas", name:"hand-point-left"},
+        name: {one: 'возврат от покупателя', many: 'возвраты от покупателей', cardof: 'возврата покупателя',},
+        optics: { page: 1, sorters: {}, filters: {}, items: [], limit: limit },
+      },
+      TransferOutCorrective: {
+        binder: {
+          key: item=>item.id,
+          byOpticsLoader: (payload)=>axios.put(
+            `/api/transferOutCorrective`,
+            {optics:payload.optics, params:payload.params}),
+          itemLoader: (key)=>axios.get(`/api/transferOutCorrective/${key}`),
+          ttl: 3600e3*24,
+          cache: [],
+          cacheSets: [],
+        },
+        h1: item => `Возврат поставщику №${ item.number} от ${Intl.DateTimeFormat('ru-RU').format(new Date(item.date)) } от ${ item.sellerable.party.name }`,
+        initial:{
+          id:{show:{item:true, list:false}, sortable: false, card: false, label: "ID", order: 100},
+          date:{ to: row => { return {name:'item', params:{ table: 'Order', id: row.id} } },
+            show: true, order:10, sortable: true, label: 'Дата', card: false,
+            //editor: 'calendar',
+            html: row=>Intl.DateTimeFormat(
+              'ru-RU',
+              {
+                year: '2-digit', month: 'numeric', day: 'numeric',
+                hour: 'numeric', minute: 'numeric',
+                hour12: false
+              }).format(new Date(row.date)).replace(',',''),
+            filters: [{type: 'calendar_fromto', from:'', to:''}]
+          },
+          number:{
+            to: row => { return {name:'item', params:{ table: 'TransferIn', id: row.id} } },
+            show: true, order:20, sortable: true, label: 'Номер', card: false,
+            // editor: 'integer',
+            filters: [
+              {type: 'integer_fromto', from:'', to:''},
+              {type: 'search', _placeholder:'поиск 1'},
+            ]},
+          sellerable_id:{show: true, order:30, sortable: true, label: 'Продавец',
+            html: row=>row.sellerable.party.name,
+            filters:[
+              {type: 'search', _placeholder:'поиск 1'},
+              {type: 'search', _placeholder:'поиск 2'},
+            ]},
+          buyerable_id:{show: true, order:40, sortable: true, label: 'Покупатель',
+            html: row=>row.buyerable.party.name,
+            filters:[
+              {type: 'search', _placeholder:'поиск 1'},
+              {type: 'search', _placeholder:'поиск 2'},
+            ]},
+          store_id:{show: true, order:50, sortable: true, label: 'Склад',
+            html: row=>row.store.name,
+            filters:[
+              {type: 'search', _placeholder:'поиск 1'},
+            ]},
+          currency_id:{show: true, order:60, sortable: true, label: 'Валюта',
+            html: row=>row.currency.name,
+            filters:[
+              {type: 'search', _placeholder:'поиск 1'},
+            ]},
+          amount_with_vat:{show: true, order:70, sortable: true, label: 'Сумма',
+            html: row => row.amount_with_vat.toFixed(2)
+          },
+          status_id:{show: true, order: 75, sortable: true, label: 'Статус',
+            html: row=>{ return {formed: 'Формируется', reserved: 'Резерв', in_work: 'В работе', closed: 'Закрыт'}[row.status_id] },
+            editor: documentStatus,
+          },
+          user_id:{show: true, order:80, sortable: true, label: 'Автор',
+            html: row=>row.user.name,
+            filters:[
+              {type: 'search', _placeholder:'поиск 1'},
+            ]},
+          documentLines:{label: 'Строки возврата', shell: 'DocumentLine', show: {item: true},
+            html: row => { return `Количество строк: ${ row.documentLines ? row.documentLines.length : '' }` },
+            to: row => { return {name:'manyToOne', params:{ parentType: 'TransferOutCorrective', id: row.id, field: 'documentLines' } } },
+          }
+        },
+        controller:{
+          scopes:['withSellerable', 'withBuyerable', 'withStore', 'withCurrency', 'withSum', 'withUser', 'defaultScope'],
+        },
+        menu: 1090,
+        faIcon: {prefix: "far", name:"hand-point-right"},
+        name: {one: 'возврат поставщику', many: 'возвраты поставщиков', cardof: 'возврата поставщику',},
         optics: { page: 1, sorters: {}, filters: {}, items: [], limit: limit },
       },
       Transition:{

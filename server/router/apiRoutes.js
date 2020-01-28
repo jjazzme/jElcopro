@@ -15,6 +15,8 @@ import ModelController from '../controller/ModelController';
 import ProcedureController from '../controller/ProcedureController';
 import TransferInController from "../controller/TransferInController";
 import TransferOutController from "../controller/TransferOutController";
+import TransferOutCorrectiveController from "../controller/TransferOutCorrectiveController";
+import TransferInCorrectiveController from "../controller/TransferInCorrectiveController";
 
 export default function ApiRoutes(services) {
     const apiRouter = new ApiRouter(services.db);
@@ -35,6 +37,8 @@ export default function ApiRoutes(services) {
     apiRouter.resource('store', new ApiController(services.db.models.Store));
     apiRouter.resource('transferIn', TransferInController);
     apiRouter.resource('transferOut', TransferOutController);
+    apiRouter.resource('transferInCorrective', TransferInCorrectiveController);
+    apiRouter.resource('transferOutCorrective', TransferOutCorrectiveController);
     apiRouter.resource('transition', new TransitionController(services.db));
     apiRouter.resource('user', UserController);
     apiRouter.resource('model', new ModelController(services.db));

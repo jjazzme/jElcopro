@@ -16,16 +16,16 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { //fas
   faHome, faInfoCircle, faBarcode, faHammer, faCode, faFileInvoiceDollar, faBars,
   faSortAlphaDown, faSortAlphaUpAlt, faEllipsisV, faHandHoldingUsd, faSpinner, faTimes,
-  faStepBackward, faStepForward, faFileExport, faFileImport, faThumbtack
+  faStepBackward, faStepForward, faFileExport, faFileImport, faThumbtack, faHandPointLeft
 } from '@fortawesome/free-solid-svg-icons';
 import {faCodepen,} from '@fortawesome/free-brands-svg-icons'; //fab
-import {faQuestionCircle} from '@fortawesome/free-regular-svg-icons'; //far
+import {faQuestionCircle, faHandPointRight} from '@fortawesome/free-regular-svg-icons'; //far
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 library.add(
   faHome, faInfoCircle, faBarcode, faHammer, faCode, faCodepen, faFileInvoiceDollar, faBars,
   faSortAlphaDown, faSortAlphaUpAlt, faEllipsisV, faHandHoldingUsd, faSpinner, faTimes, faQuestionCircle,
-  faStepBackward, faStepForward, faFileExport, faFileImport, faThumbtack
+  faStepBackward, faStepForward, faFileExport, faFileImport, faThumbtack, faHandPointRight, faHandPointLeft
 );
 Vue.component('fa-icon', FontAwesomeIcon);
 
