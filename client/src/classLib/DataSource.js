@@ -299,6 +299,5 @@ export default class DataSource{
   updateItem({ type, item }){
     this.store.dispatch('Binder/updateItem', { type, item })
   }
-
 }
 
