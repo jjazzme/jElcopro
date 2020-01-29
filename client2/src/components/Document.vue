@@ -71,7 +71,7 @@
                     : [];
             },
             Model() {
-                return _.upperFirst(this.$route.params.type);
+                return this.$route.params.type.split('-').map((v) => _.upperFirst(v)).reduce((r, v) => r += v, '');
             },
             inCards() {
                 if (!this.document || _.indexOf(['invoice', 'order'], this.document.document_type_id) < 0) return false;
@@ -116,6 +116,10 @@
                     );
                 });
             },
+            changeBreadcrumb() {
+                this.$store.commit('BREADCRUMBS/POP');
+                this.pushBreadcrumb();
+            },
             async getDocument() {
                 return await this.$store.dispatch(this.documentType + '/GET_ITEM', parseInt(this.$route.params.id));
             },
@@ -149,6 +153,10 @@
                 vm.getTransitions();
             })
         },
+        beforeRouteUpdate(to, from, next) {
+            this.pushBreadcrumb();
+            next();
+        }
     }
 </script>
 
