@@ -7,10 +7,11 @@
       v-bind:is="value.dataSource.getShell.opticsConstructor"
       v-model="value"
     />
-    <table-parameters-constructor
+    <Header
       v-model="value"
       :gtCalculated="gtCalculated"
       :isLinear="isLinear"
+      :width="headerWidth"
       ref="header"
     />
     <Body
@@ -26,10 +27,10 @@
 
 <script>
   import Body from "./body";
-  import TableParametersConstructor from "./parametersConstructor/tableParametersConstructor";
+  import Header from "./header";
   export default {
     name: "Table",
-    components: {TableParametersConstructor, Body},
+    components: {Header, Body},
     props:{
       value: null,
       one: null,
@@ -42,28 +43,11 @@
         width: 0,
         getSourceAmount: 25,
         actual: false,
+        gtCalculated: null,
+        headerWidth: 'auto',
       }
     },
     computed:{
-      gtCalculated(){
-        if (_.isEmpty(this.tableRow)){
-          return null;
-        } else {
-          let ret = 'grid-template-columns: ';
-          //const flat = this.tableRow.map(item => item.width);
-          //const max = Math.max.apply(null, flat);
-          _.forEach(this.tableRow, cell => {
-            if(cell.name === '_firstCell') {
-              ret += `${cell.width}px `;
-            } else {
-              ret += `minmax(${cell.width}px, auto) `;
-            }
-
-            //ret += width === max && ret.indexOf('auto') < 0 ? 'auto ' : `${width}px `
-          });
-          return ret;
-        }
-      },
       optics(){
         return this.value.dataSource.getTable ? JSON.stringify(this.value.dataSource.getTable.optics.value) : null;
       },
@@ -91,8 +75,47 @@
       type(){
         return this.value.dataSource.type;
       },
+
+      /*
+gtCalculated(){
+  if (_.isEmpty(this.tableRow)){
+    return null;
+  } else {
+    let ret = 'grid-template-columns: ';
+    //const flat = this.tableRow.map(item => item.width);
+    //const max = Math.max.apply(null, flat);
+    _.forEach(this.tableRow, cell => {
+      if(cell.name === '_firstCell') {
+        ret += `${cell.width}px `;
+      } else {
+        ret += `minmax(${cell.width}px, auto) `;
+      }
+
+      //ret += width === max && ret.indexOf('auto') < 0 ? 'auto ' : `${width}px `
+    });
+    return ret;
+  }
+},
+ */
     },
     methods:{
+      _gtCalculated() {
+        if (_.isEmpty(this.tableRow)){
+          return null;
+        } else {
+          let ret = 'grid-template-columns: ';
+          _.forEach(this.tableRow, cell => {
+            if(cell.name === '_firstCell') {
+              ret += `${cell.width}px `;
+            } else {
+              ret += `minmax(${cell.width}px, auto) `;
+            }
+
+            //ret += width === max && ret.indexOf('auto') < 0 ? 'auto ' : `${width}px `
+          });
+          return ret;
+        }
+      },
       calculateTable(){
         let waitTable = () => {
           _.delay(()=>{
@@ -122,24 +145,22 @@
             });
 
             this.$set(this, 'tableRow',  tableRow);
-            this.onResize();
-            //this.$set(this, 'isLinear', this.$refs.body.$el.scrollWidth === this.$refs.body.$el.clientWidth);
 
-
-            //this.calculateAmount = this.calculateAmount * 2;
-            //if (this.calculateAmount < 200) waitTable();
-            //else this.calculateAmount = 25;
+            this.$set(this, 'gtCalculated', this._gtCalculated());
+            _.delay(() => this.onResize(), 250);
           }, this.calculateAmount)
         };
-
         waitTable();
       },
       onResize: _.throttle( function(){
         this.isLinear = this.$refs.header.$el.clientWidth === this.$refs.header.$el.scrollWidth;
         this.$set(this, 'width', this.$refs.body.$el.clientWidth);
+        this.$set(this, 'headerWidth', `${this.$refs.body.$el.clientWidth}px`)
       }, 250),
     },
     created(){
+      this.headerWidth = 'auto';
+      this.gtCalculated = null;
       this.$set(this, 'actual', false);
       window.addEventListener("resize", this.onResize);
       //this.calculateTable();
@@ -159,12 +180,12 @@
         //this.calculateTable();
         if(n !== this.$route.query.optics) this.$router.replace({ query: { optics: n } });
 
-        this.$set(this, 'isLinear', false);
-        this.$set(this, 'tableRow', null);
+        //this.$set(this, 'isLinear', false);
+        //this.$set(this, 'tableRow', null);
         this.getSource();
       },
       type(n){
-        //this.calculateTable();
+        this.$set(this, 'gtCalculated', null)
         this.value.dataSource.type = n;
         let queryOptics = this.value.dataSource.getOpticsObject(this.$route.query.optics);
         if (queryOptics) this.$set(this.value.dataSource.getTable.optics, 'value', queryOptics);

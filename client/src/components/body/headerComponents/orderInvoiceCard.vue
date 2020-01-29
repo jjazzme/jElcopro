@@ -50,14 +50,22 @@
       },
     },
     methods:{
-      closeCard(){ this.value.dataSource.cardDelete(this.id, this.type) }
+      closeCard(){ this.value.dataSource.cardDelete(this.id, this.type) },
+      setDocument(val){
+        this.$set(this, 'document', val);
+        if (val) {
+          this.$set(this, 'documentLines', val.documentLines)
+        } else {
+          this.$set(this, 'documentLines', null)
+        }
+      },
     },
     created() {
       if (this.type === 'Invoice') this.alias = 'счёт';
       else if (this.type === 'Order') this.alias = 'заказ';
 
       if (this.id) this.value.dataSource.getSourceById({ type: this.type, id: this.id, check: ['documentLines'] })
-        //.then(doc => this.document=doc)
+      if (this._document) this.setDocument(this._document)
     },
     watch:{
       id(n){
@@ -65,12 +73,7 @@
       },
       _document:{
         handler: function(n) {
-          this.$set(this, 'document', n);
-          if (n) {
-            this.$set(this, 'documentLines', n.documentLines)
-          } else {
-            this.$set(this, 'documentLines', null)
-          }
+          this.setDocument(n)
         },
         deep: true
       }

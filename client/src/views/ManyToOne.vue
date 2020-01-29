@@ -1,12 +1,11 @@
 <template>
-  <main v-if="item">
+  <main v-if="actual">
     <!--h1>{{ h1(item) }}</h1>
     <h2>{{ h2 }}</h2-->
 
     <Table
       v-model="value"
       :one="parseInt(this.$route.params.id)"
-      v-if="actual"
     />
 
     <page-environment

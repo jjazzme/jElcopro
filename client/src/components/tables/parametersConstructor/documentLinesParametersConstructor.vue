@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="row"
+    v-if="actual"
   >
     <h1>{{ h1(row) }}</h1>
     <div class="t-additional">
@@ -29,10 +29,10 @@
 </template>
 
 <script>
-  import TableParametersConstructor from "./tableParametersConstructor";
+  //import TableParametersConstructor from "../tableParametersConstructor";
   export default {
     name: "documentLinesParametersConstructor",
-    components: {TableParametersConstructor},
+    //components: {TableParametersConstructor},
     props:{
       value: null,
     },
@@ -42,6 +42,7 @@
         transition: null,
         parentType: this.$route.params.parentType,
         h1: null,
+        actual: null,
       }
     },
     computed:{
@@ -84,10 +85,12 @@
       },
     },
     created(){
+      this.actual = false;
       const parentShell = this.value.dataSource.shells.template[this.parentType];
       this.$set(this, 'initial', parentShell.initial);
       this.$set(this, 'transition', parentShell.transition);
-      this.value.dataSource.getSourceById({ type: this.parentType, id: parseInt(this.$route.params.id), check: 'documentLines' });
+      this.value.dataSource.getSourceById({ type: this.parentType, id: parseInt(this.$route.params.id), check: 'documentLines' })
+      .then(() => { this.actual = true });
       this.$set(this, 'h1', parentShell.h1);
 
     }

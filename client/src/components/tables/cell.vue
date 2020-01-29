@@ -72,8 +72,10 @@
   @import "~@/less/_variables";
 
   .t-cell{
-    white-space: nowrap;
-    display: inline-block;
+    //white-space: nowrap;
+    //display: inline-block;
+    display: flex;
+    flex-flow: row nowrap;
     flex: 1 1 auto;
     position: relative;
     .t-content{

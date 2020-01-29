@@ -48,7 +48,7 @@ export default class DataSource{
     };
     this.type = null;
     this.store = store;
-    this.debounceAmount = debounceAmount ?? 1000;
+    this.debounceAmount = debounceAmount ?? 500;
     this.tables = {};
     this.initialOptics = this.getOpticsObject(optics);
 
