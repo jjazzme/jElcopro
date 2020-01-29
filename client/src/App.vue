@@ -189,7 +189,7 @@ export default {
         }
         .t-row.t-linear{
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));;
+          grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
           grid-gap: 2px 2px;
           .t-cell{
             .t-content{

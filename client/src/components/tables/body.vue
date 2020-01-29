@@ -14,6 +14,7 @@
   </aside>
   <article
     v-else
+    :class="{ 't-hide': gtCalculated === null }"
   >
     <row
       v-for="(row, ind) in table"
@@ -66,6 +67,8 @@
     overflow: auto;
     height: 100%;
   }
+
+  .t-hide{ height: 0 !important }
 
   article.t-linear{
     padding-top: 2px;

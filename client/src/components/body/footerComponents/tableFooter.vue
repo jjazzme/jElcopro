@@ -25,7 +25,7 @@
         const source = this.value?.loadProcessor?.data;
         if (source){
           const pages = source.pages;
-          const page = source.page;
+          const page = this.value.optics.value.page; //source.page;
 
           const before = page - 1;
           const after = pages - page;

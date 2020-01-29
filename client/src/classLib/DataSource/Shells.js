@@ -7,10 +7,10 @@ import priceListFooter from "../../components/body/footerComponents/priceListFoo
 import PriceLoadProcessor from "./Shells/PriceLoadProcessor";
 import TableLoadProcessor from "./Shells/TableLoadProcessor";
 import tableFooter from "../../components/body/footerComponents/tableFooter";
-import tableParametersConstructor from "../../components/tables/parametersConstructor/tableParametersConstructor";
 import integerEditor from "../../components/editors/integer";
 import floatEditor from "../../components/editors/float";
 import documentStatus from "../../components/editors/documentStatus";
+import priceListToCard from "../../components/tables/cell/priceListAddToCard";
 
 export default class Shells{
   constructor(limit){
@@ -387,7 +387,8 @@ export default class Shells{
           remark: { label: 'примечание', order: 60 },
           ballance: { label: 'кол-во', order: 70 },
           real: { label: 'добавить', order: 80,
-            component: () => import('../../components/tables/cell/priceListAddToCard')
+            component: priceListToCard,
+              //() => import('../../components/tables/cell/priceListAddToCard')
           },
           actual: { label: 'дата', order: 90,
             html: row=>`<span ${Math.abs(Date.now() -new Date(row.actual)) / 36e5 >= row._relevance ? 'class="text-danger"' : ''}>${Intl.DateTimeFormat(
@@ -415,7 +416,7 @@ export default class Shells{
           sumRUR: { label: 'сумма ₽', order: 180,
             html: row=>row._sumRUR.toFixed(2)
           },
-          vat: { label: 'ндс', field:'vat', order: 190 },
+          vat: { label: 'ндс %', field:'vat', order: 190 },
           party_name: { label: 'поставщик', order: 200,
             to: item=> { return { name:'item', params:{ id:item.company_id, type: 'Company' } } }
             },
@@ -522,7 +523,7 @@ export default class Shells{
               : `<img src="/image/small/${pic}" class="rounded-circle">`},
         },
         controller:{
-          scopes: ['rightProducer']
+          scopes: ['withRightProducer']
           //aliases: { right_producer: {path: 'Producer', column: 'name', as: 'rightProducer'} }
         },
         menu: 1030,

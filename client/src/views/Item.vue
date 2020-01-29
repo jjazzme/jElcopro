@@ -58,22 +58,33 @@
       return{
         //row: null,
         initial: null,
-        type: this.$route.params.type,
+        //type: this.$route.params.type,
         h1: null,
         actual: false,
       }
     },
     computed: {
       row() { return this.value.dataSource.getCacheItem(this.type, parseInt(this.$route.params.id)) },
+      type(){ return this.$route.params.type }
+    },
+    methods: {
+      init(){
+        this.actual = false;
+        this.$set(this.value.dataSource, 'type', this.type);
+        this.$set(this, 'initial', this.value.dataSource.getShell.initial);
+        this.$set(this, 'h1', this.value.dataSource.getShell.h1);
+        this.value.dataSource.getSourceById({ type: this.type, id: parseInt(this.$route.params.id), check: ['documentLines', 'selerable', 'buyerable'] })
+          .then(row => { this.actual = true; })
+      },
     },
     created(){
-      this.actual = false;
-      this.$set(this.value.dataSource, 'type', this.type);
-      this.$set(this, 'initial', this.value.dataSource.getShell.initial);
-      this.$set(this, 'h1', this.value.dataSource.getShell.h1);
-      this.value.dataSource.getSourceById({ type: this.type, id: parseInt(this.$route.params.id), check: ['documentLines', 'selerable', 'buyerable'] })
-        .then(row => { this.actual = true; })
-    }
+      this.init();
+    },
+    watch:{
+      type(n){
+        this.init();
+      }
+    },
   }
 </script>
 

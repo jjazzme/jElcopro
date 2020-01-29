@@ -29,10 +29,10 @@
 </template>
 
 <script>
-  import TableParametersConstructor from "./tableParametersConstructor";
+  //import TableParametersConstructor from "../tableParametersConstructor";
   export default {
     name: "documentLinesParametersConstructor",
-    components: {TableParametersConstructor},
+    //components: {TableParametersConstructor},
     props:{
       value: null,
     },

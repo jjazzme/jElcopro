@@ -1,6 +1,7 @@
 <template>
   <div
     :class="{ header: true, 't-hide': !isLinear }"
+    :style="`width: ${width}`"
   >
     <div
       :class="{ 't-row': true }"
@@ -41,11 +42,12 @@
   //import _ from 'lodash';
 
   export default {
-    name: "tableParametersConstructor",
+    name: "Header",
     props: {
       value: null,
       gtCalculated: null,
       isLinear: null,
+      width: null,
     },
     computed:{
       loading(){ return this.value.dataSource.getTable.loadProcessor.eid },
@@ -68,6 +70,7 @@
   .header{
     .t-row{
       display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
       min-height: 40px;
       >*{
         background: @table-header-bg;

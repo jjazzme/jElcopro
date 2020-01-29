@@ -141,8 +141,6 @@
 
 <style scoped lang="less">
   .t-cell{
-    display: flex;
-    flex-flow: row nowrap;
     .t-input{
       margin: 0 5px;
       color: navy;
