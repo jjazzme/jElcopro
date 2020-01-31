@@ -4,11 +4,11 @@
         <template v-slot:header>
             <document-editor v-if="document" :value="document"/>
             <v-chip-group class="ml-4">
-                <v-chip v-if="inCards" @click="removeFromCards">
+                <v-chip v-if="inCards && toCardsPossible" @click="removeFromCards">
                     Удалить из карт
                     <v-icon>mdi-cart-minus</v-icon>
                 </v-chip>
-                <v-chip v-else>
+                <v-chip v-else-if="toCardsPossible" @click="addToCards">
                     Добавить в карты
                     <v-icon>mdi-cart-plus</v-icon>
                 </v-chip>
@@ -45,7 +45,7 @@
     import DocumentEditor from '@/components/DocumentEditor';
     export default {
         name: "Document",
-        components: {DocumentEditor, DocumentLines },
+        components: { DocumentEditor, DocumentLines },
         mixins: [utilsMixin],
         data() {
             return {
@@ -55,6 +55,7 @@
         },
         computed: {
             document() {
+                if (!this.documentType) return {};
                 return this.$store.getters[this.documentType + '/CACHE'](parseInt(this.$route.params.id));
             },
             documentType() {
@@ -88,7 +89,7 @@
                 if (!this.document || !this.document.parent) return false;
                 const parent = {};
                 parent.to = {
-                    name: 'document', params: { type: this.document.parent.documet_type_id, id:this.document.parent.id }
+                    name: 'document', params: { type: this.document.parent.document_type_id, id:this.document.parent.id }
                 };
                 parent.text = this.documentText(this.document.parent);
                 return parent;
@@ -105,8 +106,8 @@
             }
         },
         methods: {
-            pushBreadcrumb() {
-                this.getDocument().then(document => {
+            pushBreadcrumb(params) {
+                this.getDocument(params).then(document => {
                     this.$store.commit(
                         'BREADCRUMBS/PUSH',
                         {
@@ -116,12 +117,12 @@
                     );
                 });
             },
-            changeBreadcrumb() {
+            changeBreadcrumb(params) {
                 this.$store.commit('BREADCRUMBS/POP');
-                this.pushBreadcrumb();
+                this.pushBreadcrumb(params);
             },
-            async getDocument() {
-                return await this.$store.dispatch(this.documentType + '/GET_ITEM', parseInt(this.$route.params.id));
+            async getDocument(params) {
+                return await this.$store.dispatch(_.toUpper(params.type) + '/GET_ITEM', parseInt(params.id));
             },
             getTransitions() {
                 this.$store.dispatch('TRANSITIONS/GET').then(t => this.transitions = t);
@@ -130,13 +131,20 @@
                 this.$store.dispatch('TRANSITIONS/EXECUTE', { id: this.document.id, Model: this.Model, transition: transition.name })
                     .then(() => this.unique += 1)
             },
-            async removeFromCards() {
+            removeFromCards() {
                 if (this.document.document_type_id === 'invoice') {
-                    await this.$store.commit('USER/CLEAR_INVOICE');
-                    this.$router.push({ name: 'documents', params: { type: 'invoice' } });
+                    this.$store.commit('USER/CLEAR_INVOICE');
+                    // this.$router.push({ name: 'documents', params: { type: 'invoice' } });
                 } else {
-                    await this.$store.commit('USER/REMOVE_ORDER', this.document.id);
-                    this.$router.push({ name: 'documents', params: { type: 'order' } });
+                    this.$store.commit('USER/REMOVE_ORDER', this.document.id);
+                    // this.$router.push({ name: 'documents', params: { type: 'order' } });
+                }
+            },
+            async addToCards() {
+                if (this.document.document_type_id === 'invoice') {
+                    this.$store.commit('USER/SET_INVOICE', this.document.id)
+                } else {
+                    this.$store.commit('USER/PUSH_ORDER', this.document.id);
                 }
             },
             documentText(document) {
@@ -149,12 +157,12 @@
         },
         beforeRouteEnter(to, from, next) {
             next(vm => {
-                vm.pushBreadcrumb();
+                vm.pushBreadcrumb(to.params);
                 vm.getTransitions();
             })
         },
         beforeRouteUpdate(to, from, next) {
-            this.pushBreadcrumb();
+            this.changeBreadcrumb(to.params);
             next();
         }
     }

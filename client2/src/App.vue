@@ -44,9 +44,9 @@
 
       <v-breadcrumbs :items="breadcrumbs" large/>
       <v-card class="my-2 mx-2">
-        <keep-alive>
+
           <router-view />
-        </keep-alive>
+
       </v-card>
     </v-content>
     <v-snackbar

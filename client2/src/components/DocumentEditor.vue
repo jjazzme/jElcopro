@@ -29,6 +29,15 @@
                 <v-col>
                     <v-text-field v-model="document.number" label="Номер"/>
                 </v-col>
+                <v-col>
+                    <company-select v-model="document.sellerable_id" label="Поставщик"/>
+                </v-col>
+                <v-col>
+                    <company-select v-model="document.buyerable_id" label="Покупатель"/>
+                </v-col>
+                <v-col>
+                    <store-select v-model="document.store_id" :company-id="document.buyerable_id" label="Склад"/>
+                </v-col>
             </v-row>
         </v-container>
     </v-form>
@@ -38,9 +47,12 @@
     import _ from 'lodash';
     import moment from 'moment';
     import utilsMixin from '@/mixins/utilsMixin';
+    import CompanySelect from '@/components/CompanySelect';
+    import StoreSelect from '@/components/StoreSelect';
 
     export default {
         name: "DocumentEditor",
+        components: {StoreSelect, CompanySelect},
         props: ['value'],
         mixins: [utilsMixin],
         data() {

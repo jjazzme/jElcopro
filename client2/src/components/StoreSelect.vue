@@ -6,23 +6,23 @@
             :deletable-chips="multiple"
             v-model="proxy"
             :items="items"
-            item-text="party.name"
+            item-text="name"
             item-value="id"
             :loading="isLoading"
             :search-input.sync="search"
             hide-no-data
             hide-selected
             :label="label"
-            placeholder="набери что-то для поиска"
+            placeholder="Start typing to Search"
             :multiple="multiple"
     />
 </template>
 
 <script>
-    import _ from 'lodash';
+    import _ from 'lodash'
 
     export default {
-        name: "CompanySelect",
+        name: "StoreSelect",
         props: {
             value: {
                 type: [Array, Number]
@@ -31,19 +31,20 @@
                 type: Boolean,
                 default: false
             },
-            label: String
+            label: String,
+            companyId: Number,
         },
         data() {
             return {
                 model: null,
                 items: [],
                 isLoading: false,
-                search: '',
+                search: null,
             }
         },
         created() {
             if (this.value)
-                this.$store.dispatch('COMPANY/CACHE', this.value).then((comapny) => this.items.push(comapny));
+                this.$store.dispatch('STORE/CACHE', this.value).then((store) => this.items.push(store));
         },
         computed: {
             proxy: {
@@ -59,11 +60,11 @@
             search: _.debounce(function(val) {
                 if (!val || this.isLoading) return;
                 const options = {
-                    page: 1, itemsPerPage: 10, filters: { 'party.name': val }, filterActions: { 'party.name': 'substring' },
-                    sortBy: ['party.name'], sortDesc: ['false'],
+                    page: 1, itemsPerPage: 10, filters: { name: val, company_id: this.companyId },
+                    filterActions: { name: 'substring', company_id: false }, sortBy: ['name'], sortDesc: ['false'],
                 };
                 this.isLoading = true;
-                this.$store.dispatch('COMPANY/GET_ITEMS', options)
+                this.$store.dispatch('STORE/GET_ITEMS', options)
                     .then((response) => {
                         const filtred = _.isArray(this.value)
                             ? this.items.filter((item) => this.value.indexOf(item.id) >= 0)

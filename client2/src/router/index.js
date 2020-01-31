@@ -19,14 +19,14 @@ const routes = [
     component: Producers,
   },
   {
-      path: '/document/:type',
-      name: 'documents',
-      component: Documentes,
-  },
-  {
     path: '/document/:type/:id',
     name: 'document',
     component: Document,
+  },
+  {
+      path: '/documents/:type',
+      name: 'documents',
+      component: Documentes,
   },
   {
     path: '/about',

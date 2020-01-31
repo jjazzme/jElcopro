@@ -10,6 +10,8 @@ import transitions from '@/store/transitions';
 import user from '@/store/user';
 import documentTypes from '@/store/documentTypes';
 import transferIn from '@/store/transferIn';
+import company from '@/store/company';
+import store from '@/store/store';
 
 Vue.use(Vuex);
 
@@ -24,6 +26,8 @@ export default new Vuex.Store({
       INVOICE: invoice,
       ORDER: order,
       PRODUCER: producer,
+      COMPANY: company,
+      STORE: store,
       SNACKBAR: snackbar,
       BREADCRUMBS: breadcrumbs,
       DOCUMENTLINE: documentLine,

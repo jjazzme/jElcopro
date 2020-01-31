@@ -1,5 +1,5 @@
 <template>
-    <v-card class="my-2 mx-2" :to="to">
+    <v-card class="my-2 mx-2" :to="to1">
         <v-container>
             <v-row>
                 <div class="mx-2">
@@ -28,8 +28,8 @@
         name: "DocumentCard",
         props: ['documentId', 'documentType'],
         computed: {
-            to() {
-                return this.documentId
+            to1() {
+                return  this.documentId
                     ? { name: 'document', params: { type: this.documentType, id: this.documentId } }
                     : { name: 'documents', params: { type: this.documentType } };
             },

@@ -19,6 +19,8 @@ export default function ApiRoutesClassic(services) {
     apiRouter.resource('document-line', DocumentLineControllerClassic);
     apiRouter.resource('transitions', TransitionControllerClassic);
     apiRouter.resource('document-type', new ApiController(services.db.models.DocumentType));
+    apiRouter.resource('company', new ApiController(services.db.models.Company));
+    apiRouter.resource('store', new ApiController(services.db.models.Store));
     apiRouter.resource('transfer-in', TransferInControllerClassic);
     apiRouter.resource('transfer-out', TransferOutControllerClassic);
     return apiRouter.router;
