@@ -16,6 +16,7 @@
             placeholder="Start typing to Search"
             :multiple="multiple"
     />
+
 </template>
 
 <script>

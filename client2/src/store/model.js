@@ -72,6 +72,16 @@ let actions = {
                 .put(getters.URL + '/' + item.id, item)
                 .then(response => {
                     commit('SET_CACHE', response.data);
+                    commit(
+                        'SNACKBAR/SET',
+                        {
+                            text: getters.NAME + ' with id ' + item.id + ' was saved.',
+                            color: 'success',
+                            snackbar: true,
+                            timeout: 6000
+                        },
+                        { root: true }
+                    );
                     resolve(response)
                 })
                 .catch((error) => {

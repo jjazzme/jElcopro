@@ -40,7 +40,7 @@
 
     export default {
         name: "Producers",
-        components: {ProducerSelect},
+        components: { ProducerSelect },
         data() {
             return {
                 loading: false,

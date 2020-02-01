@@ -50,7 +50,7 @@
       </v-card>
     </v-content>
     <v-snackbar
-            :value="snackbar"
+            v-model="snackbar"
             :color="snackbarColor"
             :multi-line="snackbarMulti"
             :timeout="snackbarTimeout"
@@ -99,14 +99,21 @@
     },
     computed: {
       ...mapGetters({
-        snackbar: 'SNACKBAR/SNACKBAR',
         snackbarText: 'SNACKBAR/TEXT',
         snackbarColor: 'SNACKBAR/COLOR',
         snackbarTimeout: 'SNACKBAR/TIMEOUT',
         snackbarMulti: 'SNACKBAR/MULTI',
         breadcrumbs: 'BREADCRUMBS/ITEMS',
         user: 'USER/GET'
-      })
+      }),
+      snackbar: {
+        get() {
+            return this.$store.getters['SNACKBAR/SNACKBAR'];
+        },
+        set(val) {
+            this.$store.commit('SNACKBAR/SNACKBAR', val);
+        }
+      }
     }
   }
 </script>

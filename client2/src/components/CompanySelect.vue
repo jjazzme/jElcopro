@@ -1,28 +1,13 @@
 <template>
-    <v-autocomplete
-            :auto-select-first="true"
-            :clearable="!multiple"
-            :chips="multiple"
-            :deletable-chips="multiple"
-            v-model="proxy"
-            :items="items"
-            item-text="party.name"
-            item-value="id"
-            :loading="isLoading"
-            :search-input.sync="search"
-            hide-no-data
-            hide-selected
-            :label="label"
-            placeholder="набери что-то для поиска"
-            :multiple="multiple"
-    />
+    <model-select model="company" v-model="proxy" :multipe="multiple" :label="label" item-text="party.name"/>
 </template>
 
 <script>
-    import _ from 'lodash';
+    import ModelSelect from '@/components/ModelSelect';
 
     export default {
         name: "CompanySelect",
+        components: { ModelSelect },
         props: {
             value: {
                 type: [Array, Number]
@@ -31,19 +16,10 @@
                 type: Boolean,
                 default: false
             },
-            label: String
-        },
-        data() {
-            return {
-                model: null,
-                items: [],
-                isLoading: false,
-                search: '',
+            label: {
+                type: String,
+                default: 'Компания'
             }
-        },
-        created() {
-            if (this.value)
-                this.$store.dispatch('COMPANY/CACHE', this.value).then((comapny) => this.items.push(comapny));
         },
         computed: {
             proxy: {
@@ -55,26 +31,6 @@
                 }
             }
         },
-        watch: {
-            search: _.debounce(function(val) {
-                if (!val || this.isLoading) return;
-                const options = {
-                    page: 1, itemsPerPage: 10, filters: { 'party.name': val }, filterActions: { 'party.name': 'substring' },
-                    sortBy: ['party.name'], sortDesc: ['false'],
-                };
-                this.isLoading = true;
-                this.$store.dispatch('COMPANY/GET_ITEMS', options)
-                    .then((response) => {
-                        const filtred = _.isArray(this.value)
-                            ? this.items.filter((item) => this.value.indexOf(item.id) >= 0)
-                            : [];
-                        this.items = _.union(response.data.rows, filtred);
-                    })
-                    // eslint-disable-next-line no-unused-vars
-                    .catch(() => {})
-                    .then(() => this.isLoading = false)
-            }, 500)
-        }
     }
 </script>
 
