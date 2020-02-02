@@ -7,6 +7,12 @@
             :loading="loading"
             loading-text="Loading... Please wait"
     >
+        <template v-slot:top>
+            <v-btn class="ml-4 mt-4" @click="addDocument">
+                <v-icon>mdi-plus</v-icon>
+                Добавить
+            </v-btn>
+        </template>
         <template v-slot:header.inCard>
             <v-icon>mdi-cart-outline</v-icon>
         </template>
@@ -85,6 +91,9 @@
                     const index = _.findIndex(this.$store.getters['USER/ORDERS'], { sellerable_id: item.sellerable_id });
                     this.$store.commit('USER/CHANGE_ORDER', { index, id: item.id})
                 }
+            },
+            addDocument() {
+                this.$router.push({ name: 'document', params: { type: this.$route.params.type, id: 0 } })
             }
         },
         beforeRouteEnter(to, from, next){

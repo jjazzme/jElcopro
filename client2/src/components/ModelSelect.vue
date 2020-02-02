@@ -15,6 +15,7 @@
             :label="label"
             placeholder="набери что-то для поиска"
             :multiple="multiple"
+            :disabled="disabled"
     />
 </template>
 
@@ -24,7 +25,7 @@
     export default {
         name: "ModelSelect",
         props: {
-            value: { type: [Array, Number] },
+            value: { type: [Array, Number, String] },
             multiple: { type: Boolean, default: false },
             label: { type: String, required: true },
             itemText: { type: String, default: 'name' },
@@ -33,6 +34,7 @@
             itemsPerPage: { type: Number, default: 10 },
             filters: { type: Object, default: () => {} },
             filterActions: { type: Object, default: () => {} },
+            disabled: { type: Boolean, default: false }
         },
         data() {
             return {

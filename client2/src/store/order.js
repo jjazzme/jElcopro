@@ -4,6 +4,8 @@ import model from '@/store/model';
 
 let state = _.cloneDeep(document.state);
 state.name = 'order';
+
+state.cache[0].document_type_id='order';
 state.breadcrumb = {
     text: 'ЗАКЗАЫ',
     to: { name: 'documents', params: { type: 'order' } },

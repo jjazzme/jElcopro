@@ -3,6 +3,7 @@ const { axios } = window;
 
 const state = {
     name: '',
+    keyType: Number,
     items: [],
     cache: [],
     headers: [],
@@ -12,11 +13,12 @@ const state = {
 const getters = {
     BREADCRUMB: state => state.breadcrumb,
     NAME: state => state.name,
+    KEYTYPE: state => state.keyType,
     URL: state => `/api2/${state.name}`,
     ITEMS: state => state.items,
     HEADERS: state => state.headers,
     CACHE: state => (id) => {
-        if (_.isNumber(id)) return _.find(state.cache, { id });
+        if (_.isNumber(id) || state.keyType === String) return _.find(state.cache, { id });
         return state.cache
     }
 };
@@ -32,7 +34,7 @@ const mutations = {
     },
 
     UPDATE_ITEM(state, newDataRow) {
-        let row = _.find(state.items, { id: newDataRow });
+        let row = _.find(state.items, { id: newDataRow.id });
         if (row) row = newDataRow;
     },
 
@@ -67,9 +69,9 @@ let actions = {
     },
     UPDATE_ITEM({ getters, commit }, payload) {
         const { item } = payload;
+        const method = item.id === 0 ? 'post' : 'put';
         return new Promise((resolve, reject) => {
-            axios
-                .put(getters.URL + '/' + item.id, item)
+            axios[method](getters.URL + '/' + (item.id === 0 ? '' : item.id), item)
                 .then(response => {
                     commit('SET_CACHE', response.data);
                     commit(

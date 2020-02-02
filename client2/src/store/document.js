@@ -2,6 +2,11 @@ import model from './model'
 import _ from 'lodash'
 
 let state = _.cloneDeep(model.state);
+state.cache.push({
+    id: 0,
+    date: new Date(),
+    status_id: 'formed'
+});
 
 state.headers = [
     {

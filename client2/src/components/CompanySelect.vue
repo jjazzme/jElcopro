@@ -1,5 +1,12 @@
 <template>
-    <model-select model="company" v-model="proxy" :multipe="multiple" :label="label" item-text="party.name"/>
+    <model-select
+            model="company"
+            v-model="proxy"
+            :multipe="multiple"
+            :label="label"
+            item-text="party.name"
+            :disabled="disabled"
+    />
 </template>
 
 <script>
@@ -19,6 +26,10 @@
             label: {
                 type: String,
                 default: 'Компания'
+            },
+            disabled: {
+                type: Boolean,
+                default: false,
             }
         },
         computed: {

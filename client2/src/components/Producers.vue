@@ -60,36 +60,7 @@
                 dependent: false,
             }
         },
-        /*
-        computed: {
-            ...mapGetters({ headers: 'PRODUCER/HEADERS'})
-        },
-        */
         mixins: [tableMixin],
-        /*
-        watch: {
-            options: {
-                handler: _.debounce(function() {
-                    this.loading = true;
-                    if (this.$route.query.page === this.options.page) this.options.page = 1;
-                    this.$store.dispatch('PRODUCER/GET_ITEMS', this.options)
-                        .then((response) => {
-                            this.total = response.data.count;
-                            this.items = response.data.rows;
-                            const newQuery = _.omit(this.options, ['filters', 'filterActions', 'scopes']);
-                            if (!_.isEqual(this.$route.query, newQuery)) {
-                                this.$router.replace({ name: 'producers', query: newQuery });
-                            }
-                        })
-                        // eslint-disable-next-line no-unused-vars
-                        .catch(() => {})
-                        .then(() => this.loading = false)
-                }, 500),
-                deep: true
-            }
-        },
-
-         */
         filters: {
             removeHttp(value) {
                 let ret = value.replace('http:', '');

@@ -1,45 +1,75 @@
 <template>
-    <v-form>
-        <v-container>
-            <v-row>
-                <v-col>
-                    <v-menu
-                            v-model="datePicker"
-                            :close-on-content-click="false"
-                            :nudge-right="40"
-                            transition="scale-transition"
-                            offset-y
-                            min-width="290px"
-                    >
-                        <template v-slot:activator="{ on }">
-                            <v-text-field
-                                    :value="dateFormat(document.date)"
-                                    label="Дата"
-                                    prepend-icon="mdi-calendar-edit"
-                                    readonly
-                                    v-on="on"
-                            />
-                        </template>
-                        <v-date-picker v-model="document.date" @input="datePicker = false"></v-date-picker>
-                    </v-menu>
-                </v-col>
-                <v-col>
-                    <v-text-field v-model="document.number_prefix" label="Префикс"/>
-                </v-col>
-                <v-col>
-                    <v-text-field v-model="document.number" label="Номер"/>
-                </v-col>
-                <v-col>
-                    <company-select v-model="document.sellerable_id" label="Поставщик"/>
-                </v-col>
-                <v-col>
-                    <company-select v-model="document.buyerable_id" label="Покупатель"/>
-                </v-col>
-                <v-col>
-                    <store-select v-model="document.store_id" :company-id="document.buyerable_id" label="Склад"/>
-                </v-col>
-            </v-row>
-        </v-container>
+    <v-form class="mx-2">
+        <v-row>
+            <v-col>
+                <v-menu
+                        v-model="datePicker"
+                        :close-on-content-click="false"
+                        :nudge-right="40"
+                        transition="scale-transition"
+                        offset-y
+                        min-width="290px"
+                >
+                    <template v-slot:activator="{ on }">
+                        <v-text-field
+                                :value="dateFormat(document.date)"
+                                label="Дата"
+                                prepend-icon="mdi-calendar-edit"
+                                readonly
+                                v-on="on"
+                                :disabled="documentNotEditable"
+                        />
+                    </template>
+                    <v-date-picker v-model="document.date" @input="datePicker = false"></v-date-picker>
+                </v-menu>
+            </v-col>
+            <v-col>
+                <v-text-field v-model="document.number_prefix" label="Префикс" :disabled="documentNotEditable"/>
+            </v-col>
+            <v-col>
+                <v-text-field v-model="document.number" label="Номер" :disabled="documentNotEditable"/>
+            </v-col>
+            <v-col>
+                <document-transition :document="document"/>
+            </v-col>
+        </v-row>
+        <v-row>
+            <v-col>
+                <company-select v-model="document.sellerable_id" label="Поставщик" :disabled="documentNotEditable"/>
+            </v-col>
+            <v-col>
+                <company-select v-model="document.buyerable_id" label="Покупатель" :disabled="documentNotEditable"/>
+            </v-col>
+            <v-col>
+                <store-select
+                        v-model="document.store_id"
+                        :company-id="companyId"
+                        label="Склад"
+                        :disabled="documentNotEditable"
+                />
+            </v-col>
+            <v-col>
+                <currency-select v-model="document.currency_id" :disabled="documentNotEditable"/>
+            </v-col>
+        </v-row>
+        <v-row>
+            <v-col v-if="toCardsPossible && !documentNotEditable" class="ml-4">
+                <v-btn v-if="inCards" @click="removeFromCards">
+                    <v-icon>mdi-cart-minus</v-icon>
+                    Удалить из карт
+                </v-btn>
+                <v-btn v-else @click="addToCards">
+                    <v-icon>mdi-cart-plus</v-icon>
+                    Добавить в карты
+                </v-btn>
+            </v-col>
+            <v-col>
+                <v-btn color="success" @click="save" :disabled="documentNotEditable">
+                    <v-icon>mdi-content-save</v-icon>
+                    Сохранить
+                </v-btn>
+            </v-col>
+        </v-row>
     </v-form>
 </template>
 
@@ -49,10 +79,12 @@
     import utilsMixin from '@/mixins/utilsMixin';
     import CompanySelect from '@/components/CompanySelect';
     import StoreSelect from '@/components/StoreSelect';
+    import CurrencySelect from '@/components/CurrencySelect';
+    import DocumentTransition from '@/components/DocumentTransition';
 
     export default {
         name: "DocumentEditor",
-        components: {StoreSelect, CompanySelect},
+        components: {DocumentTransition, CurrencySelect, StoreSelect, CompanySelect},
         props: ['value'],
         mixins: [utilsMixin],
         data() {
@@ -63,7 +95,58 @@
         },
         created() {
             this.document = _.cloneDeep(this.value);
-            this.document.date = moment(this.document.date).format('Y-MM-D');
+            this.document.date = moment(this.document.date).format('Y-MM-DD');
+        },
+        computed: {
+            documentType() {
+                return _.toUpper(this.document.document_type_id);
+            },
+            documentNotEditable() {
+                if (_.indexOf(['order', 'invoice'], this.document.document_type_id) < 0) return true;
+                return this.document.status_id !== 'formed';
+            },
+            companyId() {
+                if (this.document.document_type_id === 'invoice') return this.document.sellerable_id ;
+               return this.document.buyerable_id
+            },
+            inCards() {
+                if (!this.document || _.indexOf(['invoice', 'order'], this.document.document_type_id) < 0) return false;
+                if (
+                    this.document.document_type_id === 'invoice' &&
+                    this.$store.getters['USER/INVOICE'] &&
+                    this.$store.getters['USER/INVOICE'].id === this.document.id
+                ) {
+                    return true;
+                }
+                return _.findIndex(this.$store.getters['USER/ORDERS'], { id: this.document.id })>=0;
+            },
+        },
+        watch: {
+            value(v) {
+                this.document = _.cloneDeep(v);
+                this.document.date = moment(this.document.date).format('Y-MM-DD');
+            }
+        },
+        methods: {
+            removeFromCards() {
+                if (this.document.document_type_id === 'invoice') {
+                    this.$store.commit('USER/CLEAR_INVOICE');
+                    // this.$router.push({ name: 'documents', params: { type: 'invoice' } });
+                } else {
+                    this.$store.commit('USER/REMOVE_ORDER', this.document.id);
+                    // this.$router.push({ name: 'documents', params: { type: 'order' } });
+                }
+            },
+            addToCards() {
+                if (this.document.document_type_id === 'invoice') {
+                    this.$store.commit('USER/SET_INVOICE', this.document.id)
+                } else {
+                    this.$store.commit('USER/PUSH_ORDER', this.document.id);
+                }
+            },
+            save() {
+                this.$store.dispatch(this.documentType + '/UPDATE_ITEM', { item: this.document });
+            }
         }
     }
 </script>

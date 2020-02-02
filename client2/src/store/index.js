@@ -12,6 +12,7 @@ import documentTypes from '@/store/documentTypes';
 import transferIn from '@/store/transferIn';
 import company from '@/store/company';
 import store from '@/store/store';
+import currency from '@/store/currency';
 
 Vue.use(Vuex);
 
@@ -28,6 +29,7 @@ export default new Vuex.Store({
       PRODUCER: producer,
       COMPANY: company,
       STORE: store,
+      CURRENCY: currency,
       SNACKBAR: snackbar,
       BREADCRUMBS: breadcrumbs,
       DOCUMENTLINE: documentLine,

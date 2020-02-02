@@ -1,9 +1,9 @@
 <template>
     <model-select
-            model="producer"
             v-model="proxy"
-            label="Выбор производителей"
-            :multiple="multiple"
+            model="currency"
+            :items-per-page="-1"
+            label="Валюта"
             :disabled="disabled"
     />
 </template>
@@ -12,20 +12,16 @@
     import ModelSelect from '@/components/ModelSelect';
 
     export default {
-        name: "ProducerSelect",
-        components: { ModelSelect },
+        name: "CurrencySelect",
+        components: { ModelSelect } ,
         props: {
             value: {
-                type: [Array, Number]
-            },
-            multiple: {
-                type: Boolean,
-                default: false
+                type: [Array, String]
             },
             disabled: {
                 type: Boolean,
                 default: false,
-            }
+            },
         },
         computed: {
             proxy: {
@@ -35,7 +31,7 @@
                 set(val) {
                     this.$emit('input', val)
                 }
-            }
+            },
         },
     }
 </script>

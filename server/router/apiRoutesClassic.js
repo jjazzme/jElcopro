@@ -21,6 +21,7 @@ export default function ApiRoutesClassic(services) {
     apiRouter.resource('document-type', new ApiController(services.db.models.DocumentType));
     apiRouter.resource('company', new ApiController(services.db.models.Company));
     apiRouter.resource('store', new ApiController(services.db.models.Store));
+    apiRouter.resource('currency', new ApiController(services.db.models.Currency));
     apiRouter.resource('transfer-in', TransferInControllerClassic);
     apiRouter.resource('transfer-out', TransferOutControllerClassic);
     return apiRouter.router;

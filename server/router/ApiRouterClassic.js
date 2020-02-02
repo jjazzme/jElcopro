@@ -35,7 +35,7 @@ export default class ApiRouterClassic {
         });
         this.router.post(`/${path}/`, async (req, res, next) => {
             try {
-                res.send(await controller.modify(req, res, next));
+                res.send(await controller.create(req, res, next));
             } catch (e) {
                 next(e);
             }
