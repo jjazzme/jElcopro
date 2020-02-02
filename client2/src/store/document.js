@@ -5,7 +5,8 @@ let state = _.cloneDeep(model.state);
 state.cache.push({
     id: 0,
     date: new Date(),
-    status_id: 'formed'
+    status_id: 'formed',
+    currency_id: 'R01000',
 });
 
 state.headers = [

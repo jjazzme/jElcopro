@@ -30,22 +30,36 @@
                 <v-text-field v-model="document.number" label="Номер" :disabled="documentNotEditable"/>
             </v-col>
             <v-col>
-                <document-transition :document="document"/>
+                <document-transition :document="document" :disabled="!companyId"/>
             </v-col>
         </v-row>
         <v-row>
             <v-col>
-                <company-select v-model="document.sellerable_id" label="Поставщик" :disabled="documentNotEditable"/>
+                <company-select
+                        v-model="document.sellerable_id"
+                        label="Поставщик"
+                        :disabled="documentNotEditable"
+                        :key="document.sellerable_id"
+                        :filters="sellerableFilters"
+                        :filter-actions="sellerableFilterActions"
+                />
             </v-col>
             <v-col>
-                <company-select v-model="document.buyerable_id" label="Покупатель" :disabled="documentNotEditable"/>
+                <company-select
+                        v-model="document.buyerable_id"
+                        label="Покупатель"
+                        :disabled="documentNotEditable"
+                        :key="document.buyerable_id"
+                        :filters="buyerableFilters"
+                        :filter-acttions="buyerableFilterActions"
+                />
             </v-col>
             <v-col>
                 <store-select
                         v-model="document.store_id"
                         :company-id="companyId"
                         label="Склад"
-                        :disabled="documentNotEditable"
+                        :disabled="documentNotEditable || !companyId"
                 />
             </v-col>
             <v-col>
@@ -98,6 +112,28 @@
             this.document.date = moment(this.document.date).format('Y-MM-DD');
         },
         computed: {
+            buyerableFilters() {
+                if (this.document.document_type_id === 'invoice') return { own: 0 };
+                if (this.document.document_type_id === 'order') return { own: 1 };
+                return {};
+            },
+            buyerableFilterActions() {
+                if (this.document.document_type_id === 'invoice' || this.document.document_type_id === 'order') {
+                    return { own: false };
+                }
+                return {};
+            },
+            sellerableFilters() {
+                if (this.document.document_type_id === 'order') return { own: 0 };
+                if (this.document.document_type_id === 'invoice') return { own: 1 };
+                return {};
+            },
+            sellerableFilterActions() {
+                if (this.document.document_type_id === 'invoice' || this.document.document_type_id === 'order') {
+                    return { own: false };
+                }
+                return {};
+            },
             documentType() {
                 return _.toUpper(this.document.document_type_id);
             },

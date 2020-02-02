@@ -6,6 +6,8 @@
             :label="label"
             item-text="party.name"
             :disabled="disabled"
+            :filters="filters"
+            :filter-actions="filterActions"
     />
 </template>
 
@@ -30,7 +32,9 @@
             disabled: {
                 type: Boolean,
                 default: false,
-            }
+            },
+            filters: { type: Object, default: () => {} },
+            filterActions: { type: Object, default: () => {} },
         },
         computed: {
             proxy: {

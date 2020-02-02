@@ -46,8 +46,9 @@ export default class ApiContollerClassic {
     }
 
     async create(req) {
-        const { id } = await this.Model.create(req.body);
-        return this.Model.getInstance(id, this.scopes || []);
+        const payload = _.omit(req.body, ['id']);
+        const model = await this.Model.create(payload);
+        return this.Model.getInstance(model, this.scopes || []);
     }
 
     async update(req) {

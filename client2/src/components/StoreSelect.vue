@@ -8,6 +8,7 @@
             :filter-actions="filterActions"
             :multipe="multiple"
             :disabled="disabled"
+            :key="key"
     />
 </template>
 
@@ -16,7 +17,7 @@
 
     export default {
         name: "StoreSelect",
-        components: { ModelSelect} ,
+        components: { ModelSelect },
         props: {
             value: {
                 type: [Array, Number]
@@ -30,6 +31,11 @@
             disabled: {
                 type: Boolean,
                 default: false,
+            }
+        },
+        data() {
+            return {
+                key: 0,
             }
         },
         computed: {
@@ -48,6 +54,11 @@
                 return this.companyId ? { company_id: false } : {};
             }
         },
+        watch: {
+            companyId() {
+                this.key += 1;
+            }
+        }
     }
 </script>
 

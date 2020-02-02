@@ -95,8 +95,8 @@
                 const options = {
                     page: 1,
                     itemsPerPage: this.itemsPerPage,
-                    filters: _.assign(this.filters, { [this.itemText]: val }),
-                    filterActions: _.assign(this.filterActions || { [this.itemText]: 'substring' }),
+                    filters: _.assign({}, this.filters, { [this.itemText]: val }),
+                    filterActions: _.assign({}, this.filterActions, { [this.itemText]: 'substring' }),
                     sortBy: [this.itemText],
                     sortDesc: ['false'],
                 };

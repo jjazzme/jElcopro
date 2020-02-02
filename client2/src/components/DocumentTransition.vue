@@ -1,6 +1,6 @@
 <template>
     <v-expansion-panels>
-        <v-expansion-panel>
+        <v-expansion-panel :disabled="disabled">
             <v-expansion-panel-header>{{ document.status_id }}</v-expansion-panel-header>
             <v-expansion-panel-content>
                 <v-chip-group class="ml-4">
@@ -21,7 +21,7 @@
 
     export default {
         name: "DocumentTransition",
-        props: ['document'],
+        props: ['document', 'disabled'],
         created() {
             this.getTransitions();
         },
