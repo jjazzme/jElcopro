@@ -126,7 +126,6 @@
         else if (this.step === 'store') this.step = 'confirm';
       },
       enter(){
-        console.log(this.confirmModel)
         this.source.updateItem({ type: 'Party', item: this.party })
         .then(ans => {
           this.party.id = ans.data.id;
@@ -136,8 +135,13 @@
             this.company.id = ans.data.id;
             _.forEach(this.stores, store => {
               store.company_id = this.company.id;
-              this.source.updateItem({ type: 'Store', item: this.store })
+              this.source.updateItem({ type: 'Store', item: store })
             });
+
+            const item = this.source.editor.row;
+            item[this.source.editor.name] = this.company.id;
+            this.source.updateItem({ type: this.source.type, item });
+            this.buttons.close.action();
           })
         })
       }
@@ -168,8 +172,7 @@
       },
       step(n){
         this.buttons.forward.enable = this.validator[n];
-        if(n === 'confirm') this.buttons.enter.enable = true;
-        else this.buttons.enter.enable = false;
+        this.buttons.enter.enable = n === 'confirm';
       },
       'address.id'(n){
          this.company.fact_address_id = n;

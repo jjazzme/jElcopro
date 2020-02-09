@@ -37,7 +37,7 @@
       </div>
       <div class="t-close">
         <fa-icon icon="times"
-           @click="close()"
+           @click="buttons.close.action()"
         />
       </div>
     </div>
@@ -63,7 +63,11 @@
           },
           enter: {
             enable: true,
-            action: this.enter
+            action: this.enter,
+          },
+          close: {
+            enable: true,
+            action: this.close,
           },
           addForm: false,
         },

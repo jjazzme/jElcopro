@@ -19,6 +19,7 @@ import TransferOutCorrectiveController from "../controller/TransferOutCorrective
 import TransferInCorrectiveController from "../controller/TransferInCorrectiveController";
 import DadataController from "../controller/DadataController";
 import AddressController from "../controller/AddressController";
+import CompanyController from "../controller/CompanyController";
 
 export default function ApiRoutes(services) {
     const apiRouter = new ApiRouter(services.db);
@@ -28,6 +29,7 @@ export default function ApiRoutes(services) {
     apiRouter.middleware(services.auth.bearer); // before without
 
     apiRouter.resource('address', AddressController);
+    apiRouter.resource('company', CompanyController);
     apiRouter.resource('currency', new ApiController(services.db.models.Currency));
     apiRouter.resource('currencyRateService', CurrencyRateController);
     apiRouter.resource('docline', DocumentLineController);

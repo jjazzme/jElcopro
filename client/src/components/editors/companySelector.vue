@@ -109,7 +109,10 @@
       enter(){
         if (this.cursor.position !== null){
           if (this.cursor.type === 'db'){
-            this.buttons.enter.action(this.data._db[this.cursor.position].id);
+            const item = this.source.editor.row;
+            item[this.source.editor.name] = this.data._db[this.cursor.position].id;
+            this.source.updateItem({ type: this.source.type, item });
+            this.buttons.close.action();
           }
           else{
             this.buttons.back.action = this.back;

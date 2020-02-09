@@ -1,7 +1,11 @@
-import DocumentController from './DocumentController';
+import ApiController from './ApiController';
 
-export default class InvoiceController extends DocumentController {
+export default class CompanyController extends ApiController {
+    scopes = [
+      'withStores',
+      'withAddress',
+    ];
     constructor(db) {
-        super(db.models.Invoice);
+        super(db.models.Company);
     }
 }
