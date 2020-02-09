@@ -39,6 +39,7 @@
     props:{
       buttons: null,
       dadata: null,
+      db: null,
       source: null,
       addressTemplate: {
         type: Object,
@@ -98,7 +99,7 @@
         return { company: this.company, party: this.party, address: this.address, stores: this.stores }
       },
       validator(){
-        const party = this.party.name.length > 0 && (this.party.inn.length === 10 || this.party.inn.length === 12) && this.party.ogrn.length === 13;
+        const party = this.party.name.length > 0 && (this.party.inn.length === 10 || this.party.inn.length === 12) && (this.party.ogrn.length === 13 || this.party.ogrn.length === 15);
         const address = this.address.id !== 0;
         const company = true;
         const store = true;
@@ -147,7 +148,7 @@
       }
     },
     created(){
-      if (this.dadata) {
+      if(this.dadata) {
         this.party.json = this.dadata.data;
         this.party.name = this.dadata.value;
         this.party.inn = this.dadata.data.inn;
@@ -157,7 +158,11 @@
         const addr2 = this.dadata.data.address.value;
         this.address.json = this.dadata.data.address;
         this.address.address = addr1.length > addr2.length ? addr1 : addr2;
-
+      } else if(this.db) {
+        this.$set(this, 'company', this.db);
+        this.$set(this, 'party', this.db.party);
+        this.$set(this, 'address', this.db.factAddress);
+        this.$set(this, 'stores', this.db.stores);
       }
     },
     mounted(){

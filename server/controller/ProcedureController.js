@@ -36,7 +36,7 @@ export default class ProcedureController {
         const query = params.query;
 
         const Model = this.db.models.Company;
-        const dbAnswer = await Model.scope(['withStores', 'defaultScope']).findAll({
+        const dbAnswer = await Model.scope(['withStores', 'withAddress', 'defaultScope']).findAll({
             include: [
               {
                   model: PartyModel,

@@ -2,6 +2,7 @@
   <company-editor
     v-if="addForm"
     :dadata="selectedDadata"
+    :db="selectedDB"
     :buttons="buttons"
     :source="source"
   />
@@ -51,6 +52,7 @@
         },
         //addForm: false,
         selectedDadata: null,
+        selectedDB: null,
         newCompany: null,
       }
     },
@@ -109,14 +111,21 @@
       enter(){
         if (this.cursor.position !== null){
           if (this.cursor.type === 'db'){
+            /*
             const item = this.source.editor.row;
             item[this.source.editor.name] = this.data._db[this.cursor.position].id;
             this.source.updateItem({ type: this.source.type, item });
             this.buttons.close.action();
+             */
+            this.buttons.back.action = this.back;
+            this.$set(this, 'selectedDadata', null);
+            this.$set(this, 'selectedDB', this.data._db[this.cursor.position]);
+            this.$set(this.buttons, 'addForm', true);
           }
           else{
             this.buttons.back.action = this.back;
             this.$set(this, 'selectedDadata', this.data._dadata[this.cursor.position]);
+            this.$set(this, 'selectedDB', null);
             this.$set(this.buttons, 'addForm', true);
           }
         }
