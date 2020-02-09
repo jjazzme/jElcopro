@@ -9,7 +9,7 @@ import ExpressService from './ExpressService';
 import DatabaseConnection from './DatabaseConnection';
 import DatabaseService from './DatabaseService';
 import CacheService from './CacheService';
-import DadataSerice from './DadataSerice';
+import DadataSerice from './DadataService';
 import CompelService from './CompelService';
 import PromelecService from './PromelecService';
 import PriceService from './PriceService';

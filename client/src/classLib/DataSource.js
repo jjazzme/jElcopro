@@ -45,6 +45,7 @@ export default class DataSource{
       initiator: null,
       top: 10,
       left: 10,
+      value: null,
     };
     this.type = null;
     this.store = store;
@@ -177,10 +178,12 @@ export default class DataSource{
     // check - массив названий строк, необходимых для итема. Если есть итем, но нет их, то перезапросить.
     return this.store.dispatch('Binder/getItem', { type, payload: { id, check } })
   }
-  getSourceByOptics({ type, optics }){
-    if (optics) this.tables[type].optics.value = optics;
-    if (!optics) optics = this.tables[type].optics.value;
-    const params = this.shells.template[type].controller;
+  getSourceByOptics({ type, optics, params, onlyThis }){
+    if(!onlyThis){
+      if (optics) this.tables[type].optics.value = optics;
+      if (!optics) optics = this.tables[type].optics.value;
+      params = this.shells.template[type].controller;
+    }
     const ret = this.store.dispatch('Binder/getByOptics', { type, payload: { optics, params, type } });
     ret
       .then(ans => {
@@ -297,7 +300,7 @@ export default class DataSource{
     return this.store.dispatch('Binder/runProcedure', { type, params })
   }
   updateItem({ type, item }){
-    this.store.dispatch('Binder/updateItem', { type, item })
+    return this.store.dispatch('Binder/updateItem', { type, item })
   }
 }
 
