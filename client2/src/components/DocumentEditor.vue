@@ -181,7 +181,12 @@
                 }
             },
             save() {
-                this.$store.dispatch(this.documentType + '/UPDATE_ITEM', { item: this.document });
+                this.$store.dispatch(this.documentType + '/UPDATE_ITEM', { item: this.document })
+                    .then((response) => {
+                        if (response.data.id !== this.document.id) {
+                            this.$router.replace({ params: { id: response.data.id } });
+                        }
+                    });
             }
         }
     }

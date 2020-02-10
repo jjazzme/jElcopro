@@ -28,6 +28,8 @@ export default class Auth {
 
     init() {
         const { AccessToken, User } = this.db.models;
+        // DELETE NEXT LINE
+        User.findOne().then((user) => { this.user = user; });
         this.express.use(passport.initialize());
         passport.use(new BearerStrategy(async (accessToken, done) => {
             const token = await AccessToken.findByPk(accessToken);
