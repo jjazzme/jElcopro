@@ -34,6 +34,7 @@ import MovementInModel from './MovementInModel';
 import ShipmentModel from './ShipmentModel';
 import CategoryModel from './CategoryModel';
 import AddressModel from './AddressModel';
+import Price from './PriceModel';
 
 export default {
     AccessToken: {
@@ -327,6 +328,9 @@ export default {
                 Store: { foreignKey: 'store_id', as: 'store' },
                 Product: { foreignKey: 'product_id', as: 'product' },
             },
+            hasMany: {
+                Price: { foreignKey: 'good_id', as: 'prices' },
+            },
         },
     },
 
@@ -510,6 +514,14 @@ export default {
             scopes: {
                 withProducer: { include: [{ model: ProducerModel, as: 'producer' }] },
                 withCategory: { include: [{ model: CategoryModel, as: 'category' }] },
+                withGoods: { include: [{ model: GoodModel, as: 'goods' }] },
+                deepGoods: {
+                    include: [{
+                        model: GoodModel,
+                        as: 'goods',
+                        include: [{ model: StoreModel, as: 'store' }, { model: Price, as: 'prices' }],
+                    }],
+                },
             },
         },
         attributes: {

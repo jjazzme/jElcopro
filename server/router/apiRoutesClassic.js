@@ -7,6 +7,7 @@ import DocumentLineControllerClassic from '../controller/DocumentLineControllerC
 import TransitionControllerClassic from '../controller/TransitionControllerClassic';
 import TransferInControllerClassic from '../controller/TransferInControllerClassic';
 import TransferOutControllerClassic from '../controller/TransferOutControllerClassic';
+import ProductControllerClassic from '../controller/ProductControllerClassic';
 
 export default function ApiRoutesClassic(services) {
     const apiRouter = new ApiRouterClassic(services.db);
@@ -14,6 +15,7 @@ export default function ApiRoutesClassic(services) {
     // apiRouter.middleware(services.auth.bearer);
 
     apiRouter.resource('producer', ProducerControllerClassic);
+    apiRouter.resource('product', ProductControllerClassic);
     apiRouter.resource('invoice', InvoiceControllerClassic);
     apiRouter.resource('order', OrderControllerClassic);
     apiRouter.resource('document-line', DocumentLineControllerClassic);
