@@ -144,6 +144,9 @@ export default class DataSource{
     const getBS = this.getShell.getBackSensitive;
     return getBS ? getBS(this.getTable.optics.value) : this.getTable.optics.value;
   }
+  getCache(type){
+    return this.store.getters['Binder/getCacheTableByType'](type);
+  }
   getCacheItem(type, key){
     const cache = this.store.getters['Binder/cacheGetItem'](type, key);
     return cache ? cache[2] : null;

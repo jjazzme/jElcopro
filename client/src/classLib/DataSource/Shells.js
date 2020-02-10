@@ -237,11 +237,13 @@ export default class Shells{
               {type: 'search', _placeholder:'поиск 2'},
             ]},
           store_id:{show: true, order:50, sortable: true, label: 'Склад',
+            editor: () => import('../../components/editors/company/companyStore'),
             html: row=>row.store.name,
             filters:[
               {type: 'search', _placeholder:'поиск 1'},
             ]},
           currency_id:{show: true, order:60, sortable: true, label: 'Валюта',
+            editor: () => import('../../components/editors/currency'),
             html: row=>row.currency.name,
             filters:[
               {type: 'search', _placeholder:'поиск 1'},
