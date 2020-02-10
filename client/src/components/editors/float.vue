@@ -3,16 +3,10 @@
     <b-form-input
       size="sm"
       type="number"
-      v-model.number="_value"
+      v-model.number="value.value"
       @keypress="keypress"
       ref="input"
     />
-    <b-button
-      size="sm"
-      @click="enter()"
-    >
-      ok
-    </b-button>
   </div>
 </template>
 
@@ -20,31 +14,19 @@
   export default {
     name: "floatEditor",
     props:{
-      source: null,
       value: null,
-    },
-    data(){
-      return{
-        _value: 0
-      }
     },
     methods:{
       keypress(e){
-        if(e.code === 'Enter') this.enter();
+        if(e.code === 'Enter') this.$parent.enter();
       },
-      enter(){
-        this.value.component = null;
-        const item = _.cloneDeep(this.value.row);
-        if(item[this.value.name] !== this._value){
-          item[this.value.name] = this._value;
-          const type = this.source.type;
-          this.source.updateItem({ type, item })
-        }
-      }
     },
     created(){
-      this._value = this.value.row[this.value.name];
+      this.value.value = this.value.row[this.value.name];
     },
+    mounted(){
+      this.$refs.input.$el.focus();
+    }
   }
 </script>
 

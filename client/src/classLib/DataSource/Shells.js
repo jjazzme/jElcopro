@@ -10,11 +10,25 @@ import tableFooter from "../../components/body/footerComponents/tableFooter";
 import integerEditor from "../../components/editors/integer";
 import floatEditor from "../../components/editors/float";
 import documentStatus from "../../components/editors/documentStatus";
+// import companySelector from '../../components/editors/companySelector';
 import priceListToCard from "../../components/tables/cell/priceListAddToCard";
 
 export default class Shells{
   constructor(limit){
     this.template = {
+      Address:{
+        binder: {
+          key: item=>item.id,
+          byOpticsLoader: (payload)=>axios.put(
+            '/api/address',
+            { optics:payload.optics, params:payload.params }
+          ),
+          updateLoader: (type, item) => axios.post(`/api/address/${item.id}`, item),
+          ttl: 3600e3*24,
+          cache:[],
+          cacheSets: [],
+        },
+      },
       // образец не включённой в меню сущности
       Currency:{
         binder: {
@@ -37,10 +51,35 @@ export default class Shells{
             `/api/company`,
             {optics:payload.optics, params:payload.params}),
           itemLoader: (key)=>axios.get(`/api/company/${key}`),
+          updateLoader: (type, item) => axios.post(`/api/company/${item.id}`, item),
           ttl: 3600e3*24,
           cache: [],
           cacheSets: [],
         },
+        initial:{
+          id:{show:{ item:true, list:false}, sortable: false, card: false, label: "ID", order: 100},
+          party_id:{ label: 'Название', show: true, order: 10, sortable: true,
+            html: row => row.party.name,
+          },
+          inn: { label: 'ИНН', show: true, order: 20, sortable: true,
+            html: row => row.party.inn,
+          },
+          ogrn: { label: 'ОГРН', show: true, order: 30, sortable: true,
+            html: row => row.party.ogrn,
+          },
+          fact_address_id: { label: 'Адрес', show: true, order: 40, sortable: true,
+            html: row => row.factAddress.address,
+          },
+          phone: { label: 'Телефоны', show: true, order: 40, sortable: true,
+            html: row => row.phone,
+          },
+
+        },
+        h1: item => item.party.name,
+        controller:{
+        },
+        name: {one: 'счёт', many: 'счета', cardof: 'счёта',},
+        optics: { page: 1, sorters: {}, filters: {}, items: [], limit: limit },
       },
       CurrencyRateService:{
         binder: {
@@ -162,7 +201,7 @@ export default class Shells{
           id:{show:{item:true, list:false}, sortable: false, card: false, label: "ID", order: 100},
           date:{ to: row => { return {name:'item', params:{ type: 'Invoice', id: row.id} } },
             show: true, order:10, sortable: true, label: 'Дата', card: false,
-            //editor: 'calendar',
+            editor: () => import('../../components/editors/calendar'),
             html: row=>Intl.DateTimeFormat(
               'ru-RU',
               {
@@ -184,22 +223,27 @@ export default class Shells{
           sellerable_id:{show: true, order:30,
             html: row => row.sellerable.party.name, sortable: true, label: 'Продавец',
             to: row => { return {name:'item', params:{ type: 'Company', id: row.sellerable_id} } },
+            editor: () => import('../../components/editors/companySelector'),
             filters:[
               {type: 'search', _placeholder:'поиск 1'},
               {type: 'search', _placeholder:'поиск 2'},
             ]},
           buyerable_id:{show: true, order:40, sortable: true, label: 'Покупатель',
             html: row=>row.buyerable.party.name,
+            to: row => { return {name:'item', params:{ type: 'Company', id: row.buyerable_id} } },
+            editor: () => import('../../components/editors/companySelector'),
             filters:[
               {type: 'search', _placeholder:'поиск 1'},
               {type: 'search', _placeholder:'поиск 2'},
             ]},
           store_id:{show: true, order:50, sortable: true, label: 'Склад',
+            editor: () => import('../../components/editors/company/companyStore'),
             html: row=>row.store.name,
             filters:[
               {type: 'search', _placeholder:'поиск 1'},
             ]},
           currency_id:{show: true, order:60, sortable: true, label: 'Валюта',
+            editor: () => import('../../components/editors/currency'),
             html: row=>row.currency.name,
             filters:[
               {type: 'search', _placeholder:'поиск 1'},
@@ -347,7 +391,12 @@ export default class Shells{
         name: {one: 'заказ', many: 'заказы', cardof: 'заказа',},
         optics: { page: 1, sorters: {}, filters: {}, items: [], limit: limit },
       },
-
+      Party:{
+        binder: {
+          key: item=>item.id,
+          updateLoader: (type, item) => axios.post(`/api/party/${item.id}`, item),
+        },
+      },
       ///// образец
       PriceList:{
         loadProcessor: new PriceLoadProcessor(), // класс, обрабатывающий загрузку TODO: () => import('./Shells/PriceLoadProcessor')
@@ -547,6 +596,7 @@ export default class Shells{
             '/api/store',
             { optics:payload.optics, params:payload.params }
           ),
+          updateLoader: (type, item) => axios.post(`/api/store/${item.id}`, item),
           ttl: 3600e3*24,
           cache:[],
           cacheSets: [],

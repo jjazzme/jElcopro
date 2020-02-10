@@ -72,6 +72,7 @@ let mutations = {
   setLoaders(state, val) { state.loaders = val },
   upsertItemToCache(state, {type, key, data}) {
     const cache = state.loaders[type].cache;
+    if (!cache) return
     let item = cache.find(item => _.isEqual(item[0], key));
     if (item) {
       const ind = cache.indexOf(item);
@@ -285,6 +286,7 @@ let actions = {
         const key = item.id;
         commit('upsertItemToCache', { type, key, data });
       });
+    commit('clearCacheSets', type);
     return loader;
   },
   runProcedure({ commit, getters }, { type, params }) {

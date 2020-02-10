@@ -122,7 +122,10 @@ export default {
         options: {
             tableName: 'companies',
             defaultScope: { include: [{ model: PartyModel, as: 'party' }] },
-            scopes: { withStores: { include: [{ model: StoreModel, as: 'stores' }] } },
+            scopes: {
+                withStores: { include: [{ model: StoreModel, as: 'stores' }] },
+                withAddress: { include: [{ model: AddressModel, as: 'factAddress' }] },
+            },
         },
         attributes: {
             party_id: DataTypes.INTEGER,
