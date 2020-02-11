@@ -8,6 +8,8 @@ import TransitionControllerClassic from '../controller/TransitionControllerClass
 import TransferInControllerClassic from '../controller/TransferInControllerClassic';
 import TransferOutControllerClassic from '../controller/TransferOutControllerClassic';
 import ProductControllerClassic from '../controller/ProductControllerClassic';
+import GoodControllerClassic from '../controller/GoodControllerClassic';
+import PriceControllerClassic from '../controller/PriceControllerClassic';
 
 export default function ApiRoutesClassic(services) {
     const apiRouter = new ApiRouterClassic(services.db);
@@ -16,6 +18,7 @@ export default function ApiRoutesClassic(services) {
 
     apiRouter.resource('producer', ProducerControllerClassic);
     apiRouter.resource('product', ProductControllerClassic);
+    apiRouter.resource('good', GoodControllerClassic);
     apiRouter.resource('invoice', InvoiceControllerClassic);
     apiRouter.resource('order', OrderControllerClassic);
     apiRouter.resource('document-line', DocumentLineControllerClassic);
@@ -26,5 +29,6 @@ export default function ApiRoutesClassic(services) {
     apiRouter.resource('currency', new ApiController(services.db.models.Currency));
     apiRouter.resource('transfer-in', TransferInControllerClassic);
     apiRouter.resource('transfer-out', TransferOutControllerClassic);
+    apiRouter.resource('price', new PriceControllerClassic(services));
     return apiRouter.router;
 }

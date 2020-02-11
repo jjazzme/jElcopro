@@ -1,24 +1,32 @@
 <template>
-    <div>
-
+    <div v-if="product">
+        <product-editor v-model="product"/>
+        <goods :product-id="product.id"/>
     </div>
 </template>
 
 <script>
-    import _ from 'lodash';
     import utilsMixin from '@/mixins/utilsMixin';
+    import ProductEditor from '@/components/ProductEditor';
+    import Goods from '@/components/Goods';
+
     export default {
         name: "Product",
-        props: ['value'],
+        components: {Goods, ProductEditor},
         mixins: [utilsMixin],
         data() {
             return {
-                product: {},
+
             }
         },
-        created() {
-            this.product = _.cloneDeep(this.value);
-        },
+        computed: {
+            product() {
+                const product = this.$store.getters['PRODUCT/CACHE'](parseInt(this.$route.params.id));
+                if (product) return product;
+                this.$store.dispatch('PRODUCT/GET_ITEM', parseInt(this.$route.params.id));
+                return null;
+            }
+        }
     }
 </script>
 

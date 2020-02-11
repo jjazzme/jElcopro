@@ -10,6 +10,11 @@
         <template v-slot:top>
             <slot name="header"></slot>
         </template>
+        <template v-slot:item.good.product.name="{ item }">
+            <router-link :to="{ name: 'product', params: { id: item.good.product_id } }">
+                {{ item.good.product.name }}
+            </router-link>
+        </template>
         <template v-slot:item.quantity="props">
             <v-edit-dialog>
                 {{ props.item.quantity }}

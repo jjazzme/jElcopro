@@ -1,4 +1,6 @@
 import _ from 'lodash';
+import moment from 'moment';
+require('moment/locale/ru');
 
 export default {
     computed: {
@@ -38,4 +40,9 @@ export default {
             deep: true
         }
     },
+    methods: {
+        date(d) {
+            return moment(d).format('LLL');
+        }
+    }
 }

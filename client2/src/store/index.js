@@ -13,6 +13,9 @@ import transferIn from '@/store/transferIn';
 import company from '@/store/company';
 import store from '@/store/store';
 import currency from '@/store/currency';
+import product from '@/store/product';
+import good from '@/store/good';
+import price from '@/store/price';
 
 Vue.use(Vuex);
 
@@ -27,6 +30,9 @@ export default new Vuex.Store({
       INVOICE: invoice,
       ORDER: order,
       PRODUCER: producer,
+      PRODUCT: product,
+      GOOD: good,
+      PRICE: price,
       COMPANY: company,
       STORE: store,
       CURRENCY: currency,

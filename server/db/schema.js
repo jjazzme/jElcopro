@@ -129,6 +129,7 @@ export default {
             },
         },
         attributes: {
+            alias: DataTypes.STRING,
             party_id: DataTypes.INTEGER,
             fact_address_id: DataTypes.INTEGER,
             own: { type: DataTypes.BOOLEAN, default: false },
@@ -463,7 +464,10 @@ export default {
     },
 
     Price: {
-        options: { tableName: 'prices' },
+        options: {
+            tableName: 'prices',
+            scopes: { withCurrency: { include: [{ model: CurrencyModel, as: 'currency' }] } },
+        },
         attributes: {
             good_id: DataTypes.INTEGER,
             currency_id: DataTypes.STRING,
