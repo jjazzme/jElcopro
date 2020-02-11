@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      v-if="value.row.store.company_id || value.row.sellerable_id"
+      v-if="companyId"
     >
       <b-form-select
         v-if="this.stores"
@@ -11,7 +11,7 @@
     </div>
     <div
       v-else
-    >Сначала выберите продавца</div>
+    >Сначала выберите {{ chose }}</div>
   </div>
 </template>
 
@@ -26,6 +26,8 @@
     data(){
       return{
         stores: null,
+        companyId: null,
+        chose: null,
       }
     },
     computed:{
@@ -35,9 +37,11 @@
       },
     },
     created(){
-      if(this.value.row.store.company_id || this.value.row.sellerable_id){
+      this.companyId = this.source.type === 'Invoice' ? this.value.row.sellerable_id : this.value.row.buyerable_id;
+      this.chose = this.source.type === 'Invoice' ? 'продавца' : 'покупателя';
+      if(this.companyId){
         this.value.value = this.value.row[this.value.name];
-        this.source.getSourceById({ type: 'Company', id: this.value.row.store.company_id || this.value.row.sellerable_id , check: 'stores' })
+        this.source.getSourceById({ type: 'Company', id: this.companyId , check: 'stores' })
           .then(ans => {
             this.$set(this, 'stores', ans.stores)
           });

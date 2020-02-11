@@ -19,7 +19,7 @@
             :class="`t-value ${cell.class ? cell.class : ''}`"
           />
           <router-link
-            v-else-if="cell.to"
+            v-else-if="cell.to && cell.to(row).params.id"
             :to="cell.to(row)"
             :class="`t-value ${cell.class ? cell.class : ''}`"
             v-html="cell.html ? cell.html(row) : row[name]"
