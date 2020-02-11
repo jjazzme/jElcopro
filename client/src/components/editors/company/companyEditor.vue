@@ -92,6 +92,7 @@
         address: this.addressTemplate,
         stores: [],
         step: 'party',
+        previousEnterAction: null,
       }
     },
     computed:{
@@ -103,7 +104,7 @@
         const address = this.address.id !== 0;
         const company = true;
         const store = true;
-        let confirm = false;
+        let confirm = !!this.db;
         let _enter = party && address && company && store && confirm;
         return { party, address, company, store, confirm, _enter }
       }
@@ -139,9 +140,13 @@
               this.source.updateItem({ type: 'Store', item: store })
             });
 
-            const item = this.source.editor.row;
-            item[this.source.editor.name] = this.company.id;
-            this.source.updateItem({ type: this.source.type, item });
+            if(this.source.editor.row.id !== 0) {
+              const item = this.source.editor.row;
+              item[this.source.editor.name] = this.company.id;
+              this.source.updateItem({ type: this.source.type, item });
+            } else {
+              this.$parent.$parent.enter(this.company.id)
+            }
             this.buttons.close.action();
           })
         })
@@ -168,8 +173,16 @@
     mounted(){
       this.buttons.back = { enable: true, action: this.back };
       this.buttons.forward = { enable: this.validator[this.step], action: this.forward };
+      this.buttons.enter = {enable: this.validator._enter, action: this.enter };
 
-      this.buttons.enter = {enable: this.validator._enter, action: this.enter }
+      if (this.db){
+        _.forEach(this.db.stores, store => {
+          if (!store.address) this.source.getSourceById({ type: 'Address', id: 2 }) //store.address_id
+          .then(ans => {
+            store.address = ans;
+          });
+        })
+      }
     },
     watch:{
       validator(n){

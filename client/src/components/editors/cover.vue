@@ -85,13 +85,31 @@
     methods:{
       enter(value){
         if (!this.buttons.enter.enable) return;
+
+        const field = this.value.dataSource.editor.name;
         const val = value === undefined ? this.value.dataSource.editor.value : value;
         this.value.dataSource.editor.component = null;
-        const item = _.cloneDeep(this.value.dataSource.editor.row);
-        if(item[this.value.dataSource.editor.name] !== val){
-          item[this.value.dataSource.editor.name] = val;
+        const item = this.value.dataSource.editor.row;
+        if(item[field] !== val){
+          item[field] = val;
           const type = this.value.dataSource.type;
-          this.value.dataSource.updateItem({ type, item })
+          if (item.id !== 0) this.value.dataSource.updateItem({ type, item });
+          else {
+            const cell = this.value.dataSource.getShell.initial[field];
+            if (cell.object !== null){
+              let obj = null;
+              if (cell.object) obj = cell.object;
+              else if (field.endsWith('_id')) {
+                const as = field.slice(0, -3).toLowerCase();
+                const model = as.replace(/^\w/, c => c.toUpperCase());
+                obj = { as, model};
+              }
+              if (obj) this.value.dataSource.getSourceById({ type: obj.model, id: val, check: obj.check })
+              .then(ans => {
+                this.$set(item, obj.as, ans)
+              });
+            }
+          }
         }
       },
 

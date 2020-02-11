@@ -19,6 +19,7 @@ export default class Shells{
       Address:{
         binder: {
           key: item=>item.id,
+          itemLoader: (key)=>axios.get(`/api/address/${key}`),
           byOpticsLoader: (payload)=>axios.put(
             '/api/address',
             { optics:payload.optics, params:payload.params }
@@ -179,6 +180,26 @@ export default class Shells{
         multiply: {}
       },
       Invoice:{
+        newItem: {
+          id: 0,
+          date: new Date().toJSON(),
+          //number: null,
+          user_id: null,
+          //document_type_id: null,
+          sellerable_id: null,
+          sellerable_type: 'Company',
+          buyerable_id: null,
+          buyerable_type: 'Company',
+          store_id: null,
+          currency_id: 'R01000',
+          amount_with_vat: 0,
+          status_id: 'formed',
+
+          store: { name: 'Выберите склад' },
+          sellerable:{ party: { name: 'Выберите продавца' } },
+          buyerable:{ party: { name: 'Выберите покупателя' } },
+          currency: { name: 'Российский рубль' },
+        },
         firstCell:{
           menu: [{
               label: 'Строки',
@@ -219,8 +240,9 @@ export default class Shells{
               {type: 'integer_fromto', from:'', to:''},
               {type: 'search', _placeholder:'поиск 1'},
             ]},
-          sellerable:{show:false, shell: 'Company', key: item => item.id},
+          //sellerable:{show:false, shell: 'Company', key: item => item.id},
           sellerable_id:{show: true, order:30,
+            object: { as: 'sellerable', model: 'Company' },
             html: row => row.sellerable.party.name, sortable: true, label: 'Продавец',
             to: row => { return {name:'item', params:{ type: 'Company', id: row.sellerable_id} } },
             editor: () => import('../../components/editors/companySelector'),
@@ -229,6 +251,7 @@ export default class Shells{
               {type: 'search', _placeholder:'поиск 2'},
             ]},
           buyerable_id:{show: true, order:40, sortable: true, label: 'Покупатель',
+            object: { as: 'buyerable', model: 'Company' },
             html: row=>row.buyerable.party.name,
             to: row => { return {name:'item', params:{ type: 'Company', id: row.buyerable_id} } },
             editor: () => import('../../components/editors/companySelector'),
@@ -237,12 +260,14 @@ export default class Shells{
               {type: 'search', _placeholder:'поиск 2'},
             ]},
           store_id:{show: true, order:50, sortable: true, label: 'Склад',
+            object: { as: 'store', model: 'Store'},
             editor: () => import('../../components/editors/company/companyStore'),
             html: row=>row.store.name,
             filters:[
               {type: 'search', _placeholder:'поиск 1'},
             ]},
           currency_id:{show: true, order:60, sortable: true, label: 'Валюта',
+            object: { as: 'currency', model: 'Currency'},
             editor: () => import('../../components/editors/currency'),
             html: row=>row.currency.name,
             filters:[
@@ -250,6 +275,7 @@ export default class Shells{
             ]},
           amount_with_vat:{show: true, order:70, sortable: true, label: 'Сумма', html: row => row.amount_with_vat.toFixed(2)},
           status_id:{show: true, order: 75, sortable: true, label: 'Статус',
+            object: null,
             html: row=>{ return {formed: 'Формируется', reserved: 'Резерв', in_work: 'В работе', closed: 'Закрыт'}[row.status_id] },
             editor: documentStatus,
           },

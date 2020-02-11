@@ -22,7 +22,9 @@ let getters = {
     return state.loaders[type].byOpticsLoader(payload);
   },
   // execute loader promise for item
-  executorItemLoader: state => (type, key) => state.loaders[type].itemLoader(key),
+  executorItemLoader: state => (type, key) => {
+    return state.loaders[type].itemLoader(key);
+  },
   executorUpdateLoader: state => (type, item) => state.loaders[type].updateLoader(type, item),
   // execute save promise
   executorItemSave: state => (type, payload) => state.loaders[type].itemSave(payload),
