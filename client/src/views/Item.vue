@@ -79,7 +79,8 @@
     },
     computed: {
       row() { return parseInt(this.$route.params.id) === 0 ? this.newItem  : this.value.dataSource.getCacheItem(this.type, parseInt(this.$route.params.id)); },
-      type(){ return this.$route.params.type }
+      type(){ return this.$route.params.type },
+      id(){ return this.$route.params.id }
     },
     methods: {
       add(){
@@ -117,6 +118,9 @@
     },
     watch:{
       type(n){
+        this.init();
+      },
+      id(n){
         this.init();
       }
     },
