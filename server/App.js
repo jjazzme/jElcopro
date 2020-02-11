@@ -17,7 +17,9 @@ export default class App {
     }
 
     start() {
-        const { db, express, auth } = this.services;
+        const {
+            db, express, auth, logger,
+        } = this.services;
 
         express.set('services', this.services);
 
@@ -62,6 +64,7 @@ export default class App {
 
             // render the error page
             res.status(err.status || 500).send({ name: err.name, message: err.message });
+            logger.error(err, 'SOME CODE PROBLEM');
             // res.render('error');
         });
 
@@ -73,8 +76,6 @@ export default class App {
         // register error/response handling middleware
 
         process.on('unhandledRejection', (err) => {
-            const { logger } = this.services;
-
             logger.error(err);
         });
 

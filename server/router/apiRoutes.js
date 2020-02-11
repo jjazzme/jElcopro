@@ -13,18 +13,18 @@ import ProductController from '../controller/ProductController';
 import TransitionController from '../controller/TransitionController';
 import ModelController from '../controller/ModelController';
 import ProcedureController from '../controller/ProcedureController';
-import TransferInController from "../controller/TransferInController";
-import TransferOutController from "../controller/TransferOutController";
-import TransferOutCorrectiveController from "../controller/TransferOutCorrectiveController";
-import TransferInCorrectiveController from "../controller/TransferInCorrectiveController";
-import DadataController from "../controller/DadataController";
-import AddressController from "../controller/AddressController";
-import CompanyController from "../controller/CompanyController";
+import TransferInController from '../controller/TransferInController';
+import TransferOutController from '../controller/TransferOutController';
+import TransferOutCorrectiveController from '../controller/TransferOutCorrectiveController';
+import TransferInCorrectiveController from '../controller/TransferInCorrectiveController';
+import DadataController from '../controller/DadataController';
+import AddressController from '../controller/AddressController';
+import CompanyController from '../controller/CompanyController';
 
 export default function ApiRoutes(services) {
     const apiRouter = new ApiRouter(services.db);
 
-    apiRouter.resource('dadata', DadataController);
+    apiRouter.resource('dadata', new DadataController(services.dadata));
 
     apiRouter.middleware(services.auth.bearer); // before without
 

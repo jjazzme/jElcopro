@@ -41,12 +41,22 @@ export default class DocumentLine extends BaseModel {
             const document = line.document || await line.getDocument();
             if (!document) throw new Error('Attribute document_id wrong');
             const productId = line.product_id || (await Good.getInstance({ id: line.good_id })).product_id;
-            const good = await Good.getInstanceOrCreate(
-                { product_id: productId, store_id: document.store_id, code: productId },
-                {
-                    pack: 1, multiply: 1, is_active: true, ballance: 0,
-                },
-            );
+            let good;
+            let attempts = 3;
+            while (attempts !== 0) {
+                try {
+                    good = await Good.getInstanceOrCreate(
+                        { product_id: productId, store_id: document.store_id, code: productId },
+                        {
+                            pack: 1, multiply: 1, is_active: true, ballance: 0,
+                        },
+                    );
+                    attempts = 0;
+                } catch (e) {
+                    attempts -= 1;
+                    if (attempts === 0) throw e;
+                }
+            }
             line.store_id = document.store_id;
             line.from_good_id = line.good_id;
             line.good_id = good.id;

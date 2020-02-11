@@ -1,9 +1,6 @@
-import app from '../index'
-//import {where} from "sequelize";
-//import TransferOut from '../db/TransferOutModel';
 import { Op } from 'sequelize';
-import PartyModel from "../db/PartyModel";
-import StoreModel from "../db/StoreModel";
+// import {where} from "sequelize";
+// import TransferOut from '../db/TransferOutModel';
 
 export default class ProcedureController {
     constructor(db) {
@@ -32,28 +29,27 @@ export default class ProcedureController {
     }
 
     async companySearch(params) {
-        const type = params.type;
-        const query = params.query;
+        const { type, query } = params;
 
         const Model = this.db.models.Company;
         const dbAnswer = await Model.scope(['withStores', 'withAddress', 'defaultScope']).findAll({
             include: [
-              {
-                  model: PartyModel,
-                  as: 'party',
-                  where: {
-                      [Op.or]: [
-                          { name: { [Op.like]: `%${query}%` } },
-                          { inn: { [Op.like]: `%${query}%` } },
-                      ],
-                  }
-              },
-              { model: StoreModel, as: 'stores' }
+                {
+                    model: this.db.models.Party,
+                    as: 'party',
+                    where: {
+                        [Op.or]: [
+                            { name: { [Op.like]: `%${query}%` } },
+                            { inn: { [Op.like]: `%${query}%` } },
+                        ],
+                    },
+                },
+                { model: this.db.models.Store, as: 'stores' },
             ],
             limit: 5,
         });
 
-        const { dadata } = app.services;
+        const { dadata } = Model.services;
         const dadataAnswer = await dadata.query(type, query);
         return { _dadata: dadataAnswer.suggestions, _db: dbAnswer };
     }
