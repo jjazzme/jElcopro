@@ -201,6 +201,9 @@ export default class DataSource{
   get getTable(){
     return this.tables[this.type];
   }
+  get getUser(){
+    return this.store.getters['User/getUser'];
+  }
   get isStoresLoaded(){
     return this.tables?.Store?.data ? this.tables.Store.data.length > 0 : false;
   }

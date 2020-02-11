@@ -13,7 +13,16 @@
         data-field="_firstCell"
       >
         <div class="t-content">
-          first
+          <b-dropdown
+            size="sm"
+            variant="outline-light"
+          >
+            <b-dropdown-item-button
+              @click="add"
+            >
+              {{ nameOne }}: добавить
+            </b-dropdown-item-button>
+          </b-dropdown>
         </div>
       </div>
 
@@ -50,9 +59,27 @@
       width: null,
     },
     computed:{
+      nameOne(){
+        const one = this.value.dataSource.getShell.name.one;
+        return one.charAt(0).toUpperCase() + one.slice(1);
+      },
       loading(){ return this.value.dataSource.getTable.loadProcessor.eid },
       enabled(){ return this.value.viewport.tableRowIsLinear && !_.isEmpty(this.value.viewport.tableRow) },
       firstShow(){ return !this.value.dataSource.getShell.noFirstRowCell }
+    },
+    methods: {
+      add(){
+        this.$router.push({ name: 'item', params: { type: this.value.dataSource.type, id: 0 } })
+        /*
+        const item = _.cloneDeep(this.value.dataSource.getShell.newItem);
+        const type = this.value.dataSource.type;
+        this.value.dataSource.updateItem({ type, item })
+          .then(ans => {
+            console.log(ans);
+          })
+
+         */
+      }
     },
     created(){
     }
