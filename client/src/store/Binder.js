@@ -45,6 +45,7 @@ let getters = {
   getRequestByEid: state => eid => _.find(state.requests, item => item.eid === eid),
 
   getCacheTableByType: state => type => state.loaders[type].cache.map(item => item[2]),
+  executorDeleteLoader: state => (type, key) => state.loaders[type].deleteLoader(type, key),
 };
 let mutations = {
   addLineToDocument(state, { line, documentId, documentType }) {
@@ -101,6 +102,12 @@ let mutations = {
     cache.unshift([hash, Date.now(), data])
   },
   clearCacheSets(state, type) { state.loaders[type].cacheSets = []; },
+  deleteItemFromCache(state, { type, key }) {
+    const cache = state.loaders[type].cache;
+    if (!cache) return;
+    const ind = _.findIndex(cache, item => _.isEqual(item[0], key));
+    if (ind > -1) cache.splice(ind, 1)
+  },
 };
 let actions = {
   addLineToDocument({ commit }, { priceLine, ourPrice, documentId, documentType }){
@@ -306,6 +313,15 @@ let actions = {
         });
       });
     return executor;
+  },
+  deleteItem({ getters, commit }, { type, key }) {
+    const loader = getters['executorDeleteLoader'](type, key);
+    loader
+      .then(()=>{
+        commit('deleteItemFromCache', { type, key });
+      });
+    commit('clearCacheSets', type);
+    return loader;
   },
 };
 

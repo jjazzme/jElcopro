@@ -8,8 +8,7 @@
       <b-form-checkbox
         size="sm"
         class="d-inline-block pl-4 pr-0"
-        @change="basketChange(row.id)"
-        :checked="includes(row.id)"
+        v-model="selectRow"
       ></b-form-checkbox>
       <b-dropdown
         text=""
@@ -33,6 +32,15 @@
           >
             {{ item.label }}
           </b-link>
+
+          <b-link
+            variant="link"
+            @click="deleteRow(row.id)"
+            v-if="selectRow"
+            class="text-nowrap d-block t-cap"
+          >Удалить</b-link>
+          <div v-else>Удалить (чекбокс)</div>
+
         </b-dropdown-item>
       </b-dropdown>
     </div>
@@ -42,6 +50,11 @@
 <script>
   export default {
     name: "firstRowCell",
+    data(){
+      return{
+        selectRow: false
+      }
+    },
     props: {
       value: null,
       ind: null,
@@ -93,6 +106,13 @@
       },
       includes(id){ //basket
 
+      },
+      deleteRow(key){
+        this.value.dataSource.deleteItem({ type: this.value.dataSource.type, key })
+        .then(ans => {
+          console.log(ans)
+          // TODO: удаление из баскета
+        })
       },
     },
   }

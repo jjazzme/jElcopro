@@ -140,6 +140,9 @@ export default class DataSource{
       this.cardAdd(doc.id, 'Order');
     }
   }
+  deleteItem({ type, key }){
+    return this.store.dispatch('Binder/deleteItem', { type, key })
+  }
   get getBackSensitiveOptics(){
     const getBS = this.getShell.getBackSensitive;
     return getBS ? getBS(this.getTable.optics.value) : this.getTable.optics.value;

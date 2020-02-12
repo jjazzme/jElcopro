@@ -214,6 +214,7 @@ export default class Shells{
             {optics:payload.optics, params:payload.params}),
           itemLoader: (key)=>axios.get(`/api/invoice/${key}`),
           updateLoader: (type, item) => axios.post(`/api/invoice/${item.id}`, item),
+          deleteLoader: (type, key) => axios.delete(`/api/invoice/${key}`),
           ttl: 3600e3*24,
           cache: [],
           cacheSets: [],
