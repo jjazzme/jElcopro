@@ -365,6 +365,7 @@ export default class Shells{
             {optics:payload.optics, params:payload.params}),
           itemLoader: (key)=>axios.get(`/api/order/${key}`),
           updateLoader: (type, item) => axios.post(`/api/order/${item.id}`, item),
+          deleteLoader: (type, key) => axios.delete(`/api/order/${key}`),
           ttl: 3600e3*24,
           cache: [], // [[id, updated, {}], [id, updated, {}]]
           cacheSets: [], // [[hash, updated, [ids]], [hash, updated, [ids]]
