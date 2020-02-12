@@ -63,8 +63,9 @@ export default class ModelContoller {
     }
 
     // eslint-disable-next-line class-methods-use-this
-    async destroy() {
-        return new Error('Not impement');
+    async destroy(req) {
+        const model = await this.Model.findByPk(req.params.id);
+        return model.destroy();
     }
 
     async index1(req) {
