@@ -361,9 +361,12 @@ export default {
                                 model: DocumentLine,
                                 as: 'documentLine',
                                 include: [
-                                    { model: GoodModel, as: 'good', where: { id: good.id } },
+                                    {
+                                        model: GoodModel, as: 'good', where: { id: good.id }, required: true,
+                                    },
                                     { model: Document, as: 'document' },
                                 ],
+                                required: true,
                             },
                         ],
                         order: [
