@@ -22,7 +22,10 @@ let getters = {
     return state.loaders[type].byOpticsLoader(payload);
   },
   // execute loader promise for item
-  executorItemLoader: state => (type, key) => state.loaders[type].itemLoader(key),
+  executorItemLoader: state => (type, key) => {
+    return state.loaders[type].itemLoader(key);
+  },
+  executorUpdateLoader: state => (type, item) => state.loaders[type].updateLoader(type, item),
   // execute save promise
   executorItemSave: state => (type, payload) => state.loaders[type].itemSave(payload),
   // make page from set of keys
@@ -42,8 +45,14 @@ let getters = {
   getRequestByEid: state => eid => _.find(state.requests, item => item.eid === eid),
 
   getCacheTableByType: state => type => state.loaders[type].cache.map(item => item[2]),
+  executorDeleteLoader: state => (type, key) => state.loaders[type].deleteLoader(type, key),
 };
 let mutations = {
+  addLineToDocument(state, { line, documentId, documentType }) {
+    const doc = state.loaders[documentType].cache.find(item => _.isEqual(item[0], documentId))[2];
+    doc.documentLines.push(line);
+    doc.amount_with_vat += line.amount_with_vat;
+  },
   addRequest(state, { uid, source, url, type, eid }) {state.requests.push({ uid, source, url, type, eid })},
   cachesClear(state) { _.forEach(state.loaders, loader => loader.cache = []) },
   incAxiosID(state) { state.axiosID++ },
@@ -66,12 +75,21 @@ let mutations = {
   setLoaders(state, val) { state.loaders = val },
   upsertItemToCache(state, {type, key, data}) {
     const cache = state.loaders[type].cache;
-    const item = cache.find(item => _.isEqual(item[0], key));
+    if (!cache) return
+    let item = cache.find(item => _.isEqual(item[0], key));
     if (item) {
       const ind = cache.indexOf(item);
-      cache.splice(ind, 1);
+      //TODO: следить за поведением
+
+      item[2] = _.mergeWith( item[2], data, (o,s) => { if (_.isArray(o)) {return s} });
+      item[2]._changeCounter++;
+      item[1] = Date.now();
     }
-    cache.unshift([key, Date.now(), data])
+    else{
+      item = [key, Date.now(), data];
+      item[2]._changeCounter=0;
+      cache.unshift(item);
+    }
   },
   upsertSetToCache(state, {type, hash, data}) {
     const cache = state.loaders[type].cacheSets;
@@ -83,9 +101,60 @@ let mutations = {
     cache.unshift([hash, Date.now(), data])
   },
   clearCacheSets(state, type) { state.loaders[type].cacheSets = []; },
+  deleteItemFromCache(state, { type, key }) {
+    if (!state.loaders[type].cache) return;
+    const ind = _.findIndex(state.loaders[type].cache, item => _.isEqual(item[0], key));
+    if (ind > -1) state.loaders[type].cache.splice(ind, 1) //cache.splice(ind, 1)
+  },
 };
 let actions = {
+  addLineToDocument({ commit }, { priceLine, ourPrice, documentId, documentType }){
+    axios.post('/api/docline/0', { priceLine, ourPrice, documentId })
+      .then(ans => {
+        commit('addLineToDocument', { line: ans.data, documentId, documentType })
+      });
+  },
   getByOptics({ getters, commit }, { type, payload }) {
+    const hash = getHash(payload);
+    return new Promise((resolve, reject) => {
+      let kit = getters['cacheGetSetsByHash'](type, hash);
+      const ttl = getters['getLoaderTTL'](type);
+      let kitWithData = null;
+      let dataset = [];
+
+      if(kit && kit[1] + ttl > Date.now()) {
+        dataset = getters['formingSetFromCache'](type, kit[2]._rows);
+        kitWithData = _.cloneDeep(kit[2]);
+        kitWithData.rows = dataset;
+        resolve(kitWithData)
+      } else {
+        const loader = getters['executorByOpticsLoader'](type, payload);
+        loader
+          .then(ans => {
+            if (ttl >= 0 ){
+              kit  = [ hash, Date.now(),  _.cloneDeep(ans.data)];
+              kit[2]._rows = _.map(ans.data.rows, item => getters['getLoaderKey'](type, item));
+              delete kit[2].rows;
+              commit('upsertSetToCache', {type: type, hash: hash, data: kit[2]});
+
+              dataset = ans.data.rows || ans.data;
+              dataset.forEach(row => {
+                const key = getters['getLoaderKey'](type, row);
+                commit('upsertItemToCache', {type, key, data: row})
+              });
+
+              dataset = getters['formingSetFromCache'](type, kit[2]._rows);
+              kitWithData = _.cloneDeep(kit[2]);
+              kitWithData.rows = dataset;
+              resolve(kitWithData);
+            } else {
+              resolve(ans)
+            }
+          });
+      }
+    });
+  },
+  getByOptics_({ getters, commit }, { type, payload }) {
     // payload = {optics, params, eid}
     // TODO: make a ROW notes
     const hash = getHash(payload);
@@ -100,7 +169,7 @@ let actions = {
           cacheItem = getters['formingSetFromCache'](type, cached[2]);
         } else {
           dataset = getters['formingSetFromCache'](type, cached[2]._rows);
-          cacheItem = _.cloneDeep(cached[2]);
+          cacheItem = cached[2];
           cacheItem.rows = dataset;
         }
         resolve(cacheItem)
@@ -115,17 +184,20 @@ let actions = {
               } else {
                 dataset = ans.data.rows;
                 cacheItem = _.cloneDeep(ans.data);
-                cacheItem._rows = _.map(dataset, item=>getters['getLoaderKey'](type, item))
+                cacheItem._rows = _.map(dataset, item=>getters['getLoaderKey'](type, item));
                 ans.data._rows = cacheItem._rows;
                 delete cacheItem.rows;
               }
               dataset.forEach(data=>{
                 const key = getters['getLoaderKey'](type, data);
-                //keys.push(key);
                 commit('upsertItemToCache', {type, key, data})
               });
               commit('upsertSetToCache', {type: type, hash: hash, data: cacheItem});
-              resolve(ans.data)
+
+              dataset = getters['formingSetFromCache'](type, cacheItem._rows);
+              const cacheItem2 = _.cloneDeep(cacheItem);
+              cacheItem2.rows = dataset;
+              resolve(cacheItem2)
             }
             else resolve(ans)
           })
@@ -134,12 +206,18 @@ let actions = {
     });
   },
   getCardsInvoice() {},
-  getItem({getters, commit}, {type, payload}) {
+  getItem({getters, commit}, {type, payload, nocache}) {
     return new Promise((resolve)=>{
       const key = getters['getLoaderKey'](type, payload);
       let data = getters['cacheGetItem'](type, key);
       const ttl = getters['getLoaderTTL'](type);
-      if (data && data[1] + ttl > Date.now()) {
+      let check = true;
+      if (payload.check) {
+        _.forEach(payload.check, field => {
+          if (data && !data[2][field]) check = false;
+        })
+      }
+      if (!nocache && data && check && data[1] + ttl > Date.now()) {
         resolve(data[2])
       } else {
         const loader = getters['executorItemLoader'](type, key);
@@ -201,11 +279,49 @@ let actions = {
   },
   /*
   setBinderDefaults({rootGetters}, {ticket}){
-    if (!ticket) ticket = rootGetters['Auth/getTicket'];
+    if (!ticket) ticket = rootGetters['User/getTicket'];
     if (ticket && ticket.token_type === 'Bearer' && ticket.expires_in > Date.now()) binder.defaults.headers.common['Authorization'] = `Bearer ${ticket.access_token}`;
     else delete binder.defaults.headers.common['Authorization'];
   },
    */
+
+  updateItem({ getters, commit }, { type, item }) {
+    const loader = getters['executorUpdateLoader'](type, item);
+    loader
+      .then(ans=>{
+        const data = ans.data;
+        const key = ans.data.id;
+        commit('upsertItemToCache', { type, key, data });
+      });
+    commit('clearCacheSets', type);
+    return loader;
+  },
+
+  runProcedure({ commit, getters }, { type, params }) {
+    const executor = axios.post(`/api/procedure/${type}`, params)
+    executor
+      .then(ans => {
+        _.forEach(ans.data, (items, type) => {
+          if (type.charAt(0) !== '_'){
+            _.forEach(items, data => {
+              //dispatch('getItem', { type, payload: { id: id }, nocache: true })
+              const key = getters['getLoaderKey'](type, data);
+              commit('upsertItemToCache', { type, data, key })
+            });
+          }
+        });
+      });
+    return executor;
+  },
+  deleteItem({ getters, commit }, { type, key }) {
+    const loader = getters['executorDeleteLoader'](type, key);
+    loader
+      .then(()=>{
+        commit('deleteItemFromCache', { type, key });
+      });
+    commit('clearCacheSets', type);
+    return loader;
+  },
 };
 
 export default {

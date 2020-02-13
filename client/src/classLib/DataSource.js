@@ -12,27 +12,44 @@ import {Optics} from "./DataSource/Optics";
 export default class DataSource{
   refsOrder = [
     {
+      type: 'Transition',
+      errorAddText: 'переходов документа',
+      getSource: () => this.getSourceById({type: 'Transition', id: 0}),
+      after: [
+        {
+          type: 'Model',
+          errorAddText: 'моделей',
+        }
+      ]
+    },
+    {
       type: 'Store',
-      //targets: [(val) => { this.priceList.references.stores = val }],
       errorAddText: 'складов',
       after: [
         {
           type: 'Currency',
-          //targets: [(val) => { this.priceList.references.currencies = val }],
           errorAddText: 'валют',
           after: [
             {
               type: 'CurrencyRateService',
-              //targets: [(val) => { this.priceList.references.currencyRates = val }],
               errorAddText: 'курсов валют'
             },
           ]},
-      ]},
+      ]
+    },
   ];
   constructor(store, optics, classSourceActualTTL, debounceAmount){
+    this.editor = {
+      component: null,
+      name: null,
+      initiator: null,
+      top: 10,
+      left: 10,
+      value: null,
+    };
     this.type = null;
     this.store = store;
-    this.debounceAmount = debounceAmount ?? 1000;
+    this.debounceAmount = debounceAmount ?? 500;
     this.tables = {};
     this.initialOptics = this.getOpticsObject(optics);
 
@@ -98,16 +115,63 @@ export default class DataSource{
   cancelAxiosByStoreID(id){
 
   }
+  cardAdd(id, type){
+    //this.getSourceById({ type, id, check: ['documentLines'] });
+    if (type === 'Invoice') {
+      this.store.dispatch('User/invoiceAdd', id)
+    } else {
+      this.store.dispatch('User/orderAddRemove', id)
+    }
+  }
+  cardDelete(id, type){
+    if (type === 'Invoice') {
+      this.store.dispatch('User/invoiceRemove')
+    } else {
+      this.store.dispatch('User/orderAddRemove', id)
+    }
+  }
+  cardChange(doc, type){
+    if (type === 'Invoice') {
+      this.cardAdd(doc.id, 'Invoice');
+    } else {
+      const orders = this.getOrders;
+      const deletedId = orders.find(row => row.sellerable_id === doc.sellerable_id).id;
+      this.cardDelete(deletedId, 'Order');
+      this.cardAdd(doc.id, 'Order');
+    }
+  }
+  deleteItem({ type, key }){
+    const ret = this.store.dispatch('Binder/deleteItem', { type, key });
+    ret.then(()=>{ //TODO: УБРАТЬ КОСТЫЛЬ
+      const obj = this.tables[type].loadProcessor.data;
+      const ind = _.findIndex(obj.rows, item => item.id === key)
+      if(ind > -1) {
+        obj.rows.splice(ind, 1);
+        obj._rows.splice(ind, 1);
+        obj.count--;
+      }
+    });
+
+    return ret
+  }
   get getBackSensitiveOptics(){
     const getBS = this.getShell.getBackSensitive;
     return getBS ? getBS(this.getTable.optics.value) : this.getTable.optics.value;
   }
+  getCache(type){
+    return this.store.getters['Binder/getCacheTableByType'](type);
+  }
+  getCacheItem(type, key){
+    let cache = this.store.getters['Binder/cacheGetItem'](type, key);
+    return cache ? cache[2] : null;
+  }
   get getInvoice(){
-    return this.user.cards.invoice ? this.getSourceById({ type: 'Invoice', id: this.user.cards.invoice }) : null;
+    return this.user.cards.invoice ? this.store.getters['Binder/cacheGetItem']('Invoice', this.user.cards.invoice)[2] : null;
+    //this.getSourceById({ type: 'Invoice', id: this.user.cards.invoice })
   }
   get getOrders(){
     return this.user.cards.orders.map(id => {
-      return this.getSourceById({ type: 'Order', id })
+      return this.store.getters['Binder/cacheGetItem']('Order', id)[2] //this.getSourceById({ type: 'Order', id })
     })
   }
   get initialCards(){
@@ -127,13 +191,16 @@ export default class DataSource{
       return null;
     }
   }
-  getSourceById({ type, id }){
-    return this.store.dispatch('Binder/getItem', { type, payload: { id } })
+  getSourceById({ type, id, check }){
+    // check - массив названий строк, необходимых для итема. Если есть итем, но нет их, то перезапросить.
+    return this.store.dispatch('Binder/getItem', { type, payload: { id, check } })
   }
-  getSourceByOptics({ type, optics }){
-    if (optics) this.tables[type].optics.value = optics;
-    if (!optics) optics = this.tables[type].optics.value;
-    const params = this.shells.template[type].controller;
+  getSourceByOptics({ type, optics, params, onlyThis }){
+    if(!onlyThis){
+      if (optics) this.tables[type].optics.value = optics;
+      if (!optics) optics = this.tables[type].optics.value;
+      params = this.shells.template[type].controller;
+    }
     const ret = this.store.dispatch('Binder/getByOptics', { type, payload: { optics, params, type } });
     ret
       .then(ans => {
@@ -148,42 +215,67 @@ export default class DataSource{
   get getTable(){
     return this.tables[this.type];
   }
+  get getUser(){
+    return this.store.getters['User/getUser'];
+  }
   get isStoresLoaded(){
     return this.tables?.Store?.data ? this.tables.Store.data.length > 0 : false;
   }
   loadReferences(){
     const refLoader = (refs) => {
       _.forEach(refs, item=>{
-        this.getSourceByOptics({ type: item.type })
-          .then((ans)=> {
-            if (item.type === 'Store') {
-              this.tables.PriceList.optics.value.selectedStores = ans.rows.map(store=>{ if(!store.online) return store.id }).filter(id => id);
-              this.tables.PriceList.loadProcessor.stores = ans.rows;
-            } else if (item.type === 'Currency') {
-              this.tables.PriceList.loadProcessor.currency = ans.rows;
-            } else if (item.type === 'CurrencyRateService') {
-              this.tables.PriceList.loadProcessor.currencyRates = ans;
-            }
-          })
-          .finally(()=>{
+        if(item.getSource){
+          item.getSource()
+            .then(ans => {
+              if (item.type === 'Transition') {
+                _.forEach(ans, row => {
+                  const name = Object.keys(row)[0];
+                  const transitions = row[Object.keys(row)[0]];
+                  if(!this.shells.template[name]) this.shells.template[name] = {};
+
+                  const statuses = [];
+                  _.forEach(transitions, transition => {
+                    if(!statuses.includes(transition.from)) statuses.push(transition.from)
+                  });
+                  if(!statuses.includes(_.last(transitions).to)) statuses.push(_.last(transitions).to);
+
+                  _.forEach(transitions, transition => {
+                    const fromInd = statuses.indexOf(transition.from);
+                    const toInd = statuses.indexOf(transition.to);
+                    transition.vector = toInd - fromInd;
+                  });
+
+                  const shell = this.shells.template[name];
+                  shell.transition = transitions;
+                })
+              }
+            })
+            .finally(()=>{
             // последовательность
             if(item.after) refLoader(item.after)
           });
-        /*
-                  .then(()=> {
-            _.forEach(item.targets, target => {
-              const table = this.getTableByType(item.type);
-              target(table);
+        } else {
+          this.getSourceByOptics({ type: item.type })
+            .then((ans)=> {
               if (item.type === 'Store') {
-                let selectedStores = table.map(store=>{ if(!store.online) return store.id }).filter(id => id);
-                this.priceList.selectedStores = selectedStores;
+                this.tables.PriceList.optics.value.selectedStores = ans.rows.map(store=>{ if(!store.online) return store.id }).filter(id => id);
+                this.tables.PriceList.loadProcessor.stores = ans.rows;
+              } else if (item.type === 'Currency') {
+                this.tables.PriceList.loadProcessor.currency = ans.rows;
+              } else if (item.type === 'CurrencyRateService') {
+                this.tables.PriceList.loadProcessor.currencyRates = ans;
+              } else if (item.type === 'Model') {
+                _.forEach(ans.rows, row => {
+                  if (!this.shells.template[row.id]) this.shells.template[row.id] = {};
+                  this.shells.template[row.id].Model = { perent: row.parent, children: row.children }
+                });
               }
+            })
+            .finally(()=>{
+              // последовательность
+              if(item.after) refLoader(item.after)
             });
-          })
-          .catch(err=>{
-            console.log(err);
-          })
-         */
+        }
       });
     };
     refLoader(this.refsOrder);
@@ -207,7 +299,7 @@ export default class DataSource{
         });
       }
 
-      this.store.dispatch('Auth/autoLogin')
+      this.store.dispatch('User/autoLogin')
         .then(user => {
           this.user = user;
           if (user.cards.invoice){
@@ -224,6 +316,11 @@ export default class DataSource{
 
     });
   }
-
+  runProcedure({ type, params }){
+    return this.store.dispatch('Binder/runProcedure', { type, params })
+  }
+  updateItem({ type, item }){
+    return this.store.dispatch('Binder/updateItem', { type, item })
+  }
 }
 

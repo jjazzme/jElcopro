@@ -1,30 +1,31 @@
 <template>
-    <header v-if="stores && stores.length>0">
-        <b-form-input
-          type="text"
-          v-model="optics.search"
-          placeholder="Строка поиска"
-          class="p-l-search"
-        />
-        <div class="p-l-filter">
+    <div v-if="stores && stores.length>0">
+        <div class="filters">
             <b-form-input
-              class="p-l-input"
-              type="number"
-              min="1"
-              max="9999999"
-              v-model="optics.quantity"
-              :formatter="intFormatter"
-              :number="true"
-              placeholder="Мин количество"
-            >
-            </b-form-input>
-            <div class="p-l-alias">Мин. количество</div>
-            <div class="p-l-additional">ед-цы</div>
-            <span
-              :title="user.skills.interface >= enums.userLevel.Junior ? 'Показать больше или равно количеству и оптимизировать вывод' : ''"
-              class="p-l-checkbox"
-              id="PLCQua"
-            >
+              type="text"
+              v-model="optics.search"
+              placeholder="Строка поиска"
+              class="p-l-search"
+            />
+            <div class="p-l-filter">
+                <b-form-input
+                  class="p-l-input"
+                  type="number"
+                  min="1"
+                  max="9999999"
+                  v-model="optics.quantity"
+                  :formatter="intFormatter"
+                  :number="true"
+                  placeholder="Мин количество"
+                >
+                </b-form-input>
+                <div class="p-l-alias">Мин. количество</div>
+                <div class="p-l-additional">ед-цы</div>
+                <span
+                  :title="user.skills.interface >= enums.userLevel.Junior ? 'Показать больше или равно количеству и оптимизировать вывод' : ''"
+                  class="p-l-checkbox"
+                  id="PLCQua"
+                >
                    <b-form-checkbox
                      size="sm"
                      v-model="optics.fromQuantity"
@@ -34,25 +35,25 @@
                       target="PLCQua"
                       triggers="hover">Показать больше или равно количеству и оптимизировать вывод</b-tooltip>
                 </span>
-        </div>
-        <div class="p-l-filter">
-            <b-form-input
-              class="p-l-input"
-              type="number"
-              min="1"
-              v-model="optics.relevance"
-              :number="true"
-              :formatter="intFormatter"
-              placeholder="Мин актуальность"
-            >
-            </b-form-input>
-            <div class="p-l-alias">Мин.актуальность</div>
-            <div class="p-l-additional">часы</div>
-            <span
-              :title="user.skills.interface >= enums.userLevel.Junior ? 'Показывать только актуальные для заданного количества часов' : ''"
-              class="p-l-checkbox"
-              id="PLCAct"
-            >
+            </div>
+            <div class="p-l-filter">
+                <b-form-input
+                  class="p-l-input"
+                  type="number"
+                  min="1"
+                  v-model="optics.relevance"
+                  :number="true"
+                  :formatter="intFormatter"
+                  placeholder="Мин актуальность"
+                >
+                </b-form-input>
+                <div class="p-l-alias">Мин.актуальность</div>
+                <div class="p-l-additional">часы</div>
+                <span
+                  :title="user.skills.interface >= enums.userLevel.Junior ? 'Показывать только актуальные для заданного количества часов' : ''"
+                  class="p-l-checkbox"
+                  id="PLCAct"
+                >
                     <b-form-checkbox
                       size="sm"
                       v-model="optics.fromRelevance"
@@ -62,9 +63,9 @@
                       target="PLCAct"
                       triggers="hover">Показывать только актуальные для заданного количества часов</b-tooltip>
                 </span>
-        </div>
+            </div>
 
-        <div class="p-l-filter p-l-card">
+            <div class="p-l-filter p-l-card">
                 <span
                   :title="user.skills.interface >= enums.userLevel.Junior ? 'Учитывать только сохранённую в базе данных информацию' : ''"
                   class="p-l-checkbox"
@@ -79,39 +80,39 @@
                       v-model="optics.onlyDB"
                       switch></b-form-checkbox>
                 </span>
-            <store-icons
-              class="p-l-icons"
-              v-model="iconsModel"
-            ></store-icons>
-            <div class="p-l-alias">Склады</div>
-            <b-dropdown
-              variant="transparent"
-              size="sm"
-              class="p-l-dropd"
-            >
-                <b-form-checkbox-group
-                  v-model="optics.selectedStores"
-                  class="checkbox"
-                  :options="options"
-                  stacked
-                />
-            </b-dropdown>
+                <store-icons
+                  class="p-l-icons"
+                  v-model="iconsModel"
+                ></store-icons>
+                <div class="p-l-alias">Склады</div>
+                <b-dropdown
+                  variant="transparent"
+                  size="sm"
+                  class="p-l-dropd"
+                >
+                    <b-form-checkbox-group
+                      v-model="optics.selectedStores"
+                      class="checkbox"
+                      :options="options"
+                      stacked
+                    />
+                </b-dropdown>
+            </div>
         </div>
-
-        <!--div class="header">
+        <div class="header"
+          v-if="value.viewport.tableRowIsLinear"
+        >
             <div class="t-row">
-                <div>first</div>
-
                 <div
                   v-for="(cell, name) in value.dataSource.getShell.initial"
-                  v-if="cell.label"
+                  v-if="cell.label && value.viewport.tableRow[name]"
                   :key="name"
                   v-html="cell.label"
-                  :style="`width: ${value.viewport.tableRow[name].width}px`"
+                  :style="`width: ${value.viewport.tableRow[name].width}px; order: ${ cell.order }`"
                 />
             </div>
-        </div-->
-    </header>
+        </div>
+    </div>
 </template>
 
 <script>
@@ -187,40 +188,17 @@
                 background-color: @table-header-bg;
                 color: white;
             }
-            >div:first-child{
-                flex: none;
-                width: 70px;
-            }
         }
     }
 
-    @media @mob {
-        .header{
-            padding: 5px 10px 0 10px;
-        }
-    }
-    @media @des {
-        .header{
-            padding: 10px 20px 0 20px;
-        }
-    }
-    @media @wid {
-        .header{
-            padding: 20px 40px 0 40px;
-        }
-    }
-
-    header{
+    .filters{
         display: flex;
         flex-flow: row wrap;
         > *{
             flex: 0 1 auto;
             align-self: center;
-            height: 50px;
             margin: 5px;
         }
-        @media @wid {>*{margin: 10px;}}
-
         .p-l-search{
             width: 300px;
             font-size: 24px
@@ -274,7 +252,9 @@
                 max-width: 20px;
             }
         }
-        @media @mob {
+    }
+    @media @mob{
+        .filters{
             .p-l-search{
                 width: 100%;
             }
@@ -284,6 +264,22 @@
             .p-l-filter{
                 //width: 45%;
             }
+        }
+        .header{
+            padding: 5px 10px 0 10px;
+        }
+    }
+    @media @des{
+        .header{
+            padding: 10px 20px 0 20px;
+        }
+    }
+    @media @wid {
+        .filters{
+            >*{margin: 10px;}
+        }
+        .header{
+            padding: 20px 40px 0 40px;
         }
     }
 </style>

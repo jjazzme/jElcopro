@@ -8,7 +8,6 @@
     "airbnb-base",
     "eslint:recommended"
   ],
-  "plugins": ["lodash"],
   "parser": "babel-eslint",
   "parserOptions": {
     "sourceType": "module",
@@ -19,10 +18,10 @@
     "no-underscore-dangle": [2, { "allowAfterThis": true }],
     "max-len": ["error", { "code": 120, "tabWidth" : 4 }],
     "indent": [2, 4],
-    "no-console": ["error", { "allow": ["log", "warn", "error"] }],
     "no-param-reassign": ["error", { "props": false }],
     "no-restricted-syntax": 0,
     "no-await-in-loop": 0,
-    "require-atomic-updates": 0
+    "require-atomic-updates": 0,
+    "no-continue": 0
   }
 }

@@ -24,6 +24,11 @@
     </section>
     <login-component v-else />
 
+    <editor-cover
+      v-if="dataSource && dataSource.editor.component"
+      v-model="mainModel"
+    />
+
     <requests-component
       v-model="requests"
     />
@@ -39,10 +44,12 @@ import LoginComponent from "./components/body/login";
 import DataSource from "./classLib/DataSource";
 import RequestsComponent from "./components/body/requests";
 import Viewport from "./classLib/Viewport";
+import EditorCover from "./components/editors/cover";
 
 export default {
   name: 'app',
   components: {
+    EditorCover,
     RequestsComponent,
     LoginComponent,
     navComponent,
@@ -62,7 +69,7 @@ export default {
   },
   computed:{
     storeUser(){
-      return this.$store.getters['Auth/getUser']
+      return this.$store.getters['User/getUser']
     },
     requests(){ return this.$store.getters['Binder/getRequests'] },
   },
@@ -154,12 +161,10 @@ export default {
       margin-left: 60px;
       min-height: 600px;
       max-height: 100vh;
-
       &.pinOn{
         max-width: calc(100% - 200px);
         margin-left: 200px;
       }
-
       >header{
         flex: 1 1 auto;
         min-height: @headerHeightDaw;
@@ -171,6 +176,49 @@ export default {
         background: @header-bg;
       }
       >main{
+        position: relative; /////  ???????????????????
+        .t-row{
+          width: 100%;
+          margin-bottom: 2px;
+          >*{
+            >.t-content{
+              padding: 5px;
+            }
+            background-color: @table-body-bg;
+          }
+        }
+        .t-row.t-linear{
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+          grid-gap: 2px 2px;
+          .t-cell{
+            .t-content{
+              .t-label{
+                display: none;
+              }
+            }
+          }
+        }
+        .t-row:not(.t-linear){
+          display: flex;
+          margin: 2px 0;
+          border-bottom: black 1px dotted;
+          flex-direction: row;
+          align-items: flex-start;
+          flex-wrap: wrap;
+          height: auto;
+          >*{
+            flex: 1 1 auto;
+            align-self: stretch;
+            margin: 2px;
+          }
+        }
+
+        //.t-row:has(+div.t-fr-cell){
+        //  grid-template-columns: 70px repeat(auto-fit, minmax(70px, 1fr));
+        //}
+
+        h1{margin: 10px; text-align: center;}
         background-color: white;
         flex: 1 1 auto;
         min-height: calc(100vh - @headerHeightDaw - @footerHeightDaw);
@@ -204,12 +252,12 @@ export default {
         }
         @media @des {
           >article{
-            padding: 10px 20px;
+            padding: 5px 20px;
           }
         }
         @media @wid {
           >article{
-            padding: 20px 40px;
+            padding: 5px 40px;
           }
         }
       }

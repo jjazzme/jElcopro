@@ -14,6 +14,7 @@
   </aside>
   <article
     v-else
+    :class="{ 't-hide': gtCalculated === null }"
   >
     <row
       v-for="(row, ind) in table"
@@ -21,6 +22,9 @@
       :row="row"
       :ind="ind"
       :key="ind"
+      :gtCalculated="gtCalculated"
+      :isLinear="isLinear"
+      :tableRow="tableRow"
     />
   </article>
 </template>
@@ -32,6 +36,9 @@
     components: {Row},
     props: {
       value: null,
+      gtCalculated: null,
+      isLinear: true,
+      tableRow: null
     },
     computed:{
       loading(){ return this.value.dataSource.getTable.loadProcessor.eid },
@@ -39,9 +46,7 @@
         const table = this.value.dataSource.getTable;
         return table.loadProcessor.displayedSelection(table.optics.value);
       },
-      invoice(){
-        return this.value.dataSource.getInvoice;
-      },
+      //invoice(){return this.value.dataSource.getInvoice;},
     },
     methods:{
       cancel(){
@@ -57,6 +62,13 @@
 
 <style scoped lang="less">
   @import "~@/less/_variables";
+
+  article{
+    overflow: auto;
+    height: 100%;
+  }
+
+  .t-hide{ height: 0 !important }
 
   article.t-linear{
     padding-top: 2px;

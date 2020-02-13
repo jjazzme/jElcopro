@@ -1,27 +1,12 @@
-// import fs from 'fs';
 import _ from 'lodash';
 import axios from 'axios';
-import CurrencyService from './CurrencyService';
-import ParameterNameService from './ParameterNameService';
-import ProducerService from './ProducerService';
-import ProductService from './ProductService';
-import ParameterValueService from './ParameterValueService';
-import ParameterService from './ParameterService';
-import GoodService from './GoodService';
-import CompanyService from './CompanyService';
-import { Price } from '../models';
+import ExternalPriceService from './ExternalPriceService';
 
-export default class CompelService {
-    constructor(company) {
-        this._company = company;
+export default class CompelService extends ExternalPriceService {
+    constructor(config, db, logger, cache) {
+        super(config.companies.compel, logger, cache);
+        this.db = db;
     }
-
-    /**
-     * Company info
-     * @type {string}
-     * @private
-     */
-    _company;
 
     /**
      * Concat item proposals where the same item_id
@@ -69,26 +54,29 @@ export default class CompelService {
      * @private
      */
     async _parseApiItem(item, case_, store) {
-        const producer = await (new ProducerService()).firstOrCreate({ name: item.item_brend });
-        const product = await (new ProductService())
-            .firstOrCreate({ name: item.item_name, producer_id: producer.id });
+        const {
+            Producer, Product, Parameter, ParameterValue, Good,
+        } = this.db.models;
+        const producer = await Producer.getRightInstanceOrCreate({ name: item.item_brend });
+        const product = await Product.getRightInstanceOrCreate(
+            { name: item.item_name, producer_id: producer.id },
+        );
         // eslint-disable-next-line no-underscore-dangle
-        const package_ = await (new ParameterValueService())
-            .firstOrCreate({ name: item.package_name, parameter_name_id: case_.id });
-        const parameter = await (new ParameterService())
-            .firstOrCreate(
-                { parameter_name_id: case_.id, product_id: product.id },
-                { parameter_value_id: package_.id },
-            );
+        const package_ = await ParameterValue.getRightInstanceOrCreate(
+            { name: item.package_name, parameter_name_id: case_.id },
+        );
+        const parameter = await Parameter.getInstanceOrCreate(
+            { parameter_name_id: case_.id, product_id: product.id }, { parameter_value_id: package_.id },
+        );
         const newItem = item.proposals[0].location_id !== 'CENTRE' ? {}
             : {
                 ballance: this._getQuantity(item.proposals[0]),
                 pack: item.qty_in_pack,
                 multiply: item.proposals[0].mpq === 0 ? 1 : item.proposals[0].mpq,
             };
-        const good = await (new GoodService())
-            .updateOrCreate({ store_id: store.id, code: item.item_id, product_id: product.id }, newItem);
-
+        const good = await Good.updateInstanceOrCreate(
+            { store_id: store.id, code: item.item_id, product_id: product.id }, newItem, 'withProduct',
+        );
         return {
             producer, product, package_, parameter, good,
         };
@@ -103,9 +91,9 @@ export default class CompelService {
     // eslint-disable-next-line class-methods-use-this
     async method(method, params) {
         // eslint-disable-next-line no-param-reassign
-        params.user_hash = global.gConfig.companies.compel.api_hash;
+        params.user_hash = this.company.api_hash;
         const response = await axios.post(
-            global.gConfig.companies.compel.api_url,
+            this.company.api_url,
             {
                 id: 1,
                 method,
@@ -124,7 +112,6 @@ export default class CompelService {
     async apiSearchByName(name, deep = false) {
         const searchName = deep ? `*${name.toString().trim()}` : name.toString();
         const response = await this.method('search_item_ext', { query_string: `${searchName}*` });
-        // fs.writeFileSync("TDA2003L-TB5-T.json", JSON.stringify(response));
         return response.result;
     }
 
@@ -145,72 +132,73 @@ export default class CompelService {
      * @returns {Promise<Array>}
      */
     async parseApiAnswer(result, days = 6) {
-        const currency = await (new CurrencyService()).getByAlias(result.currency);
+        const {
+            Currency, ParameterName, Company, Price,
+        } = this.db.models;
+        const currency = await Currency.getInstance({ char_code: result.currency });
         // eslint-disable-next-line no-underscore-dangle
-        const case_ = await (new ParameterNameService()).getByAlias('case');
-        if (!this._company) {
-            this._company = await (new CompanyService()).getByAlias('compel');
-        }
-        const store = _.find(this._company.stores, { is_main: true });
+        const case_ = await ParameterName.getInstance({ alias: 'case' });
+        const company = await Company.getByAlias('compel');
+        const store = _.find(company.stores, { is_main: true });
         const items = this._clearItems(result.items);
         const ret = await Promise.all(
             // eslint-disable-next-line no-async-promise-executor,no-unused-vars
-            items.map((item) => new Promise(async (resolve, reject) => {
-                const { good, parameter, producer } = await this._parseApiItem(item, case_, store);
-                const pmss = [].concat(...item.proposals.map((proposal) => {
-                    return proposal.price_qty.map(async (price) => {
-                        let id = 0;
-                        if (proposal.prognosis_days === 1) {
-                            const oldPrice = await Price.findOne({ where: { good_id: good.id, min: price.min_qty } });
-                            if (oldPrice) {
-                                oldPrice.our_price = price.price;
-                                await oldPrice.save();
-                                id = oldPrice.id;
-                            }
+            items.map((item) => new Promise(async (resolve) => {
+                const {
+                    good, package_, parameter, producer,
+                } = await this._parseApiItem(item, case_, store);
+                const pmss = [].concat(...item.proposals.map((proposal) => proposal.price_qty.map(async (price) => {
+                    let id = 0;
+                    if (proposal.prognosis_days === 1) {
+                        const oldPrice = await Price.findOne({ where: { good_id: good.id, min: price.min_qty } });
+                        if (oldPrice) {
+                            oldPrice.our_price = price.price;
+                            await oldPrice.save();
+                            id = oldPrice.id;
                         }
-                        return {
-                            code: item.item_id,
-                            product_id: good.product_id,
-                            picture: good.product.picture,
-                            name: good.product.name,
-                            parameter_id: parameter ? parameter.id : null,
-                            case: parameter ? parameter.parameterValue.name : '',
-                            remark: good.product.remark,
-                            producer_id: producer.id,
-                            producer_name: producer.name,
-                            store_id: good.store.id,
-                            store_name: good.store.name,
-                            company_id: this._company.id,
-                            party_name: this._company.party.name,
-                            pos: item.pos,
-                            pack: item.qty_in_pack,
-                            id,
-                            multiply: proposal.mpq === 0 ? 1 : proposal.mpq,
-                            average_days: days + proposal.prognosis_days - 1,
-                            good_id: good.id,
-                            ballance: this._getQuantity(proposal),
-                            min: price.min_qty,
-                            max: price.max_qty === 0 ? this._getQuantity(proposal) : price.max_qty,
-                            currency_id: currency.id,
-                            our_price: price.price,
-                            for_all_price: 0,
-                            created_at: new Date(),
-                            updated_at: new Date(),
-                            actual: new Date(),
-                            online: proposal.prognosis_days, // ???
-                            with_vat: 1,
-                            vat: good.product.vat,
-                            /*
+                    }
+                    return {
+                        code: item.item_id,
+                        product_id: good.product_id,
+                        picture: good.product.picture,
+                        name: good.product.name,
+                        parameter_id: parameter ? parameter.id : null,
+                        case: parameter ? package_.name : '',
+                        remark: good.product.remark,
+                        producer_id: producer.id,
+                        producer_name: producer.name,
+                        store_id: store.id,
+                        store_name: store.name,
+                        company_id: company.id,
+                        party_name: company.party.name,
+                        pos: item.pos,
+                        pack: item.qty_in_pack,
+                        id,
+                        multiply: proposal.mpq === 0 ? 1 : proposal.mpq,
+                        average_days: days + proposal.prognosis_days - 1,
+                        good_id: good.id,
+                        ballance: this._getQuantity(proposal),
+                        min: price.min_qty,
+                        max: price.max_qty === 0 ? this._getQuantity(proposal) : price.max_qty,
+                        currency_id: currency.id,
+                        our_price: price.price,
+                        for_all_price: price.price * (1.2 + Math.exp(-price.price / 1.2) * 2),
+                        created_at: new Date(),
+                        updated_at: new Date(),
+                        actual: new Date(),
+                        online: proposal.prognosis_days, // ???
+                        with_vat: 1,
+                        vat: good.product.vat,
+                        /*
                              * то что ниже нужно для оформления заказа с дмс
                              */
-                            prognosis_days: proposal.prognosis_days,
-                            prognosis_id: proposal.prognosis_id,
-                            prognosis_description: proposal.prognosis_description,
-                            vend_type: proposal.vend_type,
-                            vend_proposal_date: proposal.vend_proposal_date,
-                        };
-                    });
-                }));
+                        prognosis_days: proposal.prognosis_days,
+                        prognosis_id: proposal.prognosis_id,
+                        prognosis_description: proposal.prognosis_description,
+                        vend_type: proposal.vend_type,
+                        vend_proposal_date: proposal.vend_proposal_date,
+                    };
+                })));
                 const r = await Promise.all(pmss);
                 resolve(r);
             })),

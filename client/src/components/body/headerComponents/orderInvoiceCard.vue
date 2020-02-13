@@ -8,7 +8,7 @@
     </b-link>
 
     <div
-      v-if="document"
+      v-if="document && documentLines"
     >
       <div class="h-c-close" @click="closeCard()">x</div>
       <router-link
@@ -18,8 +18,8 @@
         {{alias}} №{{ document.number }} от {{ Intl.DateTimeFormat('ru-RU').format(new Date(document.date)) }}
       </router-link>
       <!--div class="h-c-topic">{{alias}} №{{value.number}} от {{Intl.DateTimeFormat('ru-RU').format(new Date(value.date))}}</div-->
-      <div class="h-c-sum">{{ sum.toFixed(2) }}₽</div>
-      <div class="h-c-lines">Строк: {{ document.documentLines.length }} | Товаров: {{ count }}</div>
+      <div class="h-c-sum">{{ document.amount_with_vat.toFixed(2) }}₽</div>
+      <div class="h-c-lines">Строк: {{ document.documentLines ? document.documentLines.length : ''}} | Товаров: {{ count }}</div>
       <div class="h-c-buyer" :title="secondPart">{{ secondPart }}</div>
     </div>
   </div>
@@ -32,8 +32,7 @@
       return{
         alias: null,
         document: null,
-        sum: 0,
-        count: 0,
+        documentLines: null,
       }
     },
     props: {
@@ -42,6 +41,8 @@
       type: null,
     },
     computed:{
+      count(){ return this.document ? _.sumBy(this.document.documentLines, line => line.quantity) : 0 },
+      _document(){ return this.id ? this.value.dataSource.getCacheItem(this.type, this.id) : null; },
       secondPart(){
         return this.type === 'Invoice'
           ? this.document?.buyerable?.party?.name
@@ -49,21 +50,33 @@
       },
     },
     methods:{
-      closeCard(){
-        if(this.value._type === 'invoice'){
-          this.$store.dispatch('CARDS/INVOICE_REMOVE')
+      closeCard(){ this.value.dataSource.cardDelete(this.id, this.type) },
+      setDocument(val){
+        this.$set(this, 'document', val);
+        if (val) {
+          this.$set(this, 'documentLines', val.documentLines)
         } else {
-          this.$store.dispatch('CARDS/ORDER_REMOVE', this.value.id)
+          this.$set(this, 'documentLines', null)
         }
-      }
+      },
     },
     created() {
       if (this.type === 'Invoice') this.alias = 'счёт';
       else if (this.type === 'Order') this.alias = 'заказ';
 
-      if (this.id) this.value.dataSource.getSourceById({ type: this.type, id: this.id })
-        //this.$store.dispatch('Binder/getItem', { type: this.type, payload: { id: this.id } })
-        .then(doc => this.document=doc)
+      if (this.id) this.value.dataSource.getSourceById({ type: this.type, id: this.id, check: ['documentLines'] })
+      if (this._document) this.setDocument(this._document)
+    },
+    watch:{
+      id(n){
+        if (n) this.value.dataSource.getSourceById({ type: this.type, id: this.id, check: ['documentLines']  });
+      },
+      _document:{
+        handler: function(n) {
+          this.setDocument(n)
+        },
+        deep: true
+      }
     },
   }
 </script>

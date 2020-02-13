@@ -60,7 +60,7 @@
         }
       },
       login(){
-        this.$store.dispatch('Auth/login', { username: this.username, password: this.password})
+        this.$store.dispatch('User/login', { username: this.username, password: this.password})
         .then(ans => {
           this.password = null;
           this.error = '';
