@@ -175,6 +175,10 @@ export default class Document extends BaseModel {
 
         this.beforeDestroy((doc) => {
             if (doc.status_id !== 'formed') throw new Error('Document must be in formed status');
+            const { user } = this.services.auth;
+            if (user.cards.invoice === doc.id || user.cards.orders.indexOf(doc.id) >= 0) {
+                throw new Error('Document in your cards');
+            }
         });
     }
 
