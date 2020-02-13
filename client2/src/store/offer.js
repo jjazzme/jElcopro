@@ -48,6 +48,12 @@ const getters = {
 };
 
 const mutations = {
+    CLEAR_ITEMS(state) {
+        state.items = [];
+    },
+    SET_SEARCH(state, name) {
+        state.search = name;
+    },
     SET_QUANTITY(state, quantity) {
         state.quantity = parseInt(quantity);
     },
@@ -64,8 +70,14 @@ const mutations = {
             if (q % parseInt(value.multiply) !== 0) {
                 q = q + parseInt(value.multiply) - (q % parseInt(value.multiply))
             }
-            value.order_quantity = q;
+            value.quantity = q;
             value.sum = q * parseFloat(value.price);
+
+            value.price_usd = value.price / parseFloat(rates('R01235'));
+            value.sum_usd = value.sum / parseFloat(rates('R01235'));
+
+            value.for_all_price_rub = value.for_all_price * parseFloat(rates(value.currency_id));
+            value.for_all_price_usd = value.for_all_price_rub / parseFloat(rates('R01235'));
 
             return value
         })
@@ -73,23 +85,29 @@ const mutations = {
 };
 
 const actions = {
-    GET_ITEMS({getters, commit}, payload) {
+    GET_ITEMS({ getters, commit }, payload) {
         return new Promise((resolve, reject) => {
-            axios
-                .get(getters.URL, {params: payload})
-                .then((response) => {
-                    // eslint-disable-next-line no-debugger
-                    // commit('SET_CACHE', response.data.rows);
-                    resolve(response);
-                })
-                .catch((error) => {
-                    commit(
-                        'SNACKBAR/SET',
-                        {text: error.response.data, color: 'error', snackbar: 'true'},
-                        {root: true}
-                    );
-                    reject(error);
-                });
+            if (payload.name.length < 4) resolve(getters.FILTRED_ITEMS(payload));
+            if (payload.name !== state.search) {
+                axios
+                    .get(getters.URL, {params: payload})
+                    .then((response) => {
+                        commit('SET_SEARCH', payload.name);
+                        // eslint-disable-next-line no-debugger
+                        // commit('SET_CACHE', response.data.rows);
+                        resolve(response);
+                    })
+                    .catch((error) => {
+                        commit(
+                            'SNACKBAR/SET',
+                            {text: error.response.data, color: 'error', snackbar: 'true'},
+                            {root: true}
+                        );
+                        reject(error);
+                    });
+            } else {
+
+            }
         });
     },
 };
