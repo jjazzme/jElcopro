@@ -87,8 +87,12 @@ export default (DocumentModel, ParentModel, ChildModel) => ({
             },
         },
         hasMany: {
-            DocumentLine: { foreignKey: 'document_id', as: 'documentLines' },
-            [ChildModel.name]: { foreignKey: 'parent_id', as: 'children' },
+            DocumentLine: {
+                foreignKey: 'document_id', as: 'documentLines', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+            },
+            [ChildModel.name]: {
+                foreignKey: 'parent_id', as: 'children', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+            },
         },
     },
 });

@@ -57,6 +57,16 @@ export default {
         class: AddressModel,
         options: { tableName: 'addresses' },
         attributes: { address: DataTypes.STRING, json: DataTypes.JSON },
+        relations: {
+            hasMany: {
+                Company: {
+                    foreignKey: 'fact_address_id', as: 'companies', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+                },
+                Store: {
+                    foreignKey: 'address_id', as: 'stores', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+                },
+            },
+        },
     },
 
     Arrival: {
@@ -73,8 +83,12 @@ export default {
                 },
             },
             hasMany: {
-                Reserve: { foreignKey: 'arrival_id', as: 'reserves' },
-                Departure: { foreignKey: 'arrival_id', as: 'departures' },
+                Reserve: {
+                    foreignKey: 'arrival_id', as: 'reserves', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+                },
+                Departure: {
+                    foreignKey: 'arrival_id', as: 'departures', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+                },
             },
         },
     },
@@ -85,6 +99,13 @@ export default {
             bik: { type: DataTypes.STRING, unique: true, allowNull: false },
             name: { type: DataTypes.STRING, allowNull: false },
             json: DataTypes.JSON,
+        },
+        relations: {
+            hasMany: {
+                BankAccount: {
+                    foreignKey: 'bank_id', as: 'bankAccounts', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+                },
+            },
         },
     },
 
@@ -102,6 +123,22 @@ export default {
                 Company: { foreignKey: 'company_id', as: 'company' },
                 Currency: { foreignKey: 'currency_id', as: 'currency' },
             },
+            hasMany: {
+                Payment: [
+                    {
+                        foreignKey: 'bank_account_from_id',
+                        as: 'bankAccountFrom',
+                        onDelete: 'RESTRICT',
+                        onUpdate: 'RESTRICT',
+                    },
+                    {
+                        foreignKey: 'bank_account_to_id',
+                        as: 'bankAccountTo',
+                        onDelete: 'RESTRICT',
+                        onUpdate: 'RESTRICT',
+                    },
+                ],
+            },
         },
     },
 
@@ -115,7 +152,13 @@ export default {
             level: DataTypes.INTEGER,
             picture: DataTypes.STRING,
         },
-        relations: { hasMany: { Product: { foreignKey: 'category_id', as: 'products' } } },
+        relations: {
+            hasMany: {
+                Product: {
+                    foreignKey: 'category_id', as: 'products', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+                },
+            },
+        },
     },
 
     Company: {
@@ -142,7 +185,17 @@ export default {
                 Address: { foreignKey: 'fact_address_id', as: 'factAddress' },
                 Party: { foreignKey: 'party_id', as: 'party' },
             },
-            hasMany: { Store: { foreignKey: 'company_id', as: 'stores' } },
+            hasMany: {
+                Store: {
+                    foreignKey: 'company_id', as: 'stores', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+                },
+                BankAccount: {
+                    foreignKey: 'company_id', as: 'bankAccounts', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+                },
+                Shipment: {
+                    foreignKey: 'comapny_id', as: 'shipments', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+                },
+            },
         },
     },
 
@@ -155,6 +208,19 @@ export default {
             char_code: DataTypes.STRING,
             nominal: DataTypes.INTEGER,
             name: DataTypes.STRING,
+        },
+        relations: {
+            hasMany: {
+                BankAccount: {
+                    foreignKey: 'currency_id', as: 'bankAccounts', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+                },
+                CurrencyRate: {
+                    foreignKey: 'currency_id', as: 'currencyRates', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+                },
+                Price: {
+                    foreignKey: 'currency_id', as: 'prices', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+                },
+            },
         },
     },
 
@@ -236,7 +302,7 @@ export default {
         },
         relations: {
             belongsTo: {
-                Document: { foreignKey: 'document_id', as: 'document' },
+                Document: { foreignKey: 'document_id', as: 'document', onDelete: 'restrict' },
                 DocumentLine: {
                     foreignKey: 'parent_id', as: 'parent',
                 },
@@ -247,13 +313,23 @@ export default {
                 StateCustomDeclaration: { foreignKey: 'state_customs_declaration_id', as: 'stateCustomsDeclaration' },
             },
             hasOne: {
-                Arrival: { foreignKey: 'document_line_id', as: 'arrival' },
-                Departure: { foreignKey: 'document_line_id', as: 'departure' },
-                FutureReserve: { foreignKey: 'document_line_id', as: 'futureReserve' },
+                Arrival: {
+                    foreignKey: 'document_line_id', as: 'arrival', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+                },
+                Departure: {
+                    foreignKey: 'document_line_id', as: 'departure', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+                },
+                FutureReserve: {
+                    foreignKey: 'document_line_id', as: 'futureReserve', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+                },
             },
             hasMany: {
-                DocumentLine: { foreignKey: 'parent_id', as: 'children' },
-                Reserve: { foreignKey: 'document_line_id', as: 'reserves' },
+                DocumentLine: {
+                    foreignKey: 'parent_id', as: 'children', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+                },
+                Reserve: {
+                    foreignKey: 'document_line_id', as: 'reserves', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+                },
             },
         },
     },
@@ -263,6 +339,13 @@ export default {
         attributes: {
             id: { type: DataTypes.STRING, primaryKey: true },
             name: { type: DataTypes.STRING, unique: true },
+        },
+        relations: {
+            hasMany: {
+                Document: {
+                    foreignKey: 'document_type_id', as: 'documentes', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+                },
+            },
         },
     },
 
@@ -330,7 +413,9 @@ export default {
                 Product: { foreignKey: 'product_id', as: 'product' },
             },
             hasMany: {
-                Price: { foreignKey: 'good_id', as: 'prices' },
+                Price: {
+                    foreignKey: 'good_id', as: 'prices', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+                },
             },
         },
     },
@@ -401,6 +486,14 @@ export default {
                     as: 'baseUnit',
                 },
             },
+            hasMany: {
+                Parameter: {
+                    foreignKey: 'parameter_name_id', as: 'parameterNames', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+                },
+                ParameterValue: {
+                    foreignKey: 'parameter_name_id', as: 'parameterValues', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+                },
+            },
         },
     },
 
@@ -424,6 +517,11 @@ export default {
                     as: 'rightParameterValue',
                 },
             },
+            hasMany: {
+                Parameter: {
+                    foreignKey: 'parameter_value_id', as: 'parameters', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+                },
+            },
         },
     },
 
@@ -435,6 +533,13 @@ export default {
             name: DataTypes.STRING,
             ogrn: DataTypes.STRING,
             json: DataTypes.JSON,
+        },
+        relations: {
+            hasOne: {
+                Company: {
+                    foreignKey: 'party_id', as: 'company', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+                },
+            },
         },
     },
 
@@ -508,6 +613,11 @@ export default {
                     as: 'rightProducer',
                 },
             },
+            hasMany: {
+                Product: {
+                    foreignKey: 'producer_id', as: 'product', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+                },
+            },
         },
     },
 
@@ -548,7 +658,14 @@ export default {
                     as: 'rightProduct',
                 },
             },
-            hasMany: { Parameter: { foreignKey: 'product_id', as: 'parameters' } },
+            hasMany: {
+                Parameter: {
+                    foreignKey: 'product_id', as: 'parameters', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+                },
+                Good: {
+                    foreignKey: 'product_id', as: 'goods', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+                },
+            },
         },
     },
 
@@ -650,6 +767,16 @@ export default {
     StateCustomDeclaration: {
         options: { tableName: 'state_custom_declarations' },
         attributes: { number: DataTypes.STRING, country_code: DataTypes.STRING, country_short_name: DataTypes.STRING },
+        relations: {
+            hasMany: {
+                DocumentLine: {
+                    foreignKey: 'state_custom_declaration_id',
+                    as: 'documentlines',
+                    onDelete: 'RESTRICT',
+                    onUpdate: 'RESTRICT',
+                },
+            },
+        },
     },
 
     Store: {
@@ -677,7 +804,27 @@ export default {
                 Company: { foreignKey: 'company_id', as: 'company' },
                 Address: { foreignKey: 'address_id', as: 'address' },
             },
-            hasMany: { InterStoreRoute: { as: 'fromRoutes', foreignKey: 'from_store_id' } },
+            hasMany: {
+                Good: {
+                    as: 'goods', foreignKey: 'store_id', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+                },
+                InterStoreRoute: [
+                    {
+                        as: 'fromRoutes', foreignKey: 'from_store_id', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+                    },
+                    {
+                        as: 'toRoutes', foreignKey: 'to_store_id', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+                    },
+                ],
+                Shipment: [
+                    {
+                        as: 'fromShipments', foreignKey: 'from_store_id', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+                    },
+                    {
+                        as: 'toShipments', foreignKey: 'to_store_id', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+                    },
+                ],
+            },
         },
     },
 
@@ -764,6 +911,14 @@ export default {
                     as: 'baseUnit',
                 },
             },
+            hasMany: {
+                Parameter: {
+                    foreignKey: 'unit_id', as: 'parameters', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+                },
+                ParameterName: {
+                    foreignKey: 'base_unit_id', as: 'parameterNames', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+                },
+            },
         },
     },
 
@@ -796,6 +951,16 @@ export default {
             avatar: { type: DataTypes.STRING, defaultValue: '/default/avatar.svg' },
             skills: { type: DataTypes.JSON, defaultValue: { interface: 0, sales: 0, computer: 0 } },
             cards: { type: DataTypes.JSON, defaultValue: { invoice: null, orders: [] } },
+        },
+        relations: {
+            hasMany: {
+                AccessToken: {
+                    foreignKey: 'userId', as: 'accessTokens', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+                },
+                Shell: {
+                    foreignKey: 'user_id', as: 'shells', onDelete: 'RESTRICT', onUpdate: 'RESTRICT',
+                },
+            },
         },
     },
 };
