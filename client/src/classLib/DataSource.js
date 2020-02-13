@@ -141,7 +141,18 @@ export default class DataSource{
     }
   }
   deleteItem({ type, key }){
-    return this.store.dispatch('Binder/deleteItem', { type, key })
+    const ret = this.store.dispatch('Binder/deleteItem', { type, key });
+    ret.then(()=>{ //TODO: УБРАТЬ КОСТЫЛЬ
+      const obj = this.tables[type].loadProcessor.data;
+      const ind = _.findIndex(obj.rows, item => item.id === key)
+      if(ind > -1) {
+        obj.rows.splice(ind, 1);
+        obj._rows.splice(ind, 1);
+        obj.count--;
+      }
+    });
+
+    return ret
   }
   get getBackSensitiveOptics(){
     const getBS = this.getShell.getBackSensitive;
@@ -151,7 +162,7 @@ export default class DataSource{
     return this.store.getters['Binder/getCacheTableByType'](type);
   }
   getCacheItem(type, key){
-    const cache = this.store.getters['Binder/cacheGetItem'](type, key);
+    let cache = this.store.getters['Binder/cacheGetItem'](type, key);
     return cache ? cache[2] : null;
   }
   get getInvoice(){
