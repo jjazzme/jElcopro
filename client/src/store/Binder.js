@@ -90,7 +90,6 @@ let mutations = {
       item[2]._changeCounter=0;
       cache.unshift(item);
     }
-    return item;
   },
   upsertSetToCache(state, {type, hash, data}) {
     const cache = state.loaders[type].cacheSets;
@@ -103,10 +102,9 @@ let mutations = {
   },
   clearCacheSets(state, type) { state.loaders[type].cacheSets = []; },
   deleteItemFromCache(state, { type, key }) {
-    const cache = state.loaders[type].cache;
-    if (!cache) return;
-    const ind = _.findIndex(cache, item => _.isEqual(item[0], key));
-    if (ind > -1) cache.splice(ind, 1)
+    if (!state.loaders[type].cache) return;
+    const ind = _.findIndex(state.loaders[type].cache, item => _.isEqual(item[0], key));
+    if (ind > -1) state.loaders[type].cache.splice(ind, 1) //cache.splice(ind, 1)
   },
 };
 let actions = {
@@ -292,12 +290,13 @@ let actions = {
     loader
       .then(ans=>{
         const data = ans.data;
-        const key = item.id;
+        const key = ans.data.id;
         commit('upsertItemToCache', { type, key, data });
       });
     commit('clearCacheSets', type);
     return loader;
   },
+
   runProcedure({ commit, getters }, { type, params }) {
     const executor = axios.post(`/api/procedure/${type}`, params)
     executor

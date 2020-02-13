@@ -57,7 +57,8 @@ export default class ModelContoller {
             const model = await this.Model.findByPk(id);
             await model.update(req.body);
         } else {
-            id = (await this.Model.create(req.body)).id;
+            const doc = await this.Model.create(req.body)
+            id = doc.id;
         }
         return this.Model.getInstance(id, this.scopes || []);
     }

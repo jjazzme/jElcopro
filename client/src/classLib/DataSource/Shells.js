@@ -107,13 +107,14 @@ export default class Shells{
           ),
           itemLoader: (key)=>axios.get(`/api/docline/${key}`),
           updateLoader: (type, item) => axios.post(`/api/docline/${item.id}`, item),
+          deleteLoader: (type, key) => axios.delete(`/api/docline/${key}`),
           ttl: 3600e3*24,
           cache: [],
           cacheSets: [],
         },
         parentId: 'document_id',
         opticsConstructor: documentLinesParametersConstructor,
-        noFirstRowCell: true,
+        noFirstRowCell: false,
         loadProcessor: new TableLoadProcessor('DocumentLine'),
         initial:{
           id:{show:false, hidden: true, sortable: false, card: false, label: "ID", order: 1000},
@@ -148,7 +149,8 @@ export default class Shells{
           scopes:['withArrival', 'withChildren', 'withGood', 'withFutureReserve', 'withParent', 'withReserves', 'withDeparture'],
           where:{  }
         },
-        optics: { limit: -1, page: 1 }
+        optics: { limit: -1, page: 1 },
+        name: {one: 'линия', many: 'линии', cardof: 'линии',},
       },
       Good:{
         binder: {
