@@ -1,4 +1,4 @@
-// import _ from 'lodash';
+import _ from 'lodash';
 import axios from 'axios';
 
 const state = {
@@ -26,7 +26,7 @@ const state = {
     ],
     name: 'price',
     search: '',
-    items: [],
+    items: new Map(),
     keyType: Number,
     quantity: 1,
     breadcrumb: {
@@ -45,11 +45,41 @@ const getters = {
     ITEMS: state => state.items,
     HEADERS: state => state.headers,
     QUANTITY: state => state.quantity,
+    FILTRED_ITEMS: state => payload => {
+        // eslint-disable-next-line no-debugger
+        //debugger;
+        let ret = [];
+        for (let i = 0; i < state.items.length; i++) {
+            const price = state.items[i];
+            if (
+                !(payload.more_or_equal && price.quantity < state.quantity) &&
+                (price.quantity <= price.max) &&
+                (price.ballance > 0) &&
+                ((payload.name && price.name.indexOf(payload.name) >= 0) || !payload.name) &&
+                (
+                    (!_.isEmpty(payload.producers) && payload.producers.indexOf(price.producer_name) >=0)
+                    || _.isEmpty(state.producers)
+                ) &&
+                (
+                    (!_.isEmpty(payload.cases) && payload.cases.indexOf(price.case) >= 0)
+                    || _.isEmpty(payload.cases)
+                ) &&
+                (
+                    ( !_.isEmpty(payload.stores) && payload.stores.indexOf(price.store_id) >= 0 )
+                    || _.isEmpty(payload.stores)
+                )
+            ) {
+                price.original_index = i;
+                ret.push(price);
+            }
+        }
+        return ret
+    }
 };
 
 const mutations = {
-    CLEAR_ITEMS(state) {
-        state.items = [];
+    SET_ITEMS(state, items) {
+        state.items = items;
     },
     SET_SEARCH(state, name) {
         state.search = name;
@@ -85,17 +115,18 @@ const mutations = {
 };
 
 const actions = {
-    GET_ITEMS({ getters, commit }, payload) {
+    GET_ITEMS({ getters, commit, rootGetters }, payload) {
         return new Promise((resolve, reject) => {
-            if (payload.name.length < 4) resolve(getters.FILTRED_ITEMS(payload));
-            if (payload.name !== state.search) {
+            if (payload.filters.name.length < 4 || payload.filters.name === state.search) {
+                resolve(getters.ITEMS);
+            } else {
                 axios
                     .get(getters.URL, {params: payload})
                     .then((response) => {
-                        commit('SET_SEARCH', payload.name);
-                        // eslint-disable-next-line no-debugger
-                        // commit('SET_CACHE', response.data.rows);
-                        resolve(response);
+                        commit('SET_SEARCH', payload.filters.name);
+                        commit('SET_ITEMS', response.data);
+                        commit('SET_SUM', rootGetters['CURRENCY-RATE/ITEMS']);
+                        resolve({ data: { rows: getters.ITEMS, count: getters.ITEMS.length } });
                     })
                     .catch((error) => {
                         commit(
@@ -105,8 +136,6 @@ const actions = {
                         );
                         reject(error);
                     });
-            } else {
-
             }
         });
     },

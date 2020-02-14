@@ -78,7 +78,8 @@
     created() {
         Promise.all([
           this.$store.dispatch('USER/GET'),
-          this.$store.dispatch('DOCUMENTTYPES/GET')
+          this.$store.dispatch('DOCUMENTTYPES/GET'),
+          this.$store.dispatch('CURRENCY-RATE/SET_DATE', new Date()),
         ]).then(() => this.loading = false)
     },
     data() {
@@ -87,12 +88,13 @@
         drawer: false,
         menus: [
           { text: 'ДОМОЙ', to: { name: 'home' } },
-          { text: 'ПРОИЗВОДИТЕЛИ', to: { name: 'producers'} },
+          { text: 'ПРЕДЛОЖЕНИЯ', to: { name: 'offers'} },
           { text: 'ДОКУМЕНЫ', sub: [
               { text: 'ЗАКАЗ', to: { name: 'documents', params: { type: 'order' } } },
               { text: 'СЧЕТ', to: { name: 'documents', params: { type: 'invoice' } } }
             ]
           },
+          { text: 'ПРОИЗВОДИТЕЛИ', to: { name: 'producers'} },
           { text: 'О НАС', to: { name: 'about' } },
         ]
       }

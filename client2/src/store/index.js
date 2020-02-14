@@ -16,6 +16,8 @@ import currency from '@/store/currency';
 import product from '@/store/product';
 import good from '@/store/good';
 import price from '@/store/price';
+import currencyRate from '@/store/currencyRate';
+import offer from '@/store/offer';
 
 Vue.use(Vuex);
 
@@ -33,9 +35,11 @@ export default new Vuex.Store({
       PRODUCT: product,
       GOOD: good,
       PRICE: price,
+      OFFER: offer,
       COMPANY: company,
       STORE: store,
       CURRENCY: currency,
+      'CURRENCY-RATE': currencyRate,
       SNACKBAR: snackbar,
       BREADCRUMBS: breadcrumbs,
       DOCUMENTLINE: documentLine,

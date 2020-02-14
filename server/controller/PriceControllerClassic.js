@@ -7,8 +7,8 @@ export default class PriceController extends ApiControllerClassic {
     }
 
     async index(req) {
-        if (!req.query.filters.offer) return super.index(req);
-        const optics = req.query;
+        if (!req.query.documentType === 'offer') return super.index(req);
+        const optics = JSON.parse(req.query.filters);
         return optics.from_store ? this.service.searchByNameOnStore(optics) : this.service.searchByName(optics);
     }
 }

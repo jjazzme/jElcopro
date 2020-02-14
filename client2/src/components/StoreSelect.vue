@@ -6,9 +6,10 @@
             label="Склады"
             :filters="filters"
             :filter-actions="filterActions"
-            :multipe="multiple"
+            :multiple="multiple"
             :disabled="disabled"
             :key="key"
+            :dense="dense"
     />
 </template>
 
@@ -29,6 +30,10 @@
             label: String,
             companyId: Number,
             disabled: {
+                type: Boolean,
+                default: false,
+            },
+            dense: {
                 type: Boolean,
                 default: false,
             }

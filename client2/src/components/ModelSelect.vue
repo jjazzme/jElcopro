@@ -16,6 +16,7 @@
             placeholder="набери что-то для поиска"
             :multiple="multiple"
             :disabled="disabled"
+            :dense="dense"
     />
 </template>
 
@@ -34,7 +35,8 @@
             itemsPerPage: { type: Number, default: 10 },
             filters: { type: Object, default: () => {} },
             filterActions: { type: Object, default: () => {} },
-            disabled: { type: Boolean, default: false }
+            disabled: { type: Boolean, default: false },
+            dense: { type: Boolean, default: false },
         },
         data() {
             return {

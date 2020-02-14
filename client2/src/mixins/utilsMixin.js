@@ -11,8 +11,6 @@ export default {
     },
     methods: {
         dateFormat(date) {
-            // eslint-disable-next-line no-debugger
-            // debugger
             return moment(date).format('D/MM/Y');
         },
     }
