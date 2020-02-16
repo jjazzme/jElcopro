@@ -47,7 +47,7 @@ const getters = {
     QUANTITY: state => state.quantity,
     FILTRED_ITEMS: state => payload => {
         // eslint-disable-next-line no-debugger
-        //debugger;
+        // debugger;
         let ret = [];
         for (let i = 0; i < state.items.length; i++) {
             const price = state.items[i];
@@ -57,8 +57,8 @@ const getters = {
                 (price.ballance > 0) &&
                 ((payload.name && price.name.indexOf(payload.name) >= 0) || !payload.name) &&
                 (
-                    (!_.isEmpty(payload.producers) && payload.producers.indexOf(price.producer_name) >=0)
-                    || _.isEmpty(state.producers)
+                    (!_.isEmpty(payload.producers) && payload.producers.indexOf(price.producer_id) >=0)
+                    || _.isEmpty(payload.producers)
                 ) &&
                 (
                     (!_.isEmpty(payload.cases) && payload.cases.indexOf(price.case) >= 0)

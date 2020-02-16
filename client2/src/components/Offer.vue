@@ -54,7 +54,14 @@
         <template v-slot:item.price_usd="{ item }">{{ item.price_usd.toFixed(2) }}</template>
         <template v-slot:item.sum="{ item }">{{ item.sum.toFixed(2) }}</template>
         <template v-slot:item.sum_usd="{ item }">{{ item.sum_usd.toFixed(2) }}</template>
-        <template v-slot:item.for_all_price_rub="{ item }">{{ item.for_all_price_rub.toFixed(2) }}</template>
+        <template v-slot:item.for_all_price_rub="props" :key="props.item.for_all_price_rub">
+            <v-edit-dialog>
+                {{ props.item.for_all_price_rub.toFixed(2) }}
+                <template v-slot:input>
+                    <v-text-field v-model="props.item.for_all_price_rub" />
+                </template>
+            </v-edit-dialog>
+        </template>
         <template v-slot:item.for_all_price_usd="{ item }">{{ item.for_all_price_usd.toFixed(2) }}</template>
     </v-data-table>
 </template>
