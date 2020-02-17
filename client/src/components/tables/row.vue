@@ -9,6 +9,8 @@
       :ind="ind"
       :row="row"
       :width="tableRow ? tableRow.find(item => item.name === '_firstCell').width : 'auto'"
+      :one="one"
+      :parentType="parentType"
     />
 
     <cell
@@ -43,6 +45,8 @@
       gtCalculated: null,
       isLinear: true,
       tableRow: null,
+      one: null,
+      parentType: null,
     },
     computed:{
 

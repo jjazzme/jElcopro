@@ -122,6 +122,23 @@
         this.value.dataSource.editor.type = null;
       }
     },
+    watch:{
+      '$route':{
+        handler: function (n) {
+          this.buttons.close.action();
+          /*
+          this.value.dataSource.editor.component = null;
+          this.value.dataSource.editor.initiator = null;
+          this.value.dataSource.editor.row = null;
+          this.value.dataSource.editor.name = null;
+          this.value.dataSource.editor.transition = null;
+          this.value.dataSource.editor.type = null;
+
+           */
+        },
+        deep: true
+      },
+    },
   }
 </script>
 

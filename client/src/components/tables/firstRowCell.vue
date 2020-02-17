@@ -60,6 +60,8 @@
       ind: null,
       row: null,
       width: null,
+      one: null,
+      parentType: null,
     },
     computed: {
       firstCellMenu(){ return this.value.dataSource.getShell.firstCell?.menu },
@@ -108,9 +110,11 @@
 
       },
       deleteRow(key){
-        this.value.dataSource.deleteItem({ type: this.value.dataSource.type, key })
+        const parentItem = { type: this.parentType, id: this.one };
+        const type = this.value.dataSource.type
+        this.value.dataSource.deleteItem({ type, key, parentItem })
         .then(ans => {
-          console.log(ans)
+          //console.log(ans)
           // TODO: удаление из баскета
         })
       },

@@ -37,6 +37,7 @@
     props:{
       source: null,
       value: null,
+      buttons: null,
     },
     data(){
       return{
@@ -72,7 +73,7 @@
       }
     },
     created(){
-
+      this.buttons.enter.enable = false;
     },
   }
 </script>

@@ -140,9 +140,14 @@ export default class DataSource{
       this.cardAdd(doc.id, 'Order');
     }
   }
-  deleteItem({ type, key }){
+  deleteItem({ type, key, parentItem }){
     const ret = this.store.dispatch('Binder/deleteItem', { type, key });
     ret.then(()=>{ //TODO: УБРАТЬ КОСТЫЛЬ
+
+      if (parentItem){
+        this.getSourceById({ type: parentItem.type, id: parentItem.id, nocache: true })
+      }
+
       const obj = this.tables[type].loadProcessor.data;
       const ind = _.findIndex(obj.rows, item => item.id === key)
       if(ind > -1) {
@@ -191,9 +196,9 @@ export default class DataSource{
       return null;
     }
   }
-  getSourceById({ type, id, check }){
+  getSourceById({ type, id, check, nocache }){
     // check - массив названий строк, необходимых для итема. Если есть итем, но нет их, то перезапросить.
-    return this.store.dispatch('Binder/getItem', { type, payload: { id, check } })
+    return this.store.dispatch('Binder/getItem', { type, payload: { id, check }, nocache })
   }
   getSourceByOptics({ type, optics, params, onlyThis }){
     if(!onlyThis){
