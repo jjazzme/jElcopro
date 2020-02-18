@@ -17,7 +17,7 @@
         <b-dropdown-item>
           <b-link
             @click="docToCard(row)"
-            v-if="['Invoice','Order'].includes(value.dataSource.type)"
+            v-if="['Invoice','Order'].includes(value.dataSource.type) && row.status_id === 'formed'"
             class="text-nowrap d-block t-cap"
           >{{toCard.text}}</b-link>
 
