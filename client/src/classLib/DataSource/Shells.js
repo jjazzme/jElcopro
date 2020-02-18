@@ -886,7 +886,7 @@ export default class Shells{
             ]},
           documentLines:{label: 'Строки УПД', shell: 'DocumentLine', show: {item: true},
             html: row => { return `Количество строк: ${ row.documentLines ? row.documentLines.length : '' }` },
-            to: row => { return {name:'manyToOne', params:{ parentType: 'TransferIn', id: row.id, field: 'documentLines' } } },
+            to: row => { return {name:'manyToOne', params:{ parentType: 'TransferOut', id: row.id, field: 'documentLines' } } },
           }
         },
         controller:{
