@@ -8,12 +8,12 @@ export default class DocumentLineController extends ApiController {
     async create(req) {
         const { documentId, priceLine, ourPrice } = req.body;
         if (priceLine && documentId) {
-            const price = ourPrice ? priceLine.our_price : priceLine.for_all_price;
+            const price = ourPrice ? priceLine.price : priceLine.for_all_price_rub;
             return this.Model.create({
                 document_id: documentId,
                 good_id: priceLine.good_id,
                 // eslint-disable-next-line no-underscore-dangle
-                quantity: priceLine._realCount,
+                quantity: priceLine.quantity,
                 vat: priceLine.vat,
                 price_without_vat: (price / (100 + priceLine.vat)) * 100,
                 price_with_vat: price,

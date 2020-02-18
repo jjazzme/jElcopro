@@ -54,13 +54,23 @@
         <template v-slot:item.price_usd="{ item }">{{ item.price_usd.toFixed(2) }}</template>
         <template v-slot:item.sum="{ item }">{{ item.sum.toFixed(2) }}</template>
         <template v-slot:item.sum_usd="{ item }">{{ item.sum_usd.toFixed(2) }}</template>
-        <template v-slot:item.for_all_price_rub="props" :key="props.item.for_all_price_rub">
-            <v-edit-dialog>
-                {{ props.item.for_all_price_rub.toFixed(2) }}
-                <template v-slot:input>
-                    <v-text-field v-model="props.item.for_all_price_rub" />
-                </template>
-            </v-edit-dialog>
+        <template v-slot:item.for_all_price_rub="{ item }">
+            <v-row>
+                <v-edit-dialog>
+                    <div class="mt-2 mr-2">
+                        {{ item.for_all_price_rub }}
+                    </div>
+                    <template v-slot:input>
+                        <v-text-field v-model="item.for_all_price_rub" @input="render(item)"/>
+                   </template>
+                </v-edit-dialog>
+                <v-btn icon :disabled="toInvoicePossible(item)" @click="toDocument(item, 'invoice')">
+                    <v-icon>mdi-cart-plus</v-icon>
+                </v-btn>
+                <v-btn icon :disabled="toOrdersPossible(item)" @click="toDocument(item, 'order')">
+                    <v-icon>mdi-cart-arrow-up</v-icon>
+                </v-btn>
+            </v-row>
         </template>
         <template v-slot:item.for_all_price_usd="{ item }">{{ item.for_all_price_usd.toFixed(2) }}</template>
     </v-data-table>
@@ -70,6 +80,7 @@
     import _ from 'lodash';
     import tableMixin from '@/mixins/tableMixin';
     import StoreSelect from '@/components/StoreSelect';
+    import { mapGetters } from 'vuex';
 
     export default {
         name: "Offer",
@@ -98,10 +109,14 @@
                     stores: [],
                     producers: [],
                     more_or_equal: false
-                }
+                },
+                renderForce: true
             }
         },
         computed: {
+            ...mapGetters({
+                user: 'USER/GET'
+            }),
             filtredItems() {
                 return this.$store.getters['OFFER/FILTRED_ITEMS'](this.filters);
             },
@@ -121,6 +136,33 @@
                 this.$store.commit('OFFER/SET_QUANTITY', q);
                 this.$store.commit('OFFER/SET_SUM', this.$store.getters['CURRENCY-RATE/ITEMS']);
             },
+        },
+        methods: {
+            render(item) {
+                const { original_index } = item;
+                const newItem = _.omit(_.toPlainObject(item), 'original_index');
+                this.items.splice(original_index, 1, newItem);
+            },
+            toInvoicePossible() {
+                return !this.user.cards.invoice;
+            },
+            toOrdersPossible(item) {
+                return this.user.cards.orders
+                    .map((order) => this.$store.getters['ORDER/CACHE'](order).sellerable_id)
+                    .indexOf(item.company_id) < 0;
+            },
+            toDocument(item, documentType){
+                // const payload = { priceLine: item };
+                const documentId = documentType === 'order'
+                    ? _.find(
+                        this.user.cards.orders
+                            .map((order) => this.$store.getters['ORDER/CACHE'](order)),
+                        { sellerable_id: item.company_id },
+                    ).id
+                    : this.user.cards.invoice;
+                const ourPrice = documentType === 'invoice';
+                this.$store()
+            }
         },
         beforeRouteEnter(to, from, next){
             next(vm => {
