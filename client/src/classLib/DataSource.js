@@ -324,8 +324,14 @@ export default class DataSource{
   runProcedure({ type, params }){
     return this.store.dispatch('Binder/runProcedure', { type, params })
   }
-  updateItem({ type, item }){
-    return this.store.dispatch('Binder/updateItem', { type, item })
+  updateItem({ type, item, parentItem }){
+    const ret = this.store.dispatch('Binder/updateItem', { type, item });
+    ret.then(ans => {
+      if (parentItem){
+        this.getSourceById({ type: parentItem.type, id: parentItem.id, nocache: true })
+      }
+    });
+    return ret
   }
 }
 

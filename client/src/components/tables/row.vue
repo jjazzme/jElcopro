@@ -25,6 +25,8 @@
       :bodyHeight="value.viewport.height"
       :source="value.dataSource"
       :width="tableRow ? tableRow.find(item => item.name === name).width : 'auto'"
+      :one="one"
+      :parentType="parentType"
     />
 
   </div>

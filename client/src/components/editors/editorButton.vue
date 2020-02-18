@@ -18,6 +18,8 @@
       row: null,
       name: null,
       bodyWidth: null,
+      one: null,
+      parentType: null,
     },
     methods:{
       editor(e){
@@ -27,11 +29,15 @@
             this.source.editor.component = null;
             this.source.editor.transition = null;
             this.source.editor.type = null;
+            this.source.editor.one = null;
+            this.source.editor.parentType = null;
           } else {
             this.source.editor.component = this.cell.editor;
             this.source.editor.initiator = e.target;
             this.source.editor.row = this.row;
             this.source.editor.name = this.name;
+            this.source.editor.one = this.one;
+            this.source.editor.parentType = this.parentType;
 
             const rect = e.target.getBoundingClientRect();
             this.source.editor.top = rect.bottom + 5;
