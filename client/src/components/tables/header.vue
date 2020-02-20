@@ -19,6 +19,7 @@
           >
             <b-dropdown-item-button
               @click="add"
+              v-if="value.dataSource.getShell.newItem"
             >
               {{ nameOne }}: добавить
             </b-dropdown-item-button>

@@ -25,6 +25,8 @@
       :gtCalculated="gtCalculated"
       :isLinear="isLinear"
       :tableRow="tableRow"
+      :one="one"
+      :parentType="parentType"
     />
   </article>
 </template>
@@ -38,7 +40,9 @@
       value: null,
       gtCalculated: null,
       isLinear: true,
-      tableRow: null
+      tableRow: null,
+      one: null,
+      parentType: null,
     },
     computed:{
       loading(){ return this.value.dataSource.getTable.loadProcessor.eid },

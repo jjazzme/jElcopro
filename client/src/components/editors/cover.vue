@@ -93,7 +93,14 @@
         if(item[field] !== val){
           item[field] = val;
           const type = this.value.dataSource.type;
-          if (item.id !== 0) this.value.dataSource.updateItem({ type, item });
+          if (item.id !== 0) this.value.dataSource.updateItem({ type, item })
+            .then(ans => {
+              const id = this.value.dataSource.editor.one;
+              if (id){
+                const type = this.value.dataSource.editor.parentType;
+                this.value.dataSource.getSourceById({ type, id, nocache: true });
+              }
+            });
           else {
             const cell = this.value.dataSource.getShell.initial[field];
             if (cell.object !== null){
@@ -122,6 +129,23 @@
         this.value.dataSource.editor.type = null;
       }
     },
+    watch:{
+      '$route':{
+        handler: function (n) {
+          this.buttons.close.action();
+          /*
+          this.value.dataSource.editor.component = null;
+          this.value.dataSource.editor.initiator = null;
+          this.value.dataSource.editor.row = null;
+          this.value.dataSource.editor.name = null;
+          this.value.dataSource.editor.transition = null;
+          this.value.dataSource.editor.type = null;
+
+           */
+        },
+        deep: true
+      },
+    },
   }
 </script>
 
@@ -138,7 +162,7 @@
     background-color: rgba(255,255,255,0.9);
     border-radius: 5px;
     min-width: 300px;
-    min-height: 300px;
+    min-height: 150px;
     >div{
       flex: 1 1 auto;
     }

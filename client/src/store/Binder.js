@@ -111,7 +111,8 @@ let actions = {
   addLineToDocument({ commit }, { priceLine, ourPrice, documentId, documentType }){
     axios.post('/api/docline/0', { priceLine, ourPrice, documentId })
       .then(ans => {
-        commit('addLineToDocument', { line: ans.data, documentId, documentType })
+        commit('addLineToDocument', { line: ans.data, documentId, documentType });
+        commit('clearCacheSets', 'DocumentLine');
       });
   },
   getByOptics({ getters, commit }, { type, payload }) {

@@ -21,6 +21,8 @@
       :gtCalculated="gtCalculated"
       :isLinear="isLinear"
       :tableRow="tableRow"
+      :one="one"
+      :parentType="parentType"
     />
   </div>
 </template>
@@ -34,6 +36,7 @@
     props:{
       value: null,
       one: null,
+      parentType: null,
     },
     data(){
       return {

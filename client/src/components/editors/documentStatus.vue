@@ -37,6 +37,7 @@
     props:{
       source: null,
       value: null,
+      buttons: null,
     },
     data(){
       return{
@@ -69,10 +70,27 @@
         const id = item.id;
         const Model = this.source.type;
         this.source.runProcedure({ type: 'Transition', params: { id, transition, Model: this.source.editor.type || Model } })
+        .then(ans => {
+          _.forEach(ans.data, (arr, type) => {
+            if (type === 'Invoice') {
+              _.forEach(arr, item => {
+                if (item.id === this.source.user.cards.invoice && item.status_id !== 'formed') {
+                  this.source.cardDelete(item.id, 'Invoice');
+                }
+              })
+            } else if (type === 'Order') {
+              _.forEach(arr, item => {
+                if (this.source.user.cards.orders.includes(item.id) && item.status_id !== 'formed') {
+                  this.source.cardDelete(item.id, 'Order');
+                }
+              })
+            }
+          });
+        })
       }
     },
     created(){
-
+      this.buttons.enter.enable = false;
     },
   }
 </script>

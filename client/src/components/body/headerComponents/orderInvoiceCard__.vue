@@ -8,7 +8,7 @@
     </b-link>
 
     <div
-      v-if="document"
+      v-if="document && documentLines"
     >
       <div class="h-c-close" @click="closeCard()">x</div>
       <router-link
@@ -19,7 +19,7 @@
       </router-link>
       <!--div class="h-c-topic">{{alias}} №{{value.number}} от {{Intl.DateTimeFormat('ru-RU').format(new Date(value.date))}}</div-->
       <div class="h-c-sum">{{ document.amount_with_vat.toFixed(2) }}₽</div>
-      <div class="h-c-lines">Строк: {{ lines }} | Товаров: {{ count }}</div>
+      <div class="h-c-lines">Строк: {{ document.documentLines ? document.documentLines.length : ''}} | Товаров: {{ count }}</div>
       <div class="h-c-buyer" :title="secondPart">{{ secondPart }}</div>
     </div>
   </div>
@@ -31,8 +31,8 @@
     data(){
       return{
         alias: null,
-        lines: 0,
-        count: 0,
+        document: null,
+        documentLines: null,
       }
     },
     props: {
@@ -41,13 +41,8 @@
       type: null,
     },
     computed:{
-      //count(){ return this.document ? _.sumBy(this.document.documentLines, line => line.quantity) : 0 },
-      document(){
-        if (!this.id || !this.type) return null;
-        const ret = this.value.dataSource.getCacheItem(this.type, this.id);
-        if (!ret) this.value.dataSource.getSourceById({ type: this.type, id: this.id, check: ['documentLines'] });
-        return ret;
-        },
+      count(){ return this.document ? _.sumBy(this.document.documentLines, line => line.quantity) : 0 },
+      _document(){ return this.id ? this.value.dataSource.getCacheItem(this.type, this.id) : null; },
       secondPart(){
         return this.type === 'Invoice'
           ? this.document?.buyerable?.party?.name
@@ -56,26 +51,32 @@
     },
     methods:{
       closeCard(){ this.value.dataSource.cardDelete(this.id, this.type) },
+      setDocument(val){
+        this.$set(this, 'document', val);
+        if (val) {
+          this.$set(this, 'documentLines', val.documentLines)
+        } else {
+          this.$set(this, 'documentLines', null)
+        }
+      },
     },
     created() {
       if (this.type === 'Invoice') this.alias = 'счёт';
       else if (this.type === 'Order') this.alias = 'заказ';
-      this.lines = this.document?.documentLines ? this.document.documentLines.length : 0;
-      this.count = this.document ? _.sumBy(this.document.documentLines, line => line.quantity) : 0;
 
-      if (this.id) this.value.dataSource.getSourceById({ type: this.type, id: this.id, check: ['documentLines'] });
+      if (this.id) this.value.dataSource.getSourceById({ type: this.type, id: this.id, check: ['documentLines'] })
+      if (this._document) this.setDocument(this._document)
     },
     watch:{
       id(n){
         if (n) this.value.dataSource.getSourceById({ type: this.type, id: this.id, check: ['documentLines']  });
       },
-      document:{
-        handler: function (n) {
-          this.lines = this.document?.documentLines ? this.document.documentLines.length : 0;
-          this.count = this.document ? _.sumBy(this.document.documentLines, line => line.quantity) : 0;
+      _document:{
+        handler: function(n) {
+          this.setDocument(n)
         },
         deep: true
-      },
+      }
     },
   }
 </script>

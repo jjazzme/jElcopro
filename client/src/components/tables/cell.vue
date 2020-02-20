@@ -36,6 +36,8 @@
       :row="row"
       :name="name"
       :bodyWidth="bodyWidth"
+      :one="one"
+      :parentType="parentType"
     />
   </div>
 </template>
@@ -54,6 +56,8 @@
       bodyWidth: null,
       bodyHeight: null,
       source: null,
+      one: null,
+      parentType: null,
     },
     computed:{
       calculatedStyle(){

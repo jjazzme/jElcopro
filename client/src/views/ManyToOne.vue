@@ -6,6 +6,7 @@
     <Table
       v-model="value"
       :one="parseInt(this.$route.params.id)"
+      :parentType="parentType"
     />
 
     <page-environment

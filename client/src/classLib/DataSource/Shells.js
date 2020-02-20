@@ -676,16 +676,25 @@ export default class Shells{
             `/api/transferIn`,
             {optics:payload.optics, params:payload.params}),
           itemLoader: (key)=>axios.get(`/api/transferIn/${key}`),
+          deleteLoader: (type, key) => axios.delete(`/api/transferIn/${key}`),
+          updateLoader: (type, item) => axios.post(`/api/transferIn/${item.id}`, item),
           ttl: 3600e3*24,
           cache: [],
           cacheSets: [],
         },
+        firstCell:{
+          menu: [{
+            label: 'Строки',
+            to: row => { return {name:'manyToOne', params:{ parentType: 'TransferIn', id: row.id, field: 'documentLines' } } },
+          }
+          ]
+        },
         h1: item => `Входящий УПД №${ item.number} от ${Intl.DateTimeFormat('ru-RU').format(new Date(item.date)) } от ${ item.sellerable.party.name }`,
         initial:{
           id:{show:{item:true, list:false}, sortable: false, card: false, label: "ID", order: 100},
-          date:{ to: row => { return {name:'item', params:{ table: 'Order', id: row.id} } },
+          date:{ to: row => { return {name:'item', params:{ table: 'TransferIn', id: row.id} } },
             show: true, order:10, sortable: true, label: 'Дата', card: false,
-            //editor: 'calendar',
+            editor: () => import('../../components/editors/calendar'),
             html: row=>Intl.DateTimeFormat(
               'ru-RU',
               {
@@ -705,18 +714,21 @@ export default class Shells{
             ]},
           sellerable_id:{show: true, order:30, sortable: true, label: 'Продавец',
             html: row=>row.sellerable.party.name,
+            editor: () => import('../../components/editors/companySelector'),
             filters:[
               {type: 'search', _placeholder:'поиск 1'},
               {type: 'search', _placeholder:'поиск 2'},
             ]},
           buyerable_id:{show: true, order:40, sortable: true, label: 'Покупатель',
             html: row=>row.buyerable.party.name,
+            editor: () => import('../../components/editors/companySelector'),
             filters:[
               {type: 'search', _placeholder:'поиск 1'},
               {type: 'search', _placeholder:'поиск 2'},
             ]},
           store_id:{show: true, order:50, sortable: true, label: 'Склад',
             html: row=>row.store.name,
+            editor: () => import('../../components/editors/company/companyStore'),
             filters:[
               {type: 'search', _placeholder:'поиск 1'},
             ]},
@@ -728,13 +740,13 @@ export default class Shells{
           amount_with_vat:{show: true, order:70, sortable: true, label: 'Сумма',
             html: row => row.amount_with_vat.toFixed(2)
           },
-          //sum:{show: true, order:70, sortable: true, label: 'Сумма', html: row=>_.sumBy(row.documentLines, line=>line.amount_with_vat).toFixed(2)},
           status_id:{show: true, order: 75, sortable: true, label: 'Статус',
             html: row=>{ return {formed: 'Формируется', reserved: 'Резерв', in_work: 'В работе', closed: 'Закрыт'}[row.status_id] },
             editor: documentStatus,
           },
           user_id:{show: true, order:80, sortable: true, label: 'Автор',
             html: row=>row.user.name,
+            editor: () => import('../../components/editors/currency'),
             filters:[
               {type: 'search', _placeholder:'поиск 1'},
             ]},
@@ -794,20 +806,31 @@ export default class Shells{
         optics: { page: 1, sorters: {}, filters: {}, items: [], limit: limit },
       },
       TransferOut:{
+        firstCell:{
+          menu: [{
+            label: 'Строки',
+            to: row => { return {name:'manyToOne', params:{ parentType: 'TransferOut', id: row.id, field: 'documentLines' } } },
+          }
+          ]
+        },
         h1: item => `Исходящий УПД №${ item.number} от ${Intl.DateTimeFormat('ru-RU').format(new Date(item.date)) } для ${ item.buyerable.party.name }`,
         binder: {
           key: item=>item.id,
           byOpticsLoader: (payload)=>axios.put(
             `/api/transferOut`,
             {optics:payload.optics, params:payload.params}),
-          itemLoader: (key)=>axios.get(`/api/transferOut/get/${key}`),
+          itemLoader: (key)=>axios.get(`/api/transferOut/${key}`),
+          deleteLoader: (type, key) => axios.delete(`/api/transferOut/${key}`),
+          updateLoader: (type, item) => axios.post(`/api/transferOut/${item.id}`, item),
           ttl: 3600e3*24,
           cache: [],
           cacheSets: [],
         },
         initial:{
           id:{show:false, hidden: true, sortable: false, card: false},
-          date:{to: {name:'modelItem', params:{table: 'Order', id:'$id'}}, editor: 'calendar', show: true, order:10, sortable: true, label: 'Дата', card: false,
+          date:{show: true, order:10, sortable: true, label: 'Дата', card: false,
+            to: row => { return {name:'item', params:{ table: 'TransferOut', id: row.id} } },
+            editor: () => import('../../components/editors/calendar'),
             html: row=>Intl.DateTimeFormat(
               'ru-RU',
               {
@@ -817,38 +840,57 @@ export default class Shells{
               }).format(new Date(row.date)).replace(',',''),
             filters: [{type: 'calendar_fromto', from:'', to:''}]
           },
-          number:{to: {name:'modelItem', params:{table: 'Order', id:'$id'}}, editor: 'integer', show: true, order:20, sortable: true, label: 'Номер', card: false,
+          number:{show: true, order:20, sortable: true, label: 'Номер', card: false,
+            to: row => { return {name:'item', params:{ table: 'TransferOut', id: row.id} } },
+            //editor: 'integer',
             filters: [
               {type: 'integer_fromto', from:'', to:''},
               {type: 'search', _placeholder:'поиск 1'},
             ]},
-          sellerable_id:{show: true, order:30, html: row=>row.sellerable.party.name, sortable: true, label: 'Продавец',
+          sellerable_id:{show: true, order:30, sortable: true, label: 'Продавец',
+            html: row=>row.sellerable.party.name,
+            editor: () => import('../../components/editors/companySelector'),
             filters:[
               {type: 'search', _placeholder:'поиск 1'},
               {type: 'search', _placeholder:'поиск 2'},
             ]},
-          buyerable_id:{show: true, order:40, html: row=>row.buyerable.party.name, sortable: true, label: 'Покупатель',
+          buyerable_id:{show: true, order:40, sortable: true, label: 'Покупатель',
+            html: row=>row.buyerable.party.name,
+            editor: () => import('../../components/editors/companySelector'),
             filters:[
               {type: 'search', _placeholder:'поиск 1'},
               {type: 'search', _placeholder:'поиск 2'},
             ]},
-          store_id:{show: true, order:50, html: row=>row.store.name, sortable: true, label: 'Склад',
+          store_id:{show: true, order:50, sortable: true, label: 'Склад',
+            html: row=>row.store.name,
+            editor: () => import('../../components/editors/company/companyStore'),
             filters:[
               {type: 'search', _placeholder:'поиск 1'},
             ]},
-          currency_id:{show: true, order:60, html: row=>row.currency.name, sortable: true, label: 'Валюта',
+          currency_id:{show: true, order:60, sortable: true, label: 'Валюта',
+            html: row=>row.currency.name,
+            editor: () => import('../../components/editors/currency'),
             filters:[
               {type: 'search', _placeholder:'поиск 1'},
             ]},
-          sum:{show: true, order:70, sortable: true, label: 'Сумма', html: row=>_.sumBy(row.documentLines, line=>line.amount_with_vat).toFixed(2)},
-          status_id:{show: true, order: 75, sortable: true, label: 'Статус', html: row=>{ return {formed: 'Формируется', reserved: 'Резерв', in_work: 'В работе'}[row.status_id] } },
+          amount_with_vat:{show: true, order:70, sortable: true, label: 'Сумма',
+            html: row => row.amount_with_vat.toFixed(2)
+          },
+          status_id:{show: true, order: 75, sortable: true, label: 'Статус',
+            html: row=>{ return {formed: 'Формируется', reserved: 'Резерв', in_work: 'В работе', closed: 'Закрыт'}[row.status_id] } ,
+            editor: documentStatus,
+            },
           user_id:{show: true, order:80, html: row=>row.user.name, sortable: true, label: 'Автор',
             filters:[
               {type: 'search', _placeholder:'поиск 1'},
             ]},
+          documentLines:{label: 'Строки УПД', shell: 'DocumentLine', show: {item: true},
+            html: row => { return `Количество строк: ${ row.documentLines ? row.documentLines.length : '' }` },
+            to: row => { return {name:'manyToOne', params:{ parentType: 'TransferOut', id: row.id, field: 'documentLines' } } },
+          }
         },
         controller:{
-          scopes: ['defaultScope']
+          scopes: ['withSellerable', 'withBuyerable', 'withStore', 'withCurrency', 'withSum', 'withUser', 'defaultScope']
         },
         menu: 1050,
         faIcon: {prefix: "fas", name:"file-export"},
