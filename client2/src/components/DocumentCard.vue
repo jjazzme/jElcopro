@@ -34,9 +34,19 @@
                     : { name: 'documents', params: { type: this.documentType } };
             },
             document() {
-                return this.documentId
+                const document = this.documentId
                     ? this.$store.getters[_.toUpper(this.documentType) + '/CACHE'](this.documentId) || {}
-                    : {}
+                    : {};
+                if (!_.isEmpty(document)) {
+                    if (document.status_id !== 'formed') {
+                        if (document.document_type_id === 'invoice') {
+                            this.$store.dispatch('USER/CLEAR_INVOICE');
+                        } else {
+                            this.$store.dispatch('USER/REMOVE_ORDER', document.id);
+                        }
+                    }
+                }
+                return document;
             },
             type() {
                 return this.documentType === 'order' ? 'ЗАКАЗ' : 'СЧЕТ';

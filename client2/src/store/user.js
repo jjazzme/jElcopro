@@ -1,3 +1,4 @@
+import axios from 'axios';
 
 const state = {
     data: {
@@ -53,7 +54,9 @@ const mutations = {
 };
 
 const actions = {
-    async GET({ getters, dispatch }) {
+    async GET({ getters, commit, dispatch }) {
+        const { data } = await axios.get('/api2/user/1');
+        commit('SET', data);
         await dispatch('SET_CARDS');
         return getters.GET;
     },
@@ -64,7 +67,51 @@ const actions = {
         await Promise.all(
             state.data.cards.orders.map((order) => dispatch('ORDER/CACHE', parseInt(order, 0), { root: true }))
         );
-    }
+    },
+    async UPDATE({ getters, commit }, payload) {
+        return new Promise((resolve, reject) => {
+            axios.put('/api2/user/' + getters.GET.id, payload)
+                .then(response => {
+                    commit('SET', response.data);
+                    resolve(getters.GET);
+                })
+                .catch((error) => {
+                    commit(
+                        'SNACKBAR/SET',
+                        { text: error.response.data, color: 'error', snackbar: 'true'},
+                        { root: true }
+                    );
+                    reject(error);
+                });
+        });
+    },
+    SET_INVOICE({ getters, dispatch }, id) {
+        const cards = getters.GET.cards;
+        cards.invoice = id;
+        return dispatch('UPDATE', { cards });
+    },
+    CLEAR_INVOICE({ dispatch }) {
+        return dispatch('SET_INVOICE', null);
+    },
+    PUSH_ORDER({ dispatch, getters }, id) {
+        const cards = getters.GET.cards;
+        cards.orders.push(id);
+        return dispatch('UPDATE', { cards });
+    },
+    CHANGE_ORDER({ getters, dispatch }, payload) {
+        const cards = getters.GET.cards;
+        cards.orders.splice(payload.index, 1, parseInt(payload.id,0));
+        return dispatch('UPDATE', { cards });
+    },
+    REMOVE_ORDER({ dispatch, getters }, id) {
+        const cards = getters.GET.cards;
+        const index = cards.orders.indexOf(parseInt(id,0));
+        if (index >= 0 ) {
+            cards.orders.splice(index, 1);
+            return dispatch('UPDATE', { cards });
+        }
+        return Promise.reject(new Error('Nothing to do'));
+    },
 };
 
 export default {

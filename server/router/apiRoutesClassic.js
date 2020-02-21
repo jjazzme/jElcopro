@@ -11,6 +11,7 @@ import ProductControllerClassic from '../controller/ProductControllerClassic';
 import GoodControllerClassic from '../controller/GoodControllerClassic';
 import PriceControllerClassic from '../controller/PriceControllerClassic';
 import CurrencyRateController from '../controller/CurrencyRateControllerClassic';
+import UserControllerClassic from '../controller/UserControllerClassic';
 
 export default function ApiRoutesClassic(services) {
     const apiRouter = new ApiRouterClassic(services.db);
@@ -32,5 +33,6 @@ export default function ApiRoutesClassic(services) {
     apiRouter.resource('transfer-in', TransferInControllerClassic);
     apiRouter.resource('transfer-out', TransferOutControllerClassic);
     apiRouter.resource('price', new PriceControllerClassic(services));
+    apiRouter.resource('user', UserControllerClassic);
     return apiRouter.router;
 }

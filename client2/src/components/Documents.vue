@@ -19,7 +19,7 @@
         <template v-slot:item.inCard="{ item }">
             <v-icon v-if="inCards(item) === 'add'" @click="addToCards(item)">mdi-cart-plus</v-icon>
             <v-icon v-else-if="inCards(item) === 'remove'" @click="removeFromCards(item)">mdi-cart-minus</v-icon>
-            <v-icon v-else @click="replaceInCards(item)">mdi-cart-arrow-up</v-icon>
+            <v-icon v-else-if="inCards(item) === 'replace'" @click="replaceInCards(item)">mdi-cart-arrow-up</v-icon>
         </template>
         <template v-slot:item.date="{ item }">
             {{ dateFormat(item.date) }}
@@ -59,7 +59,9 @@
         mixins: [tableMixin, utilsMixin],
         methods: {
             inCards(item) {
-                if (_.indexOf(['invoice', 'order'], item.document_type_id) < 0) return null;
+                if (
+                    _.indexOf(['invoice', 'order'], item.document_type_id) < 0 || item.status_id !== 'formed'
+                ) return null;
                 if (item.document_type_id === 'invoice') {
                     if (!this.$store.getters['USER/INVOICE']) return 'add';
                     if (this.$store.getters['USER/INVOICE'].id === item.id) return 'remove';
@@ -72,24 +74,24 @@
             },
             addToCards(item) {
                 if (item.document_type_id === 'invoice') {
-                    this.$store.commit('USER/SET_INVOICE', item.id)
+                    this.$store.dispatch('USER/SET_INVOICE', item.id)
                 } else {
-                    this.$store.commit('USER/PUSH_ORDER', item.id)
+                    this.$store.dispatch('USER/PUSH_ORDER', item.id)
                 }
             },
             removeFromCards(item) {
                 if (item.document_type_id === 'invoice') {
-                    this.$store.commit('USER/CLEAR_INVOICE', item.id)
+                    this.$store.dispatch('USER/CLEAR_INVOICE')
                 } else {
-                    this.$store.commit('USER/REMOVE_ORDER', item.id)
+                    this.$store.dispatch('USER/REMOVE_ORDER', item.id)
                 }
             },
             replaceInCards(item) {
                 if (item.document_type_id === 'invoice') {
-                    this.$store.commit('USER/SET_INVOICE', item.id)
+                    this.$store.dispatch('USER/SET_INVOICE', item.id)
                 } else {
                     const index = _.findIndex(this.$store.getters['USER/ORDERS'], { sellerable_id: item.sellerable_id });
-                    this.$store.commit('USER/CHANGE_ORDER', { index, id: item.id})
+                    this.$store.dispatch('USER/CHANGE_ORDER', { index, id: item.id})
                 }
             },
             addDocument() {

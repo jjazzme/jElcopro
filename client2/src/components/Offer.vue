@@ -161,7 +161,11 @@
                     ).id
                     : this.user.cards.invoice;
                 const ourPrice = documentType === 'invoice';
-                this.$store()
+                this.$store
+                    .dispatch(
+                        'DOCUMENTLINE/UPDATE_ITEM',
+                        { item: { id: 0, priceLine: item, documentId, ourPrice } }
+                    );
             }
         },
         beforeRouteEnter(to, from, next){
