@@ -159,8 +159,10 @@ export default class Document extends BaseModel {
         /**
          * Before Create new DocumentLine resolve dependencies on right Good & Store
          */
-        this.beforeCreate(async (doc) => {
-            doc.set({ user_id: this.services.auth.user.id });
+        this.beforeCreate(async (doc, options) => {
+            const user = options.request ? options.request.user : options.user;
+            if (!user) throw new Error('Need User');
+            doc.set({ user_id: user.id });
             if (!doc.store_id) await doc.fillStore();
             if (!doc.get('foreign_store_id')) await doc.fillFromStore();
             if (!_.isNumber(doc.number)) doc.number = await this.nextNumber(doc.number_prefix);
@@ -173,9 +175,10 @@ export default class Document extends BaseModel {
             }
         });
 
-        this.beforeDestroy((doc) => {
+        this.beforeDestroy((doc, options) => {
             if (doc.status_id !== 'formed') throw new Error('Document must be in formed status');
-            const { user } = this.services.auth;
+            const user = options.request ? options.request.user : options.user;
+            if (!user) throw new Error('Need User');
             if (user.cards.invoice === doc.id || user.cards.orders.indexOf(doc.id) >= 0) {
                 throw new Error('Document in your cards');
             }

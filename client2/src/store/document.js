@@ -10,6 +10,7 @@ state.cache.push({
 });
 
 state.headers = [
+    { text: '', value: 'actions', width: 10, sortable: false },
     {
         text: 'Дата',
         value: 'date',

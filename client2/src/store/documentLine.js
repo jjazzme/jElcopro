@@ -4,6 +4,7 @@ import _ from 'lodash'
 let state = _.cloneDeep(model.state);
 
 state.headers = [
+    { text: '', value: 'actions', width: 10, sortable: false },
     { text: 'Название', value: 'good.product.name' },
     { text: 'Количество', value: 'quantity' },
     { text: 'НДС', value: 'vat' },

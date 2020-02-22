@@ -10,6 +10,9 @@
         <template v-slot:top>
             <slot name="header"></slot>
         </template>
+        <template v-slot:item.actions="{ item }">
+            <row-actions></row-actions>
+        </template>
         <template v-slot:item.good.product.name="{ item }">
             <router-link :to="{ name: 'product', params: { id: item.good.product_id } }">
                 {{ item.good.product.name }}
@@ -34,8 +37,10 @@
 <script>
     import _ from 'lodash'
     import tableMixin from '@/mixins/tableMixin';
+    import RowActions from '@/components/RowActions';
 
     export default {
+        components: {RowActions},
         props: ['documentId'],
         name: "DocumentLines",
         data() {
@@ -66,7 +71,7 @@
                         const index = _.findIndex(this.items, { id: item.id });
                         this.items.splice(index, 1, response.data);
                     })
-            }
+            },
         },
     }
 </script>

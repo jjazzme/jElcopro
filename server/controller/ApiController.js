@@ -57,7 +57,7 @@ export default class ModelContoller {
             const model = await this.Model.findByPk(id);
             await model.update(req.body);
         } else {
-            const doc = await this.Model.create(req.body)
+            const doc = await this.Model.create(req.body, { request: req })
             id = doc.id;
         }
         return this.Model.getInstance(id, this.scopes || []);
@@ -66,7 +66,7 @@ export default class ModelContoller {
     // eslint-disable-next-line class-methods-use-this
     async destroy(req) {
         const model = await this.Model.findByPk(req.params.id);
-        return model.destroy();
+        return model.destroy({ request: req });
     }
 
     async index1(req) {

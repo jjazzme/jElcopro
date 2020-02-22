@@ -67,6 +67,32 @@ let actions = {
                 });
         });
     },
+    REMOVE_ITEM({ getters, commit }, id) {
+        return new Promise((resolve, reject) => {
+            axios.delete(getters.URL + '/' + id)
+                .then((response) => {
+                    commit(
+                        'SNACKBAR/SET',
+                        {
+                            text: getters.NAME + ' with id ' + id + ' was deleted.',
+                            color: 'success',
+                            snackbar: true,
+                            timeout: 3000
+                        },
+                        { root: true }
+                    );
+                    resolve(response);
+                })
+                .catch((error) => {
+                    commit(
+                        'SNACKBAR/SET',
+                        { text: error.response.data, color: 'error', snackbar: 'true'},
+                        { root: true }
+                    );
+                    reject(error);
+                });
+        });
+    },
     UPDATE_ITEM({ getters, commit }, payload) {
         const { item } = payload;
         const method = item.id === 0 ? 'post' : 'put';
@@ -80,7 +106,7 @@ let actions = {
                             text: getters.NAME + ' with id ' + item.id + ' was saved.',
                             color: 'success',
                             snackbar: true,
-                            timeout: 6000
+                            timeout: 3000
                         },
                         { root: true }
                     );

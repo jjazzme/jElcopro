@@ -166,18 +166,16 @@
         methods: {
             removeFromCards() {
                 if (this.document.document_type_id === 'invoice') {
-                    this.$store.commit('USER/CLEAR_INVOICE');
-                    // this.$router.push({ name: 'documents', params: { type: 'invoice' } });
+                    this.$store.dispatch('USER/CLEAR_INVOICE')
                 } else {
-                    this.$store.commit('USER/REMOVE_ORDER', this.document.id);
-                    // this.$router.push({ name: 'documents', params: { type: 'order' } });
+                    this.$store.dispatch('USER/REMOVE_ORDER', this.document.id)
                 }
             },
             addToCards() {
                 if (this.document.document_type_id === 'invoice') {
-                    this.$store.commit('USER/SET_INVOICE', this.document.id)
+                    this.$store.dispatch('USER/SET_INVOICE', this.document.id);
                 } else {
-                    this.$store.commit('USER/PUSH_ORDER', this.document.id);
+                    this.$store.dispatch('USER/PUSH_ORDER', this.document.id);
                 }
             },
             save() {

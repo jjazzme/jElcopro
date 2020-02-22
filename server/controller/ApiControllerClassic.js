@@ -47,7 +47,9 @@ export default class ApiContollerClassic {
 
     async create(req) {
         const payload = _.omit(req.body, ['id']);
-        const model = await this.Model.create(payload);
+        // need use req as request in options
+        const user = await this.Model.services.db.models.User.findByPk(1);
+        const model = await this.Model.create(payload, { user });
         return this.Model.getInstance(model, this.scopes || []);
     }
 
@@ -58,8 +60,10 @@ export default class ApiContollerClassic {
         return this.Model.getInstance(id, this.scopes || []);
     }
 
-    // eslint-disable-next-line class-methods-use-this
-    async destroy() {
-        return new Error('Not impement');
+    async destroy(req) {
+        // need use req as request in options
+        const user = await this.Model.services.db.models.User.findByPk(1);
+        const model = await this.Model.findByPk(req.params.id);
+        return model.destroy({ user });
     }
 }

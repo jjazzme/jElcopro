@@ -60,9 +60,15 @@ export default class DocumentLine extends BaseModel {
             line.store_id = document.store_id;
             line.from_good_id = line.good_id;
             line.good_id = good.id;
-            if (!_.isNumber(line.price_with_vat)) line.price_with_vat = line.price_without_vat * (1 + line.vat / 100);
-            if (!_.isNumber(line.amount_without_vat)) line.amount_without_vat = line.price_without_vat * line.quantity;
-            if (!_.isNumber(line.amount_with_vat)) line.amount_with_vat = line.price_with_vat * line.quantity;
+            if (!line.price_with_vat) {
+                line.price_with_vat = line.price_without_vat * (1 + line.vat / 100);
+            }
+            if (!line.amount_without_vat) {
+                line.amount_without_vat = line.price_without_vat * line.quantity;
+            }
+            if (!line.amount_with_vat) {
+                line.amount_with_vat = line.price_with_vat * line.quantity;
+            }
         });
         /**
          * Check quantity and re-sum before update or create;
