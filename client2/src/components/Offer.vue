@@ -50,6 +50,11 @@
                 </td>
             </tr>
         </template>
+        <template v-slot:item.name="{ item }">
+            <router-link :to="{ name: 'product', params: { id: item.product_id } }">
+                {{ item.name }}
+            </router-link>
+        </template>
         <template v-slot:item.price="{ item }">{{ item.price.toFixed(2) }}</template>
         <template v-slot:item.price_usd="{ item }">{{ item.price_usd.toFixed(2) }}</template>
         <template v-slot:item.sum="{ item }">{{ item.sum.toFixed(2) }}</template>

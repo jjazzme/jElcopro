@@ -18,6 +18,7 @@ import good from '@/store/good';
 import price from '@/store/price';
 import currencyRate from '@/store/currencyRate';
 import offer from '@/store/offer';
+import transferOut from '@/store/transferOut';
 
 Vue.use(Vuex);
 
@@ -47,5 +48,6 @@ export default new Vuex.Store({
       USER: user,
       DOCUMENTTYPES: documentTypes,
       'TRANSFER-IN': transferIn,
+      'TRANSFER-OUT': transferOut,
   }
 })

@@ -36,7 +36,7 @@ export default {
             if (!this.documentType) return;
             this.loading = true;
             if (this.$route.query.page === this.options.page && !this.dependent) this.options.page = 1;
-            this.$store.dispatch( this.documentType + '/GET_ITEMS', this.options)
+            this.$store.dispatch( this.documentType + '/GET_ITEMS', this.requestParams())
                 .then((response) => {
                     this.total = response.data.count;
                     this.items = response.data.rows;
@@ -50,6 +50,9 @@ export default {
                 // eslint-disable-next-line no-unused-vars
                 .catch(() => {})
                 .then(() => this.loading = false)
+        },
+        requestParams() {
+            return this.options;
         }
     }
 }

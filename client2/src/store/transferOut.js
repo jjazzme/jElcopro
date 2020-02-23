@@ -3,14 +3,10 @@ import _ from 'lodash'
 import model from '@/store/model';
 
 let state = _.cloneDeep(document.state);
-
-state.name = 'order';
-
-state.cache[0].document_type_id='order';
-
+state.name = 'transfer-out';
 state.breadcrumb = {
-    text: 'ЗАКЗАЫ',
-    to: { name: 'documents', params: { type: 'order' } },
+    text: 'ИСХОДЯЩИЕ УПД',
+    to: { name: 'documents', params: { type: 'transfer-out' } },
     link: true,
     disabled: false,
 };

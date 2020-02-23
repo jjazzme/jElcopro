@@ -14,7 +14,7 @@
             </v-btn>
         </template>
         <template v-slot:item.actions="{ item }">
-            <row-actions>
+            <row-actions v-if="inCards(item) && item.status_id === 'formed'">
                 <template v-slot:actions>
                     <v-btn v-if="inCards(item) === 'add'" @click="addToCards(item)" fab small>
                         <v-icon>mdi-cart-plus</v-icon>

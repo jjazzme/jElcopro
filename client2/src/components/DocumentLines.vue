@@ -1,6 +1,6 @@
 <template>
     <v-data-table
-            :headers="headers"
+            :headers="computedHeaders"
             :items="items"
             :server-items-length="total"
             :options.sync="options"
@@ -11,12 +11,24 @@
             <slot name="header"></slot>
         </template>
         <template v-slot:item.actions="{ item }">
-            <row-actions></row-actions>
+            <row-actions>
+                <template v-slot:actions>
+                    <v-btn fab dark small color="red" @click="remove(item)">
+                        <v-icon>mdi-delete</v-icon>
+                    </v-btn>
+                </template>
+            </row-actions>
         </template>
         <template v-slot:item.good.product.name="{ item }">
             <router-link :to="{ name: 'product', params: { id: item.good.product_id } }">
                 {{ item.good.product.name }}
             </router-link>
+        </template>
+        <template v-slot:item.reserve="{ item }">
+            {{ item.futureReserve ? item.futureReserve.ballance : 0 }} / {{ reserveQuantity(item, false) }} / {{ reserveQuantity(item, true) }}
+        </template>
+        <template v-slot:item.inTransfers="{ item }">
+            {{ childrenQuantity(item) }}
         </template>
         <template v-slot:item.quantity="props">
             <v-edit-dialog>
@@ -41,7 +53,7 @@
 
     export default {
         components: {RowActions},
-        props: ['documentId'],
+        props: ['documentId', 'document'],
         name: "DocumentLines",
         data() {
             return {
@@ -58,6 +70,27 @@
                 dependent: true,
             }
         },
+        computed: {
+            inTransfers() {
+                if (!this.document) return false;
+                return ['invoice', 'order'].indexOf(this.document.document_type_id) >= 0;
+            },
+            needParent() {
+                if (!this.document) return false;
+                return ['transfer-in', 'transfer-out'].indexOf(this.document.document_type_id) >= 0;
+            },
+            needReserve() {
+                if (!this.document) return false;
+                return ['invoice'].indexOf(this.document.document_type_id) >= 0;
+            },
+            computedHeaders() {
+                const headers = _.cloneDeep(this.headers);
+                if (!this.inTransfers) _.remove(headers, { value: 'inTransfers'});
+                if (!this.needParent) _.remove(headers, { value: 'parent.quantity'});
+                if (!this.needReserve) _.remove(headers, { value: 'reserve'});
+                return headers;
+            }
+        },
         mixins: [tableMixin],
         watch: {
             documentId(val) {
@@ -72,6 +105,27 @@
                         this.items.splice(index, 1, response.data);
                     })
             },
+            requestParams() {
+                const requestParams = _.cloneDeep(this.options);
+                if (this.inTransfers) requestParams.scopes.push('withChildren');
+                if (this.needParent) requestParams.scopes.push('withParent');
+                if (this.needReserve) {
+                    requestParams.scopes = _.union(requestParams.scopes, ['withReserves', 'withFutureReserve']);
+                }
+                return requestParams;
+            },
+            childrenQuantity(item) {
+                return item.children
+                    ? item.children.reduce((sum, item) => sum += item.quantity, 0)
+                    : 0;
+            },
+            reserveQuantity(item, closed) {
+                return item.reserves
+                    ? item.reserves
+                        .map((item) => item.closed === closed)
+                        .reduce((sum, item) => sum += item.quantity, 0)
+                    : 0;
+            }
         },
     }
 </script>

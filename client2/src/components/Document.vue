@@ -1,6 +1,6 @@
 <template>
     <div>
-    <document-lines :document-id="$route.params.id" :key="uniqueKey">
+    <document-lines :document-id="$route.params.id" :key="uniqueKey" :document="document">
         <template v-slot:header>
             <document-editor v-if="document" :value="document"/>
         </template>
@@ -59,6 +59,14 @@
                     text: this.documentText(child)
                 }));
             }
+        },
+        watch: {
+            document: {
+                handler: function(after, before) {
+                    if (after.status_id !== before.status_id) this.uniqueKey++;
+                },
+                deep: true
+            },
         },
         methods: {
             pushBreadcrumb(params) {
