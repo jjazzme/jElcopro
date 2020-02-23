@@ -96,7 +96,10 @@ export default class BaseModel extends Sequelize.Model {
         const additional = _.find(args, (o) => _.isPlainObject(o)) || {};
         let answer = await this.getInstance(instance, scopes);
         if (answer) {
-            await answer.update(additional);
+            answer.set(additional);
+            answer.changed('updatedAt', true);
+            // additional.updatedAt = new Date();
+            await answer.save();
         } else {
             answer = this.create(Object.assign(additional, instance));
         }

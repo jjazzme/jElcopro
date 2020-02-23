@@ -8,7 +8,7 @@
         loading-text="Loading... Please wait"
         show-expand
 >
-    <template v-slot:item.updatedAt="{ item }">{{ date(item.createdAt )}}</template>
+    <template v-slot:item.updatedAt="{ item }">{{ date(item.updatedAt )}}</template>
     <template v-slot:expanded-item="{ headers, item }">
         <td :colspan="headers.length">
             <prices :good-id="item.id" class="my-2"/>

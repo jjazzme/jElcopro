@@ -11,7 +11,7 @@ export default class ExternalPriceService {
      * @param {boolean} [withCache = true]
      * @returns {Promise<Object|undefined>}
      */
-    async searchByName(name, withCache = true) {
+    async searchByName(name, withCache = false) {
         try {
             const func = async () => {
                 const result = await this.apiSearchByName(name);
@@ -35,7 +35,7 @@ export default class ExternalPriceService {
      * @param {boolean} [withCache = true]
      * @returns {Promise<Object|undefined>}
      */
-    static async searchById(id, withCache = true) {
+    static async searchById(id, withCache = false) {
         try {
             const func = async () => {
                 const result = await this.apiSearchById(id);
