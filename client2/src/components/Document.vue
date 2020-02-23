@@ -63,7 +63,7 @@
         watch: {
             document: {
                 handler: function(after, before) {
-                    if (after.status_id !== before.status_id) this.uniqueKey++;
+                    if (after && before && after.status_id !== before.status_id) this.uniqueKey++;
                 },
                 deep: true
             },

@@ -23,7 +23,8 @@
             product() {
                 const product = this.$store.getters['PRODUCT/CACHE'](parseInt(this.$route.params.id));
                 if (product) return product;
-                this.$store.dispatch('PRODUCT/GET_ITEM', parseInt(this.$route.params.id));
+                const id = parseInt(this.$route.params.id);
+                if (id) this.$store.dispatch('PRODUCT/GET_ITEM', id);
                 return null;
             }
         }

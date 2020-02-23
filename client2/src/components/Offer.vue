@@ -120,7 +120,8 @@
         },
         computed: {
             ...mapGetters({
-                user: 'USER/GET'
+                user: 'USER/GET',
+                offers: 'OFFER/ITEMS',
             }),
             filtredItems() {
                 return this.$store.getters['OFFER/FILTRED_ITEMS'](this.filters);
@@ -140,7 +141,11 @@
             quantity(q) {
                 this.$store.commit('OFFER/SET_QUANTITY', q);
                 this.$store.commit('OFFER/SET_SUM', this.$store.getters['CURRENCY-RATE/ITEMS']);
+                this.$store.commit('OFFER/SORT');
             },
+            offers() {
+                this.total = this.offers.length;
+            }
         },
         methods: {
             render(item) {

@@ -157,6 +157,7 @@ export default class CompelService extends ExternalPriceService {
                             id = oldPrice.id;
                         }
                     }
+                    if (!good) throw new Error('UGAS NAH');
                     return {
                         code: item.item_id,
                         product_id: good.product_id,
