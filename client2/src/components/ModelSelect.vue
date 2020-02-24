@@ -17,7 +17,11 @@
             :multiple="multiple"
             :disabled="disabled"
             :dense="dense"
-    />
+    >
+        <template v-slot:prepend>
+            <slot name="prepend"></slot>
+        </template>
+    </v-autocomplete>
 </template>
 
 <script>

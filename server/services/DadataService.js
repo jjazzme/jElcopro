@@ -18,13 +18,13 @@ export default class Dadata {
         const key = `${type}_${query}`;
         try {
             if (await this.cache.has(key)) {
-                return await this.cache.get(key);
+                return this.cache.get(key);
             }
             const response = await axios.get(this.url + type, {
                 headers: { Authorization: `Token ${this.token}` },
                 params: { query, count: 5 },
             });
-            return await this.cache.put(key, response.data, 900);
+            return this.cache.put(key, response.data, 900);
         } catch (e) {
             this.logger.error(e, `Some problems with ${key}`);
             throw e;

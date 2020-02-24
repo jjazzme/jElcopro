@@ -1,27 +1,18 @@
 <template>
     <model-select
-            model="company"
+            model="party"
             v-model="proxy"
-            :multipe="multiple"
-            :label="label"
-            item-text="party.name"
+            label="Выбор фирмы"
+            :multiple="multiple"
             :disabled="disabled"
-            :filters="filters"
-            :filter-actions="filterActions"
-    >
-        <template v-slot:prepend>
-            <v-btn fab icon small class="pb-4" :to="{ name: 'company', params: { id: 0 } }">
-                <v-icon>mdi-plus</v-icon>
-            </v-btn>
-        </template>
-    </model-select>
+    />
 </template>
 
 <script>
     import ModelSelect from '@/components/ModelSelect';
 
     export default {
-        name: "CompanySelect",
+        name: "PartySelect",
         components: { ModelSelect },
         props: {
             value: {
@@ -31,16 +22,10 @@
                 type: Boolean,
                 default: false
             },
-            label: {
-                type: String,
-                default: 'Компания'
-            },
             disabled: {
                 type: Boolean,
                 default: false,
-            },
-            filters: { type: Object, default: () => {} },
-            filterActions: { type: Object, default: () => {} },
+            }
         },
         computed: {
             proxy: {

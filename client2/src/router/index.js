@@ -6,6 +6,7 @@ import Documentes from '@/components/Documents'
 import Document from '@/components/Document'
 import Product from '@/components/Product'
 import Offer from '@/components/Offer'
+import Company from '@/components/Company'
 
 Vue.use(VueRouter);
 
@@ -20,6 +21,11 @@ const routes = [
         name: 'offers',
         component: Offer,
     },
+  {
+    path: '/company/:id',
+    name: 'company',
+    component: Company,
+  },
   {
     path: '/producer',
     name: 'producers',
