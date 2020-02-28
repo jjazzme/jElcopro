@@ -13,6 +13,7 @@ import PriceControllerClassic from '../controller/PriceControllerClassic';
 import CurrencyRateController from '../controller/CurrencyRateControllerClassic';
 import UserControllerClassic from '../controller/UserControllerClassic';
 import PartyControllerClassic from '../controller/PartyControllerClassic';
+import AddressControllerClassic from '../controller/AddressControllerClassic';
 
 export default function ApiRoutesClassic(services) {
     const apiRouter = new ApiRouterClassic(services.db);
@@ -30,6 +31,7 @@ export default function ApiRoutesClassic(services) {
     apiRouter.resource('company', new ApiController(services.db.models.Company));
     apiRouter.resource('store', new ApiController(services.db.models.Store));
     apiRouter.resource('party', new PartyControllerClassic(services));
+    apiRouter.resource('address', new AddressControllerClassic(services));
     apiRouter.resource('currency', new ApiController(services.db.models.Currency));
     apiRouter.resource('currency-rate', CurrencyRateController);
     apiRouter.resource('transfer-in', TransferInControllerClassic);

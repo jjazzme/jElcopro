@@ -20,6 +20,7 @@ import currencyRate from '@/store/currencyRate';
 import offer from '@/store/offer';
 import transferOut from '@/store/transferOut';
 import party from '@/store/party';
+import address from '@/store/address';
 
 Vue.use(Vuex);
 
@@ -40,6 +41,7 @@ export default new Vuex.Store({
       OFFER: offer,
       COMPANY: company,
       PARTY: party,
+      ADDRESS: address,
       STORE: store,
       CURRENCY: currency,
       'CURRENCY-RATE': currencyRate,

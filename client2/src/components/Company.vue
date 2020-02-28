@@ -1,23 +1,20 @@
 <template>
     <v-card>
         <party-select v-model="party"></party-select>
-        <div>123     </div>
-        <div>123     </div>
-        <div>123     </div>
-        <div>123     </div>
-        <div>123     </div>
-        <div>123     </div>
+        <address-select v-model="address"></address-select>
     </v-card>
 </template>
 
 <script>
     import PartySelect from '@/components/PartySelect';
+    import AddressSelect from '@/components/AddressSelect';
     export default {
         name: "Company",
-        components: { PartySelect },
+        components: {AddressSelect, PartySelect },
         data() {
             return {
-                party: null
+                address: null,
+                party: null,
             }
         }
     }

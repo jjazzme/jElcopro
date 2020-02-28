@@ -17,6 +17,7 @@
             :multiple="multiple"
             :disabled="disabled"
             :dense="dense"
+            :no-filter="true"
     >
         <template v-slot:prepend>
             <slot name="prepend"></slot>
@@ -93,6 +94,8 @@
         watch: {
             search: _.debounce(function(val) {
                 if (!val || this.isLoading || this.itemsPerPage < 0) return;
+                const proxy = this.$store.getters[this.MODEL + '/CACHE'](this.value);
+                if (this.value && val === _.property(this.itemText)(proxy)) return;
                 this.getItems(val);
             }, 500)
         },
