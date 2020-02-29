@@ -19,7 +19,7 @@
                 return answer;
             },
             companyId() {
-                return parseInt(this.$route.params.id)
+                return parseInt(this.$route.params.id) || 0;
             }
         }
     }

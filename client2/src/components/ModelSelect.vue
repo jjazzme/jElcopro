@@ -119,13 +119,15 @@
                     .then(() => this.isLoading = false);
             },
             getItem() {
-                this.isLoading = true;
-                this.$store.dispatch(this.MODEL + '/CACHE', this.value)
-                    .then((model) => {
-                        if (!_.find(this.items, { id: model.id }))
-                        this.items.push(model)
-                    })
-                    .then(() => this.isLoading = false);
+                if (this.value && !_.isArray(this.value)) {
+                    this.isLoading = true;
+                    this.$store.dispatch(this.MODEL + '/CACHE', this.value)
+                        .then((model) => {
+                            if (!_.find(this.items, {id: model.id}))
+                                this.items.push(model)
+                        })
+                        .then(() => this.isLoading = false);
+                }
             }
         }
     }

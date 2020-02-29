@@ -10,7 +10,7 @@
             :filter-actions="filterActions"
     >
         <template v-slot:prepend>
-            <v-btn fab icon small class="pb-4" :to="{ name: 'company', params: { id: 0 } }">
+            <v-btn fab icon small class="pb-4" :to="{ name: 'company', params: { id: 0 }, query: { back: 1 } }">
                 <v-icon>mdi-plus</v-icon>
             </v-btn>
         </template>

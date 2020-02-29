@@ -13,5 +13,10 @@ export default {
         dateFormat(date) {
             return moment(date).format('D/MM/Y');
         },
+        changeRouteId(id) {
+            const newRoute = _.pick(this.$route, ['name', 'params', 'query']);
+            newRoute.params.id = id;
+           return this.$router.replace(newRoute);
+        }
     }
 }
