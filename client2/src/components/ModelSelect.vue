@@ -18,6 +18,7 @@
             :disabled="disabled"
             :dense="dense"
             :no-filter="true"
+            :error="!proxy"
     >
         <template v-slot:prepend>
             <slot name="prepend"></slot>
@@ -69,12 +70,7 @@
                         .catch(() => {})
                         .then(() => this.isLoading = false);
                 } else {
-                    this.isLoading = true;
-                    this.$store.dispatch(this.MODEL + '/CACHE', this.value)
-                        .then((model) => this.items.push(model))
-                        // eslint-disable-next-line no-unused-vars
-                        .catch(() => {})
-                        .then(() => this.isLoading = false);
+                    this.getItem();
                 }
             }
         },
@@ -97,7 +93,10 @@
                 const proxy = this.$store.getters[this.MODEL + '/CACHE'](this.value);
                 if (this.value && val === _.property(this.itemText)(proxy)) return;
                 this.getItems(val);
-            }, 500)
+            }, 500),
+            value() {
+                this.getItem();
+            },
         },
         methods: {
             getItems(val = '') {
@@ -117,8 +116,15 @@
                             : [];
                         this.items = _.union(response.data.rows, filtred);
                     })
-                    // eslint-disable-next-line no-unused-vars
-                    .catch(() => {})
+                    .then(() => this.isLoading = false);
+            },
+            getItem() {
+                this.isLoading = true;
+                this.$store.dispatch(this.MODEL + '/CACHE', this.value)
+                    .then((model) => {
+                        if (!_.find(this.items, { id: model.id }))
+                        this.items.push(model)
+                    })
                     .then(() => this.isLoading = false);
             }
         }

@@ -1,20 +1,25 @@
 <template>
-    <v-card>
-        <party-select v-model="party"></party-select>
-        <address-select v-model="address"></address-select>
-    </v-card>
+    <company-edit v-if="company" :value="company"></company-edit>
 </template>
 
 <script>
-    import PartySelect from '@/components/PartySelect';
-    import AddressSelect from '@/components/AddressSelect';
+    import CompanyEdit from '@/components/CompanyEdit';
     export default {
         name: "Company",
-        components: {AddressSelect, PartySelect },
+        components: {CompanyEdit },
         data() {
             return {
-                address: null,
-                party: null,
+
+            }
+        },
+        computed: {
+            company() {
+                const answer = this.$store.getters['COMPANY/CACHE'](this.companyId);
+                if (!answer) this.$store.dispatch('COMPANY/GET_ITEM', this.companyId);
+                return answer;
+            },
+            companyId() {
+                return parseInt(this.$route.params.id)
             }
         }
     }

@@ -2,6 +2,10 @@ import model from './model'
 import _ from 'lodash'
 
 let state = _.cloneDeep(model.state);
+state.cache.push({
+    id: 0,
+    party_id: null,
+});
 
 state.name = 'company';
 

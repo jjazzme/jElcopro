@@ -1,5 +1,9 @@
-export default class DadataControllerClassic {
+import _ from 'lodash';
+import ApiControllerClassic from './ApiControllerClassic';
+
+export default class DadataControllerClassic extends ApiControllerClassic {
     constructor(services, type) {
+        super(services.db.models[_.upperFirst(type)]);
         this.services = services;
         this.type = type;
     }
