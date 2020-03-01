@@ -102,6 +102,7 @@
         },
         beforeRouteUpdate(to, from, next) {
             this.changeBreadcrumb(to.params);
+            this.uniqueKey++;
             next();
         }
     }

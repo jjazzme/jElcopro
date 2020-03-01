@@ -30,7 +30,7 @@
                 return this.$store.getters['TRANSITIONS/ITEMS'];
             },
             documentTransitions() {
-                return !_.isEmpty(this.document) && !_.isEmpty(this.transitions)
+                return !_.isEmpty(this.document) && !_.isEmpty(this.transitions) && this.$route.name === 'document'
                     ? _.find(this.transitions, (o) => o[this.Model])[this.Model]
                     : [];
             },
@@ -40,7 +40,9 @@
                     : [];
             },
             Model() {
-                return this.$route.params.type.split('-').map((v) => _.upperFirst(v)).reduce((r, v) => r += v, '');
+                return this.$route.name === 'document'
+                    ? this.$route.params.type.split('-').map((v) => _.upperFirst(v)).reduce((r, v) => r += v, '')
+                    : null;
             },
         },
         methods: {

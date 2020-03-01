@@ -2,6 +2,15 @@ import _ from 'lodash';
 import moment from 'moment';
 
 export default {
+    data() {
+        return {
+            rules: {
+                isInteger: n => _.isInteger(_.toNumber(n)) || 'Введите целое число',
+                isNumber: n => _.isNumber(_.toNumber(n)) || 'Введите число',
+                required: v => !!v || 'Обязателный'
+            }
+        }
+    },
     computed: {
         toCardsPossible() {
             return this.documentType

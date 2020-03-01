@@ -50,6 +50,18 @@
                 </td>
             </tr>
         </template>
+        <template v-slot:item.online="{ item }">
+            <v-row v-if="!item.online">
+                <v-icon>mdi-file-download-outline</v-icon>
+                {{ dateFormat(item.updatedAt) }}
+            </v-row>
+            <v-row v-else-if="item.online === 1">
+                <v-icon>mdi-store-outline</v-icon>
+            </v-row>
+            <v-row v-else>
+                <v-icon>mdi-earth</v-icon>
+            </v-row>
+        </template>
         <template v-slot:item.name="{ item }">
             <router-link :to="{ name: 'product', params: { id: item.product_id } }">
                 {{ item.name }}
@@ -86,6 +98,7 @@
     import tableMixin from '@/mixins/tableMixin';
     import StoreSelect from '@/components/StoreSelect';
     import { mapGetters } from 'vuex';
+    import utilsMixin from '@/mixins/utilsMixin';
 
     export default {
         name: "Offer",
@@ -136,7 +149,7 @@
                 );
             }
         },
-        mixins: [tableMixin],
+        mixins: [tableMixin, utilsMixin],
         watch: {
             quantity(q) {
                 this.$store.commit('OFFER/SET_QUANTITY', q);

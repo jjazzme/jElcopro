@@ -15,11 +15,11 @@ const getters = {
     NAME: state => state.name,
     KEYTYPE: state => state.keyType,
     URL: state => `/api2/${state.name}`,
-    ITEMS: state => state.items,
+    ITEMS: state => _.cloneDeep(state.items),
     HEADERS: state => state.headers,
     CACHE: state => (id) => {
-        if (_.isNumber(id) || state.keyType === String) return _.find(state.cache, { id });
-        return state.cache
+        if (_.isNumber(id) || state.keyType === String) return _.cloneDeep(_.find(state.cache, { id }));
+        return _.cloneDeep(state.cache);
     }
 };
 
@@ -29,13 +29,13 @@ const mutations = {
     },
 
     SET_ITEMS(state, newData) {
-        state.items = newData;
+        state.items = _.cloneDeep(newData);
         // _.unionBy(_.isArray(value) ? value : [ value ], state.items, 'id')
     },
 
     UPDATE_ITEM(state, newDataRow) {
         let row = _.find(state.items, { id: newDataRow.id });
-        if (row) row = newDataRow;
+        if (row) row = _.cloneDeep(newDataRow);
     },
 
     CLEAR_CACHE(state) {
@@ -43,7 +43,8 @@ const mutations = {
     },
 
     SET_CACHE(state, value) {
-        state.cache = _.unionBy(_.isArray(value) ? value : [ value ], state.cache, 'id')
+        const update = _.cloneDeep(value);
+        state.cache = _.unionBy(_.isArray(value) ? update : [ update ], state.cache, 'id')
     },
 };
 
@@ -53,7 +54,7 @@ let actions = {
             axios
                 .get(getters.URL, { params: payload })
                 .then((response) => {
-                    // eslint-disable-next-line no-debugger
+                    commit('SET_ITEMS', response.data.rows);
                     commit('SET_CACHE', response.data.rows);
                     resolve(response);
                 })

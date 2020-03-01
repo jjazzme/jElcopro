@@ -31,14 +31,13 @@
             {{ childrenQuantity(item) }}
         </template>
         <template v-slot:item.quantity="props">
-            <v-edit-dialog>
+            <v-edit-dialog @save="save(props.item, 'quantity')">
                 {{ props.item.quantity }}
                 <template v-slot:input>
                     <v-text-field
-                        v-model="props.item.quantity"
-                        :rules="[isNumber]"
+                            v-model="props.item.quantity"
+                        :rules="quantityRules"
                         single-line
-                        @change="save(props.item)"
                     />
                 </template>
             </v-edit-dialog>
@@ -50,14 +49,14 @@
     import _ from 'lodash'
     import tableMixin from '@/mixins/tableMixin';
     import RowActions from '@/components/RowActions';
-
+    import utilsMixin from '@/mixins/utilsMixin';
     export default {
         components: {RowActions},
         props: ['documentId', 'document'],
         name: "DocumentLines",
+        mixins: [utilsMixin, tableMixin],
         data() {
             return {
-                isNumber: n => isNaN(n) || 'Введите целое число',
                 options: {
                     documentType: 'documentline',
                     filters: { document_id: this.documentId },
@@ -71,6 +70,9 @@
             }
         },
         computed: {
+            quantityRules() {
+                return [this.rules.required, this.rules.isInteger];
+            },
             inTransfers() {
                 if (!this.document) return false;
                 return ['invoice', 'order'].indexOf(this.document.document_type_id) >= 0;
@@ -91,19 +93,36 @@
                 return headers;
             }
         },
-        mixins: [tableMixin],
         watch: {
             documentId(val) {
                 this.$set(this.options.filters, 'document_id', val);
             }
         },
         methods: {
-            save(item) {
-                this.$store.dispatch(this.documentType + '/UPDATE_ITEM', { item })
-                    .then(response => {
-                        const index = _.findIndex(this.items, { id: item.id });
-                        this.items.splice(index, 1, response.data);
-                    })
+            save(item, attr) {
+                const validate = this[attr + 'Rules'].reduce((res, f) => res && f(item[attr]) === true, true);
+                if (validate) {
+                    this.$store.dispatch(this.documentType + '/UPDATE_ITEM', {item})
+                        .then((response) => {
+                            const index = _.findIndex(this.items, { id: item.id });
+                            this.items.splice(index, 1, response.data);
+                        })
+                        .catch(() => this.restore(item));
+                } else {
+                    const error = this[attr + 'Rules'].reduce((res, f) =>
+                        res === true ? f(item[attr]) : res, true
+                    );
+                    this.restore(item);
+                    this.$store.commit(
+                        'SNACKBAR/SET',
+                        { text: error, color: 'error', snackbar: 'true'},
+                    );
+                }
+            },
+            restore(item) {
+                const restore = this.$store.getters[this.documentType + '/CACHE'](item.id);
+                const index = _.findIndex(this.items, { id: item.id });
+                this.items.splice(index, 1, restore);
             },
             requestParams() {
                 const requestParams = _.cloneDeep(this.options);

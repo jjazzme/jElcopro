@@ -7,8 +7,19 @@
             <v-col>
                 <address-select v-model="addressId"></address-select>
             </v-col>
+        </v-row>
+        <v-row>
             <v-col>
-                <v-btn @click="a=1">TEST</v-btn>
+                <v-text-field v-model="company.alias" label="Сокращенно"/>
+            </v-col>
+            <v-col>
+                <v-switch v-model="company.own" label="Своя фирма"></v-switch>
+            </v-col>
+            <v-col>
+                <v-btn color="success" @click="save" >
+                    <v-icon>mdi-content-save</v-icon>
+                    Сохранить
+                </v-btn>
             </v-col>
         </v-row>
     </v-form>
@@ -81,6 +92,24 @@
                 deep: true,
             },
         },
+        methods: {
+            save() {
+                this.$store.dispatch('COMPANY/UPDATE_ITEM', { item: this.company })
+                    .then((response) => {
+                        if (this.$route.query.back) {
+                            this.$router.go(-1);
+                        } else if (response.data.id !== this.company.id) {
+                            this.$router.replace({ params: { id: response.data.id } });
+                        }
+                    });
+            }
+        },
+        beforeRouteUpdate(to, from, next) {
+            this.company = _.cloneDeep(this.value);
+            this.party_id = this.company.party_id;
+            this.addressId = this.company.fact_address_id;
+            next();
+        }
     }
 </script>
 

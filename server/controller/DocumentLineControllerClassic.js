@@ -5,6 +5,10 @@ export default class DocumentLineController extends ApiController {
         super(db.models.DocumentLine);
     }
 
+    scopes = [
+        'withGood',
+    ];
+
     async create(req) {
         const { documentId, priceLine, ourPrice } = req.body;
         if (priceLine && documentId) {
