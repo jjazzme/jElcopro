@@ -4,4 +4,5 @@ import app from './index';
 const { logger } = app.services;
 app.migrate().then(() => {
     logger.info({}, 'Migrate successful');
+    process.exit(0);
 });

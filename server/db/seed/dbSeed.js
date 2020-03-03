@@ -9,4 +9,4 @@ const seed = async () => {
         await Promise.all(promises);
     });
 };
-seed();
+seed().then(() => process.exit(0));

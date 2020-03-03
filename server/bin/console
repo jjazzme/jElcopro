@@ -8,10 +8,10 @@ const minimist = require('minimist');
 const args = minimist(process.argv.slice(2));
 
 // every command must have run method
-args._.forEach((command) => {
+const commands = args._.map(async (command) => {
     try {
         // eslint-disable-next-line global-require,import/no-dynamic-require
-        require(`../commands/${command}`).run(args);
+        return require(`../commands/${command}`).run(args);
     } catch (e) {
         if (e.code === 'MODULE_NOT_FOUND') {
             // eslint-disable-next-line no-console
@@ -19,5 +19,7 @@ args._.forEach((command) => {
         } else {
             throw e;
         }
+        return e;
     }
 });
+Promise.all(commands).then(() => process.exit(0));
