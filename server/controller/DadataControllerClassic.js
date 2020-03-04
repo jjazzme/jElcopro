@@ -11,7 +11,7 @@ export default class DadataControllerClassic extends ApiControllerClassic {
     async index(req) {
         const filters = JSON.parse(req.query.filters);
         const search = filters.name || filters.address;
-        if (search.length < 3) return [];
+        if (search.length < 3) return { rows: [] };
         const key = `${this.type}_${search}`;
         if (await this.services.cache.has(key)) return this.services.cache.get(key);
         const data = await this.services.dadata.query(this.type, search);

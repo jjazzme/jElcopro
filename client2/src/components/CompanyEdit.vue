@@ -62,12 +62,13 @@
             },
             company:{
                 handler: function() {
-                    if (this.company.party_id !== this.party_id && this.company.party_id) {
-                        this.party_id = this.company.party_id;
-                        this.$store.dispatch(
-                            'COMPANY/GET_ITEMS',
-                            { filters: { party_id: this.company.party_id }, filterActions: { party_id: false } }
-                        ).then((response) => {
+
+                     if (this.company.party_id !== this.party_id && this.company.party_id) {
+                         this.party_id = this.company.party_id;
+                         this.$store.dispatch(
+                             'COMPANY/GET_ITEMS',
+                             { filters: { party_id: this.party_id }, filterActions: { party_id: false } }
+                         ).then((response) => {
                             if (response.data.rows.length > 0) {
                                 this.changeRouteId(response.data.rows[0].id);
                             } else if (this.company.id > 0) {
@@ -84,10 +85,10 @@
                                         if (response.data.rows.length > 0 && this.addressId !== response.data.rows[0].id) {
                                             this.addressId = response.data.rows[0].id;
                                         }
-                                    })
+                                    });
                             }
-                        });
-                    }
+                         });
+                     }
                 },
                 deep: true,
             },

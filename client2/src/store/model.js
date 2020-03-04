@@ -15,11 +15,11 @@ const getters = {
     NAME: state => state.name,
     KEYTYPE: state => state.keyType,
     URL: state => `/api2/${state.name}`,
-    ITEMS: state => _.cloneDeep(state.items),
+    ITEMS: state => state.items,
     HEADERS: state => state.headers,
     CACHE: state => (id) => {
-        if (_.isNumber(id) || state.keyType === String) return _.cloneDeep(_.find(state.cache, { id }));
-        return _.cloneDeep(state.cache);
+        if (_.isNumber(id) || state.keyType === String) return _.find(state.cache, { id });
+        return state.cache;
     }
 };
 
