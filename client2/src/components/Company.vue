@@ -6,7 +6,7 @@
     import CompanyEdit from '@/components/CompanyEdit';
     export default {
         name: "Company",
-        components: {CompanyEdit },
+        components: { CompanyEdit },
         data() {
             return {
 

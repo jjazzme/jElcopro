@@ -21,7 +21,7 @@ export default class ApiContollerClassic {
         const order = !sortBy ? [] : sortBy.map((sort, i) => (
             sort.indexOf('.') < 0
                 ? [sort, sortDesc[i] === 'false' ? 'ASC' : 'DESC']
-                : [literal(`${sort} ${sortDesc[i] === 'false' ? 'ASC' : 'DESC'}`)]
+                : [literal(`\`${sort}\` ${sortDesc[i] === 'false' ? 'ASC' : 'DESC'}`)]
         ));
         const where = {};
         if (filters) {

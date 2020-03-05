@@ -265,10 +265,12 @@ export default {
                         {
                             model: GoodModel,
                             as: 'good',
+                            required: true,
                             include: [
                                 {
                                     model: ProductModel,
                                     as: 'product',
+                                    required: true,
                                     include: [{ model: ProducerModel, as: 'producer' }],
                                 },
                             ],

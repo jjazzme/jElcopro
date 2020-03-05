@@ -15,11 +15,11 @@ const getters = {
     NAME: state => state.name,
     KEYTYPE: state => state.keyType,
     URL: state => `/api2/${state.name}`,
-    ITEMS: state => state.items,
+    ITEMS: state => _.cloneDeep(state.items),
     HEADERS: state => state.headers,
     CACHE: state => (id) => {
-        if (_.isNumber(id) || state.keyType === String) return _.find(state.cache, { id });
-        return state.cache;
+        if (_.isNumber(id) || state.keyType === String) return _.cloneDeep(_.find(state.cache, { id }));
+        return _.cloneDeep(state.cache);
     }
 };
 
@@ -54,8 +54,10 @@ let actions = {
             axios
                 .get(getters.URL, { params: payload })
                 .then((response) => {
-                    commit('SET_ITEMS', response.data.rows);
-                    commit('SET_CACHE', response.data.rows);
+                    if (response.data.rows && response.data.rows.length > 0) {
+                        commit('SET_ITEMS', response.data.rows);
+                        commit('SET_CACHE', response.data.rows);
+                    }
                     resolve(response);
                 })
                 .catch((error) => {
