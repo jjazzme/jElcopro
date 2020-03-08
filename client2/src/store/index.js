@@ -21,6 +21,7 @@ import offer from '@/store/offer';
 import transferOut from '@/store/transferOut';
 import party from '@/store/party';
 import address from '@/store/address';
+import arrival from '@/store/arrival';
 
 Vue.use(Vuex);
 
@@ -32,6 +33,7 @@ export default new Vuex.Store({
   actions: {
   },
   modules: {
+      ARRIVAL: arrival,
       INVOICE: invoice,
       ORDER: order,
       PRODUCER: producer,

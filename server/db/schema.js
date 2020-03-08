@@ -73,7 +73,17 @@ export default {
         class: ArrivalModel,
         options: {
             tableName: 'arrivals',
-            scopes: { withDocumentLine: { include: [{ model: DocumentLine, as: 'documentLine' }] } },
+            scopes: {
+                withDocumentLine: { include: [{ model: DocumentLine, as: 'documentLine' }] },
+                deepDocumentLine: {
+                    include: [{
+                        model: DocumentLine,
+                        as: 'documentLine',
+                        required: true,
+                        include: [{ model: Document, as: 'document', required: true }],
+                    }],
+                },
+            },
         },
         attributes: { document_line_id: DataTypes.INTEGER, ballance: DataTypes.INTEGER },
         relations: {

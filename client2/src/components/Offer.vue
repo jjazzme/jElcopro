@@ -6,6 +6,7 @@
             :options.sync="options"
             :loading="loading"
             loading-text="Loading... Please wait"
+            :expanded="expanded"
     >
         <template v-slot:top class="d-flex flex-row">
             <v-container>
@@ -51,7 +52,15 @@
             </tr>
         </template>
         <template v-slot:item.online="{ item }">
-            <v-row v-if="!item.online">
+            <v-row v-if="!item.average_days">
+                <v-btn icon @click="expand(item)" v-if="!isExpanded(item)">
+                    <v-icon>mdi-chevron-down</v-icon>
+                </v-btn>
+                <v-btn icon @click="collapse()" v-else>
+                    <v-icon>mdi-chevron-up</v-icon>
+                </v-btn>
+            </v-row>
+            <v-row v-else-if="!item.online">
                 <v-icon>mdi-file-download-outline</v-icon>
                 {{ dateFormat(item.updatedAt) }}
             </v-row>
@@ -90,6 +99,11 @@
             </v-row>
         </template>
         <template v-slot:item.for_all_price_usd="{ item }">{{ item.for_all_price_usd.toFixed(2) }}</template>
+        <template v-slot:expanded-item="{ headers, item }">
+            <td :colspan="headers.length">
+                <arrivals :good-id="item.good_id" class="my-2"></arrivals>
+            </td>
+        </template>
     </v-data-table>
 </template>
 
@@ -99,10 +113,11 @@
     import StoreSelect from '@/components/StoreSelect';
     import { mapGetters } from 'vuex';
     import utilsMixin from '@/mixins/utilsMixin';
+    import Arrivals from '@/components/Arrivals';
 
     export default {
         name: "Offer",
-        components: { StoreSelect },
+        components: {Arrivals, StoreSelect },
         data() {
             return {
                 options: {
@@ -128,7 +143,8 @@
                     producers: [],
                     more_or_equal: false
                 },
-                renderForce: true
+                renderForce: true,
+                expanded:[],
             }
         },
         computed: {
@@ -147,7 +163,7 @@
                     this.items.map((item) => ({ value: item.producer_id, text: item.producer_name })),
                     'value',
                 );
-            }
+            },
         },
         mixins: [tableMixin, utilsMixin],
         watch: {
@@ -189,6 +205,16 @@
                         'DOCUMENTLINE/UPDATE_ITEM',
                         { item: { id: 0, priceLine: item, documentId, ourPrice } }
                     );
+            },
+            expand(value) {
+                if (!_.isEmpty(this.expanded)) this.collapse();
+                this.expanded.push(value);
+            },
+            collapse() {
+                this.expanded.pop();
+            },
+            isExpanded(item) {
+                return !_.isEmpty(this.expanded) && this.expanded[0].id === item.id;
             }
         },
         beforeRouteEnter(to, from, next){

@@ -20,6 +20,45 @@
                 </template>
             </row-actions>
         </template>
+        <template v-slot:item.min="props">
+            <v-edit-dialog @save="save(props.item, 'min')">
+                {{ props.item.min }}
+                <template v-slot:input>
+                    <v-text-field
+                            v-model="props.item.min"
+                            :rules="minRules"
+                            single-line
+                            :disabled="!company.own"
+                    />
+                </template>
+            </v-edit-dialog>
+        </template>
+        <template v-slot:item.max="props">
+            <v-edit-dialog @save="save(props.item, 'max')">
+                {{ props.item.max }}
+                <template v-slot:input>
+                    <v-text-field
+                            v-model="props.item.max"
+                            :rules="maxRules"
+                            single-line
+                            :disabled="!company.own"
+                    />
+                </template>
+            </v-edit-dialog>
+        </template>
+        <template v-slot:item.for_all_price="props">
+            <v-edit-dialog @save="save(props.item, 'for_all_price')">
+                {{ props.item.for_all_price }}
+                <template v-slot:input>
+                    <v-text-field
+                            v-model="props.item.for_all_price"
+                            :rules="for_all_priceRules"
+                            single-line
+                            :disabled="!company.own"
+                    />
+                </template>
+            </v-edit-dialog>
+        </template>
         <template v-slot:item.updatedAt="{ item }">{{ date(item.updatedAt )}}</template>
     </v-data-table>
 </template>
@@ -27,6 +66,7 @@
 <script>
     import tableMixin from '@/mixins/tableMixin';
     import RowActions from './RowActions';
+    import utilsMixin from '@/mixins/utilsMixin';
     export default {
         name: "Prices",
         components: { RowActions },
@@ -47,6 +87,15 @@
             }
         },
         computed: {
+            minRules() {
+                return [this.rules.required, this.rules.isInteger];
+            },
+            maxRules() {
+                return [this.rules.required, this.rules.isInteger];
+            },
+            for_all_priceRules() {
+                return [this.rules.required, this.rules.isNumber];
+            },
             good() {
                 return this.$store.getters['GOOD/CACHE'](this.goodId)
             },
@@ -57,7 +106,7 @@
                 return this.store.company || this.$store.getters['COMPANY/CACHE'](this.store.company_id);
             }
         },
-        mixins: [tableMixin],
+        mixins: [tableMixin, utilsMixin],
         watch: {
             goodId(val) {
                 this.$set(this.options.filters, 'good_id', val);

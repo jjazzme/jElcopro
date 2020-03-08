@@ -27,12 +27,9 @@ export default class ApiContollerClassic {
         if (filters) {
             _.each(JSON.parse(filters), (value, key) => {
                 if (value !== '' && (!_.isArray(value) || (_.isArray(value) && !_.isEmpty(value)))) {
-                    if (actions[key]) {
-                        const k = key.indexOf('.') < 0 ? key : `$${key}$`;
-                        where[k] = { [Op[actions[key]]]: value };
-                    } else {
-                        where[key] = value;
-                    }
+                    where[key.indexOf('.') < 0 ? key : `$${key}$`] = actions[key]
+                        ? { [Op[actions[key]]]: value }
+                        : value;
                 }
             });
         }
