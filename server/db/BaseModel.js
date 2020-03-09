@@ -101,7 +101,7 @@ export default class BaseModel extends Sequelize.Model {
             // additional.updatedAt = new Date();
             await answer.save();
         } else {
-            answer = this.create(Object.assign(additional, instance));
+            answer = await this.create(Object.assign(additional, instance));
         }
         if (!_.isEmpty(scopes)) answer = await this.getInstance(answer, scopes);
         return answer;

@@ -4,7 +4,7 @@ const state = {
     data: {
         id: 1,
         email: 'elcopro@gmail.com',
-        cards: { "orders": [], "invoice": 2047 }
+        cards: { "orders": [], "invoice": null, offerStores:[] }
     },
 };
 

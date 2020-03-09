@@ -1,4 +1,3 @@
-import _ from 'lodash'
 import axios from 'axios'
 
 const state = {
@@ -8,7 +7,13 @@ const state = {
 
 const getters = {
     ITEMS: state => state.items,
-    URL: state => state.url
+    URL: state => state.url,
+    MODEL: () => ({
+        Invoice: 'INVOICE',
+        Order: 'ORDER',
+        TransferOut: 'TRANSFER-OUT',
+        TransferIn: 'TRANSFER-IN',
+    })
 };
 
 const mutations = {
@@ -43,7 +48,7 @@ const actions = {
         return new Promise((resolve, reject) => {
             axios.put(getters.URL + payload.id, payload)
                 .then(() => {
-                    dispatch(_.toUpper(payload.Model) + '/GET_ITEM', payload.id, { root: true })
+                    dispatch(getters.MODEL[payload.Model] + '/GET_ITEM', payload.id, { root: true })
                         .then(response => resolve(response))
                         .catch(error => reject(error))
                 })
