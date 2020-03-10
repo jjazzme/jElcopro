@@ -306,7 +306,7 @@ export default {
             amount_without_vat: DataTypes.DECIMAL(18, 6),
             amount_with_vat: DataTypes.DECIMAL(18, 6),
             // store_id: DataTypes.INTEGER,
-            times: { type: DataTypes.INTEGER, validate: { min: 1 } },
+            times: { type: DataTypes.INTEGER, validate: { min: 0 } },
             state_customs_declaration_id: DataTypes.INTEGER,
             remark: DataTypes.STRING,
             closed: { type: DataTypes.BOOLEAN, defaultValue: false },
