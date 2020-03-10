@@ -148,7 +148,7 @@ export default class Document extends BaseModel {
             );
             Object.assign(newOptics, optics);
             const newInstance = _.pick(newOptics, _.keys(this.tableAttributes));
-            child = await this.create(newInstance);
+            child = await this.create(newInstance, { user: optics.user });
             await DocumentLine[documentLinesMethod](child, optics);
         });
         return this.getInstance(child, 'withDocumentLines');

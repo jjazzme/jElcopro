@@ -77,6 +77,11 @@
                     Добавить в карты
                 </v-btn>
             </v-col>
+            <v-col v-if="possibleChild">
+                <v-btn @click="makeChild">
+                    Создать дочерний
+                </v-btn>
+            </v-col>
             <v-col>
                 <v-btn color="success" @click="save" :disabled="documentNotEditable">
                     <v-icon>mdi-content-save</v-icon>
@@ -105,6 +110,10 @@
             return {
                 document: {},
                 datePicker: false,
+                child: {
+                    INVOICE: 'TRANSFER-OUT',
+                    ORDER: 'TRANSFER-IN'
+                }
             }
         },
         created() {
@@ -156,6 +165,9 @@
                 }
                 return _.findIndex(this.$store.getters['USER/ORDERS'], { id: this.document.id })>=0;
             },
+            possibleChild() {
+                return this.child[this.documentType] && this.document.status_id === 'in_work';
+            },
         },
         watch: {
             value(v) {
@@ -184,6 +196,18 @@
                         if (response.data.id !== this.document.id) {
                             this.$router.replace({ params: { id: response.data.id } });
                         }
+                    });
+            },
+            makeChild() {
+                this.$store.dispatch(
+                    this.child[this.documentType] + '/UPDATE_ITEM' ,
+                    { item: { id: 0, parent_id: this.document.id } }
+                )
+                    .then((response) => {
+                        this.$router.push({
+                            name: 'document',
+                            params: { id: response.data.id, type: _.toLower(this.child[this.documentType])}
+                        });
                     });
             }
         }
