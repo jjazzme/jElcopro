@@ -200,7 +200,7 @@ export default class Document extends BaseModel {
             ? this.sellerable_id : this.buyerable_id;
         const company = await Company.getInstance(companyId, 'withStores');
         const fromStore = _.find(company.stores, { is_main: true });
-        this.foreign_store_id = fromStore.id;
+        this.foreign_store_id = fromStore?.id;
     }
 
     static async nextNumber(prefix) {

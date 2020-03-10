@@ -14,8 +14,12 @@
         },
         computed: {
             company() {
-                const answer = this.$store.getters['COMPANY/CACHE'](this.companyId);
-                if (!answer) this.$store.dispatch('COMPANY/GET_ITEM', this.companyId);
+                // eslint-disable-next-line no-debugger
+                debugger
+                const answer = this.$store.getters['COMPANY/CACHE'](this.$route.name === 'company'? this.companyId : 0);
+                if (!answer) {
+                    this.$store.dispatch('COMPANY/GET_ITEM', this.companyId);
+                }
                 return answer;
             },
             companyId() {
