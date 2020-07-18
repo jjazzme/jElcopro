@@ -20,7 +20,7 @@
     "core-js": "^2.6.10",
     "dotenv": "^8.2.0",
     "google-fonts-webpack-plugin": "^0.4.4",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "sass": "^1.23.0",
     "sass-loader": "^8.0.0",
     "sweetalert2": "^8.18.3",
